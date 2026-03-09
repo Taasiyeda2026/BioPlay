@@ -1409,7 +1409,8 @@
             guideFeedback.className = "feedback error";
           }
         } catch (error) {
-          guideFeedback.textContent = "קוד שגוי";
+          const isNetwork = error instanceof TypeError || String(error).includes("fetch");
+          guideFeedback.textContent = isNetwork ? "שגיאת חיבור לשרת. בדקו אינטרנט ונסו שוב." : "קוד שגוי";
           guideFeedback.className = "feedback error";
         }
       };
@@ -1652,7 +1653,7 @@
       const screenId = `door-${doorId}-code-${codeStage}`;
       const el = document.getElementById(screenId);
       const finalStage = codeStage === 3;
-      const expectedCode = door.codes[codeStage - 1];
+      const expectedCode = (DOOR_STAGE_CODES[doorId] || [])[codeStage - 1];
 
       el.innerHTML = `
         ${topStrip(`${door.title}`, `בדיקת קוד ${codeStage} מתוך 3`)}
@@ -1690,7 +1691,7 @@
       const feedback = document.getElementById(`code-feedback-${doorId}-${codeStage}`);
       const nextBtn = document.getElementById(`code-next-${doorId}-${codeStage}`);
 
-      document.getElementById(`code-submit-${doorId}-${codeStage}`).onclick = () => {
+      const submitCode = () => {
         const entered = input.value.trim().toUpperCase();
         panel.classList.remove("success", "error");
 
@@ -1715,6 +1716,11 @@
           feedback.className = "feedback error";
         }
       };
+
+      input.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") submitCode();
+      });
+      document.getElementById(`code-submit-${doorId}-${codeStage}`).onclick = submitCode;
 
       document.getElementById(`code-back-${doorId}-${codeStage}`).onclick = () => setActiveScreen("screen-doors");
     }

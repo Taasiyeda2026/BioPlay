@@ -120,6 +120,7 @@
     }
 
     .svg-wrap.small { width: 86px; border-radius: 14px; margin: 0; padding: 10px; }
+
     .svg-wrap img {
       width: 100%;
       height: 100%;
@@ -127,7 +128,6 @@
       position: relative;
       z-index: 3;
       background: transparent;
-      mix-blend-mode: multiply;
       filter: drop-shadow(0 12px 20px rgba(0,0,0,.34)) saturate(1.08);
     }
 
@@ -180,7 +180,12 @@
       animation: splashPulse 2.1s ease-in-out infinite;
     }
 
-    .door-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; margin-top: 18px; }
+    .door-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
 
     .door-card {
       position: relative;
@@ -220,6 +225,7 @@
     .door-card.pressed { animation: doorTap .3s ease; }
 
     .door-card.active-door { animation: floatInvite 2.6s ease-in-out infinite; }
+
     .door-card.locked {
       cursor: not-allowed;
       background: linear-gradient(155deg, #3a4157, #2a2f43);
@@ -253,12 +259,17 @@
       box-shadow: 0 8px 18px rgba(34,182,255,.35);
     }
 
-    .btn-secondary { background: #2b365f; color: var(--text); border: 1px solid rgba(255,255,255,.2); }
+    .btn-secondary {
+      background: #2b365f;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,.2);
+    }
 
     .question-card h2 { margin-bottom: .35em; }
     .question-text { font-size: 1.08rem; margin-bottom: 8px; }
 
     .answers { display: grid; gap: 10px; margin: 18px 0; }
+
     .answer {
       background: linear-gradient(145deg, #25356d, var(--panel-soft));
       border: 1px solid rgba(255,255,255,.2);
@@ -304,11 +315,23 @@
       transition: border-color .2s ease, box-shadow .2s ease;
     }
 
-    .code-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(82,214,255,.2); outline: none; }
+    .code-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(82,214,255,.2);
+      outline: none;
+    }
+
     .code-panel.error-state { animation: subtleShake .35s ease; border-color: rgba(255,126,150,.55); }
     .code-panel.success-state { animation: unlockPulse .6s ease; border-color: rgba(125,243,173,.6); }
 
-    .summary-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+    .summary-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
     .summary-list li {
       background: rgba(255,255,255,.06);
       border: 1px solid rgba(255,255,255,.11);
@@ -356,12 +379,8 @@
       0% { transform: scale(.64); opacity: .75; }
       100% { transform: scale(1.2); opacity: 0; }
     }
-    @keyframes shimmer {
-      50% { opacity: .55; transform: translateY(2px); }
-    }
-    @keyframes splashPulse {
-      50% { transform: translateY(-3px) scale(1.06, .95); opacity: .7; }
-    }
+    @keyframes shimmer { 50% { opacity: .55; transform: translateY(2px); } }
+    @keyframes splashPulse { 50% { transform: translateY(-3px) scale(1.06, .95); opacity: .7; } }
 
     @media (max-width: 760px) {
       body { padding: 10px; }
@@ -387,9 +406,11 @@
 
   <script>
     const imagePaths = {
-      home: "images/gecko.svg",
-      final: "images/kingfisher.svg",
-      doors: {
+      home: "images/game-intro.svg",
+      final: "images/success-badge.svg",
+      doorActive: "images/door-active.svg",
+      doorLocked: "images/door-locked.svg",
+      creatures: {
         1: "images/gecko.svg",
         2: "images/lotus.svg",
         3: "images/bat.svg",
@@ -402,7 +423,7 @@
         {
           id: 1,
           name: "שממית",
-          image: imagePaths.doors[1],
+          image: imagePaths.creatures[1],
           intro: "מאחורי הדלת מסתתר אורגניזם עם כוח־על מיוחד. כדי לעבור תצטרכו לגלות מי הוא, מה הוא יודע לעשות, ואיזה מוצר אפשר לפתח בהשראתו.",
           codes: ["G1", "CLIMB", "TOP1"],
           steps: [
@@ -415,7 +436,7 @@
         {
           id: 2,
           name: "לוטוס",
-          image: imagePaths.doors[2],
+          image: imagePaths.creatures[2],
           intro: "מאחורי הדלת מסתתר אורגניזם עם כוח־על מיוחד. כדי לעבור תצטרכו לגלות מי הוא, מה הוא יודע לעשות, ואיזה מוצר אפשר לפתח בהשראתו.",
           codes: ["LOT2", "DROP", "WASH1"],
           steps: [
@@ -428,7 +449,7 @@
         {
           id: 3,
           name: "עטלף",
-          image: imagePaths.doors[3],
+          image: imagePaths.creatures[3],
           intro: "מאחורי הדלת מסתתר אורגניזם עם כוח־על מיוחד. כדי לעבור תצטרכו לגלות מי הוא, מה הוא יודע לעשות, ואיזה מוצר אפשר לפתח בהשראתו.",
           codes: ["BAT3", "ECHO", "NAVI4"],
           steps: [
@@ -441,7 +462,7 @@
         {
           id: 4,
           name: "שלדג",
-          image: imagePaths.doors[4],
+          image: imagePaths.creatures[4],
           intro: "מאחורי הדלת מסתתר אורגניזם עם כוח־על מיוחד. כדי לעבור תצטרכו לגלות מי הוא, מה הוא יודע לעשות, ואיזה מוצר אפשר לפתח בהשראתו.",
           codes: ["KING4", "SPEED", "TRAIN7"],
           steps: [
@@ -467,6 +488,10 @@
       return `<div class="svg-wrap ${small ? "small" : ""} ${effectClass}"><img src="${path}" alt="איור SVG של ${name}" loading="lazy" /></div>`;
     }
 
+    function genericArt(path, altText, small = false) {
+      return `<div class="svg-wrap ${small ? "small" : ""}"><img src="${path}" alt="${altText}" loading="lazy" /></div>`;
+    }
+
     function showScreen(id) {
       document.querySelectorAll(".screen").forEach((screen) => {
         screen.classList.toggle("active", screen.id === id);
@@ -482,7 +507,7 @@
       home.innerHTML = `
         ${topStrip("מעבדת הסודות", "ברוכים הבאים")}
         <div class="card hero-card">
-          ${creatureArt(imagePaths.home, "שממית")}
+          ${genericArt(imagePaths.home, "פתיחת המשחק")}
           <h1>דלתות הטבע</h1>
           <p class="subtitle">חדר הבריחה הביומימטי</p>
           <p>במעבדת הסודות של הטבע מחכות לכם דלתות נעולות.<br>מאחורי כל דלת מסתתר אורגניזם עם כוח־על מיוחד.<br>כדי לעבור בין השלבים תצטרכו לגלות: מי האורגניזם, מה הוא יודע לעשות, ואיזה מוצר אפשר לפתח בהשראתו.</p>
@@ -500,15 +525,15 @@
         const door = gameData.doors.find((d) => d.id === num);
         if (door) {
           return `<button class="door-card active-door" data-door-id="${door.id}">
-              ${creatureArt(door.image, door.name, true)}
-              <span class="door-label">דלת ${door.id}: ${door.name}</span>
-              <span class="door-status">פעילה כעת — לחצו להתחלה</span>
+              ${genericArt(imagePaths.doorActive, "דלת פעילה", true)}
+              <span class="door-label">דלת ${door.id}</span>
+              <span class="door-status">מסלול מסתורי — לחצו להתחלה</span>
             </button>`;
         }
         return `<div class="door-card locked" aria-disabled="true">
-            <span class="door-lock">🔒</span>
+            ${genericArt(imagePaths.doorLocked, "דלת נעולה", true)}
             <span class="door-label">דלת ${num}</span>
-            <span class="door-status">נעולה כרגע</span>
+            <span class="door-status">ייפתחו בהמשך</span>
           </div>`;
       }).join("");
 
@@ -517,7 +542,7 @@
         ${topStrip("בחירת דלת", "כל זוג בוחר דלת אחת")}
         <div class="card">
           <h2>בחרו דלת</h2>
-          <p class="subtitle">מסך בחירת שלב — דלתות פעילות מסומנות עם SVG</p>
+          <p class="subtitle">מאחורי כל דלת מחכה מסלול מסתורי</p>
           <div class="door-grid">${doorCards}</div>
           <button class="btn btn-secondary" id="finish-btn">למסך סיום כללי</button>
         </div>`;
@@ -564,10 +589,10 @@
       const door = gameData.doors.find((d) => d.id === doorId);
       const section = document.getElementById(`door-${doorId}-intro`);
       section.innerHTML = `
-        ${topStrip(`דלת ${door.id}: ${door.name}`, "שלב הכנה")}
+        ${topStrip(`דלת ${door.id}`, "שלב הכנה")}
         <div class="card">
-          ${creatureArt(door.image, door.name)}
-          <h2>דלת ${door.id}: ${door.name}</h2>
+          ${genericArt(imagePaths.doorActive, "דלת מסתורית")}
+          <h2>דלת ${door.id}</h2>
           <p>${door.intro}</p>
           <div class="actions">
             <button class="btn btn-primary" id="door-${doorId}-start-step">לתחילת שלב 1</button>
@@ -585,10 +610,14 @@
       const screenId = `door-${doorId}-step-${stepNumber}`;
       const section = document.getElementById(screenId);
 
+      const artMarkup = stepNumber === 1
+        ? genericArt(imagePaths.doorActive, "דלת מסתורית", true)
+        : creatureArt(door.image, door.name, true);
+
       section.innerHTML = `
-        ${topStrip(`דלת ${door.id}: ${door.name}`, `שלב ${stepNumber} מתוך 3`) }
+        ${topStrip(`דלת ${door.id}`, `שלב ${stepNumber} מתוך 3`) }
         <div class="card question-card">
-          ${creatureArt(door.image, door.name, true)}
+          ${artMarkup}
           <h2>${step.title}</h2>
           <p class="question-text">${step.question}</p>
           <div class="answers">
@@ -630,9 +659,9 @@
       const isLastCode = codeNumber === 3;
 
       section.innerHTML = `
-        ${topStrip(`דלת ${door.id}: ${door.name}`, `בדיקת קוד ${codeNumber} מתוך 3`) }
+        ${topStrip(`דלת ${door.id}`, `בדיקת קוד ${codeNumber} מתוך 3`) }
         <div class="card">
-          ${creatureArt(door.image, door.name, true)}
+          ${genericArt(imagePaths.doorActive, "לוח קוד", true)}
           <h2>הזינו קוד מעבר</h2>
           <div class="code-panel" id="code-panel-${doorId}-${codeNumber}">
             <p><span class="chip">הקוד מתקבל מהמדריך בצ'אט זום</span></p>
@@ -676,10 +705,10 @@
       state.completedDoors.add(doorId);
 
       section.innerHTML = `
-        ${topStrip(`דלת ${door.id}: ${door.name}`, "הושלמה בהצלחה")}
+        ${topStrip(`דלת ${door.id}`, "הושלמה בהצלחה")}
         <div class="card finish-card">
           ${creatureArt(door.image, door.name)}
-          <h2>כל הכבוד, פיצחתם את דלת ${door.name}</h2>
+          <h2>כל הכבוד, פיצחתם את הדלת</h2>
           <ul class="summary-list">${door.summary.map((line) => `<li>${line}</li>`).join("")}</ul>
           <div class="actions">
             <button class="btn btn-primary" id="back-to-doors-${doorId}">חזרה למסך הדלתות</button>
@@ -703,7 +732,7 @@
       finalScreen.innerHTML = `
         ${topStrip("סיכום", `דלתות שפוצחו: ${doneCount}`)}
         <div class="card finish-card">
-          ${creatureArt(imagePaths.final, "שלדג")}
+          ${genericArt(imagePaths.final, "סיום המשחק")}
           <h2>פיצחתם את קוד הטבע</h2>
           <p>היום גיליתם שלא מספיק לזהות חיה מיוחדת.<br>השלב החשוב הוא להבין מה היא עושה, ואיך אפשר לקחת ממנה השראה לפיתוח מוצר חדש.</p>
           <div class="actions">

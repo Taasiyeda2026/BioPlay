@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>דלתות הטבע: חדר בריחה ביומימיקרי ZOOM</title>
+  <title>דלתות הטבע: חדר בריחה ביומימיקרי</title>
 
   <style>
     :root {
@@ -403,7 +403,7 @@
 
     .door-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: 18px;
       margin-top: 20px;
     }
@@ -473,7 +473,7 @@
 
     .question-layout {
       display: grid;
-      grid-template-columns: minmax(280px, 36%) 1fr;
+      grid-template-columns: minmax(260px, 34%) 1fr;
       gap: 24px;
       align-items: stretch;
     }
@@ -645,66 +645,122 @@
       min-height: 18px;
     }
 
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* ── Confirmation screen ── */
+    .confirm-box {
+      text-align: center;
+      padding: clamp(40px, 6vw, 80px) clamp(20px, 4vw, 40px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+    .confirm-icon {
+      font-size: clamp(3rem, 8vw, 5rem);
+      animation: popIn .4s ease;
+      line-height: 1;
     }
 
-    @keyframes pulseGlow {
-      50% { transform: scale(1.04); }
+    /* ── Final lock ── */
+    .codes-reminder {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 20px 0;
+      padding: 18px;
+      background: rgba(255,255,255,.04);
+      border-radius: 16px;
+      border: 1px solid rgba(98,217,255,.18);
     }
 
-    @keyframes logoFloat {
-      50% { transform: translateY(-6px); }
+    .code-display-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: clamp(1rem, 2.2vw, 1.3rem);
+      color: var(--muted);
     }
 
-    @keyframes popIn {
-      from { opacity: 0; transform: scale(.96); }
-      to { opacity: 1; transform: scale(1); }
+    .code-text {
+      font-family: "Courier New", monospace;
+      font-size: 1.35em;
+      letter-spacing: 0.12em;
+      color: var(--text);
+      background: rgba(98,217,255,.08);
+      padding: 4px 12px;
+      border-radius: 8px;
     }
 
-    @keyframes shake {
-      25% { transform: translateX(5px); }
-      70% { transform: translateX(-5px); }
+    .code-middle {
+      color: var(--accent);
+      font-weight: 900;
+      text-shadow: 0 0 14px rgba(98,217,255,.7);
+      font-size: 1.25em;
+      background: rgba(98,217,255,.14);
+      border-radius: 4px;
+      padding: 0 2px;
     }
 
-    @keyframes floatParticle {
-      from {
-        transform: translateY(40px) scale(.8);
-        opacity: 0;
-      }
-      20% { opacity: .7; }
-      to {
-        transform: translateY(-140px) scale(1.1);
-        opacity: 0;
-      }
+    /* ── Summary creature image ── */
+    .summary-creature {
+      text-align: center;
+      margin-bottom: 20px;
     }
 
-    @keyframes burstMove {
-      to {
-        transform: translate(var(--tx), var(--ty)) scale(0);
-        opacity: 0;
-      }
+    .summary-creature img {
+      max-width: 200px;
+      max-height: 200px;
+      object-fit: contain;
     }
 
-    @keyframes screenFadeIn {
-      from { opacity: 0; transform: translateY(16px) scale(.985); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+    /* ── Guide door count row ── */
+    .doors-count-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
     }
 
-    @keyframes lightMove {
-      to {
-        transform: translate(var(--tx), var(--ty)) scale(0);
-        opacity: 0;
-      }
+    .doors-count-label {
+      color: var(--muted);
+      font-size: 1rem;
+      white-space: nowrap;
     }
 
-    
+    .doors-count-value {
+      color: var(--accent);
+      font-weight: 800;
+      min-width: 2.2em;
+      text-align: center;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    /* ── Loading state ── */
+    .loading-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      gap: 18px;
+    }
+
+    .loading-spinner {
+      width: 52px;
+      height: 52px;
+      border: 4px solid rgba(98,217,255,.25);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
     .screen.transition-in {
       animation: screenFadeIn .55s ease both;
     }
@@ -719,7 +775,58 @@
       animation: lightMove 900ms ease forwards;
     }
 
-@media (max-width: 900px) {
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes pulseGlow {
+      50% { transform: scale(1.04); }
+    }
+
+    @keyframes logoFloat {
+      50% { transform: translateY(-6px); }
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.92); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes shake {
+      25% { transform: translateX(5px); }
+      70% { transform: translateX(-5px); }
+    }
+
+    @keyframes floatParticle {
+      from { transform: translateY(40px) scale(.8); opacity: 0; }
+      20%  { opacity: .7; }
+      to   { transform: translateY(-140px) scale(1.1); opacity: 0; }
+    }
+
+    @keyframes burstMove {
+      to { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+
+    @keyframes screenFadeIn {
+      from { opacity: 0; transform: translateY(16px) scale(.985); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes lightMove {
+      to { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 900px) {
       .question-layout {
         grid-template-columns: 1fr;
       }
@@ -758,417 +865,93 @@
   </div>
 
   <script>
-    // ==========================================================
-    // מרכז קודי הדלתות של המשחק (מקור אמת אחד)
-    // נשמרים כאן רק קודי השלבים של הדלתות עצמן.
-    // קוד המדריך להפעלה/איפוס נבדק אך ורק ב-Apps Script.
-    // ==========================================================
-    const GAME_CODE_CATALOG = {
-      doors: {
-        1: [
-          { stage: 1, code: "G1", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "CLIMB", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "TOP1", unlocks: "פתיחת דלת 1 והצגת סיכום" }
-        ],
-        2: [
-          { stage: 1, code: "LOT2", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "DRY3", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "CLEAN9", unlocks: "פתיחת דלת 2 והצגת סיכום" }
-        ],
-        3: [
-          { stage: 1, code: "BAT3", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "ECHO", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "SON7", unlocks: "פתיחת דלת 3 והצגת סיכום" }
-        ],
-        4: [
-          { stage: 1, code: "KING4", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "SPEED", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "TRAIN7", unlocks: "פתיחת דלת 4 והצגת סיכום" }
-        ],
-        5: [
-          { stage: 1, code: "G1", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "CLIMB", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "TOP1", unlocks: "פתיחת דלת 5 והצגת סיכום" }
-        ],
-        6: [
-          { stage: 1, code: "LOT2", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "DRY3", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "CLEAN9", unlocks: "פתיחת דלת 6 והצגת סיכום" }
-        ],
-        7: [
-          { stage: 1, code: "BAT3", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "ECHO", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "SON7", unlocks: "פתיחת דלת 7 והצגת סיכום" }
-        ],
-        8: [
-          { stage: 1, code: "KING4", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "SPEED", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "TRAIN7", unlocks: "פתיחת דלת 8 והצגת סיכום" }
-        ],
-        9: [
-          { stage: 1, code: "G1", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "CLIMB", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "TOP1", unlocks: "פתיחת דלת 9 והצגת סיכום" }
-        ],
-        10: [
-          { stage: 1, code: "LOT2", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "DRY3", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "CLEAN9", unlocks: "פתיחת דלת 10 והצגת סיכום" }
-        ]
-      }
-    };
-
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxShbtJpFPOl8Jx7T73irGuJdXXc1M469UZNbFf3ByQ1ZSfoRZdvZHwEb2m6QHv26513Q/exec";
-    const GAME_ID = "main_game";
+    const GAME_ID        = "main_game";
     const POLL_INTERVAL_MS = 3000;
 
-    const DOOR_STAGE_CODES = Object.fromEntries(
-      Object.entries(GAME_CODE_CATALOG.doors).map(([doorId, stageEntries]) => [
-        Number(doorId),
-        stageEntries.map(({ code }) => code)
-      ])
-    );
-
     const ASSETS = {
-      logo: "images/logo.svg",
-      intro: "images/game-intro.svg",
-      introFallback: "",
-      doorVideo: "images/opendoor.mp4",
-      doorFallback: "images/door-active.svg",
-      doorLocked: "images/door-locked.svg",
-      creatures: {
-        1: "images/gecko.svg",
-        2: "images/lotus.svg",
-        3: "images/bat.svg",
-        4: "images/kingfisher.svg"
-      },
-      doors: Object.fromEntries(Array.from({ length: 10 }, (_, i) => [i + 1, `images/door${i + 1}.svg`]))
+      logo:        "images/logo.svg",
+      intro:       "images/game-intro.svg",
+      doorFallback:"images/door-active.svg",
     };
-
-    const DOORS = [
-      {
-  id: 1,
-  title: "דלת 1",
-  theme: "שממית",
-  image: ASSETS.creatures[1],
-  codes: ["GKO1", "CLIMB", "WALL9"],
-  intro: "מאחורי הדלת הזו מסתתר יצור מיוחד.\nתגלו איך הוא מצליח להיצמד למשטחים\nומה בני אדם למדו ממנו.",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני מטפסת על קירות\nוגם על תקרה בלי ליפול.\nמי אני?",
-      options: ["שממית", "עטלף", "קיפוד"],
-      answer: "שממית"
-    },
-    {
-      title: "שלב 2 – מה זה עוזר לי לעשות?",
-      question: "למה היכולת הזאת חשובה בטבע?",
-      options: ["להיצמד ולטפס", "לשחות עמוק", "להסתתר מהשמש"],
-      answer: "להיצמד ולטפס"
-    },
-    {
-      title: "שלב 3 – מה אפשר לפתח בהשראה?",
-      question: "איזה מוצר אפשר לפתח\nבהשראת היכולת הזאת?",
-      options: ["דבק חכם או רובוט מטפס", "פנס לילה", "בקבוק מים"],
-      answer: "דבק חכם או רובוט מטפס"
-    }
-  ],
-  summary: [
-    "אורגניזם: שממית",
-    "כוח-על: היצמדות למשטחים",
-    "השראה למוצר: דבק חכם או רובוט מטפס"
-  ]
-},
-{
-  id: 2,
-  title: "דלת 2",
-  theme: "לוטוס",
-  image: ASSETS.creatures[2],
-  codes: ["LOT2", "DRY3", "CLEAN9"],
-  intro: "בדלת הזו תגלו תופעה מיוחדת מהטבע.\nאיך משטח יכול להישאר נקי כמעט לבד?\nומה בני אדם פיתחו בהשראתה?",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני צמח מים.\nהעלים שלי נשארים נקיים\nכי מים מחליקים מהם.\nמי אני?",
-      options: ["לוטוס", "קקטוס", "ורד"],
-      answer: "לוטוס"
-    },
-    {
-      title: "שלב 2 – למה זה עוזר?",
-      question: "מה היתרון בטבע?",
-      options: ["שמירה על ניקיון העלים", "משיכת ציפורים", "יצירת צל"],
-      answer: "שמירה על ניקיון העלים"
-    },
-    {
-      title: "שלב 3 – מוצר בהשראה",
-      question: "מה בני אדם פיתחו מזה?",
-      options: ["ציפוי דוחה מים", "כרית שינה", "זכוכית כהה"],
-      answer: "ציפוי דוחה מים"
-    }
-  ],
-  summary: [
-    "אורגניזם: לוטוס",
-    "כוח-על: דחיית מים ולכלוך",
-    "השראה למוצר: ציפויים מתנקים"
-  ]
-},
-{
-  id: 3,
-  title: "דלת 3",
-  theme: "עטלף",
-  image: ASSETS.creatures[3],
-  codes: ["BAT3", "ECHO", "SON7"],
-  intro: "בדלת הזו מחכה יצור שפועל בדרך מפתיעה.\nתגלו איך אפשר להתמצא גם בלי לראות היטב,\nומה בני אדם למדו מזה.",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני עף בלילה\nומשתמש בקולות והד\nכדי לדעת מה סביבי.\nמי אני?",
-      options: ["עטלף", "ינשוף", "דולפין"],
-      answer: "עטלף"
-    },
-    {
-      title: "שלב 2 – למה זה עוזר?",
-      question: "מה זה נותן לי בטבע?",
-      options: ["לנוע בחושך", "להחליף צבעים", "להישאר יבש"],
-      answer: "לנוע בחושך"
-    },
-    {
-      title: "שלב 3 – השראה למוצר",
-      question: "איזו טכנולוגיה נוצרה\nבהשראת היכולת הזאת?",
-      options: ["מערכת סונאר", "מחברת חכמה", "מטרייה מתקפלת"],
-      answer: "מערכת סונאר"
-    }
-  ],
-  summary: [
-    "אורגניזם: עטלף",
-    "כוח-על: ניווט באמצעות הד",
-    "השראה למוצר: סונאר וחיישני מרחק"
-  ]
-},
-{
-  id: 4,
-  title: "דלת 4",
-  theme: "שלדג",
-  image: ASSETS.creatures[4],
-  codes: ["KING4", "SPEED", "TRAIN7"],
-  intro: "מאחורי הדלת הזו מסתתר בעל חיים מהיר ומדויק.\nתגלו איך מבנה הגוף שלו עוזר לו לנוע ביעילות,\nומה פותח בהשראתו.",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני ציפור שצוללת למים\nלתפוס דגים במהירות.\nמי אני?",
-      options: ["שלדג", "נשר", "יונה"],
-      answer: "שלדג"
-    },
-    {
-      title: "שלב 2 – למה זה עוזר?",
-      question: "מה היתרון של מקור חד וארוך?",
-      options: ["כניסה שקטה למים", "תעופה לעננים", "שמירת חום"],
-      answer: "כניסה שקטה למים"
-    },
-    {
-      title: "שלב 3 – השראה למוצר",
-      question: "איזו טכנולוגיה קיבלה השראה מהשלדג?",
-      options: ["רכבת מהירה ושקטה", "מזלג מתקפל", "מחברת קשיחה"],
-      answer: "רכבת מהירה ושקטה"
-    }
-  ],
-  summary: [
-    "אורגניזם: שלדג",
-    "כוח-על: חדירה שקטה למים",
-    "השראה למוצר: רכבות יעילות ושקטות"
-  ]
-},
-{
-  id: 5,
-  title: "דלת 5",
-  theme: "כריש",
-  image: ASSETS.creatures[5],
-  codes: ["SHRK5", "FAST2", "SKIN8"],
-  intro: "בדלת הזו תגלו יצור ימי מעורר השראה.\nמה מיוחד במבנה הגוף שלו,\nואיך זה עזר לפתח טכנולוגיה?",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני חי בים.\nשוחה מהר מאוד,\nוהעור שלי מיוחד מאוד.\nמי אני?",
-      options: ["כריש", "לווייתן", "צב ים"],
-      answer: "כריש"
-    },
-    {
-      title: "שלב 2 – למה זה עוזר?",
-      question: "מה היתרון של מבנה העור שלי בטבע?",
-      options: ["שחייה מהירה וחלקה", "שמיעה חזקה", "שמירה על אור"],
-      answer: "שחייה מהירה וחלקה"
-    },
-    {
-      title: "שלב 3 – השראה למוצר",
-      question: "איזה פיתוח נוצר\nבהשראת העור הזה?",
-      options: ["בגד ים מהיר או ציפוי מפחית חיכוך", "כיסא מתקפל", "שעון קיר"],
-      answer: "בגד ים מהיר או ציפוי מפחית חיכוך"
-    }
-  ],
-  summary: [
-    "אורגניזם: כריש",
-    "כוח-על: עור שמפחית חיכוך במים",
-    "השראה למוצר: בגד ים מהיר וציפויים מיוחדים"
-  ]
-},
-{
-  id: 6,
-  title: "דלת 6",
-  theme: "קורי עכביש",
-  image: ASSETS.creatures[6],
-  codes: ["WEB6", "STRG4", "FLEX9"],
-  intro: "מאחורי הדלת הזו מסתתר פתרון חכם מהטבע.\nאיך משהו דק יכול להיות גם חזק וגם גמיש,\nומה אפשר ללמוד ממנו?",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני טווה רשת דקה מאוד,\nאבל היא גם חזקה וגם גמישה.\nמי אני?",
-      options: ["עכביש", "נמלה", "זחל"],
-      answer: "עכביש"
-    },
-    {
-      title: "שלב 2 – למה זה עוזר?",
-      question: "למה התכונה הזאת חשובה בטבע?",
-      options: ["לבנות רשת חזקה ללכידת טרף", "ליצור אור בלילה", "לשנות צבעים"],
-      answer: "לבנות רשת חזקה ללכידת טרף"
-    },
-    {
-      title: "שלב 3 – השראה למוצר",
-      question: "מה אפשר לפתח\nבהשראת קורי העכביש?",
-      options: ["חומרים חזקים וגמישים", "מנורת שולחן", "בקבוק זכוכית"],
-      answer: "חומרים חזקים וגמישים"
-    }
-  ],
-  summary: [
-    "אורגניזם: עכביש",
-    "כוח-על: סיבים חזקים וגמישים מאוד",
-    "השראה למוצר: חומרים חזקים וקלים"
-  ]
-},
-{
-  id: 7,
-  title: "דלת 7",
-  theme: "דולפין",
-  image: ASSETS.creatures[7],
-  codes: ["DOL7", "WAVE2", "SCAN5"],
-  intro: "בדלת הזו תגלו יכולת מיוחדת מהים.\nאיך אפשר לזהות מה נמצא סביבנו בלי לראות הכול,\nומה בני אדם פיתחו בהשראת זה?",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני יונק ימי חכם.\nמשתמש בקולות ובהד\nכדי להבין מה יש סביבי.\nמי אני?",
-      options: ["דולפין", "כריש", "תמנון"],
-      answer: "דולפין"
-    },
-    {
-      title: "שלב 2 – למה זה עוזר?",
-      question: "מה היכולת הזאת עוזרת לי לעשות?",
-      options: ["למצוא דרך ולזהות עצמים במים", "לטפס על עצים", "להתחמם בשמש"],
-      answer: "למצוא דרך ולזהות עצמים במים"
-    },
-    {
-      title: "שלב 3 – השראה למוצר",
-      question: "איזו טכנולוגיה פותחה\nבהשראת היכולת הזאת?",
-      options: ["סונאר ימי", "מטרייה אוטומטית", "מחק חכם"],
-      answer: "סונאר ימי"
-    }
-  ],
-  summary: [
-    "אורגניזם: דולפין",
-    "כוח-על: זיהוי בעזרת קולות והד",
-    "השראה למוצר: סונאר ומערכות גילוי"
-  ]
-},
-{
-  id: 8,
-  title: "דלת 8",
-  theme: "דבורת דבש",
-  image: ASSETS.creatures[8],
-  codes: ["BEE8", "HEX4", "HIVE6"],
-  intro: "מאחורי הדלת הזו מסתתרת שיטת בנייה חכמה מהטבע.\nתגלו איך מבנה קטן יכול להיות גם חזק וגם חסכוני,\nומה בני אדם למדו ממנו.",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני חרק קטן שעובד בקבוצה,\nובונה כוורת בצורה מיוחדת.\nמי אני?",
-      options: ["דבורת דבש", "פרפר", "חיפושית"],
-      answer: "דבורת דבש"
-    },
-    {
-      title: "שלב 2 – למה זה עוזר?",
-      question: "מה היתרון של המבנה המשושה בטבע?",
-      options: ["בניית מבנה חזק וחסכוני", "הפצת אור", "שינוי צבע"],
-      answer: "בניית מבנה חזק וחסכוני"
-    },
-    {
-      title: "שלב 3 – השראה למוצר",
-      question: "מה פותח בהשראת המבנה הזה?",
-      options: ["מבנים ולוחות קלים וחזקים", "נעליים זוהרות", "כפית מתקפלת"],
-      answer: "מבנים ולוחות קלים וחזקים"
-    }
-  ],
-  summary: [
-    "אורגניזם: דבורת דבש",
-    "כוח-על: בנייה חכמה במבנה משושה",
-    "השראה למוצר: לוחות ומבנים חזקים וקלים"
-  ]
- }
-    ];
-
-    const app = document.getElementById("app");
-    const effectsLayer = document.getElementById("effects-layer");
-    const videoOverlay = document.getElementById("video-overlay");
-    const doorVideo = document.getElementById("door-video");
 
     const state = {
-      gameStatus: "waiting",
-      statusPollTimer: null,
+      gameStatus:          "waiting",
+      statusPollTimer:     null,
       statusRequestInFlight: false,
-      logoTapCount: 0,
-      logoTapResetTimer: null,
-      completedDoors: new Set()
+      logoTapCount:        0,
+      logoTapResetTimer:   null,
+      completedDoors:      new Set(),
+      doorsData:           [],   // loaded from doors.json
+      doorsCount:          10,   // guide can set 10–27
+      stepCodesEntered:    {},   // { doorId: [code1, code2, code3] }
     };
 
-    function isUnlocked() {
-      return state.gameStatus === "started";
-    }
+    // ── DOM refs ────────────────────────────────────────────
+    const app          = document.getElementById("app");
+    const effectsLayer = document.getElementById("effects-layer");
+    const videoOverlay = document.getElementById("video-overlay");
+    const doorVideo    = document.getElementById("door-video");
+
+    // ── Helpers ─────────────────────────────────────────────
+    const isUnlocked = () => state.gameStatus === "started";
 
     function topStrip(title, status) {
-      return `
-        <div class="top-strip">
-          <div><strong>${title}</strong></div>
-          <div>${status}</div>
-        </div>
-      `;
+      return `<div class="top-strip"><div><strong>${title}</strong></div><div>${status}</div></div>`;
     }
 
     function nl(text) {
-      return text.replace(/\n/g, "<br>");
+      return String(text || "").replace(/\n/g, "<br>");
     }
 
+    function getDoorImage(doorId) {
+      const n = ((doorId - 1) % 10) + 1;
+      return `images/door${n}.svg`;
+    }
+
+    function getCreatureImage(door) {
+      return door && door.image ? `images/${door.image}` : ASSETS.doorFallback;
+    }
+
+    function middleChar(str) {
+      const s = String(str || "");
+      if (!s.length) return "";
+      return s[Math.floor(s.length / 2)];
+    }
+
+    function getDoor(doorId) {
+      return state.doorsData.find(d => d.door_id === doorId);
+    }
+
+    // ── Screen transition ────────────────────────────────────
     function setActiveScreen(id) {
-      document.querySelectorAll(".screen").forEach(screen => {
-        const isTarget = screen.id === id;
-        screen.classList.toggle("active", isTarget);
-        if (isTarget) {
-          screen.classList.remove("transition-in");
-          void screen.offsetWidth;
-          screen.classList.add("transition-in");
+      document.querySelectorAll(".screen").forEach(sc => {
+        const hit = sc.id === id;
+        sc.classList.toggle("active", hit);
+        if (hit) {
+          sc.classList.remove("transition-in");
+          void sc.offsetWidth;
+          sc.classList.add("transition-in");
         }
       });
-      transitionEffect(id.includes("finish") || id === "screen-final" ? "grand" : "normal");
+      const grand = id.includes("summary") || id === "screen-final";
+      transitionEffect(grand ? "grand" : "normal");
     }
 
+    // ── Effects ──────────────────────────────────────────────
     function spawnParticles() {
-      const container = document.getElementById("hero-particles");
-      if (!container) return;
-      container.innerHTML = "";
+      const c = document.getElementById("hero-particles");
+      if (!c) return;
+      c.innerHTML = "";
       for (let i = 0; i < 20; i++) {
         const p = document.createElement("div");
         p.className = "particle";
-        p.style.left = `${Math.random() * 100}%`;
-        p.style.bottom = `${-20 - Math.random() * 60}px`;
+        p.style.left            = `${Math.random() * 100}%`;
+        p.style.bottom          = `${-20 - Math.random() * 60}px`;
         p.style.animationDuration = `${5 + Math.random() * 7}s`;
-        p.style.animationDelay = `${Math.random() * 4}s`;
-        p.style.opacity = (0.28 + Math.random() * 0.48).toFixed(2);
-        container.appendChild(p);
+        p.style.animationDelay  = `${Math.random() * 4}s`;
+        p.style.opacity         = (0.28 + Math.random() * 0.48).toFixed(2);
+        c.appendChild(p);
       }
     }
 
@@ -1177,7 +960,7 @@
         const el = document.createElement("div");
         el.className = "burst";
         el.style.left = `${46 + Math.random() * 8}%`;
-        el.style.top = `${38 + Math.random() * 20}%`;
+        el.style.top  = `${38 + Math.random() * 20}%`;
         el.style.setProperty("--tx", `${(Math.random() - 0.5) * 260}px`);
         el.style.setProperty("--ty", `${(Math.random() - 0.5) * 260}px`);
         effectsLayer.appendChild(el);
@@ -1186,47 +969,29 @@
     }
 
     function transitionEffect(level = "normal") {
-      const flashes = level === "grand" ? 36 : 16;
-      for (let i = 0; i < flashes; i++) {
+      const n = level === "grand" ? 36 : 16;
+      for (let i = 0; i < n; i++) {
         const fx = document.createElement("div");
         fx.className = "light-flash";
         fx.style.left = `${8 + Math.random() * 84}%`;
-        fx.style.top = `${8 + Math.random() * 80}%`;
-        const spread = level === "grand" ? 360 : 220;
-        fx.style.setProperty("--tx", `${(Math.random() - 0.5) * spread}px`);
-        fx.style.setProperty("--ty", `${(Math.random() - 0.5) * spread}px`);
+        fx.style.top  = `${8 + Math.random() * 80}%`;
+        const sp = level === "grand" ? 360 : 220;
+        fx.style.setProperty("--tx", `${(Math.random() - 0.5) * sp}px`);
+        fx.style.setProperty("--ty", `${(Math.random() - 0.5) * sp}px`);
         effectsLayer.appendChild(fx);
         setTimeout(() => fx.remove(), 900);
       }
     }
 
+    // ── Server / status ──────────────────────────────────────
     async function parseScriptResponse(response) {
-      const rawText = await response.text();
-      if (!rawText) return {};
-
-      try {
-        return JSON.parse(rawText);
-      } catch {
-        return { raw: rawText };
-      }
+      const raw = await response.text();
+      if (!raw) return {};
+      try { return JSON.parse(raw); } catch { return { raw }; }
     }
 
-    function normalizeStatus(status) {
-      return status === "started" ? "started" : "waiting";
-    }
-
-    function updateHomeStatusUI() {
-      const unlocked = isUnlocked();
-      const waitMessage = document.getElementById("wait-message");
-      const startBtn = document.getElementById("start-btn");
-      const topStatus = document.getElementById("home-status-text");
-
-      if (waitMessage) waitMessage.classList.toggle("hidden", unlocked);
-      if (startBtn) startBtn.classList.toggle("hidden", !unlocked);
-
-      if (topStatus) {
-        topStatus.textContent = unlocked ? "המשחק הופעל" : "ממתינים להפעלת מדריך";
-      }
+    function normalizeStatus(s) {
+      return s === "started" ? "started" : "waiting";
     }
 
     function applyGameStatus(status) {
@@ -1234,30 +999,28 @@
       updateHomeStatusUI();
     }
 
+    function updateHomeStatusUI() {
+      const unlocked = isUnlocked();
+      document.getElementById("wait-message")?.classList.toggle("hidden", unlocked);
+      document.getElementById("start-btn")?.classList.toggle("hidden", !unlocked);
+      const t = document.getElementById("home-status-text");
+      if (t) t.textContent = unlocked ? "המשחק הופעל" : "ממתינים להפעלת מדריך";
+    }
+
     async function fetchGameStatus() {
-      const statusUrl = `${APPS_SCRIPT_URL}?action=status&game_id=${encodeURIComponent(GAME_ID)}`;
-      const response = await fetch(statusUrl, { method: "GET", cache: "no-store" });
-      const data = await parseScriptResponse(response);
-
-      if (!response.ok) {
-        throw new Error(data?.error || `Status request failed (${response.status})`);
-      }
-
+      const url = `${APPS_SCRIPT_URL}?action=status&game_id=${encodeURIComponent(GAME_ID)}`;
+      const res  = await fetch(url, { method: "GET", cache: "no-store" });
+      const data = await parseScriptResponse(res);
+      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
       return normalizeStatus(data?.status);
     }
 
     async function pollGameStatus() {
       if (state.statusRequestInFlight) return;
       state.statusRequestInFlight = true;
-
-      try {
-        const status = await fetchGameStatus();
-        applyGameStatus(status);
-      } catch (error) {
-        console.warn("Game status polling failed:", error);
-      } finally {
-        state.statusRequestInFlight = false;
-      }
+      try { applyGameStatus(await fetchGameStatus()); }
+      catch (e) { console.warn("Status poll failed:", e); }
+      finally   { state.statusRequestInFlight = false; }
     }
 
     function startStatusPolling() {
@@ -1267,35 +1030,36 @@
     }
 
     async function sendGameAction(action, code = "") {
-      const payload = new URLSearchParams({
-        action,
-        game_id: GAME_ID
-      });
-
-      if (code) payload.set("code", code);
-
-      const response = await fetch(APPS_SCRIPT_URL, {
+      const body = new URLSearchParams({ action, game_id: GAME_ID });
+      if (code) body.set("code", code);
+      const res  = await fetch(APPS_SCRIPT_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded"
-        },
-        body: payload.toString()
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: body.toString(),
       });
-
-      const data = await parseScriptResponse(response);
-      if (!response.ok) {
-        throw new Error(data?.error || `Action request failed (${response.status})`);
-      }
-
+      const data = await parseScriptResponse(res);
+      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
       return data;
     }
 
-    function renderHome() {
-      const home = document.getElementById("screen-home");
-      const unlocked = isUnlocked();
+    // ── Load doors.json ──────────────────────────────────────
+    async function loadDoorsData() {
+      try {
+        const res = await fetch("doors.json", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        state.doorsData = Array.isArray(data) ? data : [];
+      } catch (e) {
+        console.warn("Could not load doors.json:", e);
+        state.doorsData = [];
+      }
+    }
 
-      home.innerHTML = `
-        ${topStrip("דלתות הטבע", `<span id="home-status-text">${unlocked ? "המשחק הופעל" : "ממתינים להפעלת מדריך"}</span>`) }
+    // ── Screen 1: Home ───────────────────────────────────────
+    function renderHome() {
+      const unlocked = isUnlocked();
+      document.getElementById("screen-home").innerHTML = `
+        ${topStrip("דלתות הטבע", `<span id="home-status-text">${unlocked ? "המשחק הופעל" : "ממתינים להפעלת מדריך"}</span>`)}
         <div class="card hero">
           <img src="${ASSETS.intro}" alt="רקע חדר בריחה" class="hero-bg" id="hero-bg">
           <div class="hero-overlay"></div>
@@ -1307,15 +1071,15 @@
             </div>
 
             <div class="instruction-layer" id="instruction-layer">
-              <h1 class="title">דלתות אל הטבע</h1>
-              <p class="lead">ברוכים הבאים לחדר הבריחה ZOOM<br>קראו את ההוראות.</p>
-              <p class="lead">בחרו דלת, פתרו 3 שלבים<br>וקבלו קוד מהמדריך כדי להתקדם!</p>
+              <h1 class="title">חדר הבריחה הביומימיקרי</h1>
+              <p class="lead">ברוכים הבאים לחדר הבריחה הביומימיקרי.</p>
+              <p class="lead">מאחורי כל דלת מסתתר יצור מהטבע<br>עם יכולת מיוחדת שהעניקה השראה להמצאה.</p>
+              <p class="lead">בחרו דלת,<br>פתרו שלושה שלבים,<br>וגלו את סוד ההשראה מהטבע.</p>
 
               <div class="start-zone">
                 <p class="wait-message ${unlocked ? "hidden" : ""}" id="wait-message">אנא המתינו, מיד מתחילים</p>
-                <button class="btn btn-primary btn-start ${unlocked ? "" : "hidden"}" id="start-btn">לחצו להתחלת המשחק</button>
+                <button class="btn btn-primary btn-start ${unlocked ? "" : "hidden"}" id="start-btn">התחלת המשחק</button>
               </div>
-
               <p class="soft-note">⭐</p>
             </div>
           </div>
@@ -1327,13 +1091,19 @@
             </div>
           </div>
 
+          <!-- Guide modal (hidden behind logo triple-tap) -->
           <div class="admin-modal" id="guide-modal">
             <div class="modal-card">
               <h3 class="modal-title">אזור מדריך</h3>
-              <p class="modal-text">הזינו קוד להפעלה. אימות הקוד מתבצע בשרת בלבד.</p>
+              <p class="modal-text">הזינו קוד מדריך להפעלה ובחרו מספר דלתות (בורר).</p>
               <div class="code-row">
                 <input id="guide-code-input" class="input" type="password" placeholder="קוד מדריך" autocomplete="off">
                 <button class="btn btn-primary" id="guide-start-btn">הפעל</button>
+              </div>
+              <div class="doors-count-row">
+                <span class="doors-count-label">מספר דלתות:</span>
+                <input type="range" id="doors-count-slider" min="10" max="27" value="${state.doorsCount}">
+                <span class="doors-count-value" id="doors-count-display">${state.doorsCount}</span>
               </div>
               <p class="feedback" id="guide-feedback"></p>
               <div class="actions">
@@ -1341,127 +1111,128 @@
               </div>
             </div>
           </div>
-
         </div>
       `;
 
       spawnParticles();
 
-      const heroBg = document.getElementById("hero-bg");
-      heroBg.onerror = () => {
-        heroBg.style.display = "none";
+      document.getElementById("hero-bg").onerror = function () { this.style.display = "none"; };
+      document.getElementById("logo-trigger").onerror = function () {
+        this.classList.add("logo-error"); this.alt = "שגיאת לוגו";
       };
 
-      const logo = document.getElementById("logo-trigger");
-      logo.onerror = () => {
-        logo.classList.add("logo-error");
-        logo.alt = "שגיאת לוגו";
-      };
-
-      const guideModal = document.getElementById("guide-modal");
-      const guideCodeInput = document.getElementById("guide-code-input");
+      const guideModal    = document.getElementById("guide-modal");
+      const guideInput    = document.getElementById("guide-code-input");
       const guideFeedback = document.getElementById("guide-feedback");
+      const slider        = document.getElementById("doors-count-slider");
+      const sliderDisplay = document.getElementById("doors-count-display");
 
-      logo.addEventListener("click", () => {
-        state.logoTapCount += 1;
+      // Update max of slider to actual doors available
+      slider.max = Math.max(27, state.doorsData.length || 10);
+
+      slider.addEventListener("input", () => { sliderDisplay.textContent = slider.value; });
+
+      // Triple-tap logo → open guide modal
+      document.getElementById("logo-trigger").addEventListener("click", () => {
+        state.logoTapCount++;
         clearTimeout(state.logoTapResetTimer);
-        state.logoTapResetTimer = setTimeout(() => {
-          state.logoTapCount = 0;
-        }, 1400);
-
+        state.logoTapResetTimer = setTimeout(() => { state.logoTapCount = 0; }, 1400);
         if (state.logoTapCount >= 3) {
           state.logoTapCount = 0;
-          guideModal.classList.add("active");
+          slider.value = state.doorsCount;
+          sliderDisplay.textContent = state.doorsCount;
           guideFeedback.textContent = "";
-          guideFeedback.className = "feedback";
-          guideCodeInput.focus();
+          guideFeedback.className   = "feedback";
+          guideInput.value = "";
+          guideModal.classList.add("active");
+          guideInput.focus();
         }
-
       });
 
-      document.getElementById("guide-close-btn").onclick = () => {
-        guideModal.classList.remove("active");
-      };
+      document.getElementById("guide-close-btn").onclick = () => guideModal.classList.remove("active");
 
       document.getElementById("guide-start-btn").onclick = async () => {
-        const value = guideCodeInput.value.trim();
-        if (!value) {
+        const code = guideInput.value.trim();
+        if (!code) {
           guideFeedback.textContent = "יש להזין קוד לפני הפעלה.";
-          guideFeedback.className = "feedback error";
+          guideFeedback.className   = "feedback error";
           return;
         }
-
         try {
-          const result = await sendGameAction("start", value);
-          const serverAccepted = result?.success === true || result?.ok === true || result?.status === "started" || result?.result === "started";
-
-          if (serverAccepted) {
+          const result = await sendGameAction("start", code);
+          const ok = result?.success === true || result?.ok === true
+                  || result?.status === "started" || result?.result === "started";
+          if (ok) {
+            const chosen = parseInt(slider.value) || 10;
+            state.doorsCount = Math.max(10, Math.min(chosen, Math.max(27, state.doorsData.length)));
             applyGameStatus("started");
-            guideFeedback.textContent = "המשחק הופעל";
-            guideFeedback.className = "feedback success";
-            guideCodeInput.value = "";
+            guideFeedback.textContent = `המשחק הופעל • ${state.doorsCount} דלתות`;
+            guideFeedback.className   = "feedback success";
+            guideInput.value = "";
             burstEffect();
-            setTimeout(() => guideModal.classList.remove("active"), 1200);
+            setTimeout(() => guideModal.classList.remove("active"), 1500);
           } else {
             guideFeedback.textContent = "קוד שגוי";
-            guideFeedback.className = "feedback error";
+            guideFeedback.className   = "feedback error";
           }
-        } catch (error) {
-          const isNetwork = error instanceof TypeError || String(error).includes("fetch");
-          guideFeedback.textContent = isNetwork ? "שגיאת חיבור לשרת. בדקו אינטרנט ונסו שוב." : "קוד שגוי";
-          guideFeedback.className = "feedback error";
+        } catch (e) {
+          const net = e instanceof TypeError || String(e).includes("fetch");
+          guideFeedback.textContent = net ? "שגיאת חיבור לשרת. בדקו אינטרנט." : "קוד שגוי";
+          guideFeedback.className   = "feedback error";
         }
       };
 
-      const startBtn = document.getElementById("start-btn");
-      if (startBtn) {
-        startBtn.onclick = () => startMainCountdown();
-      }
-
+      document.getElementById("start-btn")?.addEventListener("click", startMainCountdown);
       updateHomeStatusUI();
     }
 
     function startMainCountdown() {
-      const instructionLayer = document.getElementById("instruction-layer");
+      document.getElementById("instruction-layer").classList.add("hidden");
       const countdown = document.getElementById("countdown");
-      const countdownNumber = document.getElementById("countdown-number");
-
-      instructionLayer.classList.add("hidden");
+      const num       = document.getElementById("countdown-number");
       countdown.classList.add("active");
-
       let sec = 10;
-      countdownNumber.textContent = String(sec);
-
-      const interval = setInterval(() => {
-        sec -= 1;
-        countdownNumber.textContent = String(sec);
-
+      num.textContent = sec;
+      const iv = setInterval(() => {
+        sec--;
+        num.textContent = sec;
         if (sec <= 0) {
-          clearInterval(interval);
+          clearInterval(iv);
           renderDoors();
           setActiveScreen("screen-doors");
         }
       }, 1000);
     }
 
+    // ── Screen 2: Door selection ─────────────────────────────
     function renderDoors() {
       const doorsScreen = document.getElementById("screen-doors");
-      const cards = DOORS.map(door => `
+      const max         = Math.min(state.doorsCount, state.doorsData.length);
+      const visible     = state.doorsData.slice(0, max);
+
+      if (!visible.length) {
+        doorsScreen.innerHTML = `
+          ${topStrip("מסך הדלתות", "טוען...")}
+          <div class="card doors-card">
+            <h2 class="doors-title">בחרו דלת</h2>
+            <p class="question-text">לא נמצאו דלתות. בדקו שקובץ doors.json קיים ותקין.</p>
+          </div>`;
+        return;
+      }
+
+      const cards = visible.map(door => `
         <article class="door-card">
-          <div class="door-title">${door.title}</div>
+          <div class="door-title">דלת ${door.door_id}</div>
           <div class="door-image-wrap">
-            <img
-              class="door-image"
-              src="${ASSETS.doors[door.id]}"
-              alt="${door.title}"
-              onerror="this.onerror=null; this.src='${ASSETS.doorFallback}'"
-            >
+            <img class="door-image"
+              src="${getDoorImage(door.door_id)}"
+              alt="דלת ${door.door_id}"
+              onerror="this.onerror=null;this.src='${ASSETS.doorFallback}'">
             <div class="door-footer">
-              <button class="btn btn-primary" data-door-start="${door.id}">התחל</button>
+              <button class="btn btn-primary" data-door="${door.door_id}">התחל</button>
             </div>
           </div>
-        </article>
-      `).join("");
+        </article>`).join("");
 
       doorsScreen.innerHTML = `
         ${topStrip("מסך הדלתות", "בחרו דלת למשימה")}
@@ -1469,16 +1240,14 @@
           <h2 class="doors-title">בחרו דלת</h2>
           <p class="question-text">לכל דלת מחכה משימה. לחצו על "התחל" כדי לפתוח את המעבר.</p>
           <div class="door-grid">${cards}</div>
-          
-        </div>
-      `;
+        </div>`;
 
-      doorsScreen.querySelectorAll("[data-door-start]").forEach(btn => {
-        btn.onclick = () => startDoorFlow(Number(btn.dataset.doorStart));
+      doorsScreen.querySelectorAll("[data-door]").forEach(btn => {
+        btn.onclick = () => startDoorFlow(Number(btn.dataset.door));
       });
-
     }
 
+    // ── Door flow helpers ────────────────────────────────────
     function startDoorFlow(doorId) {
       playDoorVideo(() => {
         renderDoorIntro(doorId);
@@ -1489,272 +1258,357 @@
     function playDoorVideo(onDone) {
       videoOverlay.classList.add("active");
       doorVideo.currentTime = 0;
-
       const finish = () => {
         videoOverlay.classList.remove("active");
         doorVideo.onended = null;
         onDone();
       };
-
       doorVideo.onended = finish;
-
-      doorVideo.play().catch(() => {
-        setTimeout(finish, 2200);
-      });
+      doorVideo.play().catch(() => setTimeout(finish, 2200));
     }
 
     function ensureDoorSections(doorId) {
       const ids = [
         `door-${doorId}-intro`,
-        `door-${doorId}-step-1`,
-        `door-${doorId}-step-2`,
-        `door-${doorId}-step-3`,
-        `door-${doorId}-code-1`,
-        `door-${doorId}-code-2`,
-        `door-${doorId}-code-3`,
-        `door-${doorId}-finish`
+        `door-${doorId}-step-1`, `door-${doorId}-step-2`, `door-${doorId}-step-3`,
+        `door-${doorId}-code-1`, `door-${doorId}-code-2`, `door-${doorId}-code-3`,
+        `door-${doorId}-confirm-1`, `door-${doorId}-confirm-2`, `door-${doorId}-confirm-3`,
+        `door-${doorId}-final-lock`,
+        `door-${doorId}-summary`,
       ];
-
       ids.forEach(id => {
         if (!document.getElementById(id)) {
-          const section = document.createElement("section");
-          section.className = "screen";
-          section.id = id;
-          app.appendChild(section);
+          const s = document.createElement("section");
+          s.className = "screen";
+          s.id = id;
+          app.appendChild(s);
         }
       });
     }
 
-    function getDoor(doorId) {
-      return DOORS.find(d => d.id === doorId);
-    }
-
+    // ── Screen 3: Door intro ─────────────────────────────────
     function renderDoorIntro(doorId) {
       ensureDoorSections(doorId);
       const door = getDoor(doorId);
+      if (!door) return;
       const el = document.getElementById(`door-${doorId}-intro`);
 
       el.innerHTML = `
-        ${topStrip(`${door.title}`, "שלב הכנה")}
+        ${topStrip(`דלת ${doorId}`, "שלב הכנה")}
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
-              <img src="${ASSETS.doors[door.id]}" alt="${door.title}" onerror="this.style.display='none'">
+              <img src="${getDoorImage(doorId)}" alt="דלת ${doorId}" onerror="this.style.display='none'">
             </div>
-
             <div>
-              <h2 class="question-title">מתכוננים ל${door.title}</h2>
-              <p class="question-text">הכינו את הצוות למשימה מסקרנת,
-שימו לב לפרטים, וגלו יחד את הרמזים שיובילו לפתיחה.</p>
-
+              <h2 class="question-title">מתכוננים לדלת ${doorId}</h2>
+              <p class="question-text">מאחורי הדלת מסתתר יצור עם סופר־כוח.<br>האם תצליחו לגלות מי הוא?</p>
               <div class="actions">
-                <button class="btn btn-primary" id="door-${doorId}-to-step1">לתחילת שלב 1</button>
-                <button class="btn btn-secondary" id="door-${doorId}-back-doors">חזרה לדלתות</button>
+                <button class="btn btn-primary" id="intro-go-${doorId}">התחל שלב 1</button>
+                <button class="btn btn-secondary" id="intro-back-${doorId}">חזרה לדלתות</button>
               </div>
             </div>
           </div>
-        </div>
-      `;
+        </div>`;
 
-      document.getElementById(`door-${doorId}-to-step1`).onclick = () => renderStep(doorId, 1);
-      document.getElementById(`door-${doorId}-back-doors`).onclick = () => setActiveScreen("screen-doors");
+      document.getElementById(`intro-go-${doorId}`).onclick   = () => renderStep(doorId, 1);
+      document.getElementById(`intro-back-${doorId}`).onclick = () => setActiveScreen("screen-doors");
     }
 
+    // ── Screen 4: Question step ──────────────────────────────
     function renderStep(doorId, stepIndex) {
       ensureDoorSections(doorId);
       const door = getDoor(doorId);
+      if (!door) return;
       const step = door.steps[stepIndex - 1];
+      if (!step) return;
       const el = document.getElementById(`door-${doorId}-step-${stepIndex}`);
 
       el.innerHTML = `
-        ${topStrip(`${door.title}`, `שלב ${stepIndex} מתוך 3`)}
+        ${topStrip(`דלת ${doorId}`, `שלב ${stepIndex} מתוך 3`)}
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
-              <img src="${ASSETS.doors[door.id]}" alt="${door.title}" onerror="this.style.display='none'">
+              <img src="${getCreatureImage(door)}" alt="${door.organism || ''}"
+                onerror="this.onerror=null;this.src='${getDoorImage(doorId)}'">
             </div>
-
             <div>
               <h2 class="question-title">${step.title}</h2>
               <p class="question-text">${nl(step.question)}</p>
-
               <div class="answers">
-                ${step.options.map(option => `<button class="answer" data-answer="${option}">${option}</button>`).join("")}
+                ${step.options.map(opt =>
+                  `<button class="answer" data-opt="${opt}">${opt}</button>`
+                ).join("")}
               </div>
-
-              <p class="feedback" id="door-${doorId}-step-${stepIndex}-feedback"></p>
-
+              <p class="feedback" id="sfb-${doorId}-${stepIndex}"></p>
               <div class="actions">
-                <button class="btn btn-next hidden" id="door-${doorId}-step-${stepIndex}-next">לשלב הבא</button>
-                <button class="btn btn-secondary" id="door-${doorId}-step-${stepIndex}-back">חזרה לדלתות</button>
+                <button class="btn btn-next hidden" id="snext-${doorId}-${stepIndex}">הזן קוד מהמדריך</button>
+                <button class="btn btn-secondary" id="sback-${doorId}-${stepIndex}">חזרה לדלתות</button>
               </div>
             </div>
           </div>
-        </div>
-      `;
+        </div>`;
 
-      const feedback = document.getElementById(`door-${doorId}-step-${stepIndex}-feedback`);
-      const nextBtn = document.getElementById(`door-${doorId}-step-${stepIndex}-next`);
+      const fb   = document.getElementById(`sfb-${doorId}-${stepIndex}`);
+      const next = document.getElementById(`snext-${doorId}-${stepIndex}`);
 
       el.querySelectorAll(".answer").forEach(btn => {
         btn.onclick = () => {
-          const chosen = btn.dataset.answer;
-          const isCorrect = chosen === step.answer;
-
-          el.querySelectorAll(".answer").forEach(answerBtn => {
-            answerBtn.classList.remove("correct", "wrong");
-          });
-
-          btn.classList.add(isCorrect ? "correct" : "wrong");
-
-          if (isCorrect) {
-            feedback.textContent = "מעולה! עניתם נכון";
-            feedback.className = "feedback success";
+          const correct = btn.dataset.opt === String(step.correct);
+          el.querySelectorAll(".answer").forEach(b => b.classList.remove("correct", "wrong"));
+          btn.classList.add(correct ? "correct" : "wrong");
+          if (correct) {
+            fb.textContent = "מעולה! עניתם נכון";
+            fb.className   = "feedback success";
             burstEffect();
-            nextBtn.classList.remove("hidden");
             renderCodeScreen(doorId, stepIndex);
-            nextBtn.onclick = () => setActiveScreen(`door-${doorId}-code-${stepIndex}`);
+            next.classList.remove("hidden");
+            next.onclick = () => setActiveScreen(`door-${doorId}-code-${stepIndex}`);
           } else {
-            feedback.textContent = "כמעט. זו לא התשובה הנכונה. נסו שוב יחד.";
-            feedback.className = "feedback error";
+            fb.textContent = "נסה שוב";
+            fb.className   = "feedback error";
           }
         };
       });
 
-      document.getElementById(`door-${doorId}-step-${stepIndex}-back`).onclick = () => setActiveScreen("screen-doors");
+      document.getElementById(`sback-${doorId}-${stepIndex}`).onclick = () => setActiveScreen("screen-doors");
       setActiveScreen(`door-${doorId}-step-${stepIndex}`);
     }
 
+    // ── Screen 5: Code input ─────────────────────────────────
     function renderCodeScreen(doorId, codeStage) {
       ensureDoorSections(doorId);
       const door = getDoor(doorId);
-      const screenId = `door-${doorId}-code-${codeStage}`;
-      const el = document.getElementById(screenId);
-      const finalStage = codeStage === 3;
-      const expectedCode = (DOOR_STAGE_CODES[doorId] || [])[codeStage - 1];
+      if (!door) return;
+      const step         = door.steps[codeStage - 1];
+      const expectedCode = String((step && step.code) || "");
+      const el           = document.getElementById(`door-${doorId}-code-${codeStage}`);
 
       el.innerHTML = `
-        ${topStrip(`${door.title}`, `בדיקת קוד ${codeStage} מתוך 3`)}
+        ${topStrip(`דלת ${doorId}`, `שער קוד ${codeStage} מתוך 3`)}
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
-              <img src="${ASSETS.doors[door.id]}" alt="${door.title}" onerror="this.style.display='none'">
+              <img src="${getCreatureImage(door)}" alt="${door.organism || ''}"
+                onerror="this.onerror=null;this.src='${getDoorImage(doorId)}'">
             </div>
-
             <div>
-              <h2 class="question-title">מסך קוד מיוחד ✨</h2>
-              <p class="question-text">סופר-רגע של פתיחה! הזינו את הקוד שקיבלתם מהמדריך ולחצו על "פתיחה".</p>
+              <h2 class="question-title">שער מעבר</h2>
+              <p class="question-text">קיבלתם קוד מהמדריך.<br>הזינו אותו כדי להמשיך.</p>
 
-              <div class="code-panel" id="code-panel-${doorId}-${codeStage}">
-                <h3 class="code-title">שער קוד שלב ${codeStage}</h3>
+              <div class="code-panel" id="cpanel-${doorId}-${codeStage}">
+                <h3 class="code-title">שלב ${codeStage} – קוד מעבר</h3>
                 <div class="code-row">
-                  <input class="input" id="code-input-${doorId}-${codeStage}" type="password" placeholder="הזינו קוד" autocomplete="off">
-                  <button class="btn btn-primary" id="code-submit-${doorId}-${codeStage}">פתיחה</button>
+                  <input class="input" id="cinput-${doorId}-${codeStage}"
+                    type="text" placeholder="הזינו קוד" autocomplete="off">
+                  <button class="btn btn-primary" id="csubmit-${doorId}-${codeStage}">בדיקת קוד</button>
                 </div>
               </div>
-
-              <p class="feedback" id="code-feedback-${doorId}-${codeStage}"></p>
-
+              <p class="feedback" id="cfb-${doorId}-${codeStage}"></p>
               <div class="actions">
-                <button class="btn btn-next hidden" id="code-next-${doorId}-${codeStage}">לשלב הבא</button>
-                <button class="btn btn-secondary" id="code-back-${doorId}-${codeStage}">חזרה לדלתות</button>
+                <button class="btn btn-secondary" id="cback-${doorId}-${codeStage}">חזרה לדלתות</button>
               </div>
             </div>
           </div>
-        </div>
-      `;
+        </div>`;
 
-      const panel = document.getElementById(`code-panel-${doorId}-${codeStage}`);
-      const input = document.getElementById(`code-input-${doorId}-${codeStage}`);
-      const feedback = document.getElementById(`code-feedback-${doorId}-${codeStage}`);
-      const nextBtn = document.getElementById(`code-next-${doorId}-${codeStage}`);
+      const panel  = document.getElementById(`cpanel-${doorId}-${codeStage}`);
+      const input  = document.getElementById(`cinput-${doorId}-${codeStage}`);
+      const fb     = document.getElementById(`cfb-${doorId}-${codeStage}`);
 
-      const submitCode = () => {
-        const entered = input.value.trim().toUpperCase();
+      const submit = () => {
+        const entered  = input.value.trim().toUpperCase();
+        const expected = expectedCode.toUpperCase();
         panel.classList.remove("success", "error");
 
-        if (entered === expectedCode) {
+        if (entered === expected) {
           panel.classList.add("success");
-          feedback.textContent = "איזה יופי! הקוד נכון והדלת נפתחת לשלב הבא ✨";
-          feedback.className = "feedback success";
+          fb.textContent = "הקוד נכון!";
+          fb.className   = "feedback success";
           burstEffect();
-          nextBtn.classList.remove("hidden");
-
-          nextBtn.onclick = () => {
-            if (finalStage) {
-              renderDoorFinish(doorId);
-              setActiveScreen(`door-${doorId}-finish`);
-            } else {
-              renderStep(doorId, codeStage + 1);
-            }
-          };
+          // Save code for final lock
+          if (!state.stepCodesEntered[doorId]) state.stepCodesEntered[doorId] = [];
+          state.stepCodesEntered[doorId][codeStage - 1] = expectedCode;
+          // Navigate to confirmation after short delay
+          renderConfirmation(doorId, codeStage);
+          setTimeout(() => setActiveScreen(`door-${doorId}-confirm-${codeStage}`), 700);
         } else {
           panel.classList.add("error");
-          feedback.textContent = "זה עדיין לא הקוד הנכון. נסו שוב עם הצוות.";
-          feedback.className = "feedback error";
+          fb.textContent = "הקוד שגוי.\nנסו שוב.";
+          fb.className   = "feedback error";
         }
       };
 
-      input.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") submitCode();
-      });
-      document.getElementById(`code-submit-${doorId}-${codeStage}`).onclick = submitCode;
-
-      document.getElementById(`code-back-${doorId}-${codeStage}`).onclick = () => setActiveScreen("screen-doors");
+      input.addEventListener("keydown", e => { if (e.key === "Enter") submit(); });
+      document.getElementById(`csubmit-${doorId}-${codeStage}`).onclick = submit;
+      document.getElementById(`cback-${doorId}-${codeStage}`).onclick   = () => setActiveScreen("screen-doors");
     }
 
-    function renderDoorFinish(doorId) {
+    // ── Screen 6: Confirmation ───────────────────────────────
+    function renderConfirmation(doorId, stepIndex) {
       ensureDoorSections(doorId);
-      state.completedDoors.add(doorId);
-      const door = getDoor(doorId);
-      const el = document.getElementById(`door-${doorId}-finish`);
+      const door      = getDoor(doorId);
+      if (!door) return;
+      const isLast    = stepIndex === 3;
+      const el        = document.getElementById(`door-${doorId}-confirm-${stepIndex}`);
 
       el.innerHTML = `
-        ${topStrip(`${door.title}`, "הצלחה")}
-        <div class="card finish-card">
-          <h2 class="finish-title">נהדר! ${door.title} נפתחה בהצלחה ✨</h2>
-          <p class="question-text">סיכום קצר של מה שגיליתם:</p>
-          <ul class="finish-list">
-            ${door.summary.map(item => `<li>${item}</li>`).join("")}
-          </ul>
-
-          <div class="actions">
-            <button class="btn btn-primary" id="door-${doorId}-finish-back-doors">חזרה למסך הדלתות</button>
+        ${topStrip(`דלת ${doorId}`, `שלב ${stepIndex} הושלם`)}
+        <div class="card question-card">
+          <div class="confirm-box">
+            <div class="confirm-icon">🎉</div>
+            <h2 class="section-title" style="color:var(--accent-2);margin:0">כל הכבוד!</h2>
+            <p class="question-text" style="margin:0">התשובה נכונה.</p>
+            <button class="btn btn-next" id="cnext-${doorId}-${stepIndex}">
+              ${isLast ? "לפתיחת הדלת" : "לשלב הבא"}
+            </button>
           </div>
-        </div>
-      `;
+        </div>`;
 
-      document.getElementById(`door-${doorId}-finish-back-doors`).onclick = () => {
+      document.getElementById(`cnext-${doorId}-${stepIndex}`).onclick = () => {
+        if (isLast) {
+          renderFinalLock(doorId);
+          setActiveScreen(`door-${doorId}-final-lock`);
+        } else {
+          renderStep(doorId, stepIndex + 1);
+        }
+      };
+    }
+
+    // ── Screen 7: Final lock ─────────────────────────────────
+    function renderFinalLock(doorId) {
+      ensureDoorSections(doorId);
+      const door  = getDoor(doorId);
+      if (!door) return;
+      const codes = state.stepCodesEntered[doorId] || [];
+      const el    = document.getElementById(`door-${doorId}-final-lock`);
+
+      const codesHtml = codes.map((code, i) => {
+        const mid    = Math.floor(code.length / 2);
+        const before = code.slice(0, mid);
+        const mid_ch = code[mid] || "";
+        const after  = code.slice(mid + 1);
+        return `
+          <div class="code-display-item">
+            <span>קוד שלב ${i + 1}:</span>
+            <span class="code-text">${before}<span class="code-middle">${mid_ch}</span>${after}</span>
+          </div>`;
+      }).join("");
+
+      el.innerHTML = `
+        ${topStrip(`דלת ${doorId}`, "מנעול אחרון")}
+        <div class="card question-card">
+          <h2 class="question-title">המנעול האחרון 🔐</h2>
+          <p class="question-text">
+            אספתם שלושה קודי מעבר.<br>
+            כדי לפתוח את הדלת<br>
+            קחו את <strong>הספרה האמצעית</strong> מכל קוד<br>
+            והזינו אותן לפי הסדר.
+          </p>
+          ${codes.length ? `<div class="codes-reminder">${codesHtml}</div>` : ""}
+
+          <div class="code-panel" id="fpanel-${doorId}">
+            <h3 class="code-title">קוד פתיחה</h3>
+            <div class="code-row">
+              <input class="input" id="finput-${doorId}" type="text" placeholder="קוד פתיחה" autocomplete="off">
+              <button class="btn btn-primary" id="fsubmit-${doorId}">פתיחת הדלת</button>
+            </div>
+          </div>
+          <p class="feedback" id="ffb-${doorId}"></p>
+          <div class="actions" style="margin-top:12px">
+            <button class="btn btn-secondary" id="fback-${doorId}">חזרה לדלתות</button>
+          </div>
+        </div>`;
+
+      const panel  = document.getElementById(`fpanel-${doorId}`);
+      const input  = document.getElementById(`finput-${doorId}`);
+      const fb     = document.getElementById(`ffb-${doorId}`);
+
+      const check = () => {
+        const entered   = input.value.trim().toUpperCase();
+        const expected  = String(door.final_code || "").toUpperCase();
+        panel.classList.remove("success", "error");
+
+        if (entered === expected) {
+          panel.classList.add("success");
+          fb.textContent = "הדלת נפתחת!";
+          fb.className   = "feedback success";
+          burstEffect();
+          setTimeout(() => {
+            playDoorVideo(() => {
+              renderDoorSummary(doorId);
+              setActiveScreen(`door-${doorId}-summary`);
+            });
+          }, 700);
+        } else {
+          panel.classList.add("error");
+          fb.textContent = "הקוד שגוי. נסו שוב.";
+          fb.className   = "feedback error";
+        }
+      };
+
+      input.addEventListener("keydown", e => { if (e.key === "Enter") check(); });
+      document.getElementById(`fsubmit-${doorId}`).onclick = check;
+      document.getElementById(`fback-${doorId}`).onclick   = () => setActiveScreen("screen-doors");
+    }
+
+    // ── Screen 9: Summary ────────────────────────────────────
+    function renderDoorSummary(doorId) {
+      ensureDoorSections(doorId);
+      state.completedDoors.add(doorId);
+      const door    = getDoor(doorId);
+      if (!door) return;
+      const summary = door.summary || {};
+      const el      = document.getElementById(`door-${doorId}-summary`);
+
+      el.innerHTML = `
+        ${topStrip(`דלת ${doorId}`, "דלת נפתחה")}
+        <div class="card finish-card">
+          <div class="summary-creature">
+            <img src="${getCreatureImage(door)}" alt="${summary.organism || door.organism || ''}"
+              onerror="this.style.display='none'">
+          </div>
+          <h2 class="finish-title">דלת נפתחה ✨</h2>
+          <ul class="finish-list">
+            <li><strong>האורגניזם:</strong> ${summary.organism || door.organism || ""}</li>
+            <li><strong>היכולת בטבע:</strong> ${summary.ability || ""}</li>
+            <li><strong>ההשראה להמצאה:</strong> ${summary.innovation || ""}</li>
+          </ul>
+          <div class="actions">
+            <button class="btn btn-primary" id="sback-${doorId}">חזרה לחדר הדלתות</button>
+          </div>
+        </div>`;
+
+      document.getElementById(`sback-${doorId}`).onclick = () => {
         renderDoors();
         setActiveScreen("screen-doors");
       };
-
     }
 
+    // ── Final congratulations screen ─────────────────────────
     function renderFinal() {
-      const finalScreen = document.getElementById("screen-final");
-
-      finalScreen.innerHTML = `
+      const el = document.getElementById("screen-final");
+      el.innerHTML = `
         ${topStrip("סיום", `דלתות שהושלמו: ${state.completedDoors.size}`)}
         <div class="card finish-card">
           <h2 class="finish-title">פיצחתם את קוד הטבע 🎉</h2>
           <p class="question-text">למדתם איך הטבע נותן השראה לרעיונות, לפתרונות ולהמצאות חדשות.</p>
-
           <div class="actions">
-            <button class="btn btn-primary" id="final-back-doors">חזרה למסך הדלתות</button>
+            <button class="btn btn-primary" id="final-back-btn">חזרה למסך הדלתות</button>
           </div>
-        </div>
-      `;
-
-      document.getElementById("final-back-doors").onclick = () => {
+        </div>`;
+      document.getElementById("final-back-btn").onclick = () => {
         renderDoors();
         setActiveScreen("screen-doors");
       };
-
     }
 
-    renderHome();
-    startStatusPolling();
+    // ── Bootstrap ────────────────────────────────────────────
+    (async () => {
+      await loadDoorsData();
+      renderHome();
+      startStatusPolling();
+    })();
   </script>
 </body>
 </html>

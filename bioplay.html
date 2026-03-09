@@ -357,6 +357,50 @@
       flex-wrap: wrap;
     }
 
+    .door-count-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .door-count-label {
+      font-size: 1rem;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .door-count-btns {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .door-count-btn {
+      min-width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.2);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .18s, border-color .18s;
+    }
+
+    .door-count-btn:hover {
+      background: rgba(98,217,255,.15);
+      border-color: var(--accent);
+    }
+
+    .door-count-btn.active {
+      background: var(--accent);
+      color: #07111f;
+      border-color: var(--accent);
+    }
+
     .input {
       flex: 1 1 220px;
       min-height: 50px;
@@ -757,66 +801,9 @@
     </div>
   </div>
 
+  <script src="doors-data.js"></script>
   <script>
-    // ==========================================================
-    // מרכז קודי הדלתות של המשחק (מקור אמת אחד)
-    // נשמרים כאן רק קודי השלבים של הדלתות עצמן.
-    // קוד המדריך להפעלה/איפוס נבדק אך ורק ב-Apps Script.
-    // ==========================================================
-    const GAME_CODE_CATALOG = {
-      doors: {
-        1: [
-          { stage: 1, code: "G1", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "CLIMB", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "TOP1", unlocks: "פתיחת דלת 1 והצגת סיכום" }
-        ],
-        2: [
-          { stage: 1, code: "LOT2", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "DRY3", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "CLEAN9", unlocks: "פתיחת דלת 2 והצגת סיכום" }
-        ],
-        3: [
-          { stage: 1, code: "BAT3", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "ECHO", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "SON7", unlocks: "פתיחת דלת 3 והצגת סיכום" }
-        ],
-        4: [
-          { stage: 1, code: "KING4", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "SPEED", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "TRAIN7", unlocks: "פתיחת דלת 4 והצגת סיכום" }
-        ],
-        5: [
-          { stage: 1, code: "G1", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "CLIMB", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "TOP1", unlocks: "פתיחת דלת 5 והצגת סיכום" }
-        ],
-        6: [
-          { stage: 1, code: "LOT2", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "DRY3", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "CLEAN9", unlocks: "פתיחת דלת 6 והצגת סיכום" }
-        ],
-        7: [
-          { stage: 1, code: "BAT3", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "ECHO", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "SON7", unlocks: "פתיחת דלת 7 והצגת סיכום" }
-        ],
-        8: [
-          { stage: 1, code: "KING4", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "SPEED", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "TRAIN7", unlocks: "פתיחת דלת 8 והצגת סיכום" }
-        ],
-        9: [
-          { stage: 1, code: "G1", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "CLIMB", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "TOP1", unlocks: "פתיחת דלת 9 והצגת סיכום" }
-        ],
-        10: [
-          { stage: 1, code: "LOT2", unlocks: "מעבר לשלב 2" },
-          { stage: 2, code: "DRY3", unlocks: "מעבר לשלב 3" },
-          { stage: 3, code: "CLEAN9", unlocks: "פתיחת דלת 10 והצגת סיכום" }
-        ]
-      }
-    };
+    // נתוני הדלתות והקודים נטענים מ-doors-data.js
 
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPh_Hq7TyvHWY0Tk32WQ2Z0iyXbLSsr3lu6r1LwxmrxTuzfzj2sV0UT4LFbC9KhQV7Uw/exec";
     const GAME_ID = "main_game";
@@ -832,285 +819,10 @@
     const ASSETS = {
       logo: "images/logo.svg",
       intro: "images/control-room.svg",
-      introFallback: "",
-      doorVideo: "images/opendoor.mp4",
-      doorFallback: "images/door-active.svg",
-      doorLocked: "images/door-locked.svg",
-      creatures: {
-        1: "images/gecko.svg",
-        2: "images/lotus.svg",
-        3: "images/bat.svg",
-        4: "images/kingfisher.svg"
-      },
-      doors: Object.fromEntries(Array.from({ length: 10 }, (_, i) => [i + 1, `images/door${i + 1}.svg`]))
+      doorFallback: "images/door-active.svg"
     };
 
-    const DOORS = [
-      {
-  id: 1,
-  title: "דלת 1",
-  theme: "שממית",
-  image: ASSETS.creatures[1],
-  codes: ["GKO1", "CLIMB", "WALL9"],
-  intro: "מאחורי הדלת הזו מסתתר יצור מיוחד.\nתגלו איך הוא מצליח להיצמד למשטחים\nומה בני אדם למדו ממנו.",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני מטפסת על קירות\nוגם על תקרה בלי ליפול.\nמי אני?",
-      options: ["שממית", "עטלף", "קיפוד"],
-      answer: "שממית"
-    },
-    {
-      title: "שלב 2 – מה זה עוזר לי לעשות?",
-      question: "למה היכולת הזאת חשובה בטבע?",
-      options: ["להיצמד ולטפס", "לשחות עמוק", "להסתתר מהשמש"],
-      answer: "להיצמד ולטפס"
-    },
-    {
-      title: "שלב 3 – מה אפשר לפתח בהשראה?",
-      question: "איזה מוצר אפשר לפתח\nבהשראת היכולת הזאת?",
-      options: ["דבק חכם או רובוט מטפס", "פנס לילה", "בקבוק מים"],
-      answer: "דבק חכם או רובוט מטפס"
-    }
-  ],
-  summary: [
-    "אורגניזם: שממית",
-    "כוח-על: היצמדות למשטחים",
-    "השראה למוצר: דבק חכם או רובוט מטפס"
-  ]
-},
-{
-  id: 2,
-  title: "דלת 2",
-  theme: "לוטוס",
-  image: ASSETS.creatures[2],
-  codes: ["LOT2", "DRY3", "CLEAN9"],
-  intro: "בדלת הזו תגלו תופעה מיוחדת מהטבע.\nאיך משטח יכול להישאר נקי כמעט לבד?\nומה בני אדם פיתחו בהשראתה?",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני צמח מים.\nהעלים שלי נשארים נקיים\nכי מים מחליקים מהם.\nמי אני?",
-      options: ["לוטוס", "קקטוס", "ורד"],
-      answer: "לוטוס"
-    },
-    {
-      title: "שלב 2 – למה זה עוזר?",
-      question: "מה היתרון בטבע?",
-      options: ["שמירה על ניקיון העלים", "משיכת ציפורים", "יצירת צל"],
-      answer: "שמירה על ניקיון העלים"
-    },
-    {
-      title: "שלב 3 – מוצר בהשראה",
-      question: "מה בני אדם פיתחו מזה?",
-      options: ["ציפוי דוחה מים", "כרית שינה", "זכוכית כהה"],
-      answer: "ציפוי דוחה מים"
-    }
-  ],
-  summary: [
-    "אורגניזם: לוטוס",
-    "כוח-על: דחיית מים ולכלוך",
-    "השראה למוצר: ציפויים מתנקים"
-  ]
-},
-{
-  id: 3,
-  title: "דלת 3",
-  theme: "עטלף",
-  image: ASSETS.creatures[3],
-  codes: ["BAT3", "ECHO", "SON7"],
-  intro: "בדלת הזו מחכה יצור שפועל בדרך מפתיעה.\nתגלו איך אפשר להתמצא גם בלי לראות היטב,\nומה בני אדם למדו מזה.",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני עף בלילה\nומשתמש בקולות והד\nכדי לדעת מה סביבי.\nמי אני?",
-      options: ["עטלף", "ינשוף", "דולפין"],
-      answer: "עטלף"
-    },
-    {
-      title: "שלב 2 – למה זה עוזר?",
-      question: "מה זה נותן לי בטבע?",
-      options: ["לנוע בחושך", "להחליף צבעים", "להישאר יבש"],
-      answer: "לנוע בחושך"
-    },
-    {
-      title: "שלב 3 – השראה למוצר",
-      question: "איזו טכנולוגיה נוצרה\nבהשראת היכולת הזאת?",
-      options: ["מערכת סונאר", "מחברת חכמה", "מטרייה מתקפלת"],
-      answer: "מערכת סונאר"
-    }
-  ],
-  summary: [
-    "אורגניזם: עטלף",
-    "כוח-על: ניווט באמצעות הד",
-    "השראה למוצר: סונאר וחיישני מרחק"
-  ]
-},
-{
-  id: 4,
-  title: "דלת 4",
-  theme: "שלדג",
-  image: ASSETS.creatures[4],
-  codes: ["KING4", "SPEED", "TRAIN7"],
-  intro: "מאחורי הדלת הזו מסתתר בעל חיים מהיר ומדויק.\nתגלו איך מבנה הגוף שלו עוזר לו לנוע ביעילות,\nומה פותח בהשראתו.",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני ציפור שצוללת למים\nלתפוס דגים במהירות.\nמי אני?",
-      options: ["שלדג", "נשר", "יונה"],
-      answer: "שלדג"
-    },
-    {
-      title: "שלב 2 – למה זה עוזר?",
-      question: "מה היתרון של מקור חד וארוך?",
-      options: ["כניסה שקטה למים", "תעופה לעננים", "שמירת חום"],
-      answer: "כניסה שקטה למים"
-    },
-    {
-      title: "שלב 3 – השראה למוצר",
-      question: "איזו טכנולוגיה קיבלה השראה מהשלדג?",
-      options: ["רכבת מהירה ושקטה", "מזלג מתקפל", "מחברת קשיחה"],
-      answer: "רכבת מהירה ושקטה"
-    }
-  ],
-  summary: [
-    "אורגניזם: שלדג",
-    "כוח-על: חדירה שקטה למים",
-    "השראה למוצר: רכבות יעילות ושקטות"
-  ]
-},
-{
-  id: 5,
-  title: "דלת 5",
-  theme: "כריש",
-  image: ASSETS.creatures[5],
-  codes: ["SHRK5", "FAST2", "SKIN8"],
-  intro: "בדלת הזו תגלו יצור ימי מעורר השראה.\nמה מיוחד במבנה הגוף שלו,\nואיך זה עזר לפתח טכנולוגיה?",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני חי בים.\nשוחה מהר מאוד,\nוהעור שלי מיוחד מאוד.\nמי אני?",
-      options: ["כריש", "לווייתן", "צב ים"],
-      answer: "כריש"
-    },
-    {
-      title: "שלב 2 – למה זה עוזר?",
-      question: "מה היתרון של מבנה העור שלי בטבע?",
-      options: ["שחייה מהירה וחלקה", "שמיעה חזקה", "שמירה על אור"],
-      answer: "שחייה מהירה וחלקה"
-    },
-    {
-      title: "שלב 3 – השראה למוצר",
-      question: "איזה פיתוח נוצר\nבהשראת העור הזה?",
-      options: ["בגד ים מהיר או ציפוי מפחית חיכוך", "כיסא מתקפל", "שעון קיר"],
-      answer: "בגד ים מהיר או ציפוי מפחית חיכוך"
-    }
-  ],
-  summary: [
-    "אורגניזם: כריש",
-    "כוח-על: עור שמפחית חיכוך במים",
-    "השראה למוצר: בגד ים מהיר וציפויים מיוחדים"
-  ]
-},
-{
-  id: 6,
-  title: "דלת 6",
-  theme: "קורי עכביש",
-  image: ASSETS.creatures[6],
-  codes: ["WEB6", "STRG4", "FLEX9"],
-  intro: "מאחורי הדלת הזו מסתתר פתרון חכם מהטבע.\nאיך משהו דק יכול להיות גם חזק וגם גמיש,\nומה אפשר ללמוד ממנו?",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני טווה רשת דקה מאוד,\nאבל היא גם חזקה וגם גמישה.\nמי אני?",
-      options: ["עכביש", "נמלה", "זחל"],
-      answer: "עכביש"
-    },
-    {
-      title: "שלב 2 – למה זה עוזר?",
-      question: "למה התכונה הזאת חשובה בטבע?",
-      options: ["לבנות רשת חזקה ללכידת טרף", "ליצור אור בלילה", "לשנות צבעים"],
-      answer: "לבנות רשת חזקה ללכידת טרף"
-    },
-    {
-      title: "שלב 3 – השראה למוצר",
-      question: "מה אפשר לפתח\nבהשראת קורי העכביש?",
-      options: ["חומרים חזקים וגמישים", "מנורת שולחן", "בקבוק זכוכית"],
-      answer: "חומרים חזקים וגמישים"
-    }
-  ],
-  summary: [
-    "אורגניזם: עכביש",
-    "כוח-על: סיבים חזקים וגמישים מאוד",
-    "השראה למוצר: חומרים חזקים וקלים"
-  ]
-},
-{
-  id: 7,
-  title: "דלת 7",
-  theme: "דולפין",
-  image: ASSETS.creatures[7],
-  codes: ["DOL7", "WAVE2", "SCAN5"],
-  intro: "בדלת הזו תגלו יכולת מיוחדת מהים.\nאיך אפשר לזהות מה נמצא סביבנו בלי לראות הכול,\nומה בני אדם פיתחו בהשראת זה?",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני יונק ימי חכם.\nמשתמש בקולות ובהד\nכדי להבין מה יש סביבי.\nמי אני?",
-      options: ["דולפין", "כריש", "תמנון"],
-      answer: "דולפין"
-    },
-    {
-      title: "שלב 2 – למה זה עוזר?",
-      question: "מה היכולת הזאת עוזרת לי לעשות?",
-      options: ["למצוא דרך ולזהות עצמים במים", "לטפס על עצים", "להתחמם בשמש"],
-      answer: "למצוא דרך ולזהות עצמים במים"
-    },
-    {
-      title: "שלב 3 – השראה למוצר",
-      question: "איזו טכנולוגיה פותחה\nבהשראת היכולת הזאת?",
-      options: ["סונאר ימי", "מטרייה אוטומטית", "מחק חכם"],
-      answer: "סונאר ימי"
-    }
-  ],
-  summary: [
-    "אורגניזם: דולפין",
-    "כוח-על: זיהוי בעזרת קולות והד",
-    "השראה למוצר: סונאר ומערכות גילוי"
-  ]
-},
-{
-  id: 8,
-  title: "דלת 8",
-  theme: "דבורת דבש",
-  image: ASSETS.creatures[8],
-  codes: ["BEE8", "HEX4", "HIVE6"],
-  intro: "מאחורי הדלת הזו מסתתרת שיטת בנייה חכמה מהטבע.\nתגלו איך מבנה קטן יכול להיות גם חזק וגם חסכוני,\nומה בני אדם למדו ממנו.",
-  steps: [
-    {
-      title: "שלב 1 – מי אני?",
-      question: "אני חרק קטן שעובד בקבוצה,\nובונה כוורת בצורה מיוחדת.\nמי אני?",
-      options: ["דבורת דבש", "פרפר", "חיפושית"],
-      answer: "דבורת דבש"
-    },
-    {
-      title: "שלב 2 – למה זה עוזר?",
-      question: "מה היתרון של המבנה המשושה בטבע?",
-      options: ["בניית מבנה חזק וחסכוני", "הפצת אור", "שינוי צבע"],
-      answer: "בניית מבנה חזק וחסכוני"
-    },
-    {
-      title: "שלב 3 – השראה למוצר",
-      question: "מה פותח בהשראת המבנה הזה?",
-      options: ["מבנים ולוחות קלים וחזקים", "נעליים זוהרות", "כפית מתקפלת"],
-      answer: "מבנים ולוחות קלים וחזקים"
-    }
-  ],
-  summary: [
-    "אורגניזם: דבורת דבש",
-    "כוח-על: בנייה חכמה במבנה משושה",
-    "השראה למוצר: לוחות ומבנים חזקים וקלים"
-  ]
- }
-    ];
+    // DOORS נטען מ-doors-data.js
 
     const app = document.getElementById("app");
     const effectsLayer = document.getElementById("effects-layer");
@@ -1123,7 +835,8 @@
       statusRequestInFlight: false,
       logoTapCount: 0,
       logoTapResetTimer: null,
-      completedDoors: new Set()
+      completedDoors: new Set(),
+      activeDoorCount: DOORS.length
     };
 
     function isUnlocked() {
@@ -1336,6 +1049,16 @@
                 <button class="btn btn-primary" id="guide-start-btn">הפעל</button>
               </div>
               <p class="feedback" id="guide-feedback"></p>
+
+              <div class="door-count-row">
+                <span class="door-count-label">כמות דלתות:</span>
+                <div class="door-count-btns" id="door-count-btns">
+                  ${Array.from({length: 8}, (_, i) => i + 1).map(n =>
+                    `<button class="door-count-btn${n === DOORS.length ? ' active' : ''}" data-count="${n}">${n}</button>`
+                  ).join("")}
+                </div>
+              </div>
+
               <div class="actions">
                 <button class="btn btn-secondary" id="guide-close-btn">סגירה</button>
               </div>
@@ -1382,6 +1105,14 @@
       document.getElementById("guide-close-btn").onclick = () => {
         guideModal.classList.remove("active");
       };
+
+      document.getElementById("door-count-btns").addEventListener("click", e => {
+        const btn = e.target.closest(".door-count-btn");
+        if (!btn) return;
+        const n = Number(btn.dataset.count);
+        state.activeDoorCount = n;
+        document.querySelectorAll(".door-count-btn").forEach(b => b.classList.toggle("active", Number(b.dataset.count) === n));
+      });
 
       document.getElementById("guide-start-btn").onclick = async () => {
         const value = guideCodeInput.value.trim();
@@ -1446,13 +1177,13 @@
 
     function renderDoors() {
       const doorsScreen = document.getElementById("screen-doors");
-      const cards = DOORS.map(door => `
+      const cards = DOORS.slice(0, state.activeDoorCount).map(door => `
         <article class="door-card">
           <div class="door-title">${door.title}</div>
           <div class="door-image-wrap">
             <img
               class="door-image"
-              src="${ASSETS.doors[door.id]}"
+              src="${door.doorImage}"
               alt="${door.title}"
               onerror="this.onerror=null; this.src='${ASSETS.doorFallback}'"
             >
@@ -1539,7 +1270,7 @@
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
-              <img src="${ASSETS.doors[door.id]}" alt="${door.title}" onerror="this.style.display='none'">
+              <img src="${door.doorImage}" alt="${door.title}" onerror="this.style.display='none'">
             </div>
 
             <div>
@@ -1571,7 +1302,7 @@
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
-              <img src="${ASSETS.doors[door.id]}" alt="${door.title}" onerror="this.style.display='none'">
+              <img src="${door.doorImage}" alt="${door.title}" onerror="this.style.display='none'">
             </div>
 
             <div>
@@ -1638,7 +1369,7 @@
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
-              <img src="${ASSETS.doors[door.id]}" alt="${door.title}" onerror="this.style.display='none'">
+              <img src="${door.doorImage}" alt="${door.title}" onerror="this.style.display='none'">
             </div>
 
             <div>

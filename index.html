@@ -16,7 +16,7 @@
       --title-magic: #b8ffe5;
       --danger: #ff93ac;
       --radius: 20px;
-      --ease: 860ms cubic-bezier(.22,.61,.36,1);
+      --ease: 1120ms cubic-bezier(.22,.61,.36,1);
     }
 
     * { box-sizing: border-box; font-family: "Assistant", "Rubik", sans-serif; }
@@ -40,7 +40,7 @@
     }
 
     .screen { display: none; min-height: 85vh; padding: clamp(16px, 2.7vw, 34px); }
-    .screen.active { display: block; animation: fadeSlide .95s var(--ease); }
+    .screen.active { display: block; animation: fadeSlide 1.25s var(--ease); }
 
     .top-strip {
       display: flex; justify-content: space-between; gap: 10px; align-items: center;
@@ -84,6 +84,18 @@
       background: radial-gradient(circle at center, rgba(125,243,173,.14), rgba(0,0,0,.2) 40%), linear-gradient(180deg, rgba(0,0,0,.1), rgba(0,0,0,.58));
     }
 
+    .intro-magic-particles {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background-image:
+        radial-gradient(circle at 20% 18%, rgba(125,243,173,.35) 0, rgba(125,243,173,0) 26%),
+        radial-gradient(circle at 80% 22%, rgba(82,214,255,.28) 0, rgba(82,214,255,0) 22%),
+        radial-gradient(circle at 58% 72%, rgba(255,255,255,.2) 0, rgba(255,255,255,0) 16%);
+      mix-blend-mode: screen;
+      animation: floatAura 9s ease-in-out infinite alternate;
+    }
+
     .intro-box {
       position: relative; z-index: 2; width: min(900px, 94%);
       background: rgba(5, 10, 24, .62); border-radius: 24px; padding: 24px;
@@ -93,13 +105,21 @@
     }
 
     .intro-main-logo {
-      width: min(220px, 45vw);
+      width: min(300px, 58vw);
       cursor: pointer;
       transition: transform .36s ease, filter .36s ease;
       display: block;
+      animation: logoFloat 3.6s ease-in-out infinite;
     }
     .intro-main-logo:hover { filter: drop-shadow(0 0 16px rgba(125,243,173,.4)); }
     .intro-main-logo:active { transform: scale(.95); }
+    .intro-main-logo.logo-broken {
+      padding: 20px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,147,172,.9);
+      background: rgba(255,147,172,.18);
+      animation: shake .8s ease;
+    }
 
     .logo-hint {
       margin: 0;
@@ -110,6 +130,14 @@
       transition: opacity .4s ease;
     }
     .logo-hint.show { opacity: .94; }
+
+    .logo-tap-feedback {
+      min-height: 24px;
+      margin: 0;
+      color: #b6f7ff;
+      font-size: .98rem;
+      opacity: .86;
+    }
 
     .instruction-layer.hidden { display: none; }
 
@@ -147,6 +175,10 @@
       border: 1px solid rgba(255,255,255,.24);
     }
 
+    .start-ready {
+      animation: startReveal 1.4s var(--ease), pulseGlow 2.2s ease-in-out infinite;
+    }
+
     .wait-message.hidden,
     .btn.hidden,
     .admin-modal.hidden,
@@ -156,7 +188,7 @@
       position: absolute; z-index: 3; display: none; text-align: center;
       font-size: clamp(5rem, 18vw, 12rem); font-weight: 800;
       text-shadow: 0 0 34px rgba(82,214,255,.9);
-      animation: pulseGlow 1s ease-in-out infinite;
+      animation: pulseGlow 1s ease-in-out infinite, shimmer 2.2s linear infinite;
       background: rgba(5,10,24,.38);
       padding: 18px 34px;
       border-radius: 24px;
@@ -164,6 +196,8 @@
     }
     .countdown.active { display: block; }
     .countdown small { display: block; font-size: clamp(1.35rem, 2.8vw, 1.7rem); margin-top: 8px; }
+
+    .countdown.tick { animation: pulseGlow .8s ease-in-out, shimmer 1.8s linear infinite; }
 
     .admin-modal {
       position: absolute;
@@ -212,6 +246,16 @@
       filter: saturate(1.15);
     }
     .door-card:hover::after { opacity: 1; }
+    .door-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.26) 48%, transparent 100%);
+      transform: translateX(130%);
+      transition: transform 1.1s ease;
+      pointer-events: none;
+    }
+    .door-card:hover::before { transform: translateX(-120%); }
     .door-title { text-align: center; font-weight: 800; font-size: 1.5rem; padding: 12px 8px; }
     .door-image-wrap { position: relative; aspect-ratio: 4/5; }
     .door-image-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -237,12 +281,12 @@
       min-height: 62px;
     }
     .answer:hover { transform: translateX(-3px); border-color: var(--accent); box-shadow: 0 0 20px rgba(82,214,255,.25); }
-    .answer.correct { background: rgba(125,243,173,.24); border-color: var(--accent-2); box-shadow: 0 0 24px rgba(125,243,173,.35); }
-    .answer.wrong { background: rgba(255,128,152,.16); border-color: var(--danger); animation: shake .6s ease; }
+    .answer.correct { background: rgba(125,243,173,.24); border-color: var(--accent-2); box-shadow: 0 0 24px rgba(125,243,173,.35); animation: successPop .8s ease; }
+    .answer.wrong { background: rgba(255,128,152,.16); border-color: var(--danger); animation: wrongPulse .75s ease; }
 
     .feedback { min-height: 34px; margin-top: 14px; font-size: 1.26rem; font-weight: 700; }
-    .feedback.success { color: var(--accent-2); text-shadow: 0 0 14px rgba(125,243,173,.7); }
-    .feedback.error { color: var(--danger); }
+    .feedback.success { color: var(--accent-2); text-shadow: 0 0 14px rgba(125,243,173,.7); animation: successPop .75s ease; }
+    .feedback.error { color: var(--danger); animation: wrongPulse .65s ease; }
 
     .code-panel { border: 1px solid rgba(255,255,255,.2); border-radius: 14px; padding: 16px; background: rgba(255,255,255,.05); transition: box-shadow .55s ease, transform .55s ease; }
     .code-row { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -253,8 +297,9 @@
     .code-panel.success {
       box-shadow: 0 0 0 3px rgba(125,243,173,.28), 0 0 34px rgba(125,243,173,.45);
       transform: scale(1.015);
+      animation: successHalo 1.1s ease;
     }
-    .code-panel.error { animation: shake .6s ease; }
+    .code-panel.error { animation: wrongPulse .7s ease; }
 
     .btn {
       border: none; border-radius: 12px; cursor: pointer; font-weight: 800;
@@ -287,6 +332,17 @@
       box-shadow: 0 0 45px rgba(82,214,255,.22);
     }
 
+    .door-video-caption {
+      position: absolute;
+      bottom: 9vh;
+      z-index: 41;
+      text-align: center;
+      font-size: clamp(1.5rem, 2.8vw, 2rem);
+      color: #d8fff5;
+      text-shadow: 0 0 18px rgba(125,243,173,.8);
+      animation: gatePulse 1.8s ease-in-out infinite;
+    }
+
     .finish-list { line-height: 2; font-size: clamp(1.2rem, 2.6vw, 1.6rem); }
 
     .effects-layer { pointer-events: none; position: absolute; inset: 0; overflow: hidden; z-index: 20; }
@@ -302,6 +358,14 @@
     @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
     @keyframes shake { 25% { transform: translateX(4px); } 70% { transform: translateX(-4px); } }
     @keyframes pulseGlow { 50% { transform: scale(1.06); text-shadow: 0 0 54px rgba(82,214,255,1); } }
+    @keyframes shimmer { from { background-position: -200% 0; } to { background-position: 220% 0; } }
+    @keyframes logoFloat { 50% { transform: translateY(-7px) scale(1.02); } }
+    @keyframes startReveal { from { opacity: 0; transform: translateY(18px) scale(.96);} to { opacity: 1; transform: translateY(0) scale(1);} }
+    @keyframes successPop { 50% { transform: scale(1.03); filter: brightness(1.16); } }
+    @keyframes successHalo { 40% { box-shadow: 0 0 0 6px rgba(125,243,173,.25), 0 0 54px rgba(125,243,173,.62); } }
+    @keyframes wrongPulse { 30% { transform: translateX(6px); } 70% { transform: translateX(-6px); } }
+    @keyframes floatAura { 50% { transform: translateY(-12px) scale(1.05); opacity: .75; } }
+    @keyframes gatePulse { 50% { letter-spacing: .05em; text-shadow: 0 0 28px rgba(125,243,173,1); } }
 
     @media (max-width: 850px) {
       .question-layout { grid-template-columns: 1fr; }
@@ -321,11 +385,44 @@
 
   <div class="door-video-overlay hidden" id="door-video-overlay">
     <video id="door-video-player" src="images/opendoor.mp4" playsinline muted preload="auto"></video>
+    <p class="door-video-caption">השער נפתח... נכנסים לעולם חדש ✨</p>
   </div>
 
   <script>
     const ADMIN_CODE = "BIO2024";
     const UNLOCK_DURATION_MS = 15 * 60 * 1000;
+
+    // מפת הקודים הרשמית של המשחק
+    const CODE_REGISTRY = {
+      adminCode: {
+        code: ADMIN_CODE,
+        belongsTo: "חלון מנהל במסך הפתיחה",
+        stage: "שחרור משחק",
+        unlocks: "פתיחת המשחק ל-15 דקות"
+      },
+      doorCodes: {
+        1: [
+          { stage: 1, code: "G1", unlocks: "מעבר לשלב 2 בדלת 1" },
+          { stage: 2, code: "CLIMB", unlocks: "מעבר לשלב 3 בדלת 1" },
+          { stage: 3, code: "TOP1", unlocks: "פתיחת דלת 1 וסיכום" }
+        ],
+        2: [
+          { stage: 1, code: "LOT2", unlocks: "מעבר לשלב 2 בדלת 2" },
+          { stage: 2, code: "DRY3", unlocks: "מעבר לשלב 3 בדלת 2" },
+          { stage: 3, code: "CLEAN9", unlocks: "פתיחת דלת 2 וסיכום" }
+        ],
+        3: [
+          { stage: 1, code: "BAT3", unlocks: "מעבר לשלב 2 בדלת 3" },
+          { stage: 2, code: "ECHO", unlocks: "מעבר לשלב 3 בדלת 3" },
+          { stage: 3, code: "SON7", unlocks: "פתיחת דלת 3 וסיכום" }
+        ],
+        4: [
+          { stage: 1, code: "KING4", unlocks: "מעבר לשלב 2 בדלת 4" },
+          { stage: 2, code: "SPEED", unlocks: "מעבר לשלב 3 בדלת 4" },
+          { stage: 3, code: "TRAIN7", unlocks: "פתיחת דלת 4 וסיכום" }
+        ]
+      }
+    };
 
     const imagePaths = {
       logo: "images/logo.svg",
@@ -379,6 +476,16 @@
     const topStrip = (doorName, progress) => `<div class="top-strip"><div><strong>${doorName}</strong></div><div>${progress}</div></div>`;
     const toLines = (txt) => txt.split("\n").join("<br>");
     const getDoor = (id) => content.doors.find((d) => d.id === id) || content.doors[(id - 1) % content.doors.length];
+    const getDoorCodeMap = (doorId) => CODE_REGISTRY.doorCodes[((doorId - 1) % content.doors.length) + 1] || [];
+
+    function spawnFailureWave(target) {
+      if (!target) return;
+      target.animate([
+        { boxShadow: "0 0 0 rgba(255,147,172,0)", transform: "scale(1)" },
+        { boxShadow: "0 0 0 10px rgba(255,147,172,.22)", transform: "scale(1.01)" },
+        { boxShadow: "0 0 0 0 rgba(255,147,172,0)", transform: "scale(1)" }
+      ], { duration: 750, easing: "ease" });
+    }
 
     function showScreen(id) {
       document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("active", s.id === id));
@@ -419,6 +526,8 @@
       const fb = document.getElementById("admin-feedback");
       if (input) input.value = "";
       if (fb) fb.textContent = "";
+      const tapFeedback = document.getElementById("logo-tap-feedback");
+      if (tapFeedback) tapFeedback.textContent = "לחצו 4 פעמים על הלוגו לפתיחת חלון מנהל.";
     }
 
     function ensureDoorSections(doorId) {
@@ -441,10 +550,12 @@
         <div class="card intro-hero">
           <img src="${imagePaths.intro}" alt="רקע חדר בריחה" class="intro-background">
           <div class="intro-overlay"></div>
+          <div class="intro-magic-particles"></div>
 
           <div class="intro-box">
             <img src="${imagePaths.logo}" alt="לוגו" class="intro-main-logo" id="logo-trigger">
-            <p id="logo-hint" class="logo-hint">חלון מדריכים נפתח</p>
+            <p id="logo-hint" class="logo-hint">חתימת מדריך זוהתה... פותחים גישה</p>
+            <p id="logo-tap-feedback" class="logo-tap-feedback">לחצו 4 פעמים על הלוגו לפתיחת חלון מנהל.</p>
 
             <div id="instruction-layer" class="instruction-layer">
               <h1>דלתות הטבע</h1>
@@ -452,7 +563,7 @@
               <p>בחרו דלת, פתרו שלבים וקבלו קוד מהמדריך בזום כדי להמשיך.</p>
               <div class="start-area">
                 <p class="wait-message ${isUnlocked ? "hidden" : ""}" id="wait-message">אנא המתינו - מיד מתחילים.</p>
-                <button class="btn btn-primary ${isUnlocked ? "" : "hidden"}" id="start-btn">התחילו במשימה</button>
+                <button class="btn btn-primary start-ready ${isUnlocked ? "" : "hidden"}" id="start-btn">התחילו במשימה</button>
               </div>
             </div>
           </div>
@@ -488,29 +599,46 @@
           const timer = setInterval(() => {
             sec -= 1;
             countdown.firstChild.nodeValue = String(sec);
+            countdown.classList.remove("tick");
+            void countdown.offsetWidth;
+            countdown.classList.add("tick");
             if (sec === 0) {
               clearInterval(timer);
               renderDoors();
               showScreen("screen-doors");
             }
-          }, 1000);
+          }, 1100);
         };
       }
 
       const logo = document.getElementById("logo-trigger");
       const hint = document.getElementById("logo-hint");
+      const tapFeedback = document.getElementById("logo-tap-feedback");
       const adminModal = document.getElementById("admin-modal");
       const adminFb = document.getElementById("admin-feedback");
 
+      logo.onerror = () => {
+        logo.classList.add("logo-broken");
+        tapFeedback.textContent = "שגיאה בטעינת הלוגו. בדקו את הנתיב images/logo.svg";
+      };
+
       logo.onclick = () => {
         state.logoTapCount += 1;
+        const left = Math.max(0, 4 - state.logoTapCount);
+        tapFeedback.textContent = left > 0 ? `עוד ${left} לחיצות לפתיחת חלון מנהל` : "גישה מזוהה... מכינים חלון מנהל";
         clearTimeout(state.logoTapTimer);
-        state.logoTapTimer = setTimeout(() => { state.logoTapCount = 0; }, 1600);
+        state.logoTapTimer = setTimeout(() => {
+          state.logoTapCount = 0;
+          tapFeedback.textContent = "לחצו 4 פעמים על הלוגו לפתיחת חלון מנהל.";
+        }, 1800);
         if (state.logoTapCount >= 4) {
           state.logoTapCount = 0;
           hint.classList.add("show");
-          adminModal.classList.remove("hidden");
-          setTimeout(() => hint.classList.remove("show"), 1600);
+          setTimeout(() => {
+            adminModal.classList.remove("hidden");
+            tapFeedback.textContent = "חלון מנהל פתוח";
+          }, 550);
+          setTimeout(() => hint.classList.remove("show"), 1700);
         }
       };
 
@@ -636,14 +764,16 @@
           el.querySelectorAll(".answer").forEach((b) => b.classList.remove("correct", "wrong"));
           btn.classList.add(good ? "correct" : "wrong");
           if (good) {
-            feedback.textContent = "מצוין! מצאתם את הרעיון הנכון. קראו בנחת ואז לחצו לשלב הבא.";
+            feedback.textContent = "מדהים! פתרון נכון ✨ האנרגיה הקסומה של השלב הופעלה.";
             feedback.className = "feedback success";
+            spawnSuccessBurst();
             nextBtn.style.display = "inline-block";
             renderCodeScreen(doorId, stepNum);
             nextBtn.onclick = () => showScreen(nextCodeScreen);
           } else {
-            feedback.textContent = "כמעט! המנגנון עדיין לא נפתח. חשבו שוב כמו הטבע 🙂";
+            feedback.textContent = "קרוב מאוד 💛 זה לא הקוד הנכון כרגע, נסו שוב בלי לחץ.";
             feedback.className = "feedback error";
+            spawnFailureWave(feedback);
           }
         };
       });
@@ -686,10 +816,11 @@
         const next = document.getElementById(`code-next-${doorId}-${codeNum}`);
         panel.classList.remove("success", "error");
 
-        if (entered === d.codes[codeNum - 1]) {
+        const expectedCode = (getDoorCodeMap(doorId)[codeNum - 1] || {}).code || d.codes[codeNum - 1];
+        if (entered === expectedCode) {
           panel.classList.add("success");
           spawnSuccessBurst();
-          fb.textContent = "איזה יופי! גיליתם את הסוד – הדלת נפתחת והטבע חושף רמז חדש ✨";
+          fb.textContent = "🎉 קסם! הקוד נכון, שער האור נפתח ואתם מתקדמים לעולם הבא!";
           fb.className = "feedback success";
           next.style.display = "inline-block";
           next.onclick = () => {
@@ -702,8 +833,9 @@
           };
         } else {
           panel.classList.add("error");
-          fb.textContent = "הקוד עדיין לא פתח את הדלת. נסו שוב יחד עם הצוות 💡";
+          fb.textContent = "זה עוד לא הקוד הנכון, וזה בסדר גמור 🌱 נסו עוד פעם עם הצוות.";
           fb.className = "feedback error";
+          spawnFailureWave(panel);
         }
       };
 

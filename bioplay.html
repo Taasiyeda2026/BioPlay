@@ -760,7 +760,82 @@
   </div>
 
   <script>
-    const ADMIN_CODE = "BIO2026";
+    // ==========================================================
+    // מרכז קודים וסיסמאות של המשחק (מקור אמת אחד)
+    // כאן מרוכזים:
+    // 1) קוד מנהל
+    // 2) כל קודי הדלתות לפי דלת ולפי שלב
+    // 3) מה כל קוד פותח (מעבר שלב / פתיחת דלת)
+    // ==========================================================
+    const GAME_CODE_CATALOG = {
+      admin: {
+        code: "BIO2024",
+        belongsTo: "מסך פתיחה",
+        stage: "קוד מנהל",
+        unlocks: "שחרור כפתור התחלה ל-15 דקות"
+      },
+      doors: {
+        1: [
+          { stage: 1, code: "G1", unlocks: "מעבר לשלב 2" },
+          { stage: 2, code: "CLIMB", unlocks: "מעבר לשלב 3" },
+          { stage: 3, code: "TOP1", unlocks: "פתיחת דלת 1 והצגת סיכום" }
+        ],
+        2: [
+          { stage: 1, code: "LOT2", unlocks: "מעבר לשלב 2" },
+          { stage: 2, code: "DRY3", unlocks: "מעבר לשלב 3" },
+          { stage: 3, code: "CLEAN9", unlocks: "פתיחת דלת 2 והצגת סיכום" }
+        ],
+        3: [
+          { stage: 1, code: "BAT3", unlocks: "מעבר לשלב 2" },
+          { stage: 2, code: "ECHO", unlocks: "מעבר לשלב 3" },
+          { stage: 3, code: "SON7", unlocks: "פתיחת דלת 3 והצגת סיכום" }
+        ],
+        4: [
+          { stage: 1, code: "KING4", unlocks: "מעבר לשלב 2" },
+          { stage: 2, code: "SPEED", unlocks: "מעבר לשלב 3" },
+          { stage: 3, code: "TRAIN7", unlocks: "פתיחת דלת 4 והצגת סיכום" }
+        ],
+        5: [
+          { stage: 1, code: "G1", unlocks: "מעבר לשלב 2" },
+          { stage: 2, code: "CLIMB", unlocks: "מעבר לשלב 3" },
+          { stage: 3, code: "TOP1", unlocks: "פתיחת דלת 5 והצגת סיכום" }
+        ],
+        6: [
+          { stage: 1, code: "LOT2", unlocks: "מעבר לשלב 2" },
+          { stage: 2, code: "DRY3", unlocks: "מעבר לשלב 3" },
+          { stage: 3, code: "CLEAN9", unlocks: "פתיחת דלת 6 והצגת סיכום" }
+        ],
+        7: [
+          { stage: 1, code: "BAT3", unlocks: "מעבר לשלב 2" },
+          { stage: 2, code: "ECHO", unlocks: "מעבר לשלב 3" },
+          { stage: 3, code: "SON7", unlocks: "פתיחת דלת 7 והצגת סיכום" }
+        ],
+        8: [
+          { stage: 1, code: "KING4", unlocks: "מעבר לשלב 2" },
+          { stage: 2, code: "SPEED", unlocks: "מעבר לשלב 3" },
+          { stage: 3, code: "TRAIN7", unlocks: "פתיחת דלת 8 והצגת סיכום" }
+        ],
+        9: [
+          { stage: 1, code: "G1", unlocks: "מעבר לשלב 2" },
+          { stage: 2, code: "CLIMB", unlocks: "מעבר לשלב 3" },
+          { stage: 3, code: "TOP1", unlocks: "פתיחת דלת 9 והצגת סיכום" }
+        ],
+        10: [
+          { stage: 1, code: "LOT2", unlocks: "מעבר לשלב 2" },
+          { stage: 2, code: "DRY3", unlocks: "מעבר לשלב 3" },
+          { stage: 3, code: "CLEAN9", unlocks: "פתיחת דלת 10 והצגת סיכום" }
+        ]
+      }
+    };
+
+    const ADMIN_CODE = GAME_CODE_CATALOG.admin.code;
+    const DOOR_STAGE_CODES = Object.fromEntries(
+      Object.entries(GAME_CODE_CATALOG.doors).map(([doorId, stageEntries]) => [
+        Number(doorId),
+        stageEntries.map(({ code }) => code)
+      ])
+    );
+
     const UNLOCK_DURATION_MS = 15 * 60 * 1000;
 
     const ASSETS = {
@@ -785,7 +860,7 @@
         title: "דלת 1",
         theme: "שממית",
         image: ASSETS.creatures[1],
-        codes: ["G1", "CLIMB", "TOP1"],
+        codes: DOOR_STAGE_CODES[1],
         intro: "מאחורי הדלת מחכה שממית עם כוח-על מפתיע.\nתגלו מה היא יודעת לעשות,\nואיך בני אדם מפתחים מזה מוצר חדש.",
         steps: [
           {
@@ -818,7 +893,7 @@
         title: "דלת 2",
         theme: "לוטוס",
         image: ASSETS.creatures[2],
-        codes: ["LOT2", "DRY3", "CLEAN9"],
+        codes: DOOR_STAGE_CODES[2],
         intro: "הפעם תגלו את סוד הלוטוס.\nאיך עלים נשארים נקיים?\nומה בני אדם למדו מזה?",
         steps: [
           {
@@ -851,7 +926,7 @@
         title: "דלת 3",
         theme: "עטלף",
         image: ASSETS.creatures[3],
-        codes: ["BAT3", "ECHO", "SON7"],
+        codes: DOOR_STAGE_CODES[3],
         intro: "בדלת הזו מסתתר עטלף.\nתגלו איך הוא נע בחושך\nבלי להתנגש בכלל.",
         steps: [
           {
@@ -884,7 +959,7 @@
         title: "דלת 4",
         theme: "שלדג",
         image: ASSETS.creatures[4],
-        codes: ["KING4", "SPEED", "TRAIN7"],
+        codes: DOOR_STAGE_CODES[4],
         intro: "בדלת הזו מחכה שלדג מהיר.\nנבין איך הוא נכנס למים\nכמעט בלי רעש והתזה.",
         steps: [
           {
@@ -917,7 +992,7 @@
         title: "דלת 5",
         theme: "שממית",
         image: ASSETS.creatures[1],
-        codes: ["G1", "CLIMB", "TOP1"],
+        codes: DOOR_STAGE_CODES[5],
         intro: "מאחורי הדלת מחכה שממית עם כוח-על מפתיע.\nתגלו מה היא יודעת לעשות,\nואיך בני אדם מפתחים מזה מוצר חדש.",
         steps: [
           {
@@ -950,7 +1025,7 @@
         title: "דלת 6",
         theme: "לוטוס",
         image: ASSETS.creatures[2],
-        codes: ["LOT2", "DRY3", "CLEAN9"],
+        codes: DOOR_STAGE_CODES[6],
         intro: "הפעם תגלו את סוד הלוטוס.\nאיך עלים נשארים נקיים?\nומה בני אדם למדו מזה?",
         steps: [
           {
@@ -983,7 +1058,7 @@
         title: "דלת 7",
         theme: "עטלף",
         image: ASSETS.creatures[3],
-        codes: ["BAT3", "ECHO", "SON7"],
+        codes: DOOR_STAGE_CODES[7],
         intro: "בדלת הזו מסתתר עטלף.\nתגלו איך הוא נע בחושך\nבלי להתנגש בכלל.",
         steps: [
           {
@@ -1016,7 +1091,7 @@
         title: "דלת 8",
         theme: "שלדג",
         image: ASSETS.creatures[4],
-        codes: ["KING4", "SPEED", "TRAIN7"],
+        codes: DOOR_STAGE_CODES[8],
         intro: "בדלת הזו מחכה שלדג מהיר.\nנבין איך הוא נכנס למים\nכמעט בלי רעש והתזה.",
         steps: [
           {
@@ -1049,7 +1124,7 @@
         title: "דלת 9",
         theme: "שממית",
         image: ASSETS.creatures[1],
-        codes: ["G1", "CLIMB", "TOP1"],
+        codes: DOOR_STAGE_CODES[9],
         intro: "מאחורי הדלת מחכה שממית עם כוח-על מפתיע.\nתגלו מה היא יודעת לעשות,\nואיך בני אדם מפתחים מזה מוצר חדש.",
         steps: [
           {
@@ -1082,7 +1157,7 @@
         title: "דלת 10",
         theme: "לוטוס",
         image: ASSETS.creatures[2],
-        codes: ["LOT2", "DRY3", "CLEAN9"],
+        codes: DOOR_STAGE_CODES[10],
         intro: "הפעם תגלו את סוד הלוטוס.\nאיך עלים נשארים נקיים?\nומה בני אדם למדו מזה?",
         steps: [
           {
@@ -1112,24 +1187,7 @@
       }
     ];
 
-    const CODE_REGISTRY = {
-      admin: {
-        code: ADMIN_CODE,
-        belongsTo: "מסך פתיחה",
-        stage: "קוד מנהל",
-        unlocks: "שחרור כפתור התחלה ל-15 דקות"
-      },
-      doors: Object.fromEntries(
-        DOORS.map((door) => [
-          door.id,
-          door.codes.map((code, idx) => ({
-            stage: idx + 1,
-            code,
-            unlocks: idx < 2 ? `מעבר לשלב ${idx + 2}` : `פתיחת דלת ${door.id} והצגת סיכום`
-          }))
-        ])
-      )
-    };
+    const CODE_REGISTRY = GAME_CODE_CATALOG;
 
     const app = document.getElementById("app");
     const effectsLayer = document.getElementById("effects-layer");

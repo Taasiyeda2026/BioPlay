@@ -15,7 +15,8 @@
       --muted: #c4d4ef;
       --accent: #62d9ff;
       --accent-2: #88f3b9;
-      --title: #bfffe6;
+      --title: #7cf6ff;
+      --heading-strong: #ffe79b;
       --danger: #ff91a8;
       --warning: #ffd985;
       --border: rgba(255,255,255,.16);
@@ -41,6 +42,7 @@
 
     body {
       padding: 16px;
+      zoom: 75%;
     }
 
     .app {
@@ -183,8 +185,8 @@
     .title {
       margin: 0;
       font-size: clamp(2.4rem, 6vw, 4.3rem);
-      color: var(--title);
-      text-shadow: 0 0 18px rgba(191,255,230,.28);
+      color: var(--heading-strong);
+      text-shadow: 0 0 18px rgba(255,231,155,.4);
       line-height: 1.1;
     }
 
@@ -193,7 +195,7 @@
     .summary-list,
     .finish-list {
       font-size: clamp(1.26rem, 2.8vw, 1.75rem);
-      line-height: 1.95;
+      line-height: 1.85;
       color: var(--text);
     }
 
@@ -392,10 +394,13 @@
     .doors-title,
     .section-title,
     .question-title,
-    .finish-title {
+    .finish-title,
+    .modal-title {
       margin: 0 0 10px;
       font-size: clamp(2rem, 4.6vw, 2.9rem);
       line-height: 1.2;
+      color: var(--heading-strong);
+      text-shadow: 0 0 12px rgba(255,231,155,.25);
     }
 
     .door-grid {
@@ -532,11 +537,30 @@
     }
 
     .code-panel {
-      border: 1px solid rgba(255,255,255,.18);
-      border-radius: 16px;
-      padding: 16px;
-      background: rgba(255,255,255,.04);
-      transition: box-shadow .25s ease, transform .25s ease;
+      border: 1px solid rgba(98,217,255,.35);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(145deg, rgba(30,44,87,.84), rgba(9,18,42,.94));
+      transition: box-shadow .25s ease, transform .25s ease, filter .25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .code-panel::before {
+      content: "";
+      position: absolute;
+      inset: -40% auto auto -10%;
+      width: 120%;
+      height: 80%;
+      background: radial-gradient(circle, rgba(136,243,185,.24), transparent 60%);
+      pointer-events: none;
+    }
+
+    .code-title {
+      margin: 0 0 12px;
+      color: var(--heading-strong);
+      font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+      text-shadow: 0 0 10px rgba(255,231,155,.25);
     }
 
     .code-panel.success {
@@ -670,7 +694,34 @@
       }
     }
 
-    @media (max-width: 900px) {
+    @keyframes screenFadeIn {
+      from { opacity: 0; transform: translateY(16px) scale(.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes lightMove {
+      to {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+        opacity: 0;
+      }
+    }
+
+    
+    .screen.transition-in {
+      animation: screenFadeIn .55s ease both;
+    }
+
+    .light-flash {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,.95), rgba(98,217,255,.15));
+      box-shadow: 0 0 24px rgba(136,243,185,.45);
+      animation: lightMove 900ms ease forwards;
+    }
+
+@media (max-width: 900px) {
       .question-layout {
         grid-template-columns: 1fr;
       }
@@ -1112,8 +1163,15 @@
 
     function setActiveScreen(id) {
       document.querySelectorAll(".screen").forEach(screen => {
-        screen.classList.toggle("active", screen.id === id);
+        const isTarget = screen.id === id;
+        screen.classList.toggle("active", isTarget);
+        if (isTarget) {
+          screen.classList.remove("transition-in");
+          void screen.offsetWidth;
+          screen.classList.add("transition-in");
+        }
       });
+      transitionEffect(id.includes("finish") || id === "screen-final" ? "grand" : "normal");
     }
 
     function remainingMinutes() {
@@ -1147,6 +1205,21 @@
         el.style.setProperty("--ty", `${(Math.random() - 0.5) * 260}px`);
         effectsLayer.appendChild(el);
         setTimeout(() => el.remove(), 1000);
+      }
+    }
+
+    function transitionEffect(level = "normal") {
+      const flashes = level === "grand" ? 36 : 16;
+      for (let i = 0; i < flashes; i++) {
+        const fx = document.createElement("div");
+        fx.className = "light-flash";
+        fx.style.left = `${8 + Math.random() * 84}%`;
+        fx.style.top = `${8 + Math.random() * 80}%`;
+        const spread = level === "grand" ? 360 : 220;
+        fx.style.setProperty("--tx", `${(Math.random() - 0.5) * spread}px`);
+        fx.style.setProperty("--ty", `${(Math.random() - 0.5) * spread}px`);
+        effectsLayer.appendChild(fx);
+        setTimeout(() => fx.remove(), 900);
       }
     }
 
@@ -1211,7 +1284,7 @@
               <p class="modal-text">הזינו קוד מנהל לשחרור כפתור ההתחלה ל-15 דקות.</p>
 
               <div class="code-row">
-                <input id="admin-input" class="input" type="text" placeholder="קוד מנהל" autocomplete="off">
+                <input id="admin-input" class="input" type="password" placeholder="קוד מנהל" autocomplete="off">
                 <button class="btn btn-primary" id="admin-submit">אישור</button>
               </div>
 
@@ -1331,10 +1404,7 @@
           <h2 class="doors-title">בחרו דלת</h2>
           <p class="question-text">לכל דלת מחכה משימה. לחצו על "התחל" כדי לפתוח את המעבר.</p>
           <div class="door-grid">${cards}</div>
-          <div class="actions">
-            <button class="btn btn-secondary" id="to-final-btn">למסך סיום</button>
-            <button class="btn btn-secondary" id="back-home-btn">חזרה לפתיחה</button>
-          </div>
+          
         </div>
       `;
 
@@ -1342,15 +1412,6 @@
         btn.onclick = () => startDoorFlow(Number(btn.dataset.doorStart));
       });
 
-      document.getElementById("to-final-btn").onclick = () => {
-        renderFinal();
-        setActiveScreen("screen-final");
-      };
-
-      document.getElementById("back-home-btn").onclick = () => {
-        renderHome();
-        setActiveScreen("screen-home");
-      };
     }
 
     function startDoorFlow(doorId) {
@@ -1413,12 +1474,13 @@
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
-              <img src="${ASSETS.doorLocked}" alt="דלת סגורה" onerror="this.style.display='none'">
+              <img src="${ASSETS.doors[door.id]}" alt="${door.title}" onerror="this.style.display='none'">
             </div>
 
             <div>
               <h2 class="question-title">מתכוננים ל${door.title}</h2>
-              <p class="question-text">${nl(door.intro)}</p>
+              <p class="question-text">הכינו את הצוות למשימה מסקרנת,
+שימו לב לפרטים, וגלו יחד את הרמזים שיובילו לפתיחה.</p>
 
               <div class="actions">
                 <button class="btn btn-primary" id="door-${doorId}-to-step1">לתחילת שלב 1</button>
@@ -1444,7 +1506,7 @@
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
-              <img src="${stepIndex === 1 ? ASSETS.doorLocked : door.image}" alt="${door.theme}" onerror="this.style.display='none'">
+              <img src="${ASSETS.doors[door.id]}" alt="${door.title}" onerror="this.style.display='none'">
             </div>
 
             <div>
@@ -1481,7 +1543,7 @@
           btn.classList.add(isCorrect ? "correct" : "wrong");
 
           if (isCorrect) {
-            feedback.textContent = "מעולה! עניתם נכון. קראו את ההודעה ואז לחצו לשלב הבא.";
+            feedback.textContent = "מעולה! עניתם נכון";
             feedback.className = "feedback success";
             burstEffect();
             nextBtn.classList.remove("hidden");
@@ -1511,16 +1573,17 @@
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
-              <img src="${ASSETS.doorFallback}" alt="דלת" onerror="this.style.display='none'">
+              <img src="${ASSETS.doors[door.id]}" alt="${door.title}" onerror="this.style.display='none'">
             </div>
 
             <div>
-              <h2 class="question-title">מסך קוד</h2>
-              <p class="question-text">קיבלתם קוד מהמדריך? הזינו אותו ולחצו על "פתיחה".</p>
+              <h2 class="question-title">מסך קוד מיוחד ✨</h2>
+              <p class="question-text">סופר-רגע של פתיחה! הזינו את הקוד שקיבלתם מהמדריך ולחצו על "פתיחה".</p>
 
               <div class="code-panel" id="code-panel-${doorId}-${codeStage}">
+                <h3 class="code-title">שער קוד שלב ${codeStage}</h3>
                 <div class="code-row">
-                  <input class="input" id="code-input-${doorId}-${codeStage}" type="text" placeholder="הזינו קוד" autocomplete="off">
+                  <input class="input" id="code-input-${doorId}-${codeStage}" type="password" placeholder="הזינו קוד" autocomplete="off">
                   <button class="btn btn-primary" id="code-submit-${doorId}-${codeStage}">פתיחה</button>
                 </div>
               </div>
@@ -1587,7 +1650,6 @@
 
           <div class="actions">
             <button class="btn btn-primary" id="door-${doorId}-finish-back-doors">חזרה למסך הדלתות</button>
-            <button class="btn btn-secondary" id="door-${doorId}-finish-final">למסך סיום</button>
           </div>
         </div>
       `;
@@ -1597,10 +1659,6 @@
         setActiveScreen("screen-doors");
       };
 
-      document.getElementById(`door-${doorId}-finish-final`).onclick = () => {
-        renderFinal();
-        setActiveScreen("screen-final");
-      };
     }
 
     function renderFinal() {
@@ -1610,11 +1668,10 @@
         ${topStrip("סיום", `דלתות שהושלמו: ${state.completedDoors.size}`)}
         <div class="card finish-card">
           <h2 class="finish-title">פיצחתם את קוד הטבע 🎉</h2>
-          <p class="question-text">למדתם איך הטבע נותן השראה לרעיונות, לפתרונות ולהמצאות חדשות.<br>הישארו בזום להמשך ההנחיה.</p>
+          <p class="question-text">למדתם איך הטבע נותן השראה לרעיונות, לפתרונות ולהמצאות חדשות.</p>
 
           <div class="actions">
             <button class="btn btn-primary" id="final-back-doors">חזרה למסך הדלתות</button>
-            <button class="btn btn-secondary" id="final-back-home">חזרה לפתיחה</button>
           </div>
         </div>
       `;
@@ -1624,10 +1681,6 @@
         setActiveScreen("screen-doors");
       };
 
-      document.getElementById("final-back-home").onclick = () => {
-        renderHome();
-        setActiveScreen("screen-home");
-      };
     }
 
     renderHome();

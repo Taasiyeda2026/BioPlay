@@ -13,6 +13,7 @@
       --muted: #b2c1e3;
       --accent: #52d6ff;
       --accent-2: #7df3ad;
+      --title-glow: #67f5d3;
       --danger: #ff8098;
       --radius: 20px;
       --ease: 780ms cubic-bezier(.22,.61,.36,1);
@@ -99,8 +100,20 @@
     .logo-hint.show { opacity: .94; }
 
     .intro-box.hidden { display: none; }
-    .intro-box h1 { font-size: clamp(2.2rem, 5.9vw, 3.8rem); margin: 0 0 .2em; }
+    .intro-box h1 {
+      font-size: clamp(2.2rem, 5.9vw, 3.8rem);
+      margin: 0 0 .2em;
+      color: var(--title-glow);
+      text-shadow: 0 0 18px rgba(103, 245, 211, .34);
+    }
     .intro-box p { font-size: clamp(1.26rem, 2.55vw, 1.7rem); line-height: 1.9; margin: 0 0 .4em; }
+
+    .start-area {
+      min-height: 78px;
+      display: grid;
+      place-items: center;
+      margin-top: 4px;
+    }
 
     .wait-message {
       display: inline-flex;
@@ -359,8 +372,10 @@
             <h1>דלתות הטבע</h1>
             <p>ברוכים הבאים לחדר הבריחה הביומימטי.<br>קראו את ההוראות, ואז התחילו במשימה.</p>
             <p>בחרו דלת, פתרו 3 שלבים,<br>וקבלו קוד מהמדריך בזום כדי להתקדם.</p>
-            <p class="wait-message ${isUnlocked ? "hidden" : ""}" id="wait-message">אנא המתינו - מיד מתחילים.</p>
-            <button class="btn btn-primary ${isUnlocked ? "" : "hidden"}" id="start-btn">התחילו במשימה</button>
+            <div class="start-area">
+              <p class="wait-message ${isUnlocked ? "hidden" : ""}" id="wait-message">אנא המתינו - מיד מתחילים.</p>
+              <button class="btn btn-primary ${isUnlocked ? "" : "hidden"}" id="start-btn">התחילו במשימה</button>
+            </div>
           </div>
           <div class="countdown" id="countdown">10<small>המשימה מתחילה עכשיו</small></div>
           <div class="admin-modal hidden" id="admin-modal">

@@ -67,10 +67,14 @@
       text-align: center;
       padding: 0;
     }
-    .intro-hero > img {
-      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-      filter: brightness(.6) saturate(1.08);
+    .intro-main-logo {
+      width: min(280px, 55vw);
+      cursor: pointer;
+      transition: transform .3s ease;
+      margin-inline: auto;
+      display: block;
     }
+    .intro-main-logo:active { transform: scale(.95); }
     .intro-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.55)); }
     .intro-box {
       position: relative; z-index: 2; width: min(830px, 94%);
@@ -78,17 +82,6 @@
       border: 1px solid rgba(255,255,255,.18); backdrop-filter: blur(6px);
       display: grid; gap: 8px;
     }
-    .intro-logo-wrap {
-      display: flex; justify-content: center; margin-bottom: 6px;
-    }
-    .intro-logo {
-      width: clamp(72px, 10vw, 110px);
-      height: clamp(72px, 10vw, 110px);
-      cursor: pointer;
-      transition: transform .3s ease;
-      border-radius: 100%;
-    }
-    .intro-logo:active { transform: scale(.95); }
     .logo-hint {
       margin: 0;
       min-height: 22px;
@@ -264,7 +257,6 @@
     const UNLOCK_DURATION_MS = 15 * 60 * 1000;
 
     const imagePaths = {
-      home: "images/game-intro.svg",
       logo: "images/logo.svg",
       doorDefault: "images/door-active.svg",
       doorLocked: "images/door-locked.svg",
@@ -364,10 +356,9 @@
       el.innerHTML = `
         ${topStrip("דלתות הטבע", isUnlocked ? `שחרור מדריך פעיל לעוד ${remainingUnlockMinutes()} דקות` : "מסך פתיחה")}
         <div class="card intro-hero">
-          <img src="${imagePaths.home}" alt="רקע פתיחה">
           <div class="intro-overlay"></div>
           <div class="intro-box" id="intro-box">
-            <div class="intro-logo-wrap"><img src="${imagePaths.logo}" alt="לוגו" class="intro-logo" id="logo-trigger"></div>
+            <img src="${imagePaths.logo}" alt="לוגו" class="intro-main-logo" id="logo-trigger">
             <p id="logo-hint" class="logo-hint">חלון מדריכים נפתח</p>
             <h1>דלתות הטבע</h1>
             <p>ברוכים הבאים לחדר הבריחה הביומימטי.<br>קראו את ההוראות, ואז התחילו במשימה.</p>

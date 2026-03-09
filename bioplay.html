@@ -4,873 +4,1630 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>דלתות הטבע: חדר בריחה ביומימטי בזום</title>
+
   <style>
     :root {
-      --bg: #050916;
-      --bg-2: #111b3b;
-      --panel: rgba(12, 22, 48, 0.9);
-      --text: #eff4ff;
-      --muted: #c3d3f6;
-      --accent: #52d6ff;
-      --accent-2: #7df3ad;
-      --title-magic: #b8ffe5;
-      --danger: #ff93ac;
-      --radius: 20px;
-      --ease: 1120ms cubic-bezier(.22,.61,.36,1);
+      --bg: #07111f;
+      --bg-2: #13284a;
+      --panel: rgba(9, 19, 42, 0.84);
+      --panel-strong: rgba(5, 12, 28, 0.82);
+      --text: #eef5ff;
+      --muted: #c4d4ef;
+      --accent: #62d9ff;
+      --accent-2: #88f3b9;
+      --title: #bfffe6;
+      --danger: #ff91a8;
+      --warning: #ffd985;
+      --border: rgba(255,255,255,.16);
+      --shadow: 0 18px 40px rgba(0,0,0,.34);
+      --radius: 22px;
+      --ease: 700ms cubic-bezier(.22,.61,.36,1);
     }
 
-    * { box-sizing: border-box; font-family: "Assistant", "Rubik", sans-serif; }
-    body {
+    * {
+      box-sizing: border-box;
+      font-family: "Assistant", "Rubik", Arial, sans-serif;
+    }
+
+    html, body {
       margin: 0;
-      min-height: 100vh;
-      background: radial-gradient(circle at 20% 5%, #2a4a93, transparent 35%), linear-gradient(160deg, var(--bg-2), var(--bg));
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(98,217,255,.2), transparent 26%),
+        radial-gradient(circle at 82% 12%, rgba(136,243,185,.14), transparent 24%),
+        linear-gradient(160deg, var(--bg-2), var(--bg));
       color: var(--text);
+    }
+
+    body {
       padding: 16px;
     }
 
-    .game-shell {
-      width: min(1300px, 100%);
+    .app {
+      width: min(1320px, 100%);
       margin-inline: auto;
-      border-radius: 24px;
+      background: rgba(8, 14, 31, 0.42);
+      border: 1px solid var(--border);
+      border-radius: 26px;
       overflow: hidden;
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      box-shadow: 0 20px 44px rgba(0,0,0,.35);
-      background: rgba(8, 14, 32, .55);
+      box-shadow: var(--shadow);
+      position: relative;
+      min-height: calc(100vh - 32px);
+    }
+
+    .screen {
+      display: none;
+      min-height: calc(100vh - 32px);
+      padding: clamp(16px, 2.6vw, 34px);
       position: relative;
     }
 
-    .screen { display: none; min-height: 85vh; padding: clamp(16px, 2.7vw, 34px); }
-    .screen.active { display: block; animation: fadeSlide 1.25s var(--ease); }
+    .screen.active {
+      display: block;
+      animation: fadeInUp .65s ease;
+    }
 
     .top-strip {
-      display: flex; justify-content: space-between; gap: 10px; align-items: center;
-      padding: 12px 16px; margin-bottom: 14px;
-      border-radius: 12px; background: rgba(255,255,255,.08); color: var(--muted);
-      border: 1px solid rgba(255,255,255,.16);
-      font-size: 1.15rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 1.06rem;
     }
 
     .card {
       background: var(--panel);
-      border: 1px solid rgba(255,255,255,.14);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
-      padding: clamp(20px, 3vw, 34px);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
     }
 
-    .intro-hero {
-      min-height: 72vh;
+    .hero {
+      min-height: calc(100vh - 140px);
       position: relative;
-      overflow: hidden;
-      text-align: center;
-      padding: 0;
       display: grid;
       place-items: center;
+      overflow: hidden;
+      isolation: isolate;
     }
 
-    .intro-background {
+    .hero-bg {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
       object-fit: cover;
-      filter: saturate(1.05) brightness(.76);
-      transform: scale(1.02);
+      filter: brightness(.72) saturate(1.02);
+      transform: scale(1.03);
+      z-index: -3;
     }
 
-    .intro-overlay {
+    .hero-overlay {
       position: absolute;
       inset: 0;
-      background: radial-gradient(circle at center, rgba(125,243,173,.14), rgba(0,0,0,.2) 40%), linear-gradient(180deg, rgba(0,0,0,.1), rgba(0,0,0,.58));
+      z-index: -2;
+      background:
+        radial-gradient(circle at 50% 28%, rgba(136,243,185,.12), transparent 25%),
+        linear-gradient(180deg, rgba(4,9,20,.18), rgba(4,9,20,.64));
     }
 
-    .intro-magic-particles {
+    .hero-particles {
       position: absolute;
       inset: 0;
-      z-index: 1;
-      background-image:
-        radial-gradient(circle at 20% 18%, rgba(125,243,173,.35) 0, rgba(125,243,173,0) 26%),
-        radial-gradient(circle at 80% 22%, rgba(82,214,255,.28) 0, rgba(82,214,255,0) 22%),
-        radial-gradient(circle at 58% 72%, rgba(255,255,255,.2) 0, rgba(255,255,255,0) 16%);
-      mix-blend-mode: screen;
-      animation: floatAura 9s ease-in-out infinite alternate;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
     }
 
-    .intro-box {
-      position: relative; z-index: 2; width: min(900px, 94%);
-      background: rgba(5, 10, 24, .62); border-radius: 24px; padding: 24px;
-      border: 1px solid rgba(255,255,255,.2); backdrop-filter: blur(6px);
-      display: grid; gap: 10px;
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,.95), rgba(98,217,255,.18));
+      opacity: .65;
+      animation: floatParticle linear infinite;
+    }
+
+    .hero-box {
+      width: min(920px, 94%);
+      padding: clamp(20px, 3vw, 34px);
+      background: rgba(5, 11, 24, .55);
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 24px;
+      backdrop-filter: blur(7px);
+      text-align: center;
+      display: grid;
+      gap: 10px;
       justify-items: center;
     }
 
-    .intro-main-logo {
-      width: min(300px, 58vw);
-      cursor: pointer;
-      transition: transform .36s ease, filter .36s ease;
-      display: block;
-      animation: logoFloat 3.6s ease-in-out infinite;
-    }
-    .intro-main-logo:hover { filter: drop-shadow(0 0 16px rgba(125,243,173,.4)); }
-    .intro-main-logo:active { transform: scale(.95); }
-    .intro-main-logo.logo-broken {
-      padding: 20px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,147,172,.9);
-      background: rgba(255,147,172,.18);
-      animation: shake .8s ease;
-    }
-
-    .logo-hint {
-      margin: 0;
-      min-height: 22px;
-      color: var(--accent-2);
-      font-size: 1rem;
-      opacity: 0;
-      transition: opacity .4s ease;
-    }
-    .logo-hint.show { opacity: .94; }
-
-    .logo-tap-feedback {
-      min-height: 24px;
-      margin: 0;
-      color: #b6f7ff;
-      font-size: .98rem;
-      opacity: .86;
-    }
-
-    .instruction-layer.hidden { display: none; }
-
-    h1 {
-      font-size: clamp(2.4rem, 6vw, 4.1rem);
-      margin: 0 0 .2em;
-      color: var(--title-magic);
-      text-shadow: 0 0 18px rgba(184, 255, 229, .35);
-    }
-    .intro-box p,
-    .question-text {
-      font-size: clamp(1.42rem, 3vw, 1.9rem);
-      line-height: 2;
-      margin: 0 0 .45em;
-    }
-
-    .start-area {
-      min-height: 82px;
+    .logo-wrap {
+      min-height: 110px;
       display: grid;
       place-items: center;
-      margin-top: 8px;
+    }
+
+    .logo {
+      width: min(280px, 58vw);
+      max-height: 100px;
+      object-fit: contain;
+      cursor: pointer;
+      user-select: none;
+      transition: transform .25s ease, filter .25s ease;
+      animation: logoFloat 3.2s ease-in-out infinite;
+    }
+
+    .logo:hover {
+      filter: drop-shadow(0 0 14px rgba(136,243,185,.34));
+    }
+
+    .logo:active {
+      transform: scale(.96);
+    }
+
+    .logo.logo-error {
+      padding: 10px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,145,168,.9);
+      background: rgba(255,145,168,.14);
+      animation: shake .6s ease;
+    }
+
+    .title {
+      margin: 0;
+      font-size: clamp(2.4rem, 6vw, 4.3rem);
+      color: var(--title);
+      text-shadow: 0 0 18px rgba(191,255,230,.28);
+      line-height: 1.1;
+    }
+
+    .lead,
+    .question-text,
+    .summary-list,
+    .finish-list {
+      font-size: clamp(1.26rem, 2.8vw, 1.75rem);
+      line-height: 1.95;
+      color: var(--text);
+    }
+
+    .lead {
+      max-width: 30em;
+      margin: 0;
+    }
+
+    .instruction-layer.hidden {
+      display: none;
+    }
+
+    .start-zone {
       width: 100%;
+      min-height: 88px;
+      display: grid;
+      place-items: center;
+      margin-top: 6px;
     }
 
     .wait-message {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      margin: 4px auto 0;
-      width: fit-content;
+      padding: 12px 20px;
       border-radius: 14px;
-      padding: 12px 22px;
-      font-size: clamp(1.16rem, 2.8vw, 1.42rem);
-      background: rgba(255, 255, 255, .1);
-      border: 1px solid rgba(255,255,255,.24);
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      color: var(--text);
+      font-size: clamp(1.12rem, 2.5vw, 1.42rem);
+      text-align: center;
     }
 
-    .start-ready {
-      animation: startReveal 1.4s var(--ease), pulseGlow 2.2s ease-in-out infinite;
+    .hidden {
+      display: none !important;
     }
-
-    .wait-message.hidden,
-    .btn.hidden,
-    .admin-modal.hidden,
-    .door-video-overlay.hidden { display: none; }
 
     .countdown {
-      position: absolute; z-index: 3; display: none; text-align: center;
-      font-size: clamp(5rem, 18vw, 12rem); font-weight: 800;
-      text-shadow: 0 0 34px rgba(82,214,255,.9);
-      animation: pulseGlow 1s ease-in-out infinite, shimmer 2.2s linear infinite;
-      background: rgba(5,10,24,.38);
-      padding: 18px 34px;
-      border-radius: 24px;
-      border: 1px solid rgba(255,255,255,.26);
+      position: absolute;
+      inset: 0;
+      display: none;
+      place-items: center;
+      z-index: 10;
+      background: rgba(4, 8, 18, .18);
     }
-    .countdown.active { display: block; }
-    .countdown small { display: block; font-size: clamp(1.35rem, 2.8vw, 1.7rem); margin-top: 8px; }
 
-    .countdown.tick { animation: pulseGlow .8s ease-in-out, shimmer 1.8s linear infinite; }
+    .countdown.active {
+      display: grid;
+    }
+
+    .countdown-box {
+      background: rgba(6, 11, 25, .46);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: 26px;
+      padding: 20px 34px;
+      text-align: center;
+      animation: pulseGlow 1s ease-in-out infinite;
+      backdrop-filter: blur(4px);
+    }
+
+    .countdown-number {
+      font-size: clamp(4.8rem, 18vw, 12rem);
+      font-weight: 800;
+      line-height: 1;
+      text-shadow: 0 0 30px rgba(98,217,255,.86);
+    }
+
+    .countdown-label {
+      margin-top: 10px;
+      font-size: clamp(1.2rem, 2.7vw, 1.6rem);
+      color: var(--text);
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      min-height: 48px;
+      padding: 12px 18px;
+      font-size: 1.04rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .22s ease, filter .22s ease, box-shadow .22s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+      box-shadow: 0 10px 24px rgba(0,0,0,.28);
+    }
+
+    .btn:active {
+      transform: scale(.98);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #29baff);
+      color: #03111d;
+    }
+
+    .btn-secondary {
+      background: #26345e;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,.16);
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      color: #05111f;
+      min-width: 138px;
+    }
+
+    .btn-start {
+      animation: popIn .45s ease;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
 
     .admin-modal {
       position: absolute;
-      z-index: 25;
       inset: 0;
-      background: rgba(3, 7, 20, .62);
-      display: grid;
+      display: none;
       place-items: center;
-      animation: fade .45s ease;
+      background: rgba(4, 8, 18, .54);
+      z-index: 30;
+      animation: fadeIn .25s ease;
+    }
+
+    .admin-modal.active {
+      display: grid;
     }
 
     .modal-card {
-      width: min(420px, 92%);
-      background: rgba(8,14,32,.95);
-      border: 1px solid rgba(255,255,255,.2);
-      border-radius: 16px;
-      padding: 20px;
-      text-align: right;
+      width: min(430px, 92%);
+      padding: 22px;
+      border-radius: 18px;
+      background: rgba(9, 16, 36, .96);
+      border: 1px solid rgba(255,255,255,.18);
       box-shadow: 0 18px 40px rgba(0,0,0,.4);
     }
-    .modal-card h3 { margin: 0 0 12px; font-size: 1.5rem; }
 
-    .door-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 20px; }
-    .door-card {
-      border: 1px solid rgba(141, 226, 255, .55);
-      background: linear-gradient(165deg, rgba(37,58,115,.62), rgba(12,22,50,.86));
-      border-radius: 20px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease), filter var(--ease);
-      position: relative;
+    .modal-title {
+      margin: 0 0 10px;
+      font-size: 1.5rem;
     }
+
+    .modal-text {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 1.05rem;
+    }
+
+    .code-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .input {
+      flex: 1 1 220px;
+      min-height: 50px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.24);
+      background: #0d1732;
+      color: var(--text);
+      padding: 10px 14px;
+      font-size: 1.1rem;
+      text-transform: uppercase;
+    }
+
+    .feedback {
+      min-height: 32px;
+      margin-top: 12px;
+      font-size: 1.14rem;
+      font-weight: 700;
+    }
+
+    .feedback.success {
+      color: var(--accent-2);
+      text-shadow: 0 0 12px rgba(136,243,185,.52);
+    }
+
+    .feedback.error {
+      color: var(--danger);
+    }
+
+    .doors-card {
+      padding: clamp(18px, 2.7vw, 30px);
+    }
+
+    .doors-title,
+    .section-title,
+    .question-title,
+    .finish-title {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4.6vw, 2.9rem);
+      line-height: 1.2;
+    }
+
+    .door-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    .door-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+      border: 1px solid rgba(98,217,255,.4);
+      background: linear-gradient(165deg, rgba(35,56,107,.7), rgba(10,18,41,.92));
+      transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease);
+    }
+
+    .door-card:hover {
+      transform: translateY(-7px) scale(1.015);
+      border-color: var(--accent);
+      box-shadow: 0 0 36px rgba(98,217,255,.24);
+    }
+
     .door-card::after {
       content: "";
       position: absolute;
       inset: 0;
-      background: linear-gradient(180deg, transparent, rgba(82,214,255,.14));
-      opacity: 0;
-      transition: opacity var(--ease);
-    }
-    .door-card:hover {
-      transform: translateY(-9px) scale(1.018);
-      box-shadow: 0 0 46px rgba(82,214,255,.42);
-      border-color: var(--accent);
-      filter: saturate(1.15);
-    }
-    .door-card:hover::after { opacity: 1; }
-    .door-card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,.26) 48%, transparent 100%);
+      background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,.18) 48%, transparent 100%);
       transform: translateX(130%);
-      transition: transform 1.1s ease;
+      transition: transform 1s ease;
       pointer-events: none;
     }
-    .door-card:hover::before { transform: translateX(-120%); }
-    .door-title { text-align: center; font-weight: 800; font-size: 1.5rem; padding: 12px 8px; }
-    .door-image-wrap { position: relative; aspect-ratio: 4/5; }
-    .door-image-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .door-card:hover::after {
+      transform: translateX(-120%);
+    }
+
+    .door-title {
+      padding: 12px 10px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 1.32rem;
+    }
+
+    .door-image-wrap {
+      position: relative;
+      aspect-ratio: 4 / 5;
+    }
+
+    .door-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
     .door-footer {
-      position: absolute; inset-inline: 0; bottom: 0;
+      position: absolute;
+      inset-inline: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
       padding: 12px;
-      display: flex; justify-content: center;
-      background: linear-gradient(to top, rgba(5,10,24,.92), rgba(5,10,24,.1));
+      background: linear-gradient(to top, rgba(5,11,25,.92), rgba(5,11,25,.1));
     }
 
-    .question-layout { display: grid; grid-template-columns: minmax(300px, 40%) 1fr; gap: 26px; }
-    .question-visual { display: grid; place-items: center; border-radius: 16px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.04); }
-    .question-visual img { width: 100%; max-width: 320px; }
-    .question-content h2 { font-size: clamp(2.2rem, 4.3vw, 2.9rem); margin: 0 0 .38em; }
-
-    .answers { display: grid; gap: 14px; margin-top: 16px; }
-    .answer {
-      border: 1px solid rgba(255,255,255,.2);
-      background: linear-gradient(145deg, #2b3f7f, #1b2958);
-      color: var(--text); border-radius: 14px;
-      padding: 18px; font-size: clamp(1.2rem, 2.4vw, 1.45rem); text-align: right; cursor: pointer;
-      transition: transform .55s ease, border-color .55s ease, box-shadow .55s ease;
-      min-height: 62px;
+    .question-card,
+    .finish-card {
+      padding: clamp(18px, 2.8vw, 30px);
     }
-    .answer:hover { transform: translateX(-3px); border-color: var(--accent); box-shadow: 0 0 20px rgba(82,214,255,.25); }
-    .answer.correct { background: rgba(125,243,173,.24); border-color: var(--accent-2); box-shadow: 0 0 24px rgba(125,243,173,.35); animation: successPop .8s ease; }
-    .answer.wrong { background: rgba(255,128,152,.16); border-color: var(--danger); animation: wrongPulse .75s ease; }
 
-    .feedback { min-height: 34px; margin-top: 14px; font-size: 1.26rem; font-weight: 700; }
-    .feedback.success { color: var(--accent-2); text-shadow: 0 0 14px rgba(125,243,173,.7); animation: successPop .75s ease; }
-    .feedback.error { color: var(--danger); animation: wrongPulse .65s ease; }
-
-    .code-panel { border: 1px solid rgba(255,255,255,.2); border-radius: 14px; padding: 16px; background: rgba(255,255,255,.05); transition: box-shadow .55s ease, transform .55s ease; }
-    .code-row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .code-input {
-      flex: 1 1 220px; min-height: 52px; border-radius: 12px; border: 1px solid rgba(255,255,255,.3);
-      background: #0f1733; color: var(--text); font-size: 1.2rem; padding: 10px 12px; text-transform: uppercase;
+    .question-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 36%) 1fr;
+      gap: 24px;
+      align-items: stretch;
     }
-    .code-panel.success {
-      box-shadow: 0 0 0 3px rgba(125,243,173,.28), 0 0 34px rgba(125,243,173,.45);
-      transform: scale(1.015);
-      animation: successHalo 1.1s ease;
-    }
-    .code-panel.error { animation: wrongPulse .7s ease; }
 
-    .btn {
-      border: none; border-radius: 12px; cursor: pointer; font-weight: 800;
-      padding: 12px 20px; min-height: 46px; font-size: 1.07rem;
-      transition: transform .45s ease, filter .45s ease, box-shadow .45s ease;
-    }
-    .btn:hover { transform: translateY(-2px); filter: brightness(1.07); box-shadow: 0 8px 20px rgba(0,0,0,.3); }
-    .btn:active { transform: scale(.98); }
-    .btn-primary { background: linear-gradient(135deg, var(--accent), #22b7ff); color: #031024; }
-    .btn-secondary { background: #2b3762; color: var(--text); border: 1px solid rgba(255,255,255,.2); }
-    .btn-next { background: linear-gradient(135deg, #7df3ad, #52d6ff); color: #031124; padding-inline: 14px; min-width: 130px; }
-
-    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
-
-    .door-video-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 40;
-      background: radial-gradient(circle at center, rgba(125,243,173,.08), rgba(0,0,0,.85));
+    .question-visual {
       display: grid;
       place-items: center;
-      animation: fade .45s ease;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.04);
+      min-height: 280px;
+      overflow: hidden;
     }
-    .door-video-overlay video {
-      width: min(1100px, 96vw);
-      height: min(88vh, 720px);
-      object-fit: cover;
-      border-radius: 22px;
+
+    .question-visual img {
+      width: 100%;
+      max-width: 340px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .answers {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .answer {
+      width: 100%;
+      text-align: right;
+      border: 1px solid rgba(255,255,255,.18);
+      background: linear-gradient(145deg, #2b3d7a, #1a2855);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 16px 18px;
+      font-size: clamp(1.12rem, 2.3vw, 1.36rem);
+      cursor: pointer;
+      transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+      min-height: 60px;
+    }
+
+    .answer:hover {
+      transform: translateX(-3px);
+      border-color: var(--accent);
+      box-shadow: 0 0 18px rgba(98,217,255,.18);
+    }
+
+    .answer.correct {
+      background: rgba(136,243,185,.2);
+      border-color: var(--accent-2);
+      box-shadow: 0 0 20px rgba(136,243,185,.26);
+      animation: popIn .35s ease;
+    }
+
+    .answer.wrong {
+      background: rgba(255,145,168,.16);
+      border-color: var(--danger);
+      animation: shake .45s ease;
+    }
+
+    .code-panel {
+      border: 1px solid rgba(255,255,255,.18);
+      border-radius: 16px;
+      padding: 16px;
+      background: rgba(255,255,255,.04);
+      transition: box-shadow .25s ease, transform .25s ease;
+    }
+
+    .code-panel.success {
+      box-shadow: 0 0 0 3px rgba(136,243,185,.22), 0 0 24px rgba(136,243,185,.22);
+      transform: scale(1.01);
+    }
+
+    .code-panel.error {
+      animation: shake .45s ease;
+    }
+
+    .summary-list,
+    .finish-list {
+      margin: 8px 0 0;
+      padding-right: 1.2em;
+    }
+
+    .finish-list li {
+      margin-bottom: 8px;
+    }
+
+    .video-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: radial-gradient(circle at center, rgba(136,243,185,.08), rgba(0,0,0,.86));
+      z-index: 50;
+      animation: fadeIn .25s ease;
+    }
+
+    .video-overlay.active {
+      display: grid;
+    }
+
+    .video-frame {
+      width: min(1080px, 96vw);
+      max-height: 88vh;
+      border-radius: 24px;
+      overflow: hidden;
       border: 1px solid rgba(255,255,255,.2);
-      box-shadow: 0 0 45px rgba(82,214,255,.22);
+      box-shadow: 0 0 40px rgba(98,217,255,.18);
+      background: #02060f;
     }
 
-    .door-video-caption {
-      position: absolute;
-      bottom: 9vh;
-      z-index: 41;
+    .video-frame video {
+      width: 100%;
+      height: auto;
+      display: block;
+      max-height: 88vh;
+      object-fit: cover;
+    }
+
+    .video-caption {
+      margin-top: 12px;
       text-align: center;
-      font-size: clamp(1.5rem, 2.8vw, 2rem);
-      color: #d8fff5;
-      text-shadow: 0 0 18px rgba(125,243,173,.8);
-      animation: gatePulse 1.8s ease-in-out infinite;
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+      color: #dbfff1;
+      text-shadow: 0 0 14px rgba(136,243,185,.7);
+      animation: pulseGlow 1.8s ease-in-out infinite;
     }
 
-    .finish-list { line-height: 2; font-size: clamp(1.2rem, 2.6vw, 1.6rem); }
-
-    .effects-layer { pointer-events: none; position: absolute; inset: 0; overflow: hidden; z-index: 20; }
-    .effect-burst {
+    .effects-layer {
       position: absolute;
-      width: 18px; height: 18px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(125,243,173,.95), rgba(82,214,255,.2));
-      animation: burst 1.15s ease forwards;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 25;
     }
 
-    @keyframes burst { to { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
-    @keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes shake { 25% { transform: translateX(4px); } 70% { transform: translateX(-4px); } }
-    @keyframes pulseGlow { 50% { transform: scale(1.06); text-shadow: 0 0 54px rgba(82,214,255,1); } }
-    @keyframes shimmer { from { background-position: -200% 0; } to { background-position: 220% 0; } }
-    @keyframes logoFloat { 50% { transform: translateY(-7px) scale(1.02); } }
-    @keyframes startReveal { from { opacity: 0; transform: translateY(18px) scale(.96);} to { opacity: 1; transform: translateY(0) scale(1);} }
-    @keyframes successPop { 50% { transform: scale(1.03); filter: brightness(1.16); } }
-    @keyframes successHalo { 40% { box-shadow: 0 0 0 6px rgba(125,243,173,.25), 0 0 54px rgba(125,243,173,.62); } }
-    @keyframes wrongPulse { 30% { transform: translateX(6px); } 70% { transform: translateX(-6px); } }
-    @keyframes floatAura { 50% { transform: translateY(-12px) scale(1.05); opacity: .75; } }
-    @keyframes gatePulse { 50% { letter-spacing: .05em; text-shadow: 0 0 28px rgba(125,243,173,1); } }
+    .burst {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(136,243,185,.95), rgba(98,217,255,.18));
+      animation: burstMove 1s ease forwards;
+    }
 
-    @media (max-width: 850px) {
-      .question-layout { grid-template-columns: 1fr; }
-      .btn { width: 100%; }
-      .code-row { flex-direction: column; }
-      .top-strip { flex-direction: column; align-items: flex-start; }
+    .soft-note {
+      font-size: .92rem;
+      color: rgba(255,255,255,.62);
+      margin: 0;
+      min-height: 18px;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes pulseGlow {
+      50% { transform: scale(1.04); }
+    }
+
+    @keyframes logoFloat {
+      50% { transform: translateY(-6px); }
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes shake {
+      25% { transform: translateX(5px); }
+      70% { transform: translateX(-5px); }
+    }
+
+    @keyframes floatParticle {
+      from {
+        transform: translateY(40px) scale(.8);
+        opacity: 0;
+      }
+      20% { opacity: .7; }
+      to {
+        transform: translateY(-140px) scale(1.1);
+        opacity: 0;
+      }
+    }
+
+    @keyframes burstMove {
+      to {
+        transform: translate(var(--tx), var(--ty)) scale(0);
+        opacity: 0;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .question-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .top-strip {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .code-row {
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
-  <main class="game-shell" id="app" aria-live="polite">
+  <main class="app" id="app">
     <div class="effects-layer" id="effects-layer"></div>
-    <section id="screen-home" class="screen active"></section>
-    <section id="screen-doors" class="screen"></section>
-    <section id="screen-final" class="screen"></section>
+
+    <section class="screen active" id="screen-home"></section>
+    <section class="screen" id="screen-doors"></section>
+    <section class="screen" id="screen-final"></section>
   </main>
 
-  <div class="door-video-overlay hidden" id="door-video-overlay">
-    <video id="door-video-player" src="images/opendoor.mp4" playsinline muted preload="auto"></video>
-    <p class="door-video-caption">השער נפתח... נכנסים לעולם חדש ✨</p>
+  <div class="video-overlay" id="video-overlay" aria-hidden="true">
+    <div>
+      <div class="video-frame">
+        <video id="door-video" src="images/opendoor.mp4" playsinline muted preload="auto"></video>
+      </div>
+      <div class="video-caption">השער נפתח... נכנסים לעולם חדש ✨</div>
+    </div>
   </div>
 
   <script>
     const ADMIN_CODE = "BIO2024";
     const UNLOCK_DURATION_MS = 15 * 60 * 1000;
 
-    // מפת הקודים הרשמית של המשחק
-    const CODE_REGISTRY = {
-      adminCode: {
-        code: ADMIN_CODE,
-        belongsTo: "חלון מנהל במסך הפתיחה",
-        stage: "שחרור משחק",
-        unlocks: "פתיחת המשחק ל-15 דקות"
-      },
-      doorCodes: {
-        1: [
-          { stage: 1, code: "G1", unlocks: "מעבר לשלב 2 בדלת 1" },
-          { stage: 2, code: "CLIMB", unlocks: "מעבר לשלב 3 בדלת 1" },
-          { stage: 3, code: "TOP1", unlocks: "פתיחת דלת 1 וסיכום" }
-        ],
-        2: [
-          { stage: 1, code: "LOT2", unlocks: "מעבר לשלב 2 בדלת 2" },
-          { stage: 2, code: "DRY3", unlocks: "מעבר לשלב 3 בדלת 2" },
-          { stage: 3, code: "CLEAN9", unlocks: "פתיחת דלת 2 וסיכום" }
-        ],
-        3: [
-          { stage: 1, code: "BAT3", unlocks: "מעבר לשלב 2 בדלת 3" },
-          { stage: 2, code: "ECHO", unlocks: "מעבר לשלב 3 בדלת 3" },
-          { stage: 3, code: "SON7", unlocks: "פתיחת דלת 3 וסיכום" }
-        ],
-        4: [
-          { stage: 1, code: "KING4", unlocks: "מעבר לשלב 2 בדלת 4" },
-          { stage: 2, code: "SPEED", unlocks: "מעבר לשלב 3 בדלת 4" },
-          { stage: 3, code: "TRAIN7", unlocks: "פתיחת דלת 4 וסיכום" }
-        ]
-      }
-    };
-
-    const imagePaths = {
+    const ASSETS = {
       logo: "images/logo.svg",
       intro: "images/control-room.svg",
-      doorDefault: "images/door-active.svg",
-      doorLocked: "images/door-locked.svg",
-      creatures: { 1: "images/gecko.svg", 2: "images/lotus.svg", 3: "images/bat.svg", 4: "images/kingfisher.svg" },
+      introFallback: "",
       doorVideo: "images/opendoor.mp4",
+      doorFallback: "images/door-active.svg",
+      doorLocked: "images/door-locked.svg",
+      creatures: {
+        1: "images/gecko.svg",
+        2: "images/lotus.svg",
+        3: "images/bat.svg",
+        4: "images/kingfisher.svg"
+      },
       doors: Object.fromEntries(Array.from({ length: 10 }, (_, i) => [i + 1, `images/door${i + 1}.svg`]))
     };
 
-    const content = {
-      doors: [
-        { id: 1, name: "שממית", image: imagePaths.creatures[1], intro: "מאחורי הדלת מחכה שממית עם כוח־על מפתיע.\nתגלו מה היא יודעת לעשות,\nואיך בני אדם מפתחים מזה מוצר חדש.", codes: ["G1", "CLIMB", "TOP1"], steps: [
-          { title: "שלב 1 – מי אני?", question: "אני מטפסת על קירות\nוגם על תקרה בלי ליפול.\nמי אני?", options: ["שממית", "עטלף", "קיפוד"], answer: "שממית" },
-          { title: "שלב 2 – מה זה עוזר לי לעשות?", question: "למה היכולת הזאת חשובה בטבע?", options: ["להיצמד ולטפס", "לשחות עמוק", "להסתתר מהשמש"], answer: "להיצמד ולטפס" },
-          { title: "שלב 3 – מה אפשר לפתח בהשראה?", question: "איזה מוצר אפשר לפתח\nבהשראת היכולת הזאת?", options: ["דבק חכם או רובוט מטפס", "פנס לילה", "בקבוק מים"], answer: "דבק חכם או רובוט מטפס" }
-        ], summary: ["אורגניזם: שממית", "כוח־על: היצמדות למשטחים", "השראה למוצר: דבק חכם / רובוט מטפס"] },
-        { id: 2, name: "לוטוס", image: imagePaths.creatures[2], intro: "הפעם תגלו את סוד הלוטוס.\nאיך עלים נשארים נקיים?\nומה בני אדם למדו מזה?", codes: ["LOT2", "DRY3", "CLEAN9"], steps: [
-          { title: "שלב 1 – מי אני?", question: "אני צמח מים.\nהעלים שלי נשארים נקיים\nכי מים מחליקים מהם. מי אני?", options: ["לוטוס", "קקטוס", "ורד"], answer: "לוטוס" },
-          { title: "שלב 2 – למה זה עוזר?", question: "מה היתרון בטבע?", options: ["שמירה על ניקיון העלים", "משיכת ציפורים", "יצירת צל"], answer: "שמירה על ניקיון העלים" },
-          { title: "שלב 3 – מוצר בהשראה", question: "מה בני אדם פיתחו מזה?", options: ["ציפוי דוחה מים", "כרית שינה", "זכוכית כהה"], answer: "ציפוי דוחה מים" }
-        ], summary: ["אורגניזם: לוטוס", "כוח־על: דחיית מים ולכלוך", "השראה למוצר: ציפויים מתנקים"] },
-        { id: 3, name: "עטלף", image: imagePaths.creatures[3], intro: "בדלת הזו מסתתר עטלף.\nתגלו איך הוא נע בחושך\nבלי להתנגש בכלל.", codes: ["BAT3", "ECHO", "SON7"], steps: [
-          { title: "שלב 1 – מי אני?", question: "אני עף בלילה\nומשתמש בקולות והד\nכדי לדעת מה סביבי. מי אני?", options: ["עטלף", "ינשוף", "דולפין"], answer: "עטלף" },
-          { title: "שלב 2 – למה זה עוזר?", question: "מה זה נותן לי בטבע?", options: ["לנוע בחושך", "להחליף צבעים", "להישאר יבש"], answer: "לנוע בחושך" },
-          { title: "שלב 3 – השראה למוצר", question: "איזו טכנולוגיה נוצרה\nבהשראת היכולת הזאת?", options: ["מערכת סונאר", "מחברת חכמה", "מטרייה מתקפלת"], answer: "מערכת סונאר" }
-        ], summary: ["אורגניזם: עטלף", "כוח־על: ניווט באמצעות הד", "השראה למוצר: סונאר וחיישני מרחק"] },
-        { id: 4, name: "שלדג", image: imagePaths.creatures[4], intro: "בדלת הזו מחכה שלדג מהיר.\nנבין איך הוא נכנס למים\nכמעט בלי רעש והתזה.", codes: ["KING4", "SPEED", "TRAIN7"], steps: [
-          { title: "שלב 1 – מי אני?", question: "אני ציפור שצוללת למים\nלתפוס דגים במהירות. מי אני?", options: ["שלדג", "נשר", "יונה"], answer: "שלדג" },
-          { title: "שלב 2 – למה זה עוזר?", question: "מה היתרון של מקור חד וארוך?", options: ["כניסה שקטה למים", "תעופה לעננים", "שמירת חום"], answer: "כניסה שקטה למים" },
-          { title: "שלב 3 – השראה למוצר", question: "איזו טכנולוגיה קיבלה השראה מהשלדג?", options: ["רכבת מהירה ושקטה", "מזלג מתקפל", "מחברת קשיחה"], answer: "רכבת מהירה ושקטה" }
-        ], summary: ["אורגניזם: שלדג", "כוח־על: חדירה שקטה למים", "השראה למוצר: רכבות יעילות ושקטות"] }
-      ]
+    const DOORS = [
+      {
+        id: 1,
+        title: "דלת 1",
+        theme: "שממית",
+        image: ASSETS.creatures[1],
+        codes: ["G1", "CLIMB", "TOP1"],
+        intro: "מאחורי הדלת מחכה שממית עם כוח־על מפתיע.\nתגלו מה היא יודעת לעשות,\nואיך בני אדם מפתחים מזה מוצר חדש.",
+        steps: [
+          {
+            title: "שלב 1 – מי אני?",
+            question: "אני מטפסת על קירות\nוגם על תקרה בלי ליפול.\nמי אני?",
+            options: ["שממית", "עטלף", "קיפוד"],
+            answer: "שממית"
+          },
+          {
+            title: "שלב 2 – מה זה עוזר לי לעשות?",
+            question: "למה היכולת הזאת חשובה בטבע?",
+            options: ["להיצמד ולטפס", "לשחות עמוק", "להסתתר מהשמש"],
+            answer: "להיצמד ולטפס"
+          },
+          {
+            title: "שלב 3 – מה אפשר לפתח בהשראה?",
+            question: "איזה מוצר אפשר לפתח\nבהשראת היכולת הזאת?",
+            options: ["דבק חכם או רובוט מטפס", "פנס לילה", "בקבוק מים"],
+            answer: "דבק חכם או רובוט מטפס"
+          }
+        ],
+        summary: [
+          "אורגניזם: שממית",
+          "כוח־על: היצמדות למשטחים",
+          "השראה למוצר: דבק חכם או רובוט מטפס"
+        ]
+      },
+      {
+        id: 2,
+        title: "דלת 2",
+        theme: "לוטוס",
+        image: ASSETS.creatures[2],
+        codes: ["LOT2", "DRY3", "CLEAN9"],
+        intro: "הפעם תגלו את סוד הלוטוס.\nאיך עלים נשארים נקיים?\nומה בני אדם למדו מזה?",
+        steps: [
+          {
+            title: "שלב 1 – מי אני?",
+            question: "אני צמח מים.\nהעלים שלי נשארים נקיים\nכי מים מחליקים מהם.\nמי אני?",
+            options: ["לוטוס", "קקטוס", "ורד"],
+            answer: "לוטוס"
+          },
+          {
+            title: "שלב 2 – למה זה עוזר?",
+            question: "מה היתרון בטבע?",
+            options: ["שמירה על ניקיון העלים", "משיכת ציפורים", "יצירת צל"],
+            answer: "שמירה על ניקיון העלים"
+          },
+          {
+            title: "שלב 3 – מוצר בהשראה",
+            question: "מה בני אדם פיתחו מזה?",
+            options: ["ציפוי דוחה מים", "כרית שינה", "זכוכית כהה"],
+            answer: "ציפוי דוחה מים"
+          }
+        ],
+        summary: [
+          "אורגניזם: לוטוס",
+          "כוח־על: דחיית מים ולכלוך",
+          "השראה למוצר: ציפויים מתנקים"
+        ]
+      },
+      {
+        id: 3,
+        title: "דלת 3",
+        theme: "עטלף",
+        image: ASSETS.creatures[3],
+        codes: ["BAT3", "ECHO", "SON7"],
+        intro: "בדלת הזו מסתתר עטלף.\nתגלו איך הוא נע בחושך\nבלי להתנגש בכלל.",
+        steps: [
+          {
+            title: "שלב 1 – מי אני?",
+            question: "אני עף בלילה\nומשתמש בקולות והד\nכדי לדעת מה סביבי.\nמי אני?",
+            options: ["עטלף", "ינשוף", "דולפין"],
+            answer: "עטלף"
+          },
+          {
+            title: "שלב 2 – למה זה עוזר?",
+            question: "מה זה נותן לי בטבע?",
+            options: ["לנוע בחושך", "להחליף צבעים", "להישאר יבש"],
+            answer: "לנוע בחושך"
+          },
+          {
+            title: "שלב 3 – השראה למוצר",
+            question: "איזו טכנולוגיה נוצרה\nבהשראת היכולת הזאת?",
+            options: ["מערכת סונאר", "מחברת חכמה", "מטרייה מתקפלת"],
+            answer: "מערכת סונאר"
+          }
+        ],
+        summary: [
+          "אורגניזם: עטלף",
+          "כוח־על: ניווט באמצעות הד",
+          "השראה למוצר: סונאר וחיישני מרחק"
+        ]
+      },
+      {
+        id: 4,
+        title: "דלת 4",
+        theme: "שלדג",
+        image: ASSETS.creatures[4],
+        codes: ["KING4", "SPEED", "TRAIN7"],
+        intro: "בדלת הזו מחכה שלדג מהיר.\nנבין איך הוא נכנס למים\nכמעט בלי רעש והתזה.",
+        steps: [
+          {
+            title: "שלב 1 – מי אני?",
+            question: "אני ציפור שצוללת למים\nלתפוס דגים במהירות.\nמי אני?",
+            options: ["שלדג", "נשר", "יונה"],
+            answer: "שלדג"
+          },
+          {
+            title: "שלב 2 – למה זה עוזר?",
+            question: "מה היתרון של מקור חד וארוך?",
+            options: ["כניסה שקטה למים", "תעופה לעננים", "שמירת חום"],
+            answer: "כניסה שקטה למים"
+          },
+          {
+            title: "שלב 3 – השראה למוצר",
+            question: "איזו טכנולוגיה קיבלה השראה מהשלדג?",
+            options: ["רכבת מהירה ושקטה", "מזלג מתקפל", "מחברת קשיחה"],
+            answer: "רכבת מהירה ושקטה"
+          }
+        ],
+        summary: [
+          "אורגניזם: שלדג",
+          "כוח־על: חדירה שקטה למים",
+          "השראה למוצר: רכבות יעילות ושקטות"
+        ]
+      },
+      {
+        id: 5,
+        title: "דלת 5",
+        theme: "שממית",
+        image: ASSETS.creatures[1],
+        codes: ["G1", "CLIMB", "TOP1"],
+        intro: "מאחורי הדלת מחכה שממית עם כוח־על מפתיע.\nתגלו מה היא יודעת לעשות,\nואיך בני אדם מפתחים מזה מוצר חדש.",
+        steps: [
+          {
+            title: "שלב 1 – מי אני?",
+            question: "אני מטפסת על קירות\nוגם על תקרה בלי ליפול.\nמי אני?",
+            options: ["שממית", "עטלף", "קיפוד"],
+            answer: "שממית"
+          },
+          {
+            title: "שלב 2 – מה זה עוזר לי לעשות?",
+            question: "למה היכולת הזאת חשובה בטבע?",
+            options: ["להיצמד ולטפס", "לשחות עמוק", "להסתתר מהשמש"],
+            answer: "להיצמד ולטפס"
+          },
+          {
+            title: "שלב 3 – מה אפשר לפתח בהשראה?",
+            question: "איזה מוצר אפשר לפתח\nבהשראת היכולת הזאת?",
+            options: ["דבק חכם או רובוט מטפס", "פנס לילה", "בקבוק מים"],
+            answer: "דבק חכם או רובוט מטפס"
+          }
+        ],
+        summary: [
+          "אורגניזם: שממית",
+          "כוח־על: היצמדות למשטחים",
+          "השראה למוצר: דבק חכם או רובוט מטפס"
+        ]
+      },
+      {
+        id: 6,
+        title: "דלת 6",
+        theme: "לוטוס",
+        image: ASSETS.creatures[2],
+        codes: ["LOT2", "DRY3", "CLEAN9"],
+        intro: "הפעם תגלו את סוד הלוטוס.\nאיך עלים נשארים נקיים?\nומה בני אדם למדו מזה?",
+        steps: [
+          {
+            title: "שלב 1 – מי אני?",
+            question: "אני צמח מים.\nהעלים שלי נשארים נקיים\nכי מים מחליקים מהם.\nמי אני?",
+            options: ["לוטוס", "קקטוס", "ורד"],
+            answer: "לוטוס"
+          },
+          {
+            title: "שלב 2 – למה זה עוזר?",
+            question: "מה היתרון בטבע?",
+            options: ["שמירה על ניקיון העלים", "משיכת ציפורים", "יצירת צל"],
+            answer: "שמירה על ניקיון העלים"
+          },
+          {
+            title: "שלב 3 – מוצר בהשראה",
+            question: "מה בני אדם פיתחו מזה?",
+            options: ["ציפוי דוחה מים", "כרית שינה", "זכוכית כהה"],
+            answer: "ציפוי דוחה מים"
+          }
+        ],
+        summary: [
+          "אורגניזם: לוטוס",
+          "כוח־על: דחיית מים ולכלוך",
+          "השראה למוצר: ציפויים מתנקים"
+        ]
+      },
+      {
+        id: 7,
+        title: "דלת 7",
+        theme: "עטלף",
+        image: ASSETS.creatures[3],
+        codes: ["BAT3", "ECHO", "SON7"],
+        intro: "בדלת הזו מסתתר עטלף.\nתגלו איך הוא נע בחושך\nבלי להתנגש בכלל.",
+        steps: [
+          {
+            title: "שלב 1 – מי אני?",
+            question: "אני עף בלילה\nומשתמש בקולות והד\nכדי לדעת מה סביבי.\nמי אני?",
+            options: ["עטלף", "ינשוף", "דולפין"],
+            answer: "עטלף"
+          },
+          {
+            title: "שלב 2 – למה זה עוזר?",
+            question: "מה זה נותן לי בטבע?",
+            options: ["לנוע בחושך", "להחליף צבעים", "להישאר יבש"],
+            answer: "לנוע בחושך"
+          },
+          {
+            title: "שלב 3 – השראה למוצר",
+            question: "איזו טכנולוגיה נוצרה\nבהשראת היכולת הזאת?",
+            options: ["מערכת סונאר", "מחברת חכמה", "מטרייה מתקפלת"],
+            answer: "מערכת סונאר"
+          }
+        ],
+        summary: [
+          "אורגניזם: עטלף",
+          "כוח־על: ניווט באמצעות הד",
+          "השראה למוצר: סונאר וחיישני מרחק"
+        ]
+      },
+      {
+        id: 8,
+        title: "דלת 8",
+        theme: "שלדג",
+        image: ASSETS.creatures[4],
+        codes: ["KING4", "SPEED", "TRAIN7"],
+        intro: "בדלת הזו מחכה שלדג מהיר.\nנבין איך הוא נכנס למים\nכמעט בלי רעש והתזה.",
+        steps: [
+          {
+            title: "שלב 1 – מי אני?",
+            question: "אני ציפור שצוללת למים\nלתפוס דגים במהירות.\nמי אני?",
+            options: ["שלדג", "נשר", "יונה"],
+            answer: "שלדג"
+          },
+          {
+            title: "שלב 2 – למה זה עוזר?",
+            question: "מה היתרון של מקור חד וארוך?",
+            options: ["כניסה שקטה למים", "תעופה לעננים", "שמירת חום"],
+            answer: "כניסה שקטה למים"
+          },
+          {
+            title: "שלב 3 – השראה למוצר",
+            question: "איזו טכנולוגיה קיבלה השראה מהשלדג?",
+            options: ["רכבת מהירה ושקטה", "מזלג מתקפל", "מחברת קשיחה"],
+            answer: "רכבת מהירה ושקטה"
+          }
+        ],
+        summary: [
+          "אורגניזם: שלדג",
+          "כוח־על: חדירה שקטה למים",
+          "השראה למוצר: רכבות יעילות ושקטות"
+        ]
+      },
+      {
+        id: 9,
+        title: "דלת 9",
+        theme: "שממית",
+        image: ASSETS.creatures[1],
+        codes: ["G1", "CLIMB", "TOP1"],
+        intro: "מאחורי הדלת מחכה שממית עם כוח־על מפתיע.\nתגלו מה היא יודעת לעשות,\nואיך בני אדם מפתחים מזה מוצר חדש.",
+        steps: [
+          {
+            title: "שלב 1 – מי אני?",
+            question: "אני מטפסת על קירות\nוגם על תקרה בלי ליפול.\nמי אני?",
+            options: ["שממית", "עטלף", "קיפוד"],
+            answer: "שממית"
+          },
+          {
+            title: "שלב 2 – מה זה עוזר לי לעשות?",
+            question: "למה היכולת הזאת חשובה בטבע?",
+            options: ["להיצמד ולטפס", "לשחות עמוק", "להסתתר מהשמש"],
+            answer: "להיצמד ולטפס"
+          },
+          {
+            title: "שלב 3 – מה אפשר לפתח בהשראה?",
+            question: "איזה מוצר אפשר לפתח\nבהשראת היכולת הזאת?",
+            options: ["דבק חכם או רובוט מטפס", "פנס לילה", "בקבוק מים"],
+            answer: "דבק חכם או רובוט מטפס"
+          }
+        ],
+        summary: [
+          "אורגניזם: שממית",
+          "כוח־על: היצמדות למשטחים",
+          "השראה למוצר: דבק חכם או רובוט מטפס"
+        ]
+      },
+      {
+        id: 10,
+        title: "דלת 10",
+        theme: "לוטוס",
+        image: ASSETS.creatures[2],
+        codes: ["LOT2", "DRY3", "CLEAN9"],
+        intro: "הפעם תגלו את סוד הלוטוס.\nאיך עלים נשארים נקיים?\nומה בני אדם למדו מזה?",
+        steps: [
+          {
+            title: "שלב 1 – מי אני?",
+            question: "אני צמח מים.\nהעלים שלי נשארים נקיים\nכי מים מחליקים מהם.\nמי אני?",
+            options: ["לוטוס", "קקטוס", "ורד"],
+            answer: "לוטוס"
+          },
+          {
+            title: "שלב 2 – למה זה עוזר?",
+            question: "מה היתרון בטבע?",
+            options: ["שמירה על ניקיון העלים", "משיכת ציפורים", "יצירת צל"],
+            answer: "שמירה על ניקיון העלים"
+          },
+          {
+            title: "שלב 3 – מוצר בהשראה",
+            question: "מה בני אדם פיתחו מזה?",
+            options: ["ציפוי דוחה מים", "כרית שינה", "זכוכית כהה"],
+            answer: "ציפוי דוחה מים"
+          }
+        ],
+        summary: [
+          "אורגניזם: לוטוס",
+          "כוח־על: דחיית מים ולכלוך",
+          "השראה למוצר: ציפויים מתנקים"
+        ]
+      }
+    ];
+
+    const CODE_REGISTRY = {
+      admin: {
+        code: ADMIN_CODE,
+        belongsTo: "מסך פתיחה",
+        stage: "קוד מנהל",
+        unlocks: "שחרור כפתור התחלה ל-15 דקות"
+      },
+      doors: Object.fromEntries(
+        DOORS.map((door) => [
+          door.id,
+          door.codes.map((code, idx) => ({
+            stage: idx + 1,
+            code,
+            unlocks: idx < 2 ? `מעבר לשלב ${idx + 2}` : `פתיחת דלת ${door.id} והצגת סיכום`
+          }))
+        ])
+      )
     };
 
     const app = document.getElementById("app");
     const effectsLayer = document.getElementById("effects-layer");
-    const videoOverlay = document.getElementById("door-video-overlay");
-    const videoPlayer = document.getElementById("door-video-player");
+    const videoOverlay = document.getElementById("video-overlay");
+    const doorVideo = document.getElementById("door-video");
 
     const state = {
-      completedDoors: new Set(),
-      isUnlocked: false,
-      unlockUntil: 0,
+      unlockedUntil: 0,
       unlockTimer: null,
       logoTapCount: 0,
-      logoTapTimer: null
+      logoTapResetTimer: null,
+      completedDoors: new Set()
     };
 
-    const topStrip = (doorName, progress) => `<div class="top-strip"><div><strong>${doorName}</strong></div><div>${progress}</div></div>`;
-    const toLines = (txt) => txt.split("\n").join("<br>");
-    const getDoor = (id) => content.doors.find((d) => d.id === id) || content.doors[(id - 1) % content.doors.length];
-    const getDoorCodeMap = (doorId) => CODE_REGISTRY.doorCodes[((doorId - 1) % content.doors.length) + 1] || [];
-
-    function spawnFailureWave(target) {
-      if (!target) return;
-      target.animate([
-        { boxShadow: "0 0 0 rgba(255,147,172,0)", transform: "scale(1)" },
-        { boxShadow: "0 0 0 10px rgba(255,147,172,.22)", transform: "scale(1.01)" },
-        { boxShadow: "0 0 0 0 rgba(255,147,172,0)", transform: "scale(1)" }
-      ], { duration: 750, easing: "ease" });
+    function isUnlocked() {
+      return Date.now() < state.unlockedUntil;
     }
 
-    function showScreen(id) {
-      document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("active", s.id === id));
+    function topStrip(title, status) {
+      return `
+        <div class="top-strip">
+          <div><strong>${title}</strong></div>
+          <div>${status}</div>
+        </div>
+      `;
     }
 
-    function spawnSuccessBurst() {
-      for (let i = 0; i < 24; i++) {
+    function nl(text) {
+      return text.replace(/\n/g, "<br>");
+    }
+
+    function setActiveScreen(id) {
+      document.querySelectorAll(".screen").forEach(screen => {
+        screen.classList.toggle("active", screen.id === id);
+      });
+    }
+
+    function remainingMinutes() {
+      if (!isUnlocked()) return 0;
+      return Math.max(0, Math.ceil((state.unlockedUntil - Date.now()) / 60000));
+    }
+
+    function spawnParticles() {
+      const container = document.getElementById("hero-particles");
+      if (!container) return;
+      container.innerHTML = "";
+      for (let i = 0; i < 20; i++) {
         const p = document.createElement("div");
-        p.className = "effect-burst";
-        p.style.left = `${45 + Math.random() * 10}%`;
-        p.style.top = `${38 + Math.random() * 24}%`;
-        p.style.setProperty("--tx", `${(Math.random() - .5) * 260}px`);
-        p.style.setProperty("--ty", `${(Math.random() - .5) * 260}px`);
-        effectsLayer.appendChild(p);
-        setTimeout(() => p.remove(), 1200);
+        p.className = "particle";
+        p.style.left = `${Math.random() * 100}%`;
+        p.style.bottom = `${-20 - Math.random() * 60}px`;
+        p.style.animationDuration = `${5 + Math.random() * 7}s`;
+        p.style.animationDelay = `${Math.random() * 4}s`;
+        p.style.opacity = (0.28 + Math.random() * 0.48).toFixed(2);
+        container.appendChild(p);
       }
     }
 
-    function unlockGame() {
-      state.isUnlocked = true;
-      state.unlockUntil = Date.now() + UNLOCK_DURATION_MS;
+    function burstEffect() {
+      for (let i = 0; i < 22; i++) {
+        const el = document.createElement("div");
+        el.className = "burst";
+        el.style.left = `${46 + Math.random() * 8}%`;
+        el.style.top = `${38 + Math.random() * 20}%`;
+        el.style.setProperty("--tx", `${(Math.random() - 0.5) * 260}px`);
+        el.style.setProperty("--ty", `${(Math.random() - 0.5) * 260}px`);
+        effectsLayer.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
+      }
+    }
+
+    function unlockFor15Minutes() {
+      state.unlockedUntil = Date.now() + UNLOCK_DURATION_MS;
       clearTimeout(state.unlockTimer);
       state.unlockTimer = setTimeout(() => {
-        state.isUnlocked = false;
-        state.unlockUntil = 0;
+        state.unlockedUntil = 0;
         renderHome();
       }, UNLOCK_DURATION_MS);
       renderHome();
     }
 
-    function remainingUnlockMinutes() {
-      if (!state.isUnlocked) return 0;
-      return Math.max(0, Math.ceil((state.unlockUntil - Date.now()) / 60000));
-    }
-
-    function resetAdminInput() {
-      const input = document.getElementById("admin-code-input");
-      const fb = document.getElementById("admin-feedback");
+    function resetAdminModal() {
+      const input = document.getElementById("admin-input");
+      const feedback = document.getElementById("admin-feedback");
       if (input) input.value = "";
-      if (fb) fb.textContent = "";
-      const tapFeedback = document.getElementById("logo-tap-feedback");
-      if (tapFeedback) tapFeedback.textContent = "לחצו 4 פעמים על הלוגו לפתיחת חלון מנהל.";
-    }
-
-    function ensureDoorSections(doorId) {
-      ["intro", "step-1", "step-2", "step-3", "code-1", "code-2", "code-3", "finish"].forEach((part) => {
-        const id = `door-${doorId}-${part}`;
-        if (!document.getElementById(id)) {
-          const section = document.createElement("section");
-          section.id = id;
-          section.className = "screen";
-          app.appendChild(section);
-        }
-      });
+      if (feedback) {
+        feedback.textContent = "";
+        feedback.className = "feedback";
+      }
     }
 
     function renderHome() {
-      const el = document.getElementById("screen-home");
-      const isUnlocked = state.isUnlocked && Date.now() < state.unlockUntil;
-      el.innerHTML = `
-        ${topStrip("דלתות הטבע", isUnlocked ? `שחרור מדריך פעיל לעוד ${remainingUnlockMinutes()} דקות` : "מסך פתיחה")}
-        <div class="card intro-hero">
-          <img src="${imagePaths.intro}" alt="רקע חדר בריחה" class="intro-background">
-          <div class="intro-overlay"></div>
-          <div class="intro-magic-particles"></div>
+      const home = document.getElementById("screen-home");
+      const unlocked = isUnlocked();
 
-          <div class="intro-box">
-            <img src="${imagePaths.logo}" alt="לוגו" class="intro-main-logo" id="logo-trigger">
-            <p id="logo-hint" class="logo-hint">חתימת מדריך זוהתה... פותחים גישה</p>
-            <p id="logo-tap-feedback" class="logo-tap-feedback">לחצו 4 פעמים על הלוגו לפתיחת חלון מנהל.</p>
+      home.innerHTML = `
+        ${topStrip("דלתות הטבע", unlocked ? `שחרור מדריכים פעיל לעוד ${remainingMinutes()} דקות` : "מסך פתיחה")}
+        <div class="card hero">
+          <img src="${ASSETS.intro}" alt="רקע חדר בריחה" class="hero-bg" id="hero-bg">
+          <div class="hero-overlay"></div>
+          <div class="hero-particles" id="hero-particles"></div>
 
-            <div id="instruction-layer" class="instruction-layer">
-              <h1>דלתות הטבע</h1>
-              <p>ברוכים הבאים לחדר הבריחה הביומימטי.<br>קראו את ההוראות בקצב נעים.</p>
-              <p>בחרו דלת, פתרו שלבים וקבלו קוד מהמדריך בזום כדי להמשיך.</p>
-              <div class="start-area">
-                <p class="wait-message ${isUnlocked ? "hidden" : ""}" id="wait-message">אנא המתינו - מיד מתחילים.</p>
-                <button class="btn btn-primary start-ready ${isUnlocked ? "" : "hidden"}" id="start-btn">התחילו במשימה</button>
+          <div class="hero-box">
+            <div class="logo-wrap">
+              <img src="${ASSETS.logo}" alt="לוגו" class="logo" id="logo-trigger">
+            </div>
+
+            <div class="instruction-layer" id="instruction-layer">
+              <h1 class="title">דלתות הטבע</h1>
+              <p class="lead">ברוכים הבאים לחדר הבריחה הביומימטי.<br>קראו את ההוראות בקצב נעים.</p>
+              <p class="lead">בחרו דלת, פתרו 3 שלבים,<br>וקבלו קוד מהמדריך בזום כדי להתקדם.</p>
+
+              <div class="start-zone">
+                <p class="wait-message ${unlocked ? "hidden" : ""}" id="wait-message">אנא המתינו - מיד מתחילים.</p>
+                <button class="btn btn-primary btn-start ${unlocked ? "" : "hidden"}" id="start-btn">התחילו במשימה</button>
               </div>
             </div>
           </div>
 
-          <div class="countdown" id="countdown">10<small>המשימה מתחילה עכשיו</small></div>
+          <div class="countdown" id="countdown">
+            <div class="countdown-box">
+              <div class="countdown-number" id="countdown-number">10</div>
+              <div class="countdown-label">המשימה מתחילה עכשיו</div>
+            </div>
+          </div>
 
-          <div class="admin-modal hidden" id="admin-modal">
+          <div class="admin-modal" id="admin-modal">
             <div class="modal-card">
-              <h3>אישור מדריכים</h3>
-              <p>הזינו קוד מנהל לשחרור המשחק ל־15 דקות.</p>
+              <h3 class="modal-title">אישור מדריכים</h3>
+              <p class="modal-text">הזינו קוד מנהל לשחרור כפתור ההתחלה ל־15 דקות.</p>
+
               <div class="code-row">
-                <input class="code-input" id="admin-code-input" placeholder="קוד מנהל" autocomplete="off">
+                <input id="admin-input" class="input" type="text" placeholder="קוד מנהל" autocomplete="off">
                 <button class="btn btn-primary" id="admin-submit">אישור</button>
               </div>
-              <p id="admin-feedback" class="feedback"></p>
+
+              <p class="feedback" id="admin-feedback"></p>
+
               <div class="actions">
                 <button class="btn btn-secondary" id="admin-close">סגירה</button>
               </div>
             </div>
           </div>
-        </div>`;
+        </div>
+      `;
 
-      const startBtn = document.getElementById("start-btn");
-      if (startBtn) {
-        startBtn.onclick = () => {
-          const instructionLayer = document.getElementById("instruction-layer");
-          const countdown = document.getElementById("countdown");
-          instructionLayer.classList.add("hidden");
-          countdown.classList.add("active");
+      spawnParticles();
 
-          let sec = 10;
-          countdown.firstChild.nodeValue = String(sec);
-          const timer = setInterval(() => {
-            sec -= 1;
-            countdown.firstChild.nodeValue = String(sec);
-            countdown.classList.remove("tick");
-            void countdown.offsetWidth;
-            countdown.classList.add("tick");
-            if (sec === 0) {
-              clearInterval(timer);
-              renderDoors();
-              showScreen("screen-doors");
-            }
-          }, 1100);
-        };
-      }
+      const heroBg = document.getElementById("hero-bg");
+      heroBg.onerror = () => {
+        heroBg.style.display = "none";
+      };
 
       const logo = document.getElementById("logo-trigger");
-      const hint = document.getElementById("logo-hint");
-      const tapFeedback = document.getElementById("logo-tap-feedback");
-      const adminModal = document.getElementById("admin-modal");
-      const adminFb = document.getElementById("admin-feedback");
-
       logo.onerror = () => {
-        logo.classList.add("logo-broken");
-        tapFeedback.textContent = "שגיאה בטעינת הלוגו. בדקו את הנתיב images/logo.svg";
+        logo.classList.add("logo-error");
+        logo.alt = "שגיאת לוגו";
       };
 
-      logo.onclick = () => {
+      logo.addEventListener("click", () => {
         state.logoTapCount += 1;
-        const left = Math.max(0, 4 - state.logoTapCount);
-        tapFeedback.textContent = left > 0 ? `עוד ${left} לחיצות לפתיחת חלון מנהל` : "גישה מזוהה... מכינים חלון מנהל";
-        clearTimeout(state.logoTapTimer);
-        state.logoTapTimer = setTimeout(() => {
+        clearTimeout(state.logoTapResetTimer);
+        state.logoTapResetTimer = setTimeout(() => {
           state.logoTapCount = 0;
-          tapFeedback.textContent = "לחצו 4 פעמים על הלוגו לפתיחת חלון מנהל.";
-        }, 1800);
+        }, 1400);
+
         if (state.logoTapCount >= 4) {
           state.logoTapCount = 0;
-          hint.classList.add("show");
-          setTimeout(() => {
-            adminModal.classList.remove("hidden");
-            tapFeedback.textContent = "חלון מנהל פתוח";
-          }, 550);
-          setTimeout(() => hint.classList.remove("show"), 1700);
+          document.getElementById("admin-modal").classList.add("active");
+          resetAdminModal();
         }
-      };
+      });
 
       document.getElementById("admin-close").onclick = () => {
-        adminModal.classList.add("hidden");
-        resetAdminInput();
+        document.getElementById("admin-modal").classList.remove("active");
+        resetAdminModal();
       };
 
       document.getElementById("admin-submit").onclick = () => {
-        const code = document.getElementById("admin-code-input").value.trim();
-        if (code === ADMIN_CODE) {
-          adminFb.className = "feedback success";
-          adminFb.textContent = "אושר בהצלחה! המשימה פתוחה ל־15 דקות.";
-          spawnSuccessBurst();
+        const input = document.getElementById("admin-input");
+        const feedback = document.getElementById("admin-feedback");
+        const value = input.value.trim();
+
+        if (value === CODE_REGISTRY.admin.code) {
+          feedback.textContent = "אושר בהצלחה. כפתור ההתחלה נפתח ל־15 דקות.";
+          feedback.className = "feedback success";
+          burstEffect();
           setTimeout(() => {
-            adminModal.classList.add("hidden");
-            resetAdminInput();
-            unlockGame();
-          }, 700);
+            document.getElementById("admin-modal").classList.remove("active");
+            resetAdminModal();
+            unlockFor15Minutes();
+          }, 500);
         } else {
-          adminFb.className = "feedback error";
-          adminFb.textContent = "קוד שגוי. המנגנון עדיין לא נפתח 🙂";
+          feedback.textContent = "קוד שגוי. המשחק עדיין נעול.";
+          feedback.className = "feedback error";
         }
       };
+
+      const startBtn = document.getElementById("start-btn");
+      if (startBtn) {
+        startBtn.onclick = () => startMainCountdown();
+      }
+    }
+
+    function startMainCountdown() {
+      const instructionLayer = document.getElementById("instruction-layer");
+      const countdown = document.getElementById("countdown");
+      const countdownNumber = document.getElementById("countdown-number");
+
+      instructionLayer.classList.add("hidden");
+      countdown.classList.add("active");
+
+      let sec = 10;
+      countdownNumber.textContent = String(sec);
+
+      const interval = setInterval(() => {
+        sec -= 1;
+        countdownNumber.textContent = String(sec);
+
+        if (sec <= 0) {
+          clearInterval(interval);
+          renderDoors();
+          setActiveScreen("screen-doors");
+        }
+      }, 1000);
     }
 
     function renderDoors() {
-      const cards = Array.from({ length: 10 }, (_, i) => i + 1).map((num) => `
+      const doorsScreen = document.getElementById("screen-doors");
+      const cards = DOORS.map(door => `
         <article class="door-card">
-          <div class="door-title">דלת ${num}</div>
+          <div class="door-title">${door.title}</div>
           <div class="door-image-wrap">
-            <img src="${imagePaths.doors[num]}" onerror="this.src='${imagePaths.doorDefault}'" alt="דלת ${num}">
-            <div class="door-footer"><button class="btn btn-primary" data-start="${num}">התחל</button></div>
+            <img
+              class="door-image"
+              src="${ASSETS.doors[door.id]}"
+              alt="${door.title}"
+              onerror="this.onerror=null; this.src='${ASSETS.doorFallback}'"
+            >
+            <div class="door-footer">
+              <button class="btn btn-primary" data-door-start="${door.id}">התחל</button>
+            </div>
           </div>
-        </article>`).join("");
+        </article>
+      `).join("");
 
-      const el = document.getElementById("screen-doors");
-      el.innerHTML = `
+      doorsScreen.innerHTML = `
         ${topStrip("מסך הדלתות", "בחרו שער למשימה")}
-        <div class="card">
-          <h2>בחרו דלת</h2>
-          <p class="question-text">לכל דלת משימה אחרת. לחצו על "התחל" כדי לפתוח את המעבר.</p>
+        <div class="card doors-card">
+          <h2 class="doors-title">בחרו דלת</h2>
+          <p class="question-text">לכל דלת מחכה משימה. לחצו על "התחל" כדי לפתוח את המעבר.</p>
           <div class="door-grid">${cards}</div>
-          <div class="actions"><button class="btn btn-secondary" id="go-final">למסך סיום</button></div>
-        </div>`;
+          <div class="actions">
+            <button class="btn btn-secondary" id="to-final-btn">למסך סיום</button>
+            <button class="btn btn-secondary" id="back-home-btn">חזרה לפתיחה</button>
+          </div>
+        </div>
+      `;
 
-      el.querySelectorAll("[data-start]").forEach((b) => b.onclick = () => startDoor(Number(b.dataset.start)));
-      document.getElementById("go-final").onclick = () => { renderFinal(); showScreen("screen-final"); };
+      doorsScreen.querySelectorAll("[data-door-start]").forEach(btn => {
+        btn.onclick = () => startDoorFlow(Number(btn.dataset.doorStart));
+      });
+
+      document.getElementById("to-final-btn").onclick = () => {
+        renderFinal();
+        setActiveScreen("screen-final");
+      };
+
+      document.getElementById("back-home-btn").onclick = () => {
+        renderHome();
+        setActiveScreen("screen-home");
+      };
     }
 
-    function playDoorVideo(doorId) {
-      videoOverlay.classList.remove("hidden");
-      videoPlayer.src = imagePaths.doorVideo;
-      videoPlayer.currentTime = 0;
-      videoPlayer.onended = () => {
-        videoOverlay.classList.add("hidden");
-        ensureDoorSections(doorId);
+    function startDoorFlow(doorId) {
+      playDoorVideo(() => {
         renderDoorIntro(doorId);
-        showScreen(`door-${doorId}-intro`);
-      };
-      videoPlayer.play().catch(() => {
-        videoOverlay.classList.add("hidden");
-        ensureDoorSections(doorId);
-        renderDoorIntro(doorId);
-        showScreen(`door-${doorId}-intro`);
+        setActiveScreen(`door-${doorId}-intro`);
       });
     }
 
-    function startDoor(doorId) {
-      playDoorVideo(doorId);
+    function playDoorVideo(onDone) {
+      videoOverlay.classList.add("active");
+      doorVideo.currentTime = 0;
+
+      const finish = () => {
+        videoOverlay.classList.remove("active");
+        doorVideo.onended = null;
+        onDone();
+      };
+
+      doorVideo.onended = finish;
+
+      doorVideo.play().catch(() => {
+        setTimeout(finish, 2200);
+      });
+    }
+
+    function ensureDoorSections(doorId) {
+      const ids = [
+        `door-${doorId}-intro`,
+        `door-${doorId}-step-1`,
+        `door-${doorId}-step-2`,
+        `door-${doorId}-step-3`,
+        `door-${doorId}-code-1`,
+        `door-${doorId}-code-2`,
+        `door-${doorId}-code-3`,
+        `door-${doorId}-finish`
+      ];
+
+      ids.forEach(id => {
+        if (!document.getElementById(id)) {
+          const section = document.createElement("section");
+          section.className = "screen";
+          section.id = id;
+          app.appendChild(section);
+        }
+      });
+    }
+
+    function getDoor(doorId) {
+      return DOORS.find(d => d.id === doorId);
     }
 
     function renderDoorIntro(doorId) {
-      const d = getDoor(doorId);
+      ensureDoorSections(doorId);
+      const door = getDoor(doorId);
       const el = document.getElementById(`door-${doorId}-intro`);
-      el.innerHTML = `${topStrip(`דלת ${doorId}`, "שלב הכנה")}
-      <div class="card">
-        <div class="question-layout">
-          <div class="question-visual"><img src="${imagePaths.doorLocked}" alt="דלת סגורה"></div>
-          <div class="question-content">
-            <h2>מתכוננים לדלת ${doorId}</h2>
-            <p class="question-text">${toLines(d.intro)}</p>
-            <div class="actions">
-              <button class="btn btn-primary" id="to-step1-${doorId}">לתחילת שלב 1</button>
-              <button class="btn btn-secondary" id="back-doors-${doorId}">חזרה לדלתות</button>
+
+      el.innerHTML = `
+        ${topStrip(`${door.title}`, "שלב הכנה")}
+        <div class="card question-card">
+          <div class="question-layout">
+            <div class="question-visual">
+              <img src="${ASSETS.doorLocked}" alt="דלת סגורה" onerror="this.style.display='none'">
+            </div>
+
+            <div>
+              <h2 class="question-title">מתכוננים ל${door.title}</h2>
+              <p class="question-text">${nl(door.intro)}</p>
+
+              <div class="actions">
+                <button class="btn btn-primary" id="door-${doorId}-to-step1">לתחילת שלב 1</button>
+                <button class="btn btn-secondary" id="door-${doorId}-back-doors">חזרה לדלתות</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>`;
-      document.getElementById(`to-step1-${doorId}`).onclick = () => renderStep(doorId, 1);
-      document.getElementById(`back-doors-${doorId}`).onclick = () => showScreen("screen-doors");
+      `;
+
+      document.getElementById(`door-${doorId}-to-step1`).onclick = () => renderStep(doorId, 1);
+      document.getElementById(`door-${doorId}-back-doors`).onclick = () => setActiveScreen("screen-doors");
     }
 
-    function renderStep(doorId, stepNum) {
-      const d = getDoor(doorId);
-      const step = d.steps[stepNum - 1];
-      const el = document.getElementById(`door-${doorId}-step-${stepNum}`);
-      const nextCodeScreen = `door-${doorId}-code-${stepNum}`;
+    function renderStep(doorId, stepIndex) {
+      ensureDoorSections(doorId);
+      const door = getDoor(doorId);
+      const step = door.steps[stepIndex - 1];
+      const el = document.getElementById(`door-${doorId}-step-${stepIndex}`);
 
-      el.innerHTML = `${topStrip(`דלת ${doorId}`, `שלב ${stepNum} מתוך 3`)}
-      <div class="card">
-        <div class="question-layout">
-          <div class="question-visual"><img src="${stepNum === 1 ? imagePaths.doorLocked : d.image}" alt="איור"></div>
-          <div class="question-content">
-            <h2>${step.title}</h2>
-            <p class="question-text">${toLines(step.question)}</p>
-            <div class="answers">${step.options.map((o) => `<button class="answer" data-opt="${o}">${o}</button>`).join("")}</div>
-            <p class="feedback" id="fb-${doorId}-${stepNum}"></p>
-            <div class="actions">
-              <button class="btn btn-next" id="next-${doorId}-${stepNum}" style="display:none">לשלב הבא</button>
-              <button class="btn btn-secondary" id="back-doors-s-${doorId}-${stepNum}">חזרה לדלתות</button>
+      el.innerHTML = `
+        ${topStrip(`${door.title}`, `שלב ${stepIndex} מתוך 3`)}
+        <div class="card question-card">
+          <div class="question-layout">
+            <div class="question-visual">
+              <img src="${stepIndex === 1 ? ASSETS.doorLocked : door.image}" alt="${door.theme}" onerror="this.style.display='none'">
+            </div>
+
+            <div>
+              <h2 class="question-title">${step.title}</h2>
+              <p class="question-text">${nl(step.question)}</p>
+
+              <div class="answers">
+                ${step.options.map(option => `<button class="answer" data-answer="${option}">${option}</button>`).join("")}
+              </div>
+
+              <p class="feedback" id="door-${doorId}-step-${stepIndex}-feedback"></p>
+
+              <div class="actions">
+                <button class="btn btn-next hidden" id="door-${doorId}-step-${stepIndex}-next">לשלב הבא</button>
+                <button class="btn btn-secondary" id="door-${doorId}-step-${stepIndex}-back">חזרה לדלתות</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>`;
+      `;
 
-      const feedback = document.getElementById(`fb-${doorId}-${stepNum}`);
-      const nextBtn = document.getElementById(`next-${doorId}-${stepNum}`);
+      const feedback = document.getElementById(`door-${doorId}-step-${stepIndex}-feedback`);
+      const nextBtn = document.getElementById(`door-${doorId}-step-${stepIndex}-next`);
 
-      el.querySelectorAll(".answer").forEach((btn) => {
+      el.querySelectorAll(".answer").forEach(btn => {
         btn.onclick = () => {
-          const good = btn.dataset.opt === step.answer;
-          el.querySelectorAll(".answer").forEach((b) => b.classList.remove("correct", "wrong"));
-          btn.classList.add(good ? "correct" : "wrong");
-          if (good) {
-            feedback.textContent = "מדהים! פתרון נכון ✨ האנרגיה הקסומה של השלב הופעלה.";
+          const chosen = btn.dataset.answer;
+          const isCorrect = chosen === step.answer;
+
+          el.querySelectorAll(".answer").forEach(answerBtn => {
+            answerBtn.classList.remove("correct", "wrong");
+          });
+
+          btn.classList.add(isCorrect ? "correct" : "wrong");
+
+          if (isCorrect) {
+            feedback.textContent = "מעולה! עניתם נכון. קראו את ההודעה ואז לחצו לשלב הבא.";
             feedback.className = "feedback success";
-            spawnSuccessBurst();
-            nextBtn.style.display = "inline-block";
-            renderCodeScreen(doorId, stepNum);
-            nextBtn.onclick = () => showScreen(nextCodeScreen);
+            burstEffect();
+            nextBtn.classList.remove("hidden");
+            renderCodeScreen(doorId, stepIndex);
+            nextBtn.onclick = () => setActiveScreen(`door-${doorId}-code-${stepIndex}`);
           } else {
-            feedback.textContent = "קרוב מאוד 💛 זה לא הקוד הנכון כרגע, נסו שוב בלי לחץ.";
+            feedback.textContent = "כמעט. זו לא התשובה הנכונה. נסו שוב יחד.";
             feedback.className = "feedback error";
-            spawnFailureWave(feedback);
           }
         };
       });
 
-      document.getElementById(`back-doors-s-${doorId}-${stepNum}`).onclick = () => showScreen("screen-doors");
-      showScreen(`door-${doorId}-step-${stepNum}`);
+      document.getElementById(`door-${doorId}-step-${stepIndex}-back`).onclick = () => setActiveScreen("screen-doors");
+      setActiveScreen(`door-${doorId}-step-${stepIndex}`);
     }
 
-    function renderCodeScreen(doorId, codeNum) {
-      const d = getDoor(doorId);
-      const el = document.getElementById(`door-${doorId}-code-${codeNum}`);
-      const isLast = codeNum === 3;
+    function renderCodeScreen(doorId, codeStage) {
+      ensureDoorSections(doorId);
+      const door = getDoor(doorId);
+      const screenId = `door-${doorId}-code-${codeStage}`;
+      const el = document.getElementById(screenId);
+      const finalStage = codeStage === 3;
+      const expectedCode = door.codes[codeStage - 1];
 
-      el.innerHTML = `${topStrip(`דלת ${doorId}`, `בדיקת קוד ${codeNum} מתוך 3`)}
-      <div class="card">
-        <div class="question-layout">
-          <div class="question-visual"><img src="${imagePaths.doorDefault}" alt="דלת נפתחת"></div>
-          <div class="question-content">
-            <h2>מסך קוד</h2>
-            <p class="question-text">קיבלתם קוד מהמדריך? הזינו אותו ולחצו "פתיחה".</p>
-            <div class="code-panel" id="code-panel-${doorId}-${codeNum}">
-              <div class="code-row">
-                <input class="code-input" id="code-input-${doorId}-${codeNum}" placeholder="לדוגמה: ABC1" autocomplete="off">
-                <button class="btn btn-primary" id="submit-${doorId}-${codeNum}">פתיחה</button>
-              </div>
+      el.innerHTML = `
+        ${topStrip(`${door.title}`, `בדיקת קוד ${codeStage} מתוך 3`)}
+        <div class="card question-card">
+          <div class="question-layout">
+            <div class="question-visual">
+              <img src="${ASSETS.doorFallback}" alt="דלת" onerror="this.style.display='none'">
             </div>
-            <p class="feedback" id="code-fb-${doorId}-${codeNum}"></p>
-            <div class="actions">
-              <button class="btn btn-next" id="code-next-${doorId}-${codeNum}" style="display:none">לשלב הבא</button>
-              <button class="btn btn-secondary" id="code-back-${doorId}-${codeNum}">חזרה לדלתות</button>
+
+            <div>
+              <h2 class="question-title">מסך קוד</h2>
+              <p class="question-text">קיבלתם קוד מהמדריך? הזינו אותו ולחצו על "פתיחה".</p>
+
+              <div class="code-panel" id="code-panel-${doorId}-${codeStage}">
+                <div class="code-row">
+                  <input class="input" id="code-input-${doorId}-${codeStage}" type="text" placeholder="הזינו קוד" autocomplete="off">
+                  <button class="btn btn-primary" id="code-submit-${doorId}-${codeStage}">פתיחה</button>
+                </div>
+              </div>
+
+              <p class="feedback" id="code-feedback-${doorId}-${codeStage}"></p>
+
+              <div class="actions">
+                <button class="btn btn-next hidden" id="code-next-${doorId}-${codeStage}">לשלב הבא</button>
+                <button class="btn btn-secondary" id="code-back-${doorId}-${codeStage}">חזרה לדלתות</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>`;
+      `;
 
-      document.getElementById(`submit-${doorId}-${codeNum}`).onclick = () => {
-        const entered = document.getElementById(`code-input-${doorId}-${codeNum}`).value.trim().toUpperCase();
-        const fb = document.getElementById(`code-fb-${doorId}-${codeNum}`);
-        const panel = document.getElementById(`code-panel-${doorId}-${codeNum}`);
-        const next = document.getElementById(`code-next-${doorId}-${codeNum}`);
+      const panel = document.getElementById(`code-panel-${doorId}-${codeStage}`);
+      const input = document.getElementById(`code-input-${doorId}-${codeStage}`);
+      const feedback = document.getElementById(`code-feedback-${doorId}-${codeStage}`);
+      const nextBtn = document.getElementById(`code-next-${doorId}-${codeStage}`);
+
+      document.getElementById(`code-submit-${doorId}-${codeStage}`).onclick = () => {
+        const entered = input.value.trim().toUpperCase();
         panel.classList.remove("success", "error");
 
-        const expectedCode = (getDoorCodeMap(doorId)[codeNum - 1] || {}).code || d.codes[codeNum - 1];
         if (entered === expectedCode) {
           panel.classList.add("success");
-          spawnSuccessBurst();
-          fb.textContent = "🎉 קסם! הקוד נכון, שער האור נפתח ואתם מתקדמים לעולם הבא!";
-          fb.className = "feedback success";
-          next.style.display = "inline-block";
-          next.onclick = () => {
-            if (isLast) {
+          feedback.textContent = "איזה יופי! הקוד נכון והדלת נפתחת לשלב הבא ✨";
+          feedback.className = "feedback success";
+          burstEffect();
+          nextBtn.classList.remove("hidden");
+
+          nextBtn.onclick = () => {
+            if (finalStage) {
               renderDoorFinish(doorId);
-              showScreen(`door-${doorId}-finish`);
+              setActiveScreen(`door-${doorId}-finish`);
             } else {
-              renderStep(doorId, codeNum + 1);
+              renderStep(doorId, codeStage + 1);
             }
           };
         } else {
           panel.classList.add("error");
-          fb.textContent = "זה עוד לא הקוד הנכון, וזה בסדר גמור 🌱 נסו עוד פעם עם הצוות.";
-          fb.className = "feedback error";
-          spawnFailureWave(panel);
+          feedback.textContent = "זה עדיין לא הקוד הנכון. נסו שוב עם הצוות.";
+          feedback.className = "feedback error";
         }
       };
 
-      document.getElementById(`code-back-${doorId}-${codeNum}`).onclick = () => showScreen("screen-doors");
+      document.getElementById(`code-back-${doorId}-${codeStage}`).onclick = () => setActiveScreen("screen-doors");
     }
 
     function renderDoorFinish(doorId) {
-      const d = getDoor(doorId);
+      ensureDoorSections(doorId);
       state.completedDoors.add(doorId);
+      const door = getDoor(doorId);
       const el = document.getElementById(`door-${doorId}-finish`);
-      el.innerHTML = `${topStrip(`דלת ${doorId}`, "הישג הושלם")}
-      <div class="card">
-        <h2>נהדר! דלת ${doorId} נפתחה בהצלחה ✨</h2>
-        <p class="question-text">סיכום ההישג שלכם:</p>
-        <ul class="finish-list">${d.summary.map((s) => `<li>${s}</li>`).join("")}</ul>
-        <div class="actions">
-          <button class="btn btn-primary" id="doors-after-${doorId}">חזרה למסך הדלתות</button>
-          <button class="btn btn-secondary" id="final-after-${doorId}">למסך סיום</button>
+
+      el.innerHTML = `
+        ${topStrip(`${door.title}`, "הצלחה")}
+        <div class="card finish-card">
+          <h2 class="finish-title">נהדר! ${door.title} נפתחה בהצלחה ✨</h2>
+          <p class="question-text">סיכום קצר של מה שגיליתם:</p>
+          <ul class="finish-list">
+            ${door.summary.map(item => `<li>${item}</li>`).join("")}
+          </ul>
+
+          <div class="actions">
+            <button class="btn btn-primary" id="door-${doorId}-finish-back-doors">חזרה למסך הדלתות</button>
+            <button class="btn btn-secondary" id="door-${doorId}-finish-final">למסך סיום</button>
+          </div>
         </div>
-      </div>`;
-      document.getElementById(`doors-after-${doorId}`).onclick = () => { renderDoors(); showScreen("screen-doors"); };
-      document.getElementById(`final-after-${doorId}`).onclick = () => { renderFinal(); showScreen("screen-final"); };
+      `;
+
+      document.getElementById(`door-${doorId}-finish-back-doors`).onclick = () => {
+        renderDoors();
+        setActiveScreen("screen-doors");
+      };
+
+      document.getElementById(`door-${doorId}-finish-final`).onclick = () => {
+        renderFinal();
+        setActiveScreen("screen-final");
+      };
     }
 
     function renderFinal() {
-      const el = document.getElementById("screen-final");
-      el.innerHTML = `${topStrip("סיום", `דלתות שהושלמו: ${state.completedDoors.size}`)}
-      <div class="card">
-        <h2>פיצחתם את קוד הטבע 🎉</h2>
-        <p class="question-text">הצלחתם לחשוף השראות ביומימטיות ולפתוח שערים חדשים.<br>הישארו בזום להמשך ההנחיה החגיגית.</p>
-        <div class="actions">
-          <button class="btn btn-primary" id="restart">חזרה למסך הדלתות</button>
+      const finalScreen = document.getElementById("screen-final");
+
+      finalScreen.innerHTML = `
+        ${topStrip("סיום", `דלתות שהושלמו: ${state.completedDoors.size}`)}
+        <div class="card finish-card">
+          <h2 class="finish-title">פיצחתם את קוד הטבע 🎉</h2>
+          <p class="question-text">למדתם איך הטבע נותן השראה לרעיונות, לפתרונות ולהמצאות חדשות.<br>הישארו בזום להמשך ההנחיה.</p>
+
+          <div class="actions">
+            <button class="btn btn-primary" id="final-back-doors">חזרה למסך הדלתות</button>
+            <button class="btn btn-secondary" id="final-back-home">חזרה לפתיחה</button>
+          </div>
         </div>
-      </div>`;
-      document.getElementById("restart").onclick = () => { renderDoors(); showScreen("screen-doors"); };
+      `;
+
+      document.getElementById("final-back-doors").onclick = () => {
+        renderDoors();
+        setActiveScreen("screen-doors");
+      };
+
+      document.getElementById("final-back-home").onclick = () => {
+        renderHome();
+        setActiveScreen("screen-home");
+      };
     }
 
     renderHome();

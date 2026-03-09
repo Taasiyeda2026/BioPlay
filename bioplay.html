@@ -1409,7 +1409,8 @@
             guideFeedback.className = "feedback error";
           }
         } catch (error) {
-          guideFeedback.textContent = "קוד שגוי";
+          const isNetwork = error instanceof TypeError || String(error).includes("fetch");
+          guideFeedback.textContent = isNetwork ? "שגיאת חיבור לשרת. בדקו אינטרנט ונסו שוב." : "קוד שגוי";
           guideFeedback.className = "feedback error";
         }
       };

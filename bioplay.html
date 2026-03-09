@@ -761,19 +761,11 @@
 
   <script>
     // ==========================================================
-    // מרכז קודים וסיסמאות של המשחק (מקור אמת אחד)
-    // כאן מרוכזים:
-    // 1) קוד מנהל
-    // 2) כל קודי הדלתות לפי דלת ולפי שלב
-    // 3) מה כל קוד פותח (מעבר שלב / פתיחת דלת)
+    // מרכז קודי הדלתות של המשחק (מקור אמת אחד)
+    // נשמרים כאן רק קודי השלבים של הדלתות עצמן.
+    // קוד המדריך להפעלה/איפוס נבדק אך ורק ב-Apps Script.
     // ==========================================================
     const GAME_CODE_CATALOG = {
-      admin: {
-        code: "BIO2024",
-        belongsTo: "מסך פתיחה",
-        stage: "קוד מנהל",
-        unlocks: "שחרור כפתור התחלה ל-15 דקות"
-      },
       doors: {
         1: [
           { stage: 1, code: "G1", unlocks: "מעבר לשלב 2" },
@@ -1131,6 +1123,8 @@
       gameStatus: "waiting",
       statusPollTimer: null,
       statusRequestInFlight: false,
+      logoTapCount: 0,
+      logoTapResetTimer: null,
       completedDoors: new Set()
     };
 
@@ -1324,16 +1318,7 @@
                 <button class="btn btn-primary btn-start ${unlocked ? "" : "hidden"}" id="start-btn">לחצו להתחלת המשחק</button>
               </div>
 
-              <div class="card modal-card" style="width:min(520px, 100%); margin-top: 14px;">
-                <h3 class="modal-title">אזור מדריך</h3>
-                <p class="modal-text">הזינו קוד להפעלה או בצעו איפוס לסטטוס waiting.</p>
-                <div class="code-row">
-                  <input id="guide-code-input" class="input" type="password" placeholder="קוד מדריך" autocomplete="off">
-                  <button class="btn btn-primary" id="guide-start-btn">הפעל</button>
-                  <button class="btn btn-secondary" id="guide-reset-btn">איפוס</button>
-                </div>
-                <p class="feedback" id="guide-feedback"></p>
-              </div>
+              <p class="soft-note">אזור המדריך נפתח בלחיצות לוגו.</p>
             </div>
           </div>
 
@@ -1341,6 +1326,22 @@
             <div class="countdown-box">
               <div class="countdown-number" id="countdown-number">10</div>
               <div class="countdown-label">המשימה מתחילה עכשיו</div>
+            </div>
+          </div>
+
+          <div class="admin-modal" id="guide-modal">
+            <div class="modal-card">
+              <h3 class="modal-title">אזור מדריך</h3>
+              <p class="modal-text">הזינו קוד להפעלה או בצעו איפוס. אימות הקוד מתבצע בשרת בלבד.</p>
+              <div class="code-row">
+                <input id="guide-code-input" class="input" type="password" placeholder="קוד מדריך" autocomplete="off">
+                <button class="btn btn-primary" id="guide-start-btn">הפעל</button>
+                <button class="btn btn-secondary" id="guide-reset-btn">איפוס</button>
+              </div>
+              <p class="feedback" id="guide-feedback"></p>
+              <div class="actions">
+                <button class="btn btn-secondary" id="guide-close-btn">סגירה</button>
+              </div>
             </div>
           </div>
 
@@ -1360,8 +1361,28 @@
         logo.alt = "שגיאת לוגו";
       };
 
+      const guideModal = document.getElementById("guide-modal");
       const guideCodeInput = document.getElementById("guide-code-input");
       const guideFeedback = document.getElementById("guide-feedback");
+
+      logo.addEventListener("click", () => {
+        state.logoTapCount += 1;
+        clearTimeout(state.logoTapResetTimer);
+        state.logoTapResetTimer = setTimeout(() => {
+          state.logoTapCount = 0;
+        }, 1400);
+
+        if (state.logoTapCount >= 3) {
+          state.logoTapCount = 0;
+          guideModal.classList.add("active");
+          guideFeedback.textContent = "";
+          guideFeedback.className = "feedback";
+          guideCodeInput.focus();
+        }
+
+      document.getElementById("guide-close-btn").onclick = () => {
+        guideModal.classList.remove("active");
+      };
 
       document.getElementById("guide-start-btn").onclick = async () => {
         const value = guideCodeInput.value.trim();
@@ -1373,13 +1394,13 @@
 
         try {
           const result = await sendGameAction("start", value);
-          const actionSucceeded = result?.success === true || result?.status === "started" || result?.result === "started";
+          const serverAccepted = result?.success === true || result?.ok === true || result?.status === "started" || result?.result === "started";
 
-          if (actionSucceeded) {
+          if (serverAccepted) {
+            applyGameStatus("started");
             guideFeedback.textContent = "המשחק הופעל";
             guideFeedback.className = "feedback success";
             guideCodeInput.value = "";
-            applyGameStatus("started");
             burstEffect();
           } else {
             guideFeedback.textContent = "קוד שגוי";
@@ -1393,11 +1414,18 @@
 
       document.getElementById("guide-reset-btn").onclick = async () => {
         try {
-          await sendGameAction("reset");
-          applyGameStatus("waiting");
-          guideCodeInput.value = "";
-          guideFeedback.textContent = "בוצע איפוס. המשחק חזר למצב המתנה.";
-          guideFeedback.className = "feedback success";
+          const result = await sendGameAction("reset");
+          const serverAccepted = result?.success === true || result?.ok === true || result?.status === "waiting" || result?.result === "waiting";
+
+          if (serverAccepted) {
+            applyGameStatus("waiting");
+            guideCodeInput.value = "";
+            guideFeedback.textContent = "בוצע איפוס. המשחק חזר למצב המתנה.";
+            guideFeedback.className = "feedback success";
+          } else {
+            guideFeedback.textContent = "איפוס נדחה על ידי השרת.";
+            guideFeedback.className = "feedback error";
+          }
         } catch (error) {
           guideFeedback.textContent = "איפוס נכשל. נסו שוב.";
           guideFeedback.className = "feedback error";

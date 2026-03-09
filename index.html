@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מסך פתיחה</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Heebo', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(circle at top right, rgba(255,255,255,0.18), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(255,255,255,0.12), transparent 25%),
+        linear-gradient(135deg, #1a1f4f 0%, #4b2f7f 45%, #b23a8a 100%);
+      overflow: hidden;
+      position: relative;
+    }
+
+    body::before,
+    body::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.45;
+      z-index: 0;
+    }
+
+    body::before {
+      width: 260px;
+      height: 260px;
+      background: #7df9ff;
+      top: 8%;
+      right: 10%;
+    }
+
+    body::after {
+      width: 300px;
+      height: 300px;
+      background: #ff8fd8;
+      bottom: 8%;
+      left: 8%;
+    }
+
+    .welcome-box {
+      position: relative;
+      z-index: 1;
+      width: min(92vw, 360px);
+      padding: 30px 24px 24px;
+      border-radius: 28px;
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.28),
+        inset 0 1px 0 rgba(255,255,255,0.25);
+      text-align: center;
+      animation: floatBox 4s ease-in-out infinite;
+    }
+
+    @keyframes floatBox {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    .welcome-box h1 {
+      color: #ffffff;
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      text-shadow: 0 4px 18px rgba(0,0,0,0.25);
+    }
+
+    .welcome-box p {
+      color: rgba(255,255,255,0.9);
+      font-size: 0.98rem;
+      line-height: 1.5;
+      margin-bottom: 22px;
+    }
+
+    .buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .buttons a {
+      position: relative;
+      display: block;
+      text-decoration: none;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 13px 16px;
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
+      box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+      letter-spacing: 0.2px;
+    }
+
+    .buttons a::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.28), rgba(255,255,255,0.05));
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    .buttons a span {
+      position: relative;
+      z-index: 1;
+    }
+
+    .btn-hebrew {
+      background: linear-gradient(135deg, #5b8cff, #3558ff);
+    }
+
+    .btn-arabic {
+      background: linear-gradient(135deg, #14c38e, #009f74);
+    }
+
+    .btn-kids {
+      background: linear-gradient(135deg, #ff8a3d, #ff4f81);
+    }
+
+    .buttons a:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 16px 30px rgba(0,0,0,0.25);
+      filter: brightness(1.05);
+    }
+
+    .buttons a:active {
+      transform: translateY(0) scale(0.99);
+    }
+
+    .welcome-box .glow-line {
+      width: 72px;
+      height: 4px;
+      margin: 0 auto 16px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #7df9ff, #ffffff, #ff9adf);
+      box-shadow: 0 0 16px rgba(255,255,255,0.6);
+    }
+
+    @media (max-width: 480px) {
+      .welcome-box {
+        padding: 24px 18px 20px;
+        border-radius: 24px;
+      }
+
+      .welcome-box h1 {
+        font-size: 1.7rem;
+      }
+
+      .buttons a {
+        font-size: 0.96rem;
+        padding: 12px 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="welcome-box">
+    <h1>ברוכים הבאים</h1>
+    <div class="glow-line"></div>
+    <p>בחרו את המסלול המתאים והמשיכו לעמוד הרצוי</p>
+
+    <div class="buttons">
+      <a class="btn-hebrew" href="hebrew.html"><span>חטיבה עברית</span></a>
+      <a class="btn-arabic" href="arab.html"><span>חטיבה ערבית</span></a>
+      <a class="btn-kids" href="kid.html"><span>יסודי</span></a>
+    </div>
+  </div>
+
+</body>
+</html>

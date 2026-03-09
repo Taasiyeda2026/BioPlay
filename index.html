@@ -3,745 +3,185 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>דלתות הטבע: מהשראה בטבע לפיתוח מוצר</title>
+  <title>דלתות הטבע: חדר בריחה ביומימטי בזום</title>
   <style>
     :root {
-      --bg: #070b1b;
-      --bg-2: #121938;
-      --panel: rgba(14, 23, 49, 0.92);
-      --panel-soft: #1d2a57;
-      --accent: #52d6ff;
-      --accent-strong: #22b6ff;
-      --accent-2: #7df3ad;
+      --bg: #050916;
+      --bg-2: #111b3b;
+      --panel: rgba(12, 22, 48, 0.9);
       --text: #eff4ff;
-      --muted: #a9b6dc;
-      --danger: #ff7e96;
-      --warning: #ffcd78;
-      --shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
-      --radius: 18px;
-      --ease: 600ms cubic-bezier(.22,.61,.36,1);
+      --muted: #b2c1e3;
+      --accent: #52d6ff;
+      --accent-2: #7df3ad;
+      --danger: #ff8098;
+      --radius: 20px;
+      --ease: 700ms cubic-bezier(.22,.61,.36,1);
     }
 
-    * {
-      box-sizing: border-box;
-      font-family: "Assistant", "Rubik", "Segoe UI", sans-serif;
-    }
-
-    img {
-      display: block;
-      background: transparent;
-      object-fit: contain;
-    }
-
+    * { box-sizing: border-box; font-family: "Assistant", "Rubik", sans-serif; }
     body {
       margin: 0;
       min-height: 100vh;
-      background:
-        radial-gradient(circle at 12% 8%, #2f4f97 0%, transparent 36%),
-        radial-gradient(circle at 88% 16%, #14385c 0%, transparent 30%),
-        linear-gradient(160deg, var(--bg-2), var(--bg));
+      background: radial-gradient(circle at 20% 5%, #2a4a93, transparent 35%), linear-gradient(160deg, var(--bg-2), var(--bg));
       color: var(--text);
-      display: flex;
-      justify-content: center;
-      padding: 18px;
-      overflow-x: hidden;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: -30%;
-      background: radial-gradient(circle, rgba(82, 214, 255, 0.07) 0%, transparent 60%);
-      animation: drift 13s ease-in-out infinite alternate;
-      pointer-events: none;
-      z-index: -1;
+      padding: 16px;
     }
 
     .game-shell {
-      width: min(1280px, 100%);
-      background: linear-gradient(155deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
-      border: 1px solid rgba(255, 255, 255, 0.14);
+      width: min(1300px, 100%);
+      margin-inline: auto;
       border-radius: 24px;
-      box-shadow: var(--shadow);
       overflow: hidden;
-      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      box-shadow: 0 20px 44px rgba(0,0,0,.35);
+      background: rgba(8, 14, 32, .55);
+      position: relative;
     }
 
-    .screen {
-      display: none;
-      padding: clamp(16px, 3vw, 34px);
-      min-height: 82vh;
-    }
-
-    .screen.active {
-      display: block;
-      animation: screenIn .9s var(--ease);
-    }
+    .screen { display: none; min-height: 85vh; padding: clamp(16px, 2.7vw, 34px); }
+    .screen.active { display: block; animation: fadeSlide .9s var(--ease); }
 
     .top-strip {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 14px;
-      border-radius: 12px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      margin-bottom: 16px;
-      color: var(--muted);
-      font-size: .95rem;
-    }
-
-    h1,h2,h3 {
-      margin-top: 0;
-      line-height: 1.2;
-    }
-
-    h1 {
-      font-size: clamp(2.2rem, 6vw, 3.8rem);
-      margin-bottom: .3em;
-      text-shadow: 0 0 18px rgba(82, 214, 255, .35);
-    }
-
-    h2 {
-      font-size: clamp(1.45rem, 3.5vw, 2rem);
-    }
-
-    .subtitle {
-      color: var(--accent);
-      font-size: 1.15rem;
-      margin-bottom: 14px;
-      font-weight: 700;
+      display: flex; justify-content: space-between; gap: 10px; align-items: center;
+      padding: 10px 14px; margin-bottom: 14px;
+      border-radius: 12px; background: rgba(255,255,255,.08); color: var(--muted);
+      border: 1px solid rgba(255,255,255,.16);
+      font-size: 1rem;
     }
 
     .card {
       background: var(--panel);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: var(--radius);
-      padding: clamp(16px, 2.6vw, 26px);
-      margin: 14px 0;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);
-      animation: cardRise .82s var(--ease);
-    }
-
-    .hero-card {
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero-card::after {
-      content: "";
-      position: absolute;
-      inset: -40% -15% auto;
-      height: 60%;
-      background: radial-gradient(circle, rgba(82,214,255,0.22), transparent 70%);
-      pointer-events: none;
-      animation: pulse 4.6s ease-in-out infinite;
-    }
-
-    .hero-card.full-hero {
-      position: relative;
-      min-height: 70vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      overflow: hidden;
-      text-align: center;
-    }
-
-    .hero-bg {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-    }
-
-    .hero-bg img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-      filter: saturate(1.05) brightness(.72);
-    }
-
-    .hero-overlay {
-      position: absolute;
-      inset: 0;
-      z-index: 1;
-      background:
-        linear-gradient(180deg, rgba(4,10,24,.28), rgba(4,10,24,.62)),
-        radial-gradient(circle at center, rgba(82,214,255,.12), transparent 55%);
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      width: min(640px, 90%);
-      padding: clamp(18px, 3vw, 30px);
-      border-radius: 18px;
-      background: rgba(4, 10, 24, 0.58);
-      border: 1px solid rgba(255,255,255,.12);
-      backdrop-filter: blur(8px);
-      box-shadow: 0 10px 30px rgba(0,0,0,.28);
-    }
-
-    .hero-content h1,
-    .hero-content .subtitle,
-    .hero-content p {
-      text-shadow: 0 2px 12px rgba(0,0,0,.45);
-    }
-
-    .hero-content p {
-      max-width: 60ch;
-      margin-inline: auto;
-      line-height: 1.7;
-    }
-
-    .svg-wrap {
-      width: min(220px, 65vw);
-      margin: 0 auto 12px;
-      aspect-ratio: 1;
-      display: grid;
-      place-items: center;
-      padding: 12px;
-      position: relative;
-      overflow: visible;
-      isolation: isolate;
-    }
-
-    .svg-wrap.small {
-      width: 86px;
-      border-radius: 14px;
-      margin: 0;
-      padding: 10px;
-    }
-
-    .svg-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      position: relative;
-      z-index: 3;
-      background: transparent;
-      display: block;
-      filter: drop-shadow(0 10px 16px rgba(0,0,0,.28)) saturate(1.06);
-    }
-
-    .svg-wrap::before,
-    .svg-wrap::after {
-      content: "";
-      position: absolute;
-      inset: 8% 10%;
-      pointer-events: none;
-      border-radius: 50%;
-      z-index: 1;
-    }
-
-    .svg-wrap::before {
-      background: transparent;
-    }
-
-    .svg-wrap.gecko::after {
-      background: transparent;
-    }
-
-    .svg-wrap.bat::after {
-      border: none;
-      animation: none;
-    }
-
-    .svg-wrap.lotus::after {
-      background: transparent;
-      animation: none;
-    }
-
-    .svg-wrap.kingfisher::after {
-      background: transparent;
-      animation: none;
-    }
-
-    .door-stage {
-      width: min(320px, 78vw);
-      margin: 0 auto 18px;
-      aspect-ratio: 4 / 5;
-      position: relative;
-      display: grid;
-      place-items: center;
-      overflow: visible;
-    }
-
-    .door-stage img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      display: block;
-      background: transparent;
-      filter: drop-shadow(0 14px 20px rgba(0,0,0,.4)) saturate(1.06);
-      position: relative;
-      z-index: 2;
-    }
-
-    .door-stage::before,
-    .door-stage::after {
-      background: transparent;
-      animation: none;
-    }
-
-    .door-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 22px;
-      margin-top: 28px;
-    }
-
-    .door-hall {
-      position: relative;
-      overflow: hidden;
-      background:
-        radial-gradient(circle at 50% 0%, rgba(82,214,255,.22), transparent 42%),
-        radial-gradient(circle at 80% 30%, rgba(125,243,173,.1), transparent 35%),
-        linear-gradient(150deg, rgba(9,18,44,.9), rgba(7,11,27,.95));
-    }
-
-    .door-hall::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-image:
-        radial-gradient(circle at 15% 25%, rgba(255,255,255,.35) 0 1px, transparent 2px),
-        radial-gradient(circle at 70% 40%, rgba(82,214,255,.45) 0 1px, transparent 2px),
-        radial-gradient(circle at 35% 78%, rgba(125,243,173,.45) 0 1px, transparent 2px);
-      background-size: 210px 210px, 190px 190px, 230px 230px;
-      opacity: .48;
-      pointer-events: none;
-    }
-
-    .door-card {
-      position: relative;
-      border-radius: 28px;
-      border: 1px solid rgba(168, 227, 255, .45);
-      background:
-        radial-gradient(circle at 50% 12%, rgba(190, 242, 255, .34), transparent 36%),
-        linear-gradient(165deg, rgba(42,63,127,.62), rgba(16,27,59,.72));
-      padding: 20px 16px;
-      min-height: 340px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 10px;
-      cursor: pointer;
-      color: var(--text);
-      transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease);
-      animation: cardRise .82s var(--ease);
-    }
-
-    .door-card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 0 70px rgba(82,214,255,.18);
-      pointer-events: none;
-    }
-
-    .door-card::after {
-      content: "";
-      position: absolute;
-      inset: 8% 16%;
-      border-radius: 46% 54% 52% 48%;
-      background: radial-gradient(circle, rgba(82,214,255,.25), transparent 70%);
-      filter: blur(3px);
-      pointer-events: none;
-    }
-
-    .door-card:hover,
-    .door-card:focus-visible {
-      transform: translateY(-8px) scale(1.02);
-      box-shadow: 0 30px 46px rgba(0,0,0,.42), 0 0 0 1px rgba(82,214,255,.22), 0 0 40px rgba(82,214,255,.4);
-      border-color: rgba(82,214,255,.65);
-      outline: none;
-    }
-
-    .door-card:active,
-    .door-card.pressed { animation: doorTap .56s ease; }
-
-    .door-card.active-door { animation: floatInvite 3.8s ease-in-out infinite; }
-
-    .door-card.locked {
-      cursor: not-allowed;
-      background: linear-gradient(155deg, #3a4157, #2a2f43);
-      opacity: .8;
-      animation: lockedBreathe 3.6s ease-in-out infinite;
-    }
-
-    .door-label {
-      font-size: 1.34rem;
-      font-weight: 800;
-      text-shadow: 0 0 12px rgba(82,214,255,.34);
-    }
-
-    .door-status {
-      color: var(--muted);
-      font-size: 1.02rem;
-      line-height: 1.5;
-    }
-
-    .question-layout {
-      display: grid;
-      grid-template-columns: minmax(280px, 42%) 1fr;
-      gap: clamp(16px, 3vw, 36px);
-      align-items: stretch;
-      text-align: right;
-      min-height: 64vh;
-    }
-
-    .question-visual {
-      display: grid;
-      place-items: center;
-      border-radius: 24px;
-      background:
-        radial-gradient(circle at 50% 15%, rgba(82,214,255,.22), transparent 38%),
-        linear-gradient(175deg, rgba(82,214,255,.08), rgba(7,11,27,.18));
       border: 1px solid rgba(255,255,255,.14);
-      box-shadow: inset 0 0 30px rgba(125,243,173,.05);
-      padding: 10px;
+      border-radius: var(--radius);
+      padding: clamp(18px, 2.8vw, 30px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.08);
     }
 
-    .question-content {
+    /* פתיחה */
+    .intro-hero {
+      min-height: 72vh;
+      display: grid;
+      place-items: center;
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+      padding: 0;
+    }
+    .intro-hero img {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      filter: brightness(.6) saturate(1.08);
+    }
+    .intro-overlay { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,.18), rgba(0,0,0,.55)); }
+    .intro-box {
+      position: relative; z-index: 2; width: min(760px, 92%);
+      background: rgba(5, 10, 24, .66); border-radius: 20px; padding: 22px;
+      border: 1px solid rgba(255,255,255,.18); backdrop-filter: blur(6px);
+    }
+    .intro-box.hidden { display: none; }
+    .intro-box h1 { font-size: clamp(2rem, 5.8vw, 3.7rem); margin: 0 0 .2em; }
+    .intro-box p { font-size: clamp(1.16rem, 2.3vw, 1.5rem); line-height: 1.8; margin: 0 0 1em; }
+
+    .countdown {
+      position: absolute; z-index: 3; display: none; text-align: center;
+      font-size: clamp(4rem, 16vw, 10rem); font-weight: 800;
+      text-shadow: 0 0 34px rgba(82,214,255,.88);
+      animation: pulseGlow 1s ease-in-out infinite;
+    }
+    .countdown.active { display: block; }
+    .countdown small { display: block; font-size: clamp(1rem, 2.3vw, 1.5rem); margin-top: 8px; }
+
+    /* דלתות */
+    .door-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin-top: 20px; }
+    .door-card {
+      border: 1px solid rgba(141, 226, 255, .55);
+      background: linear-gradient(165deg, rgba(37,58,115,.62), rgba(12,22,50,.86));
+      border-radius: 20px;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease);
     }
+    .door-card:hover { transform: translateY(-7px) scale(1.015); box-shadow: 0 0 38px rgba(82,214,255,.34); border-color: var(--accent); }
+    .door-title { text-align: center; font-weight: 800; font-size: 1.36rem; padding: 10px; }
+    .door-image-wrap { position: relative; aspect-ratio: 4/5; }
+    .door-image-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .door-footer { padding: 12px; display: flex; justify-content: center; }
+
+    /* שלבים */
+    .question-layout { display: grid; grid-template-columns: minmax(270px, 40%) 1fr; gap: 24px; }
+    .question-visual { display: grid; place-items: center; border-radius: 16px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.04); }
+    .question-visual img { width: 100%; max-width: 320px; }
+    .question-content h2 { font-size: clamp(1.9rem, 4vw, 2.5rem); margin: 0 0 .35em; }
+    .question-text { font-size: clamp(1.2rem, 2.6vw, 1.6rem); line-height: 1.85; margin-bottom: 16px; }
+    .answers { display: grid; gap: 12px; }
+    .answer {
+      border: 1px solid rgba(255,255,255,.2);
+      background: linear-gradient(145deg, #263975, #1a2856);
+      color: var(--text); border-radius: 14px;
+      padding: 16px; font-size: 1.15rem; text-align: right; cursor: pointer;
+      transition: transform .45s ease, border-color .45s ease;
+    }
+    .answer:hover { transform: translateX(-3px); border-color: var(--accent); }
+    .answer.correct { background: rgba(125,243,173,.2); border-color: var(--accent-2); }
+    .answer.wrong { background: rgba(255,128,152,.16); border-color: var(--danger); animation: shake .5s ease; }
+
+    .feedback { min-height: 30px; margin-top: 12px; font-size: 1.2rem; font-weight: 700; }
+    .feedback.success { color: var(--accent-2); text-shadow: 0 0 14px rgba(125,243,173,.6); }
+    .feedback.error { color: var(--danger); }
+
+    .code-panel { border: 1px solid rgba(255,255,255,.2); border-radius: 14px; padding: 16px; background: rgba(255,255,255,.05); }
+    .code-row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .code-input {
+      flex: 1 1 220px; min-height: 46px; border-radius: 12px; border: 1px solid rgba(255,255,255,.3);
+      background: #0f1733; color: var(--text); font-size: 1.1rem; padding: 8px 12px; text-transform: uppercase;
+    }
+    .code-panel.success { box-shadow: 0 0 0 3px rgba(125,243,173,.25), 0 0 26px rgba(125,243,173,.35); }
+    .code-panel.error { animation: shake .5s ease; }
 
     .btn {
-      border: none;
-      border-radius: 12px;
-      padding: 12px 18px;
-      font-size: 1rem;
-      font-weight: 800;
-      cursor: pointer;
-      margin-top: 10px;
-      transition: transform .45s ease, filter .5s ease, box-shadow .5s ease;
-      min-height: 46px;
+      border: none; border-radius: 12px; cursor: pointer; font-weight: 800;
+      padding: 11px 18px; min-height: 44px; font-size: 1rem;
+      transition: transform .35s ease, filter .35s ease;
     }
+    .btn:hover { transform: translateY(-2px); filter: brightness(1.06); }
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), #22b7ff); color: #031024; }
+    .btn-secondary { background: #2b3762; color: var(--text); border: 1px solid rgba(255,255,255,.2); }
+    .btn-next { background: linear-gradient(135deg, #7df3ad, #52d6ff); color: #031124; }
 
-    .btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
-    .btn:active { transform: translateY(1px) scale(.99); }
-    .btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
-      color: #031124;
-      box-shadow: 0 8px 18px rgba(34,182,255,.35);
-    }
-
-    .btn-secondary {
-      background: #2b365f;
-      color: var(--text);
-      border: 1px solid rgba(255,255,255,.2);
-    }
-
-    .question-card h2 { margin-bottom: .35em; }
-    .question-text {
-      font-size: 1.08rem;
-      margin-bottom: 8px;
-      line-height: 1.8;
-    }
-
-    .question-card.big-question {
-      min-height: 62vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      text-align: center;
-    }
-
-    .question-card.big-question h2 {
-      font-size: clamp(1.7rem, 4vw, 2.3rem);
-      margin-bottom: .4em;
-    }
-
-    .question-card.big-question .question-text {
-      font-size: clamp(1.08rem, 2.2vw, 1.28rem);
-      line-height: 1.8;
-      max-width: 58ch;
-      margin-inline: auto;
-    }
-
-    .magic-title {
-      font-size: clamp(2rem, 5vw, 2.8rem);
-      text-shadow: 0 0 16px rgba(82,214,255,.35);
-    }
-
-    .magic-subtitle {
-      color: var(--accent);
-      font-weight: 800;
-      font-size: 1.08rem;
-      margin-bottom: 16px;
-    }
-
-    .answers {
-      display: grid;
-      gap: 10px;
-      margin: 18px 0;
-    }
-
-    .answers.large-answers {
-      gap: 14px;
-      margin-top: 22px;
-    }
-
-    .answer {
-      background: linear-gradient(145deg, #25356d, var(--panel-soft));
-      border: 1px solid rgba(255,255,255,.2);
-      border-radius: 12px;
-      padding: 14px;
-      cursor: pointer;
-      font-size: 1.02rem;
-      color: var(--text);
-      text-align: right;
-      transition: transform var(--ease), border-color var(--ease), background var(--ease), box-shadow var(--ease);
-      opacity: 0;
-      animation: answerIn .66s var(--ease) forwards;
-    }
-
-    .answers.large-answers .answer {
-      padding: 18px 16px;
-      font-size: 1.08rem;
-      border-radius: 16px;
-      text-align: right;
-    }
-
-    .answer:hover { transform: translateX(-4px); border-color: rgba(82,214,255,.65); }
-    .answer.selected { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(82,214,255,.32); }
-    .answer.correct { border-color: var(--accent-2); background: rgba(125,243,173,.18); }
-    .answer.wrong { border-color: var(--danger); background: rgba(255,126,150,.13); animation: subtleShake .58s ease; }
-
-    .feedback {
-      min-height: 24px;
-      color: var(--muted);
-      font-weight: 700;
-      text-align: center;
-    }
-
-    .feedback.error { color: var(--danger); }
-    .feedback.success { color: var(--accent-2); animation: glowSuccess .9s ease; }
-
-    .code-panel {
-      background: linear-gradient(150deg, rgba(82,214,255,.09), rgba(125,243,173,.06));
-      border: 1px solid rgba(255,255,255,.18);
-      border-radius: 16px;
-      padding: 14px 16px;
-      max-width: 460px;
-      margin-inline: auto;
-      box-shadow: 0 12px 24px rgba(1, 8, 28, .22);
-    }
-
-    .code-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .code-input {
-      flex: 0 1 240px;
-      width: min(240px, 100%);
-      background: #0f1733;
-      border: 1px solid rgba(255,255,255,.3);
-      color: var(--text);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 1.4px;
-      transition: border-color .5s ease, box-shadow .5s ease;
-    }
-
-    .code-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(82,214,255,.2);
-      outline: none;
-    }
-
-    .code-panel.error-state {
-      animation: subtleShake .58s ease;
-      border-color: rgba(255,126,150,.55);
-    }
-
-    .code-panel.success-state {
-      animation: unlockPulse .92s ease;
-      border-color: rgba(125,243,173,.6);
-    }
-
-    .code-hint {
-      margin: 8px 0 0;
-      font-size: .88rem;
-      color: var(--muted);
-      text-align: center;
-    }
-
-    .code-row .btn {
-      margin-top: 0;
-      min-width: 120px;
-      padding-inline: 16px;
-    }
-
-    .summary-list {
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      display: grid;
-      gap: 10px;
-    }
-
-    .summary-list li {
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.11);
-      border-radius: 10px;
-      padding: 10px;
-    }
-
-    .finish-card {
-      animation: victoryIn .9s var(--ease);
-      position: relative;
-      overflow: hidden;
-      text-align: center;
-    }
-
-    .finish-card::before {
-      content: "";
-      position: absolute;
-      inset: -50% 20% auto;
-      height: 70%;
-      background: radial-gradient(circle, rgba(125,243,173,.3), transparent 72%);
-      animation: pulse 4.4s ease-in-out infinite;
+    /* שכבת אפקטים */
+    .effects-layer {
       pointer-events: none;
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      z-index: 20;
+    }
+    .effect-burst {
+      position: absolute;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(125,243,173,.95), rgba(82,214,255,.2));
+      animation: burst 1s ease forwards;
     }
 
-    .chip {
-      display: inline-block;
-      background: rgba(255, 205, 120, .18);
-      color: var(--warning);
-      border: 1px solid rgba(255,205,120,.45);
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: .85rem;
-      font-weight: 700;
-    }
+    @keyframes burst { to { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; } }
+    @keyframes fadeSlide { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes shake { 25% { transform: translateX(4px); } 70% { transform: translateX(-4px); } }
+    @keyframes pulseGlow { 50% { transform: scale(1.06); text-shadow: 0 0 48px rgba(82,214,255,1); } }
 
-    .actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    @keyframes screenIn {
-      from { opacity: 0; transform: translateY(12px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes cardRise {
-      from { opacity: 0; transform: translateY(10px) scale(.98); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    @keyframes answerIn {
-      from { opacity: 0; transform: translateX(12px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
-
-    @keyframes subtleShake {
-      25% { transform: translateX(4px); }
-      75% { transform: translateX(-4px); }
-    }
-
-    @keyframes glowSuccess {
-      from { text-shadow: 0 0 0 transparent; }
-      to { text-shadow: 0 0 14px rgba(125,243,173,.55); }
-    }
-
-    @keyframes unlockPulse {
-      50% { transform: scale(1.01); box-shadow: 0 0 0 4px rgba(125,243,173,.14); }
-    }
-
-    @keyframes lockedBreathe {
-      50% { transform: translateY(-2px); filter: saturate(.84); }
-    }
-
-    @keyframes floatInvite {
-      50% { transform: translateY(-3px); }
-    }
-
-    @keyframes doorTap {
-      40% { transform: scale(.98); }
-      100% { transform: scale(1); }
-    }
-
-    @keyframes victoryIn {
-      from { opacity: 0; transform: scale(.96); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    @keyframes pulse {
-      50% { opacity: .68; transform: scale(1.03); }
-    }
-
-    @keyframes drift {
-      50% { transform: translate(-2%, 3%) scale(1.05); opacity: .8; }
-    }
-
-    @keyframes echoPulse {
-      0% { transform: scale(.64); opacity: .75; }
-      100% { transform: scale(1.2); opacity: 0; }
-    }
-
-    @keyframes shimmer {
-      50% { opacity: .55; transform: translateY(2px); }
-    }
-
-    @keyframes splashPulse {
-      50% { transform: translateY(-3px) scale(1.06, .95); opacity: .7; }
-    }
-
-    @keyframes magicPulse {
-      50% {
-        transform: scale(1.06);
-        opacity: .72;
-      }
-    }
-
-    @media (max-width: 760px) {
-      body { padding: 10px; }
-      .screen { min-height: 88vh; }
-      .top-strip { flex-direction: column; align-items: flex-start; }
-      .code-row, .actions { flex-direction: column; align-items: stretch; }
-      .code-panel { max-width: 360px; }
-      .code-input { width: 100%; flex-basis: auto; }
-      .code-row .btn { width: 100%; }
-      .btn { width: 100%; }
-      .door-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
-      .door-card { min-height: 220px; border-radius: 18px; }
-      .hero-card.full-hero { min-height: 76vh; }
-      .hero-content { width: 94%; padding: 18px; }
-      .door-stage { width: min(270px, 86vw); }
+    @media (max-width: 850px) {
       .question-layout { grid-template-columns: 1fr; }
-      .question-visual { min-height: 240px; }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation: none !important;
-        transition: none !important;
-      }
+      .btn { width: 100%; }
+      .code-row { flex-direction: column; }
+      .top-strip { flex-direction: column; align-items: flex-start; }
     }
   </style>
 </head>
 <body>
   <main class="game-shell" id="app" aria-live="polite">
+    <div class="effects-layer" id="effects-layer"></div>
     <section id="screen-home" class="screen active"></section>
     <section id="screen-doors" class="screen"></section>
     <section id="screen-final" class="screen"></section>
@@ -750,292 +190,97 @@
   <script>
     const imagePaths = {
       home: "images/game-intro.svg",
-      final: "images/success-badge.svg",
-      doorActive: "images/door-active.svg",
+      doorDefault: "images/door-active.svg",
       doorLocked: "images/door-locked.svg",
-      creatures: {
-        1: "images/gecko.svg",
-        2: "images/lotus.svg",
-        3: "images/bat.svg",
-        4: "images/kingfisher.svg"
-      }
+      creatures: { 1: "images/gecko.svg", 2: "images/lotus.svg", 3: "images/bat.svg", 4: "images/kingfisher.svg" },
+      doors: Object.fromEntries(Array.from({ length: 10 }, (_, i) => [i + 1, `images/door${i + 1}.svg`]))
     };
 
-    const gameData = {
+    const content = {
       doors: [
         {
           id: 1,
           name: "שממית",
           image: imagePaths.creatures[1],
-          intro: "מאחורי הדלת מסתתר אורגניזם עם כוח־על מיוחד. כדי לעבור תצטרכו לגלות מי הוא, מה הוא יודע לעשות, ואיזה מוצר אפשר לפתח בהשראתו.",
+          intro: "מאחורי הדלת מחכה שממית עם כוח־על מפתיע.\nתגלו מה היא יודעת לעשות,\nואיך בני אדם מפתחים מזה מוצר חדש.",
           codes: ["G1", "CLIMB", "TOP1"],
           steps: [
-            {
-              title: "שלב 1 – מי אני?",
-              question: "אני מצליחה לטפס על קירות ואפילו על תקרות בלי ליפול. אני לא משתמשת בדבק רגיל. בכפות הרגליים שלי יש מבנים זעירים שעוזרים לי להיצמד. מי אני?",
-              options: ["שממית", "עטלף", "קיפוד"],
-              answer: "שממית"
-            },
-            {
-              title: "שלב 2 – מה זה עוזר לי לעשות?",
-              question: "למה התכונה הזו עוזרת לי בטבע?",
-              options: ["להיצמד ולטפס על משטחים", "לשחות במים עמוקים", "להגן על הגוף מהשמש"],
-              answer: "להיצמד ולטפס על משטחים"
-            },
-            {
-              title: "שלב 3 – מה אפשר לפתח בהשראתי?",
-              question: "איזה מוצר בני אדם יכולים לפתח בהשראת היכולת הזו?",
-              options: ["דבק חכם או רובוט מטפס", "פנס לילה", "בקבוק מים מיוחד"],
-              answer: "דבק חכם או רובוט מטפס"
-            }
+            { title: "שלב 1 – מי אני?", question: "אני מטפסת על קירות\nוגם על תקרה בלי ליפול.\nמי אני?", options: ["שממית", "עטלף", "קיפוד"], answer: "שממית" },
+            { title: "שלב 2 – מה זה עוזר לי לעשות?", question: "למה היכולת הזאת חשובה בטבע?", options: ["להיצמד ולטפס", "לשחות עמוק", "להסתתר מהשמש"], answer: "להיצמד ולטפס" },
+            { title: "שלב 3 – מה אפשר לפתח בהשראה?", question: "איזה מוצר אפשר לפתח\nבהשראת היכולת הזאת?", options: ["דבק חכם או רובוט מטפס", "פנס לילה", "בקבוק מים"], answer: "דבק חכם או רובוט מטפס" }
           ],
-          summary: [
-            "אורגניזם: שממית",
-            "כוח־העל: היצמדות למשטחים",
-            "בטבע זה עוזר ל: טיפוס והישרדות",
-            "השראה למוצר: דבק חכם / רובוט מטפס"
-          ]
+          summary: ["אורגניזם: שממית", "כוח־על: היצמדות למשטחים", "השראה למוצר: דבק חכם / רובוט מטפס"]
         },
         {
           id: 2,
           name: "לוטוס",
           image: imagePaths.creatures[2],
-          intro: "מאחורי הדלת מסתתר אורגניזם עם כוח־על מיוחד. כדי לעבור תצטרכו לגלות מי הוא, מה הוא יודע לעשות, ואיזה מוצר אפשר לפתח בהשראתו.",
-          codes: ["LOT2", "DROP", "WASH1"],
+          intro: "הפעם תגלו את סוד הלוטוס.\nאיך עלים נשארים נקיים?\nומה בני אדם למדו מזה?",
+          codes: ["LOT2", "DRY3", "CLEAN9"],
           steps: [
-            {
-              title: "שלב 1 – מי אני?",
-              question: "אני צמח שחי במים. העלים שלי נשארים נקיים גם כשיש סביבי בוץ ולכלוך. טיפות מים מתגלגלות מעליי ולוקחות איתן לכלוך. מי אני?",
-              options: ["לוטוס", "ורד", "קקטוס"],
-              answer: "לוטוס"
-            },
-            {
-              title: "שלב 2 – מה זה עוזר לי לעשות?",
-              question: "למה התכונה הזו עוזרת לי בטבע?",
-              options: ["להישאר נקי ולדחות מים", "למשוך ציפורים", "לגדול בלי אור שמש"],
-              answer: "להישאר נקי ולדחות מים"
-            },
-            {
-              title: "שלב 3 – מה אפשר לפתח בהשראתי?",
-              question: "איזה מוצר אפשר לפתח בהשראת התכונה הזאת?",
-              options: ["חלון או בד דוחה מים שמתנקה לבד", "אופניים חשמליים", "עיפרון שלא נשבר"],
-              answer: "חלון או בד דוחה מים שמתנקה לבד"
-            }
+            { title: "שלב 1 – מי אני?", question: "אני צמח מים.\nהעלים שלי נשארים נקיים\nכי מים מחליקים מהם. מי אני?", options: ["לוטוס", "קקטוס", "ורד"], answer: "לוטוס" },
+            { title: "שלב 2 – למה זה עוזר?", question: "מה היתרון בטבע?", options: ["שמירה על ניקיון העלים", "משיכת ציפורים", "יצירת צל"], answer: "שמירה על ניקיון העלים" },
+            { title: "שלב 3 – מוצר בהשראה", question: "מה בני אדם פיתחו מזה?", options: ["ציפוי דוחה מים", "כרית שינה", "זכוכית כהה"], answer: "ציפוי דוחה מים" }
           ],
-          summary: [
-            "אורגניזם: לוטוס",
-            "כוח־העל: דחיית מים וניקוי עצמי",
-            "בטבע זה עוזר ל: להישאר נקי גם בסביבה רטובה ומלוכלכת",
-            "השראה למוצר: חלונות, בדים ומשטחים שמתנקים לבד"
-          ]
+          summary: ["אורגניזם: לוטוס", "כוח־על: דחיית מים ולכלוך", "השראה למוצר: ציפויים מתנקים"]
         },
         {
           id: 3,
           name: "עטלף",
           image: imagePaths.creatures[3],
-          intro: "מאחורי הדלת מסתתר אורגניזם עם כוח־על מיוחד. כדי לעבור תצטרכו לגלות מי הוא, מה הוא יודע לעשות, ואיזה מוצר אפשר לפתח בהשראתו.",
-          codes: ["BAT3", "ECHO", "NAVI4"],
+          intro: "בדלת הזו מסתתר עטלף.\nתגלו איך הוא נע בחושך\nבלי להתנגש בכלל.",
+          codes: ["BAT3", "ECHO", "SON7"],
           steps: [
-            {
-              title: "שלב 1 – מי אני?",
-              question: "אני פעיל בעיקר בלילה. אני לא צריך אור חזק כדי להתמצא. אני משמיע קולות, מקשיב להד שלהם, וכך יודע מה נמצא סביבי. מי אני?",
-              options: ["עטלף", "ינשוף", "דולפין"],
-              answer: "עטלף"
-            },
-            {
-              title: "שלב 2 – מה זה עוזר לי לעשות?",
-              question: "למה היכולת הזו עוזרת לי בטבע?",
-              options: ["להתמצא ולנוע בחושך", "להחליף צבעים", "להישאר יבש בגשם"],
-              answer: "להתמצא ולנוע בחושך"
-            },
-            {
-              title: "שלב 3 – מה אפשר לפתח בהשראתי?",
-              question: "איזה מוצר או טכנולוגיה אפשר לפתח בהשראת היכולת הזו?",
-              options: ["מערכת ניווט / סונאר / חיישן מרחק", "מטרייה חכמה", "מחברת דיגיטלית"],
-              answer: "מערכת ניווט / סונאר / חיישן מרחק"
-            }
+            { title: "שלב 1 – מי אני?", question: "אני עף בלילה\nומשתמש בקולות והד\nכדי לדעת מה סביבי. מי אני?", options: ["עטלף", "ינשוף", "דולפין"], answer: "עטלף" },
+            { title: "שלב 2 – למה זה עוזר?", question: "מה זה נותן לי בטבע?", options: ["לנוע בחושך", "להחליף צבעים", "להישאר יבש"], answer: "לנוע בחושך" },
+            { title: "שלב 3 – השראה למוצר", question: "איזו טכנולוגיה נוצרה\nבהשראת היכולת הזאת?", options: ["מערכת סונאר", "מחברת חכמה", "מטרייה מתקפלת"], answer: "מערכת סונאר" }
           ],
-          summary: [
-            "אורגניזם: עטלף",
-            "כוח־העל: ניווט באמצעות הד",
-            "בטבע זה עוזר ל: להתמצא, לעוף ולצוד בחושך",
-            "השראה למוצר: סונאר, חיישנים ומערכות ניווט"
-          ]
+          summary: ["אורגניזם: עטלף", "כוח־על: ניווט באמצעות הד", "השראה למוצר: סונאר וחיישני מרחק"]
         },
         {
           id: 4,
           name: "שלדג",
           image: imagePaths.creatures[4],
-          intro: "מאחורי הדלת מסתתר אורגניזם עם כוח־על מיוחד. כדי לעבור תצטרכו לגלות מי הוא, מה הוא יודע לעשות, ואיזה מוצר אפשר לפתח בהשראתו.",
+          intro: "בדלת הזו מחכה שלדג מהיר.\nנבין איך הוא נכנס למים\nכמעט בלי רעש והתזה.",
           codes: ["KING4", "SPEED", "TRAIN7"],
           steps: [
-            {
-              title: "שלב 1 – מי אני?",
-              question: "אני ציפור קטנה ומהירה. אני צוללת לתוך מים כדי לתפוס דגים. המקור שלי ארוך וחד, והוא עוזר לי להיכנס למים כמעט בלי רעש ובלי התזה גדולה. מי אני?",
-              options: ["שלדג", "נשר", "יונה"],
-              answer: "שלדג"
-            },
-            {
-              title: "שלב 2 – מה זה עוזר לי לעשות?",
-              question: "למה המבנה הזה עוזר לי בטבע?",
-              options: ["להיכנס למים במהירות ובשקט", "לעוף גבוה יותר מהעננים", "לשמור חום בקור"],
-              answer: "להיכנס למים במהירות ובשקט"
-            },
-            {
-              title: "שלב 3 – מה אפשר לפתח בהשראתי?",
-              question: "איזו טכנולוגיה פותחה בהשראת התכונה הזאת?",
-              options: ["רכבת מהירה ושקטה יותר", "מזלג מתקפל", "אוהל נגד גשם"],
-              answer: "רכבת מהירה ושקטה יותר"
-            }
+            { title: "שלב 1 – מי אני?", question: "אני ציפור שצוללת למים\nלתפוס דגים במהירות. מי אני?", options: ["שלדג", "נשר", "יונה"], answer: "שלדג" },
+            { title: "שלב 2 – למה זה עוזר?", question: "מה היתרון של מקור חד וארוך?", options: ["כניסה שקטה למים", "תעופה לעננים", "שמירת חום"], answer: "כניסה שקטה למים" },
+            { title: "שלב 3 – השראה למוצר", question: "איזו טכנולוגיה קיבלה השראה מהשלדג?", options: ["רכבת מהירה ושקטה", "מזלג מתקפל", "מחברת קשיחה"], answer: "רכבת מהירה ושקטה" }
           ],
-          summary: [
-            "אורגניזם: שלדג",
-            "כוח־העל: חדירה מהירה ושקטה למים",
-            "בטבע זה עוזר ל: לצוד ביעילות",
-            "השראה למוצר: רכבת מהירה, שקטה וחסכונית יותר באנרגיה"
-          ]
+          summary: ["אורגניזם: שלדג", "כוח־על: חדירה שקטה למים", "השראה למוצר: רכבות יעילות ושקטות"]
         }
       ]
     };
 
     const app = document.getElementById("app");
-    const state = {
-      selectedDoor: null,
-      completedDoors: new Set()
-    };
+    const effectsLayer = document.getElementById("effects-layer");
+    const state = { completedDoors: new Set() };
 
-    function creatureArt(path, name, small = false) {
-      const effectClass = {
-        "שממית": "gecko",
-        "לוטוס": "lotus",
-        "עטלף": "bat",
-        "שלדג": "kingfisher"
-      }[name] || "";
-
-      return `
-        <div class="svg-wrap ${small ? "small" : ""} ${effectClass}">
-          <img src="${path}" alt="איור SVG של ${name}" loading="lazy" />
-        </div>
-      `;
-    }
-
-    function genericArt(path, altText, small = false) {
-      return `
-        <div class="svg-wrap ${small ? "small" : ""}">
-          <img src="${path}" alt="${altText}" loading="lazy" />
-        </div>
-      `;
-    }
-
-    function bigDoorArt(path, altText) {
-      return `
-        <div class="door-stage">
-          <img src="${path}" alt="${altText}" loading="lazy" />
-        </div>
-      `;
-    }
+    const topStrip = (doorName, progress) => `<div class="top-strip"><div><strong>${doorName}</strong></div><div>${progress}</div></div>`;
+    const toLines = (txt) => txt.split("\n").join("<br>");
+    const getDoor = (id) => content.doors.find((d) => d.id === id);
 
     function showScreen(id) {
-      document.querySelectorAll(".screen").forEach((screen) => {
-        screen.classList.toggle("active", screen.id === id);
-      });
+      document.querySelectorAll(".screen").forEach((s) => s.classList.toggle("active", s.id === id));
     }
 
-    function topStrip(doorName = "מסך פתיחה", progress = "") {
-      return `
-        <div class="top-strip">
-          <div><strong>דלת:</strong> ${doorName}</div>
-          <div>${progress}</div>
-        </div>
-      `;
+    function spawnSuccessBurst() {
+      for (let i = 0; i < 18; i++) {
+        const p = document.createElement("div");
+        p.className = "effect-burst";
+        p.style.left = `${45 + Math.random() * 10}%`;
+        p.style.top = `${40 + Math.random() * 20}%`;
+        p.style.setProperty("--tx", `${(Math.random() - .5) * 220}px`);
+        p.style.setProperty("--ty", `${(Math.random() - .5) * 220}px`);
+        effectsLayer.appendChild(p);
+        setTimeout(() => p.remove(), 1000);
+      }
     }
-
-    function renderHome() {
-      const home = document.getElementById("screen-home");
-      home.innerHTML = `
-        ${topStrip("מעבדת הסודות", "ברוכים הבאים")}
-        <div class="card hero-card full-hero">
-          <div class="hero-bg">
-            <img src="${imagePaths.home}" alt="פתיחת המשחק" loading="eager" />
-          </div>
-          <div class="hero-overlay"></div>
-
-          <div class="hero-content">
-            <h1>דלתות הטבע</h1>
-            <p class="subtitle">חדר הבריחה הביומימטי</p>
-            <p>
-              במעבדת הסודות של הטבע מחכות לכם דלתות נעולות.<br>
-              מאחורי כל דלת מסתתר אורגניזם עם כוח־על מיוחד.<br>
-              כדי לעבור בין השלבים תצטרכו לגלות:
-              מי האורגניזם, מה הוא יודע לעשות, ואיזה מוצר אפשר לפתח בהשראתו.
-            </p>
-            <button class="btn btn-primary" id="start-btn">התחילו במשימה</button>
-          </div>
-        </div>
-      `;
-
-      document.getElementById("start-btn").onclick = () => {
-        renderDoors();
-        showScreen("screen-doors");
-      };
-    }
-
-    function renderDoors() {
-      const doorCards = [1,2,3,4,5,6,7,8,9,10].map((num) => {
-        const door = gameData.doors.find((d) => d.id === num);
-
-        if (door) {
-          return `
-            <button class="door-card active-door" data-door-id="${door.id}">
-              ${genericArt(imagePaths.doorActive, "דלת פעילה", true)}
-              <span class="door-label">דלת ${door.id}</span>
-              <span class="door-status">מסלול מסתורי — לחצו להתחלה</span>
-            </button>
-          `;
-        }
-
-        return `
-          <div class="door-card locked" aria-disabled="true">
-            ${genericArt(imagePaths.doorLocked, "דלת נעולה", true)}
-            <span class="door-label">דלת ${num}</span>
-            <span class="door-status">ייפתחו בהמשך</span>
-          </div>
-        `;
-      }).join("");
-
-      const doorsScreen = document.getElementById("screen-doors");
-      doorsScreen.innerHTML = `
-        ${topStrip("בחירת דלת", "כל זוג בוחר דלת אחת")}
-        <div class="card door-hall">
-          <h2>בחרו דלת</h2>
-          <p class="subtitle">מאחורי כל דלת מחכה מסלול מסתורי</p>
-          <div class="door-grid">${doorCards}</div>
-          <button class="btn btn-secondary" id="finish-btn">למסך סיום כללי</button>
-        </div>
-      `;
-
-      doorsScreen.querySelectorAll("[data-door-id]").forEach((btn) => {
-        btn.addEventListener("mousedown", () => btn.classList.add("pressed"));
-        btn.addEventListener("mouseup", () => btn.classList.remove("pressed"));
-        btn.addEventListener("mouseleave", () => btn.classList.remove("pressed"));
-        btn.addEventListener("click", () => startDoor(Number(btn.dataset.doorId)));
-      });
-
-      document.getElementById("finish-btn").onclick = () => {
-        renderFinal();
-        showScreen("screen-final");
-      };
-    }
-
-    const doorScreens = {
-      1: ["door-1-intro", "door-1-step-1", "door-1-code-1", "door-1-step-2", "door-1-code-2", "door-1-step-3", "door-1-code-3", "door-1-finish"],
-      2: ["door-2-intro", "door-2-step-1", "door-2-code-1", "door-2-step-2", "door-2-code-2", "door-2-step-3", "door-2-code-3", "door-2-finish"],
-      3: ["door-3-intro", "door-3-step-1", "door-3-code-1", "door-3-step-2", "door-3-code-2", "door-3-step-3", "door-3-code-3", "door-3-finish"],
-      4: ["door-4-intro", "door-4-step-1", "door-4-code-1", "door-4-step-2", "door-4-code-2", "door-4-step-3", "door-4-code-3", "door-4-finish"]
-    };
 
     function ensureDoorSections(doorId) {
-      (doorScreens[doorId] || []).forEach((id) => {
+      ["intro", "step-1", "step-2", "step-3", "code-1", "code-2", "code-3", "finish"].forEach((part) => {
+        const id = `door-${doorId}-${part}`;
         if (!document.getElementById(id)) {
           const section = document.createElement("section");
           section.id = id;
@@ -1045,217 +290,232 @@
       });
     }
 
+    function renderHome() {
+      const el = document.getElementById("screen-home");
+      el.innerHTML = `
+        ${topStrip("דלתות הטבע", "מסך פתיחה")}
+        <div class="card intro-hero">
+          <img src="${imagePaths.home}" alt="רקע פתיחה">
+          <div class="intro-overlay"></div>
+          <div class="intro-box" id="intro-box">
+            <h1>דלתות הטבע</h1>
+            <p>ברוכים הבאים לחדר הבריחה הביומימטי.<br>קראו את ההוראות, ואז התחילו במשימה.</p>
+            <p>בחרו דלת, פתרו 3 שלבים,<br>וקבלו קוד מהמדריך בזום כדי להתקדם.</p>
+            <button class="btn btn-primary" id="start-btn">התחילו במשימה</button>
+          </div>
+          <div class="countdown" id="countdown">10<small>המשימה מתחילה עכשיו</small></div>
+        </div>`;
+
+      document.getElementById("start-btn").onclick = () => {
+        const box = document.getElementById("intro-box");
+        const countdown = document.getElementById("countdown");
+        box.classList.add("hidden");
+        countdown.classList.add("active");
+        let sec = 10;
+        countdown.firstChild.nodeValue = String(sec);
+        const timer = setInterval(() => {
+          sec -= 1;
+          countdown.firstChild.nodeValue = String(sec);
+          if (sec === 0) {
+            clearInterval(timer);
+            renderDoors();
+            showScreen("screen-doors");
+          }
+        }, 1000);
+      };
+    }
+
+    function renderDoors() {
+      const cards = Array.from({ length: 10 }, (_, i) => i + 1).map((num) => {
+        const playable = Boolean(getDoor(num));
+        return `
+          <article class="door-card">
+            <div class="door-title">דלת ${num}</div>
+            <div class="door-image-wrap">
+              <img src="${imagePaths.doors[num]}" onerror="this.src='${playable ? imagePaths.doorDefault : imagePaths.doorLocked}'" alt="דלת ${num}">
+            </div>
+            <div class="door-footer">
+              <button class="btn ${playable ? "btn-primary" : "btn-secondary"}" ${playable ? `data-start="${num}"` : "disabled"}>${playable ? "התחל" : "ייפתח בהמשך"}</button>
+            </div>
+          </article>`;
+      }).join("");
+
+      const el = document.getElementById("screen-doors");
+      el.innerHTML = `
+        ${topStrip("מסך הדלתות", "בחרו שער למשימה")}
+        <div class="card">
+          <h2>בחרו דלת</h2>
+          <p class="question-text">לכל דלת משימה אחרת. לחצו על "התחל" כדי להיכנס.</p>
+          <div class="door-grid">${cards}</div>
+          <div class="actions"><button class="btn btn-secondary" id="go-final">למסך סיום</button></div>
+        </div>`;
+
+      el.querySelectorAll("[data-start]").forEach((b) => b.onclick = () => startDoor(Number(b.dataset.start)));
+      document.getElementById("go-final").onclick = () => { renderFinal(); showScreen("screen-final"); };
+    }
+
     function startDoor(doorId) {
-      state.selectedDoor = doorId;
       ensureDoorSections(doorId);
       renderDoorIntro(doorId);
       showScreen(`door-${doorId}-intro`);
     }
 
     function renderDoorIntro(doorId) {
-      const door = gameData.doors.find((d) => d.id === doorId);
-      const section = document.getElementById(`door-${doorId}-intro`);
-
-      section.innerHTML = `
-        ${topStrip(`דלת ${door.id}`, "שלב הכנה")}
-        <div class="card question-card big-question">
-          <div class="question-layout">
-            <div class="question-visual">
-              ${bigDoorArt(imagePaths.doorLocked, "דלת סגורה")}
-            </div>
-            <div class="question-content">
-              <h2 class="magic-title">דלת ${door.id}</h2>
-              <p class="magic-subtitle">המסלול עדיין נעול</p>
-              <p class="question-text">${door.intro}</p>
-              <div class="actions">
-                <button class="btn btn-primary" id="door-${doorId}-start-step">לתחילת שלב 1</button>
-                <button class="btn btn-secondary" id="door-${doorId}-back">חזרה לדלתות</button>
-              </div>
+      const d = getDoor(doorId);
+      const el = document.getElementById(`door-${doorId}-intro`);
+      el.innerHTML = `${topStrip(`דלת ${doorId}`, "שלב הכנה")}
+      <div class="card">
+        <div class="question-layout">
+          <div class="question-visual"><img src="${imagePaths.doorLocked}" alt="דלת סגורה"></div>
+          <div class="question-content">
+            <h2>מתכוננים לדלת ${doorId}</h2>
+            <p class="question-text">${toLines(d.intro)}</p>
+            <div class="actions">
+              <button class="btn btn-primary" id="to-step1-${doorId}">לתחילת שלב 1</button>
+              <button class="btn btn-secondary" id="back-doors-${doorId}">חזרה לדלתות</button>
             </div>
           </div>
         </div>
-      `;
-
-      document.getElementById(`door-${doorId}-start-step`).onclick = () => renderStep(doorId, 1);
-      document.getElementById(`door-${doorId}-back`).onclick = () => showScreen("screen-doors");
+      </div>`;
+      document.getElementById(`to-step1-${doorId}`).onclick = () => renderStep(doorId, 1);
+      document.getElementById(`back-doors-${doorId}`).onclick = () => showScreen("screen-doors");
     }
 
-    function renderStep(doorId, stepNumber) {
-      const door = gameData.doors.find((d) => d.id === doorId);
-      const step = door.steps[stepNumber - 1];
-      const screenId = `door-${doorId}-step-${stepNumber}`;
-      const section = document.getElementById(screenId);
+    function renderStep(doorId, stepNum) {
+      const d = getDoor(doorId);
+      const step = d.steps[stepNum - 1];
+      const el = document.getElementById(`door-${doorId}-step-${stepNum}`);
+      const nextCodeScreen = `door-${doorId}-code-${stepNum}`;
 
-      const artMarkup = stepNumber === 1
-        ? bigDoorArt(imagePaths.doorLocked, "דלת סגורה ומסתורית")
-        : creatureArt(door.image, door.name, false);
-
-      section.innerHTML = `
-        ${topStrip(`דלת ${door.id}`, `שלב ${stepNumber} מתוך 3`)}
-        <div class="card question-card big-question">
-          <div class="question-layout">
-            <div class="question-visual">
-              ${artMarkup}
-            </div>
-            <div class="question-content">
-              <h2 class="magic-title">${step.title}</h2>
-              <p class="question-text">${step.question}</p>
-              <div class="answers large-answers">
-                ${step.options.map((opt, i) => `
-                  <button class="answer" style="animation-delay:${i * 160}ms" data-option="${opt}">
-                    ${opt}
-                  </button>
-                `).join("")}
-              </div>
-              <p class="feedback" id="feedback-${doorId}-${stepNumber}"></p>
-              <button class="btn btn-secondary" id="doors-return-${doorId}-${stepNumber}">חזרה לבחירת דלת</button>
+      el.innerHTML = `${topStrip(`דלת ${doorId}`, `שלב ${stepNum} מתוך 3`)}
+      <div class="card">
+        <div class="question-layout">
+          <div class="question-visual"><img src="${stepNum === 1 ? imagePaths.doorLocked : d.image}" alt="איור"></div>
+          <div class="question-content">
+            <h2>${step.title}</h2>
+            <p class="question-text">${toLines(step.question)}</p>
+            <div class="answers">${step.options.map((o) => `<button class="answer" data-opt="${o}">${o}</button>`).join("")}</div>
+            <p class="feedback" id="fb-${doorId}-${stepNum}"></p>
+            <div class="actions">
+              <button class="btn btn-next" id="next-${doorId}-${stepNum}" style="display:none">לשלב הבא</button>
+              <button class="btn btn-secondary" id="back-doors-s-${doorId}-${stepNum}">חזרה לדלתות</button>
             </div>
           </div>
         </div>
-      `;
+      </div>`;
 
-      section.querySelectorAll(".answer").forEach((btn) => {
+      const feedback = document.getElementById(`fb-${doorId}-${stepNum}`);
+      const nextBtn = document.getElementById(`next-${doorId}-${stepNum}`);
+
+      el.querySelectorAll(".answer").forEach((btn) => {
         btn.onclick = () => {
-          section.querySelectorAll(".answer").forEach((x) => x.classList.remove("selected", "correct", "wrong"));
-          btn.classList.add("selected");
-
-          const feedback = document.getElementById(`feedback-${doorId}-${stepNumber}`);
-          const isCorrect = btn.dataset.option === step.answer;
-          btn.classList.add(isCorrect ? "correct" : "wrong");
-
-          if (isCorrect) {
-            feedback.textContent = "מעולה! שלחו את התשובה בצ'אט לזום וקבלו קוד מעבר מהמדריך.";
+          const good = btn.dataset.opt === step.answer;
+          el.querySelectorAll(".answer").forEach((b) => b.classList.remove("correct", "wrong"));
+          btn.classList.add(good ? "correct" : "wrong");
+          if (good) {
+            feedback.textContent = "מצוין! מצאתם את הרעיון הנכון. קראו בנחת ואז לחצו לשלב הבא.";
             feedback.className = "feedback success";
-            renderCodeScreen(doorId, stepNumber);
-            setTimeout(() => showScreen(`door-${doorId}-code-${stepNumber}`), 1080);
+            nextBtn.style.display = "inline-block";
+            renderCodeScreen(doorId, stepNum);
+            nextBtn.onclick = () => showScreen(nextCodeScreen);
           } else {
-            feedback.textContent = "כמעט! נסו שוב ובדקו מהו התפקוד המדויק בטבע.";
+            feedback.textContent = "כמעט! חשבו שוב ונסו תשובה אחרת 🙂";
             feedback.className = "feedback error";
           }
         };
       });
 
-      document.getElementById(`doors-return-${doorId}-${stepNumber}`).onclick = () => showScreen("screen-doors");
-      showScreen(screenId);
+      document.getElementById(`back-doors-s-${doorId}-${stepNum}`).onclick = () => showScreen("screen-doors");
+      showScreen(`door-${doorId}-step-${stepNum}`);
     }
 
-    function renderCodeScreen(doorId, codeNumber) {
-      const door = gameData.doors.find((d) => d.id === doorId);
-      const screenId = `door-${doorId}-code-${codeNumber}`;
-      const section = document.getElementById(screenId);
-      const isLastCode = codeNumber === 3;
+    function renderCodeScreen(doorId, codeNum) {
+      const d = getDoor(doorId);
+      const el = document.getElementById(`door-${doorId}-code-${codeNum}`);
+      const isLast = codeNum === 3;
 
-      section.innerHTML = `
-        ${topStrip(`דלת ${door.id}`, `בדיקת קוד ${codeNumber} מתוך 3`)}
-        <div class="card question-card big-question">
-          <div class="question-layout">
-            <div class="question-visual">
-              ${bigDoorArt(imagePaths.doorActive, "דלת קסומה")}
-            </div>
-            <div class="question-content">
-              <h2 class="magic-title">הזינו קוד מעבר</h2>
-              <div class="code-panel" id="code-panel-${doorId}-${codeNumber}">
-                <p><span class="chip">הקוד מתקבל מהמדריך בצ'אט זום</span></p>
-                <div class="code-row">
-                  <input class="code-input" id="code-input-${doorId}-${codeNumber}" placeholder="לדוגמה: ABC1" autocomplete="off" />
-                  <button class="btn btn-primary" id="code-submit-${doorId}-${codeNumber}">פתיחה</button>
-                </div>
-                <p class="code-hint">הזינו קוד קצר ולחצו על פתיחה כדי להמשיך.</p>
+      el.innerHTML = `${topStrip(`דלת ${doorId}`, `בדיקת קוד ${codeNum} מתוך 3`)}
+      <div class="card">
+        <div class="question-layout">
+          <div class="question-visual"><img src="${imagePaths.doorDefault}" alt="דלת נפתחת"></div>
+          <div class="question-content">
+            <h2>מסך קוד</h2>
+            <p class="question-text">קיבלתם קוד מהמדריך? הזינו אותו ולחצו "פתיחה".</p>
+            <div class="code-panel" id="code-panel-${doorId}-${codeNum}">
+              <div class="code-row">
+                <input class="code-input" id="code-input-${doorId}-${codeNum}" placeholder="לדוגמה: ABC1" autocomplete="off">
+                <button class="btn btn-primary" id="submit-${doorId}-${codeNum}">פתיחה</button>
               </div>
-              <p class="feedback" id="code-feedback-${doorId}-${codeNumber}"></p>
+            </div>
+            <p class="feedback" id="code-fb-${doorId}-${codeNum}"></p>
+            <div class="actions">
+              <button class="btn btn-next" id="code-next-${doorId}-${codeNum}" style="display:none">לשלב הבא</button>
+              <button class="btn btn-secondary" id="code-back-${doorId}-${codeNum}">חזרה לדלתות</button>
             </div>
           </div>
         </div>
-      `;
+      </div>`;
 
-      document.getElementById(`code-submit-${doorId}-${codeNumber}`).onclick = () => {
-        const input = document.getElementById(`code-input-${doorId}-${codeNumber}`);
-        const feedback = document.getElementById(`code-feedback-${doorId}-${codeNumber}`);
-        const panel = document.getElementById(`code-panel-${doorId}-${codeNumber}`);
-        const normalized = input.value.trim().toUpperCase();
+      document.getElementById(`submit-${doorId}-${codeNum}`).onclick = () => {
+        const entered = document.getElementById(`code-input-${doorId}-${codeNum}`).value.trim().toUpperCase();
+        const fb = document.getElementById(`code-fb-${doorId}-${codeNum}`);
+        const panel = document.getElementById(`code-panel-${doorId}-${codeNum}`);
+        const next = document.getElementById(`code-next-${doorId}-${codeNum}`);
+        panel.classList.remove("success", "error");
 
-        panel.classList.remove("error-state", "success-state");
-
-        if (normalized === door.codes[codeNumber - 1]) {
-          feedback.textContent = "קוד נכון! הדלת נפתחת...";
-          feedback.className = "feedback success";
-          panel.classList.add("success-state");
-
-          if (isLastCode) {
-            renderDoorFinish(doorId);
-            setTimeout(() => showScreen(`door-${doorId}-finish`), 1020);
-          } else {
-            setTimeout(() => renderStep(doorId, codeNumber + 1), 1020);
-          }
+        if (entered === d.codes[codeNum - 1]) {
+          panel.classList.add("success");
+          spawnSuccessBurst();
+          fb.textContent = "איזה יופי! גיליתם את הסוד – הדלת נפתחת והטבע חושף רמז חדש ✨";
+          fb.className = "feedback success";
+          next.style.display = "inline-block";
+          next.onclick = () => {
+            if (isLast) {
+              renderDoorFinish(doorId);
+              showScreen(`door-${doorId}-finish`);
+            } else {
+              renderStep(doorId, codeNum + 1);
+            }
+          };
         } else {
-          feedback.textContent = "הקוד לא נכון. בדקו שוב עם חדר הבקרה.";
-          feedback.className = "feedback error";
-          panel.classList.add("error-state");
+          panel.classList.add("error");
+          fb.textContent = "הקוד עדיין לא פתח את הדלת. נסו שוב יחד עם הצוות 💡";
+          fb.className = "feedback error";
         }
       };
+
+      document.getElementById(`code-back-${doorId}-${codeNum}`).onclick = () => showScreen("screen-doors");
     }
 
     function renderDoorFinish(doorId) {
-      const door = gameData.doors.find((d) => d.id === doorId);
-      const section = document.getElementById(`door-${doorId}-finish`);
+      const d = getDoor(doorId);
       state.completedDoors.add(doorId);
-
-      section.innerHTML = `
-        ${topStrip(`דלת ${door.id}`, "הושלמה בהצלחה")}
-        <div class="card finish-card">
-          ${creatureArt(door.image, door.name)}
-          <h2>כל הכבוד, פיצחתם את הדלת</h2>
-          <ul class="summary-list">
-            ${door.summary.map((line) => `<li>${line}</li>`).join("")}
-          </ul>
-          <div class="actions">
-            <button class="btn btn-primary" id="back-to-doors-${doorId}">חזרה למסך הדלתות</button>
-            <button class="btn btn-secondary" id="to-final-${doorId}">למסך סיום כללי</button>
-          </div>
+      const el = document.getElementById(`door-${doorId}-finish`);
+      el.innerHTML = `${topStrip(`דלת ${doorId}`, "הצלחה")}
+      <div class="card">
+        <h2>הצלחתם! דלת ${doorId} נפתחה</h2>
+        <p class="question-text">סיכום קצר של מה שגיליתם:</p>
+        <ul>${d.summary.map((s) => `<li>${s}</li>`).join("")}</ul>
+        <div class="actions">
+          <button class="btn btn-primary" id="doors-after-${doorId}">חזרה למסך הדלתות</button>
+          <button class="btn btn-secondary" id="final-after-${doorId}">למסך סיום</button>
         </div>
-      `;
-
-      document.getElementById(`back-to-doors-${doorId}`).onclick = () => {
-        renderDoors();
-        showScreen("screen-doors");
-      };
-
-      document.getElementById(`to-final-${doorId}`).onclick = () => {
-        renderFinal();
-        showScreen("screen-final");
-      };
+      </div>`;
+      document.getElementById(`doors-after-${doorId}`).onclick = () => { renderDoors(); showScreen("screen-doors"); };
+      document.getElementById(`final-after-${doorId}`).onclick = () => { renderFinal(); showScreen("screen-final"); };
     }
 
     function renderFinal() {
-      const doneCount = state.completedDoors.size;
-      const finalScreen = document.getElementById("screen-final");
-
-      finalScreen.innerHTML = `
-        ${topStrip("סיכום", `דלתות שפוצחו: ${doneCount}`)}
-        <div class="card finish-card">
-          ${genericArt(imagePaths.final, "סיום המשחק")}
-          <h2>פיצחתם את קוד הטבע</h2>
-          <p>
-            היום גיליתם שלא מספיק לזהות חיה מיוחדת.<br>
-            השלב החשוב הוא להבין מה היא עושה, ואיך אפשר לקחת ממנה השראה לפיתוח מוצר חדש.
-          </p>
-          <div class="actions">
-            <button class="btn btn-primary" id="wait-btn">המתינו להמשך ההנחיה בזום</button>
-            <button class="btn btn-secondary" id="restart-btn">חזרה לבחירת דלת</button>
-          </div>
+      const el = document.getElementById("screen-final");
+      el.innerHTML = `${topStrip("סיום", `דלתות שהושלמו: ${state.completedDoors.size}`)}
+      <div class="card">
+        <h2>פיצחתם את קוד הטבע 🎉</h2>
+        <p class="question-text">היום למדתם איך הטבע נותן רעיונות להמצאות חדשות.<br>הישארו בזום להמשך ההנחיה.</p>
+        <div class="actions">
+          <button class="btn btn-primary" id="restart">חזרה למסך הדלתות</button>
         </div>
-      `;
-
-      document.getElementById("wait-btn").onclick = () => {
-        const btn = document.getElementById("wait-btn");
-        btn.textContent = "מעולה! נשארים בזום ומחכים להנחיה 🌟";
-        btn.disabled = true;
-      };
-
-      document.getElementById("restart-btn").onclick = () => {
-        renderDoors();
-        showScreen("screen-doors");
-      };
+      </div>`;
+      document.getElementById("restart").onclick = () => { renderDoors(); showScreen("screen-doors"); };
     }
 
     renderHome();

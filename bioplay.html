@@ -1403,6 +1403,7 @@
             guideFeedback.className = "feedback success";
             guideCodeInput.value = "";
             burstEffect();
+            setTimeout(() => guideModal.classList.remove("active"), 1200);
           } else {
             guideFeedback.textContent = "קוד שגוי";
             guideFeedback.className = "feedback error";

@@ -1332,11 +1332,10 @@
           <div class="admin-modal" id="guide-modal">
             <div class="modal-card">
               <h3 class="modal-title">אזור מדריך</h3>
-              <p class="modal-text">הזינו קוד להפעלה או בצעו איפוס. אימות הקוד מתבצע בשרת בלבד.</p>
+              <p class="modal-text">הזינו קוד להפעלה. אימות הקוד מתבצע בשרת בלבד.</p>
               <div class="code-row">
                 <input id="guide-code-input" class="input" type="password" placeholder="קוד מדריך" autocomplete="off">
                 <button class="btn btn-primary" id="guide-start-btn">הפעל</button>
-                <button class="btn btn-secondary" id="guide-reset-btn">איפוס</button>
               </div>
               <p class="feedback" id="guide-feedback"></p>
               <div class="actions">
@@ -1411,26 +1410,6 @@
         } catch (error) {
           const isNetwork = error instanceof TypeError || String(error).includes("fetch");
           guideFeedback.textContent = isNetwork ? "שגיאת חיבור לשרת. בדקו אינטרנט ונסו שוב." : "קוד שגוי";
-          guideFeedback.className = "feedback error";
-        }
-      };
-
-      document.getElementById("guide-reset-btn").onclick = async () => {
-        try {
-          const result = await sendGameAction("reset");
-          const serverAccepted = result?.success === true || result?.ok === true || result?.status === "waiting" || result?.result === "waiting";
-
-          if (serverAccepted) {
-            applyGameStatus("waiting");
-            guideCodeInput.value = "";
-            guideFeedback.textContent = "בוצע איפוס. המשחק חזר למצב המתנה.";
-            guideFeedback.className = "feedback success";
-          } else {
-            guideFeedback.textContent = "איפוס נדחה על ידי השרת.";
-            guideFeedback.className = "feedback error";
-          }
-        } catch (error) {
-          guideFeedback.textContent = "איפוס נכשל. נסו שוב.";
           guideFeedback.className = "feedback error";
         }
       };

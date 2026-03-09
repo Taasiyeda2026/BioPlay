@@ -828,15 +828,16 @@
       }
     };
 
-    const ADMIN_CODE = GAME_CODE_CATALOG.admin.code;
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxPh_Hq7TyvHWY0Tk32WQ2Z0iyXbLSsr3lu6r1LwxmrxTuzfzj2sV0UT4LFbC9KhQV7Uw/exec";
+    const GAME_ID = "main_game";
+    const POLL_INTERVAL_MS = 3000;
+
     const DOOR_STAGE_CODES = Object.fromEntries(
       Object.entries(GAME_CODE_CATALOG.doors).map(([doorId, stageEntries]) => [
         Number(doorId),
         stageEntries.map(({ code }) => code)
       ])
     );
-
-    const UNLOCK_DURATION_MS = 15 * 60 * 1000;
 
     const ASSETS = {
       logo: "images/logo.svg",
@@ -856,7 +857,6 @@
 
     const DOORS = [
       {
-     {
   id: 1,
   title: "דלת 1",
   theme: "שממית",
@@ -1122,23 +1122,20 @@
  }
     ];
 
-    const CODE_REGISTRY = GAME_CODE_CATALOG;
-
     const app = document.getElementById("app");
     const effectsLayer = document.getElementById("effects-layer");
     const videoOverlay = document.getElementById("video-overlay");
     const doorVideo = document.getElementById("door-video");
 
     const state = {
-      unlockedUntil: 0,
-      unlockTimer: null,
-      logoTapCount: 0,
-      logoTapResetTimer: null,
+      gameStatus: "waiting",
+      statusPollTimer: null,
+      statusRequestInFlight: false,
       completedDoors: new Set()
     };
 
     function isUnlocked() {
-      return Date.now() < state.unlockedUntil;
+      return state.gameStatus === "started";
     }
 
     function topStrip(title, status) {
@@ -1165,11 +1162,6 @@
         }
       });
       transitionEffect(id.includes("finish") || id === "screen-final" ? "grand" : "normal");
-    }
-
-    function remainingMinutes() {
-      if (!isUnlocked()) return 0;
-      return Math.max(0, Math.ceil((state.unlockedUntil - Date.now()) / 60000));
     }
 
     function spawnParticles() {
@@ -1216,24 +1208,94 @@
       }
     }
 
-    function unlockFor15Minutes() {
-      state.unlockedUntil = Date.now() + UNLOCK_DURATION_MS;
-      clearTimeout(state.unlockTimer);
-      state.unlockTimer = setTimeout(() => {
-        state.unlockedUntil = 0;
-        renderHome();
-      }, UNLOCK_DURATION_MS);
-      renderHome();
+    async function parseScriptResponse(response) {
+      const rawText = await response.text();
+      if (!rawText) return {};
+
+      try {
+        return JSON.parse(rawText);
+      } catch {
+        return { raw: rawText };
+      }
     }
 
-    function resetAdminModal() {
-      const input = document.getElementById("admin-input");
-      const feedback = document.getElementById("admin-feedback");
-      if (input) input.value = "";
-      if (feedback) {
-        feedback.textContent = "";
-        feedback.className = "feedback";
+    function normalizeStatus(status) {
+      return status === "started" ? "started" : "waiting";
+    }
+
+    function updateHomeStatusUI() {
+      const unlocked = isUnlocked();
+      const waitMessage = document.getElementById("wait-message");
+      const startBtn = document.getElementById("start-btn");
+      const topStatus = document.getElementById("home-status-text");
+
+      if (waitMessage) waitMessage.classList.toggle("hidden", unlocked);
+      if (startBtn) startBtn.classList.toggle("hidden", !unlocked);
+
+      if (topStatus) {
+        topStatus.textContent = unlocked ? "המשחק הופעל" : "ממתינים להפעלת מדריך";
       }
+    }
+
+    function applyGameStatus(status) {
+      state.gameStatus = normalizeStatus(status);
+      updateHomeStatusUI();
+    }
+
+    async function fetchGameStatus() {
+      const statusUrl = `${APPS_SCRIPT_URL}?action=status&game_id=${encodeURIComponent(GAME_ID)}`;
+      const response = await fetch(statusUrl, { method: "GET", cache: "no-store" });
+      const data = await parseScriptResponse(response);
+
+      if (!response.ok) {
+        throw new Error(data?.error || `Status request failed (${response.status})`);
+      }
+
+      return normalizeStatus(data?.status);
+    }
+
+    async function pollGameStatus() {
+      if (state.statusRequestInFlight) return;
+      state.statusRequestInFlight = true;
+
+      try {
+        const status = await fetchGameStatus();
+        applyGameStatus(status);
+      } catch (error) {
+        console.warn("Game status polling failed:", error);
+      } finally {
+        state.statusRequestInFlight = false;
+      }
+    }
+
+    function startStatusPolling() {
+      clearInterval(state.statusPollTimer);
+      pollGameStatus();
+      state.statusPollTimer = setInterval(pollGameStatus, POLL_INTERVAL_MS);
+    }
+
+    async function sendGameAction(action, code = "") {
+      const payload = new URLSearchParams({
+        action,
+        game_id: GAME_ID
+      });
+
+      if (code) payload.set("code", code);
+
+      const response = await fetch(APPS_SCRIPT_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: payload.toString()
+      });
+
+      const data = await parseScriptResponse(response);
+      if (!response.ok) {
+        throw new Error(data?.error || `Action request failed (${response.status})`);
+      }
+
+      return data;
     }
 
     function renderHome() {
@@ -1241,7 +1303,7 @@
       const unlocked = isUnlocked();
 
       home.innerHTML = `
-        ${topStrip("דלתות הטבע", unlocked ? `שחרור מדריכים פעיל לעוד ${remainingMinutes()} דקות` : "מסך פתיחה")}
+        ${topStrip("דלתות הטבע", `<span id="home-status-text">${unlocked ? "המשחק הופעל" : "ממתינים להפעלת מדריך"}</span>`) }
         <div class="card hero">
           <img src="${ASSETS.intro}" alt="רקע חדר בריחה" class="hero-bg" id="hero-bg">
           <div class="hero-overlay"></div>
@@ -1258,8 +1320,19 @@
               <p class="lead">בחרו דלת, פתרו 3 שלבים<br>וקבלו קוד מהמדריך כדי להתקדם!</p>
 
               <div class="start-zone">
-                <p class="wait-message ${unlocked ? "hidden" : ""}" id="wait-message">אנא המתינו - מיד מתחילים</p>
-                <button class="btn btn-primary btn-start ${unlocked ? "" : "hidden"}" id="start-btn">התחילו במשימה</button>
+                <p class="wait-message ${unlocked ? "hidden" : ""}" id="wait-message">אנא המתינו, מיד מתחילים</p>
+                <button class="btn btn-primary btn-start ${unlocked ? "" : "hidden"}" id="start-btn">לחצו להתחלת המשחק</button>
+              </div>
+
+              <div class="card modal-card" style="width:min(520px, 100%); margin-top: 14px;">
+                <h3 class="modal-title">אזור מדריך</h3>
+                <p class="modal-text">הזינו קוד להפעלה או בצעו איפוס לסטטוס waiting.</p>
+                <div class="code-row">
+                  <input id="guide-code-input" class="input" type="password" placeholder="קוד מדריך" autocomplete="off">
+                  <button class="btn btn-primary" id="guide-start-btn">הפעל</button>
+                  <button class="btn btn-secondary" id="guide-reset-btn">איפוס</button>
+                </div>
+                <p class="feedback" id="guide-feedback"></p>
               </div>
             </div>
           </div>
@@ -1271,23 +1344,6 @@
             </div>
           </div>
 
-          <div class="admin-modal" id="admin-modal">
-            <div class="modal-card">
-              <h3 class="modal-title">אישור מדריכים</h3>
-              <p class="modal-text">הזינו קוד מנהל לשחרור כפתור ההתחלה ל-15 דקות.</p>
-
-              <div class="code-row">
-                <input id="admin-input" class="input" type="password" placeholder="קוד מנהל" autocomplete="off">
-                <button class="btn btn-primary" id="admin-submit">אישור</button>
-              </div>
-
-              <p class="feedback" id="admin-feedback"></p>
-
-              <div class="actions">
-                <button class="btn btn-secondary" id="admin-close">סגירה</button>
-              </div>
-            </div>
-          </div>
         </div>
       `;
 
@@ -1304,42 +1360,47 @@
         logo.alt = "שגיאת לוגו";
       };
 
-      logo.addEventListener("click", () => {
-        state.logoTapCount += 1;
-        clearTimeout(state.logoTapResetTimer);
-        state.logoTapResetTimer = setTimeout(() => {
-          state.logoTapCount = 0;
-        }, 1400);
+      const guideCodeInput = document.getElementById("guide-code-input");
+      const guideFeedback = document.getElementById("guide-feedback");
 
-        if (state.logoTapCount >= 4) {
-          state.logoTapCount = 0;
-          document.getElementById("admin-modal").classList.add("active");
-          resetAdminModal();
+      document.getElementById("guide-start-btn").onclick = async () => {
+        const value = guideCodeInput.value.trim();
+        if (!value) {
+          guideFeedback.textContent = "יש להזין קוד לפני הפעלה.";
+          guideFeedback.className = "feedback error";
+          return;
         }
-      });
 
-      document.getElementById("admin-close").onclick = () => {
-        document.getElementById("admin-modal").classList.remove("active");
-        resetAdminModal();
+        try {
+          const result = await sendGameAction("start", value);
+          const actionSucceeded = result?.success === true || result?.status === "started" || result?.result === "started";
+
+          if (actionSucceeded) {
+            guideFeedback.textContent = "המשחק הופעל";
+            guideFeedback.className = "feedback success";
+            guideCodeInput.value = "";
+            applyGameStatus("started");
+            burstEffect();
+          } else {
+            guideFeedback.textContent = "קוד שגוי";
+            guideFeedback.className = "feedback error";
+          }
+        } catch (error) {
+          guideFeedback.textContent = "קוד שגוי";
+          guideFeedback.className = "feedback error";
+        }
       };
 
-      document.getElementById("admin-submit").onclick = () => {
-        const input = document.getElementById("admin-input");
-        const feedback = document.getElementById("admin-feedback");
-        const value = input.value.trim();
-
-        if (value === CODE_REGISTRY.admin.code) {
-          feedback.textContent = "אושר בהצלחה. כפתור ההתחלה נפתח ל-15 דקות.";
-          feedback.className = "feedback success";
-          burstEffect();
-          setTimeout(() => {
-            document.getElementById("admin-modal").classList.remove("active");
-            resetAdminModal();
-            unlockFor15Minutes();
-          }, 500);
-        } else {
-          feedback.textContent = "קוד שגוי. המשחק עדיין נעול.";
-          feedback.className = "feedback error";
+      document.getElementById("guide-reset-btn").onclick = async () => {
+        try {
+          await sendGameAction("reset");
+          applyGameStatus("waiting");
+          guideCodeInput.value = "";
+          guideFeedback.textContent = "בוצע איפוס. המשחק חזר למצב המתנה.";
+          guideFeedback.className = "feedback success";
+        } catch (error) {
+          guideFeedback.textContent = "איפוס נכשל. נסו שוב.";
+          guideFeedback.className = "feedback error";
         }
       };
 
@@ -1347,6 +1408,8 @@
       if (startBtn) {
         startBtn.onclick = () => startMainCountdown();
       }
+
+      updateHomeStatusUI();
     }
 
     function startMainCountdown() {
@@ -1677,6 +1740,7 @@
     }
 
     renderHome();
+    startStatusPolling();
   </script>
 </body>
 </html>

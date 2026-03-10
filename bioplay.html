@@ -1184,6 +1184,10 @@
     }
 
     function startMainCountdown() {
+      if (state.gameStatus !== "started") {
+        updateHomeStatusUI();
+        return;
+      }
       document.getElementById("instruction-layer").classList.add("hidden");
       const countdown = document.getElementById("countdown");
       const num       = document.getElementById("countdown-number");

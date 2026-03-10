@@ -355,17 +355,21 @@
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
     }
 
     .input {
-      flex: 1 1 220px;
-      min-height: 50px;
+      flex: 0 1 220px;
+      width: 100%;
+      max-width: 220px;
+      min-height: 44px;
       border-radius: 14px;
       border: 1px solid rgba(255,255,255,.24);
       background: #0d1732;
       color: var(--text);
-      padding: 10px 14px;
-      font-size: 1.1rem;
+      padding: 8px 12px;
+      font-size: 1rem;
       text-transform: uppercase;
     }
 
@@ -885,6 +889,7 @@
       doorsData:           [],   // loaded from doors.json
       doorsCount:          10,   // guide can set 10–27
       stepCodesEntered:    {},   // { doorId: [code1, code2, code3] }
+      selectedAnswers:     {},   // { doorId: { stepIndex: selectedOption } }
     };
 
     // ── DOM refs ────────────────────────────────────────────
@@ -1339,34 +1344,21 @@
                   `<button class="answer" data-opt="${opt}">${opt}</button>`
                 ).join("")}
               </div>
-              <p class="feedback" id="sfb-${doorId}-${stepIndex}"></p>
               <div class="actions">
-                <button class="btn btn-next hidden" id="snext-${doorId}-${stepIndex}">הזן קוד מהמדריך</button>
                 <button class="btn btn-secondary" id="sback-${doorId}-${stepIndex}">חזרה לדלתות</button>
               </div>
             </div>
           </div>
         </div>`;
 
-      const fb   = document.getElementById(`sfb-${doorId}-${stepIndex}`);
-      const next = document.getElementById(`snext-${doorId}-${stepIndex}`);
-
       el.querySelectorAll(".answer").forEach(btn => {
         btn.onclick = () => {
-          const correct = btn.dataset.opt === String(step.answer);
-          el.querySelectorAll(".answer").forEach(b => b.classList.remove("correct", "wrong"));
-          btn.classList.add(correct ? "correct" : "wrong");
-          if (correct) {
-            fb.textContent = "מעולה! עניתם נכון";
-            fb.className   = "feedback success";
-            burstEffect();
-            renderCodeScreen(doorId, stepIndex);
-            next.classList.remove("hidden");
-            next.onclick = () => setActiveScreen(`door-${doorId}-code-${stepIndex}`);
-          } else {
-            fb.textContent = "נסה שוב";
-            fb.className   = "feedback error";
-          }
+          const chosen = btn.dataset.opt;
+          if (!state.selectedAnswers[doorId]) state.selectedAnswers[doorId] = {};
+          state.selectedAnswers[doorId][stepIndex] = chosen;
+
+          renderCodeScreen(doorId, stepIndex);
+          setActiveScreen(`door-${doorId}-code-${stepIndex}`);
         };
       });
 
@@ -1399,7 +1391,7 @@
                 <h3 class="code-title">שלב ${codeStage} – קוד מעבר</h3>
                 <div class="code-row">
                   <input class="input" id="cinput-${doorId}-${codeStage}"
-                    type="text" placeholder="${step.codeInputPlaceholder || "הזינו קוד"}" autocomplete="off">
+                    type="password" placeholder="${step.codeInputPlaceholder || "הזינו קוד"}" autocomplete="off">
                   <button class="btn btn-primary" id="csubmit-${doorId}-${codeStage}">${step.codeButtonText || "בדיקת קוד"}</button>
                 </div>
               </div>
@@ -1416,11 +1408,14 @@
       const fb     = document.getElementById(`cfb-${doorId}-${codeStage}`);
 
       const submit = () => {
-        const entered  = input.value.trim().toUpperCase();
-        const expected = expectedCode.toUpperCase();
+        const entered        = input.value.trim().toUpperCase();
+        const expected       = expectedCode.toUpperCase();
+        const selectedAnswer = state.selectedAnswers[doorId]?.[codeStage];
+        const answerCorrect  = selectedAnswer === String(step.answer);
+        const codeCorrect    = entered === expected;
         panel.classList.remove("success", "error");
 
-        if (entered === expected) {
+        if (answerCorrect && codeCorrect) {
           panel.classList.add("success");
           fb.textContent = step.codeSuccessText || "הקוד נכון!";
           fb.className   = "feedback success";
@@ -1433,8 +1428,12 @@
           setTimeout(() => setActiveScreen(`door-${doorId}-confirm-${codeStage}`), 700);
         } else {
           panel.classList.add("error");
-          fb.textContent = step.codeWrongText || "הקוד שגוי. נסו שוב.";
+          fb.textContent = "הקוד שגוי. נסו שוב.";
           fb.className   = "feedback error";
+          setTimeout(() => {
+            renderStep(doorId, codeStage);
+            setActiveScreen(`door-${doorId}-step-${codeStage}`);
+          }, 1000);
         }
       };
 

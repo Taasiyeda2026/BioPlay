@@ -1189,6 +1189,7 @@
     }
 
     function startMainCountdown() {
+      if (!isUnlocked()) return;
       if (state.gameStatus !== "started") {
         updateHomeStatusUI();
         return;
@@ -1408,10 +1409,11 @@
       const fb     = document.getElementById(`cfb-${doorId}-${codeStage}`);
 
       const submit = () => {
-        const entered        = input.value.trim().toUpperCase();
-        const expected       = expectedCode.toUpperCase();
         const selectedAnswer = state.selectedAnswers[doorId]?.[codeStage];
-        const answerCorrect  = selectedAnswer === String(step.answer);
+        const answerCorrect  = String(selectedAnswer || "").trim() === String(step.answer || "").trim();
+
+        const entered        = input.value.trim().toUpperCase();
+        const expected       = String(step.code || "").trim().toUpperCase();
         const codeCorrect    = entered === expected;
         panel.classList.remove("success", "error");
 
@@ -1428,11 +1430,10 @@
           setTimeout(() => setActiveScreen(`door-${doorId}-confirm-${codeStage}`), 700);
         } else {
           panel.classList.add("error");
-          fb.textContent = "הקוד שגוי. נסו שוב.";
+          fb.textContent = step.codeWrongText || "הקוד שגוי. נסו שוב.";
           fb.className   = "feedback error";
           setTimeout(() => {
             renderStep(doorId, codeStage);
-            setActiveScreen(`door-${doorId}-step-${codeStage}`);
           }, 1000);
         }
       };
@@ -1505,7 +1506,7 @@
           <div class="code-panel" id="fpanel-${doorId}">
             <h3 class="code-title">קוד פתיחה</h3>
             <div class="code-row">
-              <input class="input" id="finput-${doorId}" type="text" placeholder="${finalLock.inputPlaceholder || "קוד פתיחה"}" autocomplete="off">
+              <input class="input" id="finput-${doorId}" type="password" placeholder="${finalLock.inputPlaceholder || "קוד פתיחה"}" autocomplete="off">
               <button class="btn btn-primary" id="fsubmit-${doorId}">${finalLock.buttonText || "פתיחת הדלת"}</button>
             </div>
           </div>

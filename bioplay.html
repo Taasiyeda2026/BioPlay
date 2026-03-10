@@ -920,7 +920,7 @@
     }
 
     function getDoor(doorId) {
-      return state.doorsData.find(d => d.door_id === doorId);
+      return state.doorsData.find(d => d.id === doorId);
     }
 
     // ── Screen transition ────────────────────────────────────
@@ -1222,14 +1222,14 @@
 
       const cards = visible.map(door => `
         <article class="door-card">
-          <div class="door-title">דלת ${door.door_id}</div>
+          <div class="door-title">דלת ${door.id}</div>
           <div class="door-image-wrap">
             <img class="door-image"
-              src="${getDoorImage(door.door_id)}"
-              alt="דלת ${door.door_id}"
+              src="${getDoorImage(door.id)}"
+              alt="דלת ${door.id}"
               onerror="this.onerror=null;this.src='${ASSETS.doorFallback}'">
             <div class="door-footer">
-              <button class="btn btn-primary" data-door="${door.door_id}">התחל</button>
+              <button class="btn btn-primary" data-door="${door.id}">התחל</button>
             </div>
           </div>
         </article>`).join("");
@@ -1329,7 +1329,7 @@
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
-              <img src="${getCreatureImage(door)}" alt="${door.organism || ''}"
+              <img src="${getCreatureImage(door)}" alt="${door.creature || ''}"
                 onerror="this.onerror=null;this.src='${getDoorImage(doorId)}'">
             </div>
             <div>
@@ -1354,7 +1354,7 @@
 
       el.querySelectorAll(".answer").forEach(btn => {
         btn.onclick = () => {
-          const correct = btn.dataset.opt === String(step.correct);
+          const correct = btn.dataset.opt === String(step.answer);
           el.querySelectorAll(".answer").forEach(b => b.classList.remove("correct", "wrong"));
           btn.classList.add(correct ? "correct" : "wrong");
           if (correct) {
@@ -1389,7 +1389,7 @@
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
-              <img src="${getCreatureImage(door)}" alt="${door.organism || ''}"
+              <img src="${getCreatureImage(door)}" alt="${door.creature || ''}"
                 onerror="this.onerror=null;this.src='${getDoorImage(doorId)}'">
             </div>
             <div>
@@ -1526,7 +1526,7 @@
 
       const check = () => {
         const entered   = input.value.trim().toUpperCase();
-        const expected  = String(door.final_code || "").toUpperCase();
+        const expected  = String(door.finalLockCode || "").toUpperCase();
         panel.classList.remove("success", "error");
 
         if (entered === expected) {
@@ -1565,13 +1565,13 @@
         ${topStrip(`דלת ${doorId}`, "דלת נפתחה")}
         <div class="card finish-card">
           <div class="summary-creature">
-            <img src="${getCreatureImage(door)}" alt="${summary.organism || door.organism || ''}"
+            <img src="${getCreatureImage(door)}" alt="${summary.organism || door.creature || ''}"
               onerror="this.style.display='none'">
           </div>
           <h2 class="finish-title">דלת נפתחה ✨</h2>
           <ul class="finish-list">
-            <li><strong>האורגניזם:</strong> ${summary.organism || door.organism || ""}</li>
-            <li><strong>היכולת בטבע:</strong> ${summary.ability || ""}</li>
+            <li><strong>האורגניזם:</strong> ${summary.organism || door.creature || ""}</li>
+            <li><strong>היכולת בטבע:</strong> ${summary.trait || ""}</li>
             <li><strong>ההשראה להמצאה:</strong> ${summary.innovation || ""}</li>
           </ul>
           <div class="actions">

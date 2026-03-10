@@ -1071,10 +1071,10 @@
             </div>
 
             <div class="instruction-layer" id="instruction-layer">
-              <h1 class="title">חדר הבריחה הביומימיקרי</h1>
-              <p class="lead">ברוכים הבאים לחדר הבריחה הביומימיקרי.</p>
-              <p class="lead">מאחורי כל דלת מסתתר יצור מהטבע<br>עם יכולת מיוחדת שהעניקה השראה להמצאה.</p>
-              <p class="lead">בחרו דלת,<br>פתרו שלושה שלבים,<br>וגלו את סוד ההשראה מהטבע.</p>
+              <h1 class="title">העולם הסודי של הביומימיקרי</h1>
+              <p class="lead">ברוכים הבאים לעולם הסודי של הביומימיקרי.</p>
+              <p class="lead">מאחורי כל דלת מסתתר יצור מהטבע,<br>עם יכולת מיוחדת שהעניקה השראה להמצאה אמיתית.</p>
+              <p class="lead">בחרו דלת,<br>עברו שלושה שלבים,<br>וגלו איך הטבע הופך לרעיון חדש.</p>
 
               <div class="start-zone">
                 <p class="wait-message ${unlocked ? "hidden" : ""}" id="wait-message">אנא המתינו, מיד מתחילים</p>
@@ -1246,10 +1246,8 @@
 
     // ── Door flow helpers ────────────────────────────────────
     function startDoorFlow(doorId) {
-      playDoorVideo(() => {
-        renderDoorIntro(doorId);
-        setActiveScreen(`door-${doorId}-intro`);
-      });
+      renderDoorIntro(doorId);
+      setActiveScreen(`door-${doorId}-intro`);
     }
 
     function playDoorVideo(onDone) {

@@ -1374,6 +1374,7 @@
       logoTapResetTimer:   null,
       completedDoors:      new Set(),
       doorsData:           [],   // loaded from doors.json
+      selectedDoors:       [],   // doors selected for the current round
       doorsCount:          5,    // default when no prior selection
       stepCodesEntered:    {},   // { doorId: [code1, code2, code3] }
       selectedAnswers:     {},   // { doorId: { stepIndex: selectedOption } }
@@ -1413,6 +1414,21 @@
 
     function getDoor(doorId) {
       return state.doorsData.find(d => d.id === doorId);
+    }
+
+    function shuffleArray(array) {
+      const result = [...array];
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    function buildSelectedDoors() {
+      const max = Math.min(state.doorsCount, state.doorsData.length);
+      const shuffled = shuffleArray(state.doorsData);
+      state.selectedDoors = shuffled.slice(0, max);
     }
 
     // ── Screen transition ────────────────────────────────────
@@ -1652,6 +1668,7 @@
             const chosen = parseInt(doorsSelect.value, 10) || 5;
             state.doorsCount = Math.max(2, Math.min(chosen, Math.max(27, state.doorsData.length)));
             applyGameStatus("started");
+            buildSelectedDoors();
             guideFeedback.textContent = `המשחק הופעל • ${state.doorsCount} דלתות`;
             guideFeedback.className   = "feedback success";
             guideInput.value = "";
@@ -1701,8 +1718,12 @@
     // ── Screen 2: Door selection ─────────────────────────────
     function renderDoors() {
       const doorsScreen = document.getElementById("screen-doors");
-      const max         = Math.min(state.doorsCount, state.doorsData.length);
-      const visible     = state.doorsData.slice(0, max);
+
+      if (!state.selectedDoors.length && state.doorsData.length) {
+        buildSelectedDoors();
+      }
+
+      const visible = state.selectedDoors.length ? state.selectedDoors : [];
 
       if (!visible.length) {
         doorsScreen.innerHTML = `

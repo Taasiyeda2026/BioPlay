@@ -1299,7 +1299,7 @@
             </div>
             <div>
               <h2 class="question-title">מתכוננים לדלת ${doorId}</h2>
-              <p class="question-text">מאחורי הדלת מסתתר יצור עם סופר־כוח.<br>האם תצליחו לגלות מי הוא?</p>
+              <p class="question-text">${nl(door.intro)}</p>
               <div class="actions">
                 <button class="btn btn-primary" id="intro-go-${doorId}">התחל שלב 1</button>
                 <button class="btn btn-secondary" id="intro-back-${doorId}">חזרה לדלתות</button>
@@ -1390,15 +1390,15 @@
                 onerror="this.onerror=null;this.src='${getDoorImage(doorId)}'">
             </div>
             <div>
-              <h2 class="question-title">שער מעבר</h2>
-              <p class="question-text">קיבלתם קוד מהמדריך.<br>הזינו אותו כדי להמשיך.</p>
+              <h2 class="question-title">${step.codeScreenTitle || "שער מעבר"}</h2>
+              <p class="question-text">${nl(step.codeScreenText || "קיבלתם קוד מהמדריך. הזינו אותו כדי להמשיך.")}</p>
 
               <div class="code-panel" id="cpanel-${doorId}-${codeStage}">
                 <h3 class="code-title">שלב ${codeStage} – קוד מעבר</h3>
                 <div class="code-row">
                   <input class="input" id="cinput-${doorId}-${codeStage}"
-                    type="text" placeholder="הזינו קוד" autocomplete="off">
-                  <button class="btn btn-primary" id="csubmit-${doorId}-${codeStage}">בדיקת קוד</button>
+                    type="text" placeholder="${step.codeInputPlaceholder || "הזינו קוד"}" autocomplete="off">
+                  <button class="btn btn-primary" id="csubmit-${doorId}-${codeStage}">${step.codeButtonText || "בדיקת קוד"}</button>
                 </div>
               </div>
               <p class="feedback" id="cfb-${doorId}-${codeStage}"></p>
@@ -1420,7 +1420,7 @@
 
         if (entered === expected) {
           panel.classList.add("success");
-          fb.textContent = "הקוד נכון!";
+          fb.textContent = step.codeSuccessText || "הקוד נכון!";
           fb.className   = "feedback success";
           burstEffect();
           // Save code for final lock
@@ -1431,7 +1431,7 @@
           setTimeout(() => setActiveScreen(`door-${doorId}-confirm-${codeStage}`), 700);
         } else {
           panel.classList.add("error");
-          fb.textContent = "הקוד שגוי.\nנסו שוב.";
+          fb.textContent = step.codeWrongText || "הקוד שגוי. נסו שוב.";
           fb.className   = "feedback error";
         }
       };
@@ -1446,6 +1446,7 @@
       ensureDoorSections(doorId);
       const door      = getDoor(doorId);
       if (!door) return;
+      const step      = door.steps[stepIndex - 1] || {};
       const isLast    = stepIndex === 3;
       const el        = document.getElementById(`door-${doorId}-confirm-${stepIndex}`);
 
@@ -1455,7 +1456,7 @@
           <div class="confirm-box">
             <div class="confirm-icon">🎉</div>
             <h2 class="section-title" style="color:var(--accent-2);margin:0">כל הכבוד!</h2>
-            <p class="question-text" style="margin:0">התשובה נכונה.</p>
+            <p class="question-text" style="margin:0">${nl(step.confirmText || "כל הכבוד! התשובה נכונה.")}</p>
             <button class="btn btn-next" id="cnext-${doorId}-${stepIndex}">
               ${isLast ? "לפתיחת הדלת" : "לשלב הבא"}
             </button>
@@ -1477,6 +1478,7 @@
       ensureDoorSections(doorId);
       const door  = getDoor(doorId);
       if (!door) return;
+      const finalLock = door.finalLock || {};
       const codes = state.stepCodesEntered[doorId] || [];
       const el    = document.getElementById(`door-${doorId}-final-lock`);
 
@@ -1495,20 +1497,15 @@
       el.innerHTML = `
         ${topStrip(`דלת ${doorId}`, "מנעול אחרון")}
         <div class="card question-card">
-          <h2 class="question-title">המנעול האחרון 🔐</h2>
-          <p class="question-text">
-            אספתם שלושה קודי מעבר.<br>
-            כדי לפתוח את הדלת<br>
-            קחו את <strong>הספרה האמצעית</strong> מכל קוד<br>
-            והזינו אותן לפי הסדר.
-          </p>
+          <h2 class="question-title">${finalLock.title || "המנעול האחרון 🔐"}</h2>
+          <p class="question-text">${nl(finalLock.text || "אספתם שלושה קודי מעבר...")}</p>
           ${codes.length ? `<div class="codes-reminder">${codesHtml}</div>` : ""}
 
           <div class="code-panel" id="fpanel-${doorId}">
             <h3 class="code-title">קוד פתיחה</h3>
             <div class="code-row">
-              <input class="input" id="finput-${doorId}" type="text" placeholder="קוד פתיחה" autocomplete="off">
-              <button class="btn btn-primary" id="fsubmit-${doorId}">פתיחת הדלת</button>
+              <input class="input" id="finput-${doorId}" type="text" placeholder="${finalLock.inputPlaceholder || "קוד פתיחה"}" autocomplete="off">
+              <button class="btn btn-primary" id="fsubmit-${doorId}">${finalLock.buttonText || "פתיחת הדלת"}</button>
             </div>
           </div>
           <p class="feedback" id="ffb-${doorId}"></p>
@@ -1528,7 +1525,7 @@
 
         if (entered === expected) {
           panel.classList.add("success");
-          fb.textContent = "הדלת נפתחת!";
+          fb.textContent = finalLock.successText || "הדלת נפתחת!";
           fb.className   = "feedback success";
           burstEffect();
           setTimeout(() => {
@@ -1539,7 +1536,7 @@
           }, 700);
         } else {
           panel.classList.add("error");
-          fb.textContent = "הקוד שגוי. נסו שוב.";
+          fb.textContent = finalLock.wrongText || "הקוד שגוי. נסו שוב.";
           fb.className   = "feedback error";
         }
       };
@@ -1565,7 +1562,7 @@
             <img src="${getCreatureImage(door)}" alt="${summary.organism || door.creature || ''}"
               onerror="this.style.display='none'">
           </div>
-          <h2 class="finish-title">דלת נפתחה ✨</h2>
+          <h2 class="finish-title">${summary.title || "דלת נפתחה ✨"}</h2>
           <ul class="finish-list">
             <li><strong>האורגניזם:</strong> ${summary.organism || door.creature || ""}</li>
             <li><strong>היכולת בטבע:</strong> ${summary.trait || ""}</li>

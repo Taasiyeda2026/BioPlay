@@ -66,7 +66,7 @@
 
     .screen.active {
       display: block;
-      animation: fadeInUp .65s ease;
+      animation: fadeInUp .9s ease;
     }
 
     .top-strip {
@@ -766,7 +766,7 @@
     }
 
     .screen.transition-in {
-      animation: screenFadeIn .55s ease both;
+      animation: screenFadeIn .8s ease both;
     }
 
     .light-flash {
@@ -830,6 +830,103 @@
       to { transform: rotate(360deg); }
     }
 
+    /* ── Door 3 summary two-card layout ── */
+    .summary-two-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .summary-image-card,
+    .summary-text-card {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px;
+      padding: 20px;
+    }
+
+    .summary-image-card img {
+      width: 100%;
+      max-width: 320px;
+      max-height: 320px;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+    }
+
+    /* ── Magic image effects ── */
+    .question-visual {
+      position: relative;
+      background: radial-gradient(ellipse at 50% 60%, rgba(136,243,185,.07), rgba(98,217,255,.04), transparent 70%);
+      border: 1px solid rgba(98,217,255,.22);
+      box-shadow:
+        0 0 0 1px rgba(136,243,185,.08),
+        0 0 28px rgba(98,217,255,.10),
+        inset 0 0 20px rgba(136,243,185,.04);
+    }
+
+    .question-visual::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(135deg, rgba(136,243,185,.12), rgba(98,217,255,.08), rgba(255,231,155,.06), rgba(136,243,185,.10));
+      z-index: 0;
+      pointer-events: none;
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      padding: 1px;
+    }
+
+    .question-visual img {
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 4px 18px rgba(98,217,255,.22)) drop-shadow(0 0 8px rgba(136,243,185,.14));
+      transition: filter .4s ease, transform .4s ease;
+    }
+
+    .question-visual:hover img {
+      filter: drop-shadow(0 6px 26px rgba(98,217,255,.34)) drop-shadow(0 0 14px rgba(136,243,185,.22));
+      transform: scale(1.02);
+    }
+
+    .summary-creature {
+      position: relative;
+      background: radial-gradient(ellipse at 50% 55%, rgba(136,243,185,.08), rgba(98,217,255,.04), transparent 70%);
+      border: 1px solid rgba(136,243,185,.20);
+      border-radius: 18px;
+      padding: 16px;
+      box-shadow:
+        0 0 24px rgba(98,217,255,.10),
+        inset 0 0 16px rgba(136,243,185,.04);
+    }
+
+    .summary-creature img {
+      filter: drop-shadow(0 4px 18px rgba(98,217,255,.24)) drop-shadow(0 0 8px rgba(136,243,185,.16));
+      max-width: 220px;
+      max-height: 220px;
+    }
+
+    /* Subtle cosmic sparkle overlay on images */
+    .question-visual::after {
+      content: "✦ ✧ ✦";
+      position: absolute;
+      top: 6px;
+      inset-inline-end: 8px;
+      font-size: .55rem;
+      color: rgba(136,243,185,.28);
+      pointer-events: none;
+      letter-spacing: .18em;
+      animation: sparkleFloat 4s ease-in-out infinite;
+      z-index: 2;
+    }
+
+    @keyframes sparkleFloat {
+      0%, 100% { opacity: .28; transform: translateY(0); }
+      50%       { opacity: .55; transform: translateY(-3px); }
+    }
+
     @media (max-width: 900px) {
       .question-layout {
         grid-template-columns: 1fr;
@@ -846,6 +943,10 @@
 
       .code-row {
         flex-direction: column;
+      }
+
+      .summary-two-cards {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -1329,12 +1430,14 @@
       if (!step) return;
       const el = document.getElementById(`door-${doorId}-step-${stepIndex}`);
 
+      const questionImage = doorId === 1 ? "images/q.png" : getCreatureImage(door);
+
       el.innerHTML = `
         ${topStrip(`דלת ${doorId}`, `שלב ${stepIndex} מתוך 3`)}
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
-              <img src="${getCreatureImage(door)}" alt="${door.creature || ''}"
+              <img src="${questionImage}" alt="${door.creature || ''}"
                 onerror="this.onerror=null;this.src='${getDoorImage(doorId)}'">
             </div>
             <div>
@@ -1358,8 +1461,11 @@
           if (!state.selectedAnswers[doorId]) state.selectedAnswers[doorId] = {};
           state.selectedAnswers[doorId][stepIndex] = chosen;
 
-          renderCodeScreen(doorId, stepIndex);
-          setActiveScreen(`door-${doorId}-code-${stepIndex}`);
+          // 800ms delay before moving to code screen (section 15)
+          setTimeout(() => {
+            renderCodeScreen(doorId, stepIndex);
+            setActiveScreen(`door-${doorId}-code-${stepIndex}`);
+          }, 800);
         };
       });
 
@@ -1425,16 +1531,17 @@
           // Save code for final lock
           if (!state.stepCodesEntered[doorId]) state.stepCodesEntered[doorId] = [];
           state.stepCodesEntered[doorId][codeStage - 1] = expectedCode;
-          // Navigate to confirmation after short delay
+          // Navigate to confirmation after delay (section 15: 1400ms)
           renderConfirmation(doorId, codeStage);
-          setTimeout(() => setActiveScreen(`door-${doorId}-confirm-${codeStage}`), 700);
+          setTimeout(() => setActiveScreen(`door-${doorId}-confirm-${codeStage}`), 1400);
         } else {
           panel.classList.add("error");
           fb.textContent = step.codeWrongText || "הקוד שגוי. נסו שוב.";
           fb.className   = "feedback error";
+          // 1600ms before returning to question (section 15)
           setTimeout(() => {
             renderStep(doorId, codeStage);
-          }, 1000);
+          }, 1600);
         }
       };
 
@@ -1484,24 +1591,11 @@
       const codes = state.stepCodesEntered[doorId] || [];
       const el    = document.getElementById(`door-${doorId}-final-lock`);
 
-      const codesHtml = codes.map((code, i) => {
-        const mid    = Math.floor(code.length / 2);
-        const before = code.slice(0, mid);
-        const mid_ch = code[mid] || "";
-        const after  = code.slice(mid + 1);
-        return `
-          <div class="code-display-item">
-            <span>קוד שלב ${i + 1}:</span>
-            <span class="code-text">${before}<span class="code-middle">${mid_ch}</span>${after}</span>
-          </div>`;
-      }).join("");
-
       el.innerHTML = `
         ${topStrip(`דלת ${doorId}`, "מנעול אחרון")}
         <div class="card question-card">
           <h2 class="question-title">${finalLock.title || "המנעול האחרון 🔐"}</h2>
           <p class="question-text">${nl(finalLock.text || "אספתם שלושה קודי מעבר...")}</p>
-          ${codes.length ? `<div class="codes-reminder">${codesHtml}</div>` : ""}
 
           <div class="code-panel" id="fpanel-${doorId}">
             <h3 class="code-title">קוד פתיחה</h3>
@@ -1530,12 +1624,16 @@
           fb.textContent = finalLock.successText || "הדלת נפתחת!";
           fb.className   = "feedback success";
           burstEffect();
+          // 1200ms before starting video (section 15)
           setTimeout(() => {
             playDoorVideo(() => {
-              renderDoorSummary(doorId);
-              setActiveScreen(`door-${doorId}-summary`);
+              // 500ms after video ends before summary (section 15)
+              setTimeout(() => {
+                renderDoorSummary(doorId);
+                setActiveScreen(`door-${doorId}-summary`);
+              }, 500);
             });
-          }, 700);
+          }, 1200);
         } else {
           panel.classList.add("error");
           fb.textContent = finalLock.wrongText || "הקוד שגוי. נסו שוב.";
@@ -1557,23 +1655,49 @@
       const summary = door.summary || {};
       const el      = document.getElementById(`door-${doorId}-summary`);
 
-      el.innerHTML = `
-        ${topStrip(`דלת ${doorId}`, "דלת נפתחה")}
-        <div class="card finish-card">
-          <div class="summary-creature">
-            <img src="${getCreatureImage(door)}" alt="${summary.organism || door.creature || ''}"
-              onerror="this.style.display='none'">
-          </div>
-          <h2 class="finish-title">${summary.title || "דלת נפתחה ✨"}</h2>
-          <ul class="finish-list">
-            <li><strong>האורגניזם:</strong> ${summary.organism || door.creature || ""}</li>
-            <li><strong>היכולת בטבע:</strong> ${summary.trait || ""}</li>
-            <li><strong>ההשראה להמצאה:</strong> ${summary.innovation || ""}</li>
-          </ul>
-          <div class="actions">
-            <button class="btn btn-primary" id="sback-${doorId}">חזרה לחדר הדלתות</button>
-          </div>
-        </div>`;
+      if (doorId === 3) {
+        el.innerHTML = `
+          ${topStrip(`דלת ${doorId}`, "דלת נפתחה")}
+          <div class="card finish-card">
+            <div class="summary-two-cards">
+              <div class="summary-image-card">
+                <div class="summary-creature">
+                  <img src="${getCreatureImage(door)}" alt="${summary.organism || door.creature || ''}"
+                    onerror="this.style.display='none'">
+                </div>
+              </div>
+              <div class="summary-text-card">
+                <h2 class="finish-title">${summary.title || "דלת נפתחה ✨"}</h2>
+                <ul class="finish-list">
+                  <li><strong>האורגניזם:</strong> ${summary.organism || door.creature || ""}</li>
+                  <li><strong>היכולת בטבע:</strong> ${summary.trait || ""}</li>
+                  <li><strong>ההשראה להמצאה:</strong> ${summary.innovation || ""}</li>
+                </ul>
+                <div class="actions">
+                  <button class="btn btn-primary" id="sback-${doorId}">חזרה לחדר הדלתות</button>
+                </div>
+              </div>
+            </div>
+          </div>`;
+      } else {
+        el.innerHTML = `
+          ${topStrip(`דלת ${doorId}`, "דלת נפתחה")}
+          <div class="card finish-card">
+            <div class="summary-creature">
+              <img src="${getCreatureImage(door)}" alt="${summary.organism || door.creature || ''}"
+                onerror="this.style.display='none'">
+            </div>
+            <h2 class="finish-title">${summary.title || "דלת נפתחה ✨"}</h2>
+            <ul class="finish-list">
+              <li><strong>האורגניזם:</strong> ${summary.organism || door.creature || ""}</li>
+              <li><strong>היכולת בטבע:</strong> ${summary.trait || ""}</li>
+              <li><strong>ההשראה להמצאה:</strong> ${summary.innovation || ""}</li>
+            </ul>
+            <div class="actions">
+              <button class="btn btn-primary" id="sback-${doorId}">חזרה לחדר הדלתות</button>
+            </div>
+          </div>`;
+      }
 
       document.getElementById(`sback-${doorId}`).onclick = () => {
         renderDoors();

@@ -16,102 +16,186 @@
       padding: 0;
     }
 
+    :root {
+      --bg-1: #151b52;
+      --bg-2: #4f2f80;
+      --bg-3: #b53b8f;
+      --card-bg: rgba(255, 255, 255, 0.12);
+      --card-border: rgba(255, 255, 255, 0.22);
+      --text-main: #ffffff;
+      --text-soft: rgba(255,255,255,0.90);
+      --text-faint: rgba(255,255,255,0.72);
+      --shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+    }
+
     body {
       font-family: 'Heebo', sans-serif;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
-      background:
-        radial-gradient(circle at top right, rgba(255,255,255,0.18), transparent 30%),
-        radial-gradient(circle at bottom left, rgba(255,255,255,0.12), transparent 25%),
-        linear-gradient(135deg, #1a1f4f 0%, #4b2f7f 45%, #b23a8a 100%);
-      overflow: hidden;
       position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 18% 78%, rgba(255,255,255,0.12), transparent 18%),
+        radial-gradient(circle at 82% 20%, rgba(255,255,255,0.10), transparent 20%),
+        radial-gradient(circle at 86% 74%, rgba(255,130,218,0.16), transparent 22%),
+        linear-gradient(135deg, var(--bg-1) 0%, var(--bg-2) 48%, var(--bg-3) 100%);
     }
 
+    /* הילות רקע */
     body::before,
     body::after {
       content: "";
       position: absolute;
       border-radius: 50%;
-      filter: blur(80px);
+      filter: blur(90px);
       opacity: 0.45;
       z-index: 0;
+      pointer-events: none;
     }
 
     body::before {
-      width: 260px;
-      height: 260px;
-      background: #7df9ff;
-      top: 8%;
-      right: 10%;
+      width: 340px;
+      height: 340px;
+      top: 5%;
+      right: 8%;
+      background: rgba(125, 249, 255, 0.55);
+      animation: driftOne 12s ease-in-out infinite;
     }
 
     body::after {
-      width: 300px;
-      height: 300px;
-      background: #ff8fd8;
-      bottom: 8%;
-      left: 8%;
+      width: 380px;
+      height: 380px;
+      bottom: 2%;
+      left: 5%;
+      background: rgba(255, 143, 216, 0.38);
+      animation: driftTwo 14s ease-in-out infinite;
     }
+
+    /* נצנוצים */
+    .sparkles {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .sparkles span {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.95);
+      box-shadow:
+        0 0 10px rgba(255,255,255,0.9),
+        0 0 20px rgba(125,249,255,0.45);
+      animation: twinkle 4.5s ease-in-out infinite;
+      opacity: 0.25;
+    }
+
+    .sparkles span:nth-child(1)  { top: 12%; right: 18%; animation-delay: 0s; }
+    .sparkles span:nth-child(2)  { top: 22%; right: 30%; width: 4px; height: 4px; animation-delay: 1.1s; }
+    .sparkles span:nth-child(3)  { top: 16%; left: 22%; animation-delay: 2.1s; }
+    .sparkles span:nth-child(4)  { top: 34%; left: 14%; width: 5px; height: 5px; animation-delay: 0.7s; }
+    .sparkles span:nth-child(5)  { top: 46%; right: 12%; animation-delay: 2.6s; }
+    .sparkles span:nth-child(6)  { top: 58%; left: 18%; width: 4px; height: 4px; animation-delay: 1.8s; }
+    .sparkles span:nth-child(7)  { top: 68%; right: 26%; animation-delay: 3.2s; }
+    .sparkles span:nth-child(8)  { top: 78%; left: 28%; width: 5px; height: 5px; animation-delay: 0.9s; }
+    .sparkles span:nth-child(9)  { top: 82%; right: 16%; animation-delay: 2.9s; }
+    .sparkles span:nth-child(10) { top: 28%; left: 42%; width: 4px; height: 4px; animation-delay: 1.4s; }
+    .sparkles span:nth-child(11) { top: 63%; left: 44%; animation-delay: 2.3s; }
+    .sparkles span:nth-child(12) { top: 40%; right: 40%; width: 5px; height: 5px; animation-delay: 3.6s; }
 
     .welcome-box {
       position: relative;
-      z-index: 1;
-      width: min(92vw, 360px);
-      padding: 30px 24px 24px;
-      border-radius: 28px;
-      background: rgba(255, 255, 255, 0.14);
-      border: 1px solid rgba(255, 255, 255, 0.22);
+      z-index: 2;
+      width: min(92vw, 460px);
+      padding: 36px 30px 28px;
+      border-radius: 32px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       backdrop-filter: blur(18px);
       -webkit-backdrop-filter: blur(18px);
       box-shadow:
-        0 20px 60px rgba(0, 0, 0, 0.28),
-        inset 0 1px 0 rgba(255,255,255,0.25);
+        var(--shadow),
+        inset 0 1px 0 rgba(255,255,255,0.28),
+        0 0 30px rgba(255,255,255,0.06);
       text-align: center;
-      animation: floatBox 4s ease-in-out infinite;
+      animation: floatBox 5s ease-in-out infinite;
+      overflow: hidden;
     }
 
-    @keyframes floatBox {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-6px); }
+    .welcome-box::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.08), transparent 45%, rgba(255,255,255,0.03));
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: 0.90rem;
+      font-weight: 700;
+      color: var(--text-faint);
+      letter-spacing: 0.6px;
+      margin-bottom: 10px;
     }
 
     .welcome-box h1 {
-      color: #ffffff;
-      font-size: 2rem;
+      color: var(--text-main);
+      font-size: 2.35rem;
       font-weight: 800;
-      margin-bottom: 8px;
-      text-shadow: 0 4px 18px rgba(0,0,0,0.25);
+      line-height: 1.1;
+      margin-bottom: 10px;
+      text-shadow: 0 4px 20px rgba(0,0,0,0.28);
+    }
+
+    .glow-line {
+      width: 96px;
+      height: 5px;
+      margin: 0 auto 18px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #7df9ff, #ffffff, #ff9adf);
+      box-shadow:
+        0 0 14px rgba(255,255,255,0.55),
+        0 0 24px rgba(125,249,255,0.22);
     }
 
     .welcome-box p {
-      color: rgba(255,255,255,0.9);
-      font-size: 0.98rem;
-      line-height: 1.5;
-      margin-bottom: 22px;
+      color: var(--text-soft);
+      font-size: 1.03rem;
+      line-height: 1.7;
+      margin-bottom: 24px;
+      padding: 0 6px;
     }
 
     .buttons {
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
 
     .buttons a {
       position: relative;
-      display: block;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
       text-decoration: none;
       color: #fff;
-      font-size: 1rem;
-      font-weight: 700;
-      padding: 13px 16px;
-      border-radius: 16px;
+      font-size: 1.06rem;
+      font-weight: 800;
+      padding: 15px 18px;
+      border-radius: 18px;
       overflow: hidden;
-      transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
-      box-shadow: 0 10px 22px rgba(0,0,0,0.18);
+      transition: transform 0.24s ease, box-shadow 0.24s ease, filter 0.24s ease;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.18);
       letter-spacing: 0.2px;
+      min-height: 60px;
     }
 
     .buttons a::before {
@@ -123,71 +207,167 @@
       pointer-events: none;
     }
 
-    .buttons a span {
-      position: relative;
-      z-index: 1;
+    .buttons a::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: -35%;
+      width: 36%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.22), transparent);
+      transform: skewX(-18deg);
+      transition: right 0.5s ease;
+      pointer-events: none;
     }
 
-    .btn-hebrew {
-      background: linear-gradient(135deg, #5b8cff, #3558ff);
-    }
-
-    .btn-arabic {
-      background: linear-gradient(135deg, #14c38e, #009f74);
-    }
-
-    .btn-kids {
-      background: linear-gradient(135deg, #ff8a3d, #ff4f81);
+    .buttons a:hover::after {
+      right: 110%;
     }
 
     .buttons a:hover {
       transform: translateY(-3px) scale(1.02);
-      box-shadow: 0 16px 30px rgba(0,0,0,0.25);
-      filter: brightness(1.05);
+      box-shadow: 0 18px 32px rgba(0,0,0,0.24);
+      filter: brightness(1.06);
     }
 
     .buttons a:active {
       transform: translateY(0) scale(0.99);
     }
 
-    .welcome-box .glow-line {
-      width: 72px;
-      height: 4px;
-      margin: 0 auto 16px;
-      border-radius: 999px;
-      background: linear-gradient(90deg, #7df9ff, #ffffff, #ff9adf);
-      box-shadow: 0 0 16px rgba(255,255,255,0.6);
+    .buttons a span {
+      position: relative;
+      z-index: 1;
     }
 
-    @media (max-width: 480px) {
+    .icon {
+      font-size: 1.2rem;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.14);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.18);
+      flex-shrink: 0;
+    }
+
+    .btn-hebrew {
+      background: linear-gradient(135deg, #6f9bff, #3558ff);
+    }
+
+    .btn-arabic {
+      background: linear-gradient(135deg, #24cda0, #009c78);
+    }
+
+    .btn-kids {
+      background: linear-gradient(135deg, #ff9f56, #ff4d83);
+    }
+
+    .footer-note {
+      margin-top: 18px;
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.66);
+    }
+
+    @keyframes floatBox {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-7px); }
+    }
+
+    @keyframes twinkle {
+      0%, 100% {
+        opacity: 0.18;
+        transform: scale(0.85);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.45);
+      }
+    }
+
+    @keyframes driftOne {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(-14px, 10px); }
+    }
+
+    @keyframes driftTwo {
+      0%, 100% { transform: translate(0, 0); }
+      50% { transform: translate(16px, -12px); }
+    }
+
+    @media (max-width: 520px) {
       .welcome-box {
-        padding: 24px 18px 20px;
-        border-radius: 24px;
+        width: min(92vw, 380px);
+        padding: 28px 18px 22px;
+        border-radius: 26px;
+      }
+
+      .eyebrow {
+        font-size: 0.82rem;
+        margin-bottom: 8px;
       }
 
       .welcome-box h1 {
-        font-size: 1.7rem;
+        font-size: 1.95rem;
+      }
+
+      .welcome-box p {
+        font-size: 0.96rem;
+        margin-bottom: 20px;
       }
 
       .buttons a {
-        font-size: 0.96rem;
-        padding: 12px 14px;
+        font-size: 0.98rem;
+        min-height: 56px;
+        padding: 13px 14px;
+      }
+
+      .icon {
+        width: 28px;
+        height: 28px;
+        font-size: 1.05rem;
+      }
+
+      .footer-note {
+        font-size: 0.82rem;
       }
     }
   </style>
 </head>
 <body>
 
+  <div class="sparkles">
+    <span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span>
+  </div>
+
   <div class="welcome-box">
+    <div class="eyebrow">כניסה למסלולים</div>
     <h1>ברוכים הבאים</h1>
     <div class="glow-line"></div>
-    <p>בחרו את המסלול המתאים והמשיכו לעמוד הרצוי</p>
+    <p>בחרו את המסלול המתאים כדי להתחיל ולהמשיך לעמוד הרצוי</p>
 
     <div class="buttons">
-      <a class="btn-hebrew" href="biohebrew.html"><span>חטיבה עברית</span></a>
-      <a class="btn-arabic" href="bioarab.html"><span>חטיבה ערבית</span></a>
-      <a class="btn-kids" href="bioplay.html"><span>יסודי</span></a>
+      <a class="btn-hebrew" href="biohebrew.html">
+        <span class="icon">📘</span>
+        <span>חטיבה (עברית)</span>
+      </a>
+
+      <a class="btn-arabic" href="bioarab.html">
+        <span class="icon">📗</span>
+        <span>חטיבה (ערבית)</span>
+      </a>
+
+      <a class="btn-kids" href="bioplay.html">
+        <span class="icon">✨</span>
+        <span>יסודי</span>
+      </a>
     </div>
+
+    <div class="footer-note">בחרו מסלול והמשיכו לעולם הפעילות</div>
   </div>
 
 </body>

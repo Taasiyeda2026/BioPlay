@@ -705,16 +705,64 @@
       padding: 0 2px;
     }
 
-    /* ── Summary creature image ── */
-    .summary-creature {
-      text-align: center;
-      margin-bottom: 20px;
+    /* ── Summary screen layout ── */
+    .summary-stage {
+      padding: 26px;
     }
 
-    .summary-creature img {
-      max-width: 200px;
-      max-height: 200px;
+    .summary-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 26px;
+      align-items: center;
+    }
+
+    .summary-image-panel {
+      background: rgba(0,0,0,.28);
+      border-radius: 24px;
+      padding: 20px;
+      display: grid;
+      place-items: center;
+      min-height: 420px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.05),
+        0 0 24px rgba(98,217,255,.12);
+    }
+
+    .summary-image-panel img {
+      width: 100%;
+      max-width: 420px;
+      max-height: 420px;
       object-fit: contain;
+      border-radius: 24px;
+      box-shadow:
+        0 0 28px rgba(98,217,255,.22),
+        0 0 60px rgba(136,243,185,.08);
+    }
+
+    .summary-info-panel {
+      background: rgba(6, 16, 44, 0.92);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 24px;
+      padding: 28px 30px;
+      box-shadow: 0 18px 40px rgba(0,0,0,.24);
+    }
+
+    .summary-lines {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+      margin-bottom: 26px;
+    }
+
+    .summary-lines p {
+      margin: 0;
+      font-size: clamp(1.15rem, 2vw, 1.6rem);
+      line-height: 1.8;
+    }
+
+    .summary-info-panel .actions {
+      justify-content: center;
     }
 
     /* ── Guide door count row ── */
@@ -855,31 +903,6 @@
       to { transform: rotate(360deg); }
     }
 
-    /* ── Door 3 summary two-card layout ── */
-    .summary-two-cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      align-items: stretch;
-    }
-
-    .summary-image-card,
-    .summary-text-card {
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.12);
-      border-radius: 18px;
-      padding: 20px;
-    }
-
-    .summary-image-card img {
-      width: 100%;
-      max-width: 320px;
-      max-height: 320px;
-      object-fit: contain;
-      display: block;
-      margin: 0 auto;
-    }
-
     /* ── Magic image effects ── */
     .question-visual {
       position: relative;
@@ -913,25 +936,6 @@
     .question-visual:hover img {
       filter: drop-shadow(0 6px 26px rgba(98,217,255,.34)) drop-shadow(0 0 14px rgba(136,243,185,.22));
       transform: scale(1.02);
-    }
-
-    .summary-creature {
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.92);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 28px;
-      animation: sparkleRing 4s ease-in-out infinite;
-    }
-
-    .summary-creature img {
-      max-width: 148px;
-      max-height: 148px;
-      object-fit: contain;
-      filter: drop-shadow(0 4px 12px rgba(0,0,0,.18));
     }
 
     /* Subtle cosmic sparkle overlay on images */
@@ -978,24 +982,6 @@
       }
     }
 
-    /* Sparkle ring animation for summary creature circle */
-    @keyframes sparkleRing {
-      0%, 100% {
-        box-shadow:
-          0 0 0 3px rgba(136,243,185,.32),
-          0 0 22px rgba(98,217,255,.34),
-          0 0 60px rgba(136,243,185,.14),
-          4px -4px 28px rgba(255,231,155,.12);
-      }
-      45% {
-        box-shadow:
-          0 0 0 4px rgba(255,231,155,.44),
-          0 0 28px rgba(255,231,155,.26),
-          0 0 60px rgba(98,217,255,.18),
-          -4px 4px 28px rgba(136,243,185,.15);
-      }
-    }
-
     @media (max-width: 900px) {
       .question-layout {
         grid-template-columns: 1fr;
@@ -1010,8 +996,17 @@
         flex-direction: column;
       }
 
-      .summary-two-cards {
+      .summary-layout {
         grid-template-columns: 1fr;
+      }
+
+      .summary-image-panel {
+        min-height: 300px;
+      }
+
+      .summary-image-panel img {
+        max-width: 280px;
+        max-height: 280px;
       }
     }
 
@@ -1098,8 +1093,7 @@
       .doors-card,
       .question-card,
       .finish-card,
-      .summary-image-card,
-      .summary-text-card,
+      .summary-stage,
       .code-panel,
       .codes-reminder {
         padding: 14px;
@@ -1129,17 +1123,6 @@
       .answer {
         padding: 12px 14px;
         min-height: 54px;
-      }
-
-      .summary-creature {
-        width: 150px;
-        height: 150px;
-        margin-bottom: 18px;
-      }
-
-      .summary-creature img {
-        max-width: 114px;
-        max-height: 114px;
       }
 
       .code-display-item {
@@ -1915,28 +1898,40 @@
     function renderDoorSummary(doorId) {
       ensureDoorSections(doorId);
       state.completedDoors.add(doorId);
-      const door    = getDoor(doorId);
+
+      const door = getDoor(doorId);
       if (!door) return;
+
       const summary = door.summary || {};
-      const el      = document.getElementById(`door-${doorId}-summary`);
+      const el = document.getElementById(`door-${doorId}-summary`);
 
       el.innerHTML = `
-        ${topStrip(`דלת ${doorId}`, "דלת נפתחה")}
-        <div class="card finish-card" style="text-align:center">
-          <div class="summary-creature">
-            <img src="${getCreatureImage(door)}" alt="${summary.organism || door.creature || ''}"
-              onerror="this.style.display='none'">
+        ${topStrip(`דלת ${doorId} נפתחה`, "")}
+        <div class="card finish-card summary-stage">
+          <div class="summary-layout">
+            <div class="summary-image-panel">
+              <img
+                src="${getCreatureImage(door)}"
+                alt="${summary.organism || door.creature || ''}"
+                onerror="this.style.display='none'">
+            </div>
+
+            <div class="summary-info-panel">
+              <h2 class="finish-title">${summary.title || `דלת ${doorId} נפתחה`}</h2>
+
+              <div class="summary-lines">
+                <p><strong>האורגניזם:</strong> ${summary.organism || door.creature || ""}</p>
+                <p><strong>היכולת בטבע:</strong> ${summary.trait || ""}</p>
+                <p><strong>ההשראה להמצאה:</strong> ${summary.innovation || ""}</p>
+              </div>
+
+              <div class="actions">
+                <button class="btn btn-primary" id="sback-${doorId}">חזרה לחדר הדלתות</button>
+              </div>
+            </div>
           </div>
-          <h2 class="finish-title">${summary.title || "דלת נפתחה ✨"}</h2>
-          <ul class="finish-list" style="display:inline-block; text-align:right">
-            <li><strong>האורגניזם:</strong> ${summary.organism || door.creature || ""}</li>
-            <li><strong>היכולת בטבע:</strong> ${summary.trait || ""}</li>
-            <li><strong>ההשראה להמצאה:</strong> ${summary.innovation || ""}</li>
-          </ul>
-          <div class="actions" style="justify-content:center; margin-top:20px">
-            <button class="btn btn-primary" id="sback-${doorId}">חזרה לחדר הדלתות</button>
-          </div>
-        </div>`;
+        </div>
+      `;
 
       document.getElementById(`sback-${doorId}`).onclick = () => {
         renderDoors();

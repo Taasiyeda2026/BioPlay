@@ -892,20 +892,25 @@
     }
 
     .summary-creature {
-      position: relative;
-      background: radial-gradient(ellipse at 50% 55%, rgba(136,243,185,.08), rgba(98,217,255,.04), transparent 70%);
-      border: 1px solid rgba(136,243,185,.20);
-      border-radius: 18px;
-      padding: 16px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.92);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
       box-shadow:
-        0 0 24px rgba(98,217,255,.10),
-        inset 0 0 16px rgba(136,243,185,.04);
+        0 0 0 3px rgba(136,243,185,.28),
+        0 0 40px rgba(98,217,255,.30),
+        0 0 80px rgba(136,243,185,.12);
     }
 
     .summary-creature img {
-      filter: drop-shadow(0 4px 18px rgba(98,217,255,.24)) drop-shadow(0 0 8px rgba(136,243,185,.16));
-      max-width: 220px;
-      max-height: 220px;
+      max-width: 148px;
+      max-height: 148px;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,.18));
     }
 
     /* Subtle cosmic sparkle overlay on images */
@@ -1655,49 +1660,23 @@
       const summary = door.summary || {};
       const el      = document.getElementById(`door-${doorId}-summary`);
 
-      if (doorId === 3) {
-        el.innerHTML = `
-          ${topStrip(`דלת ${doorId}`, "דלת נפתחה")}
-          <div class="card finish-card">
-            <div class="summary-two-cards">
-              <div class="summary-image-card">
-                <div class="summary-creature">
-                  <img src="${getCreatureImage(door)}" alt="${summary.organism || door.creature || ''}"
-                    onerror="this.style.display='none'">
-                </div>
-              </div>
-              <div class="summary-text-card">
-                <h2 class="finish-title">${summary.title || "דלת נפתחה ✨"}</h2>
-                <ul class="finish-list">
-                  <li><strong>האורגניזם:</strong> ${summary.organism || door.creature || ""}</li>
-                  <li><strong>היכולת בטבע:</strong> ${summary.trait || ""}</li>
-                  <li><strong>ההשראה להמצאה:</strong> ${summary.innovation || ""}</li>
-                </ul>
-                <div class="actions">
-                  <button class="btn btn-primary" id="sback-${doorId}">חזרה לחדר הדלתות</button>
-                </div>
-              </div>
-            </div>
-          </div>`;
-      } else {
-        el.innerHTML = `
-          ${topStrip(`דלת ${doorId}`, "דלת נפתחה")}
-          <div class="card finish-card">
-            <div class="summary-creature">
-              <img src="${getCreatureImage(door)}" alt="${summary.organism || door.creature || ''}"
-                onerror="this.style.display='none'">
-            </div>
-            <h2 class="finish-title">${summary.title || "דלת נפתחה ✨"}</h2>
-            <ul class="finish-list">
-              <li><strong>האורגניזם:</strong> ${summary.organism || door.creature || ""}</li>
-              <li><strong>היכולת בטבע:</strong> ${summary.trait || ""}</li>
-              <li><strong>ההשראה להמצאה:</strong> ${summary.innovation || ""}</li>
-            </ul>
-            <div class="actions">
-              <button class="btn btn-primary" id="sback-${doorId}">חזרה לחדר הדלתות</button>
-            </div>
-          </div>`;
-      }
+      el.innerHTML = `
+        ${topStrip(`דלת ${doorId}`, "דלת נפתחה")}
+        <div class="card finish-card" style="text-align:center">
+          <div class="summary-creature">
+            <img src="${getCreatureImage(door)}" alt="${summary.organism || door.creature || ''}"
+              onerror="this.style.display='none'">
+          </div>
+          <h2 class="finish-title">${summary.title || "דלת נפתחה ✨"}</h2>
+          <ul class="finish-list" style="display:inline-block; text-align:right">
+            <li><strong>האורגניזם:</strong> ${summary.organism || door.creature || ""}</li>
+            <li><strong>היכולת בטבע:</strong> ${summary.trait || ""}</li>
+            <li><strong>ההשראה להמצאה:</strong> ${summary.innovation || ""}</li>
+          </ul>
+          <div class="actions" style="justify-content:center; margin-top:20px">
+            <button class="btn btn-primary" id="sback-${doorId}">חזרה לחדר הדלתות</button>
+          </div>
+        </div>`;
 
       document.getElementById(`sback-${doorId}`).onclick = () => {
         renderDoors();

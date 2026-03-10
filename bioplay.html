@@ -115,8 +115,8 @@
       inset: 0;
       z-index: -2;
       background:
-        radial-gradient(circle at 50% 28%, rgba(136,243,185,.12), transparent 25%),
-        linear-gradient(180deg, rgba(4,9,20,.18), rgba(4,9,20,.64));
+        radial-gradient(circle at 50% 28%, rgba(136,243,185,.08), transparent 25%),
+        linear-gradient(180deg, rgba(4,9,20,.05), rgba(4,9,20,.28));
     }
 
     .hero-particles {
@@ -140,10 +140,10 @@
     .hero-box {
       width: min(920px, 94%);
       padding: clamp(10px, 1.5vw, 16px) clamp(14px, 2vw, 22px);
-      background: rgba(5, 11, 24, .32);
-      border: 1px solid rgba(255,255,255,.09);
+      background: rgba(5, 11, 24, .14);
+      border: 1px solid rgba(255,255,255,.07);
       border-radius: 16px;
-      backdrop-filter: blur(4px);
+      backdrop-filter: blur(2px);
       text-align: center;
       display: grid;
       gap: 10px;
@@ -1102,8 +1102,9 @@
               </div>
               <div class="doors-count-row">
                 <span class="doors-count-label">מספר דלתות:</span>
-                <input type="range" id="doors-count-slider" min="10" max="27" value="${state.doorsCount}">
-                <span class="doors-count-value" id="doors-count-display">${state.doorsCount}</span>
+                <select id="doors-count-select" class="input" style="flex:1;min-height:44px;text-transform:none">
+                  ${Array.from({length:26},(_,i)=>i+2).map(n=>`<option value="${n}"${n===state.doorsCount?" selected":""}>${n}</option>`).join("")}
+                </select>
               </div>
               <p class="feedback" id="guide-feedback"></p>
             </div>
@@ -1121,13 +1122,7 @@
       const guideModal    = document.getElementById("guide-modal");
       const guideInput    = document.getElementById("guide-code-input");
       const guideFeedback = document.getElementById("guide-feedback");
-      const slider        = document.getElementById("doors-count-slider");
-      const sliderDisplay = document.getElementById("doors-count-display");
-
-      // Update max of slider to actual doors available
-      slider.max = Math.max(27, state.doorsData.length || 10);
-
-      slider.addEventListener("input", () => { sliderDisplay.textContent = slider.value; });
+      const doorsSelect   = document.getElementById("doors-count-select");
 
       // Triple-tap logo → open guide modal
       document.getElementById("logo-trigger").addEventListener("click", () => {
@@ -1136,8 +1131,7 @@
         state.logoTapResetTimer = setTimeout(() => { state.logoTapCount = 0; }, 1400);
         if (state.logoTapCount >= 3) {
           state.logoTapCount = 0;
-          slider.value = state.doorsCount;
-          sliderDisplay.textContent = state.doorsCount;
+          doorsSelect.value     = state.doorsCount;
           guideFeedback.textContent = "";
           guideFeedback.className   = "feedback";
           guideInput.value = "";
@@ -1151,7 +1145,7 @@
         if (e.target === guideModal) guideModal.classList.remove("active");
       });
 
-      document.getElementById("guide-start-btn").onclick = async () => {
+      const activateGame = async () => {
         const code = guideInput.value.trim();
         if (!code) {
           guideFeedback.textContent = "יש להזין קוד לפני הפעלה.";
@@ -1163,8 +1157,8 @@
           const ok = result?.success === true || result?.ok === true
                   || result?.status === "started" || result?.result === "started";
           if (ok) {
-            const chosen = parseInt(slider.value) || 10;
-            state.doorsCount = Math.max(10, Math.min(chosen, Math.max(27, state.doorsData.length)));
+            const chosen = parseInt(doorsSelect.value) || 2;
+            state.doorsCount = Math.max(2, Math.min(chosen, Math.max(27, state.doorsData.length)));
             applyGameStatus("started");
             guideFeedback.textContent = `המשחק הופעל • ${state.doorsCount} דלתות`;
             guideFeedback.className   = "feedback success";
@@ -1181,6 +1175,9 @@
           guideFeedback.className   = "feedback error";
         }
       };
+
+      document.getElementById("guide-start-btn").onclick = activateGame;
+      guideInput.addEventListener("keydown", e => { if (e.key === "Enter") activateGame(); });
 
       document.getElementById("start-btn")?.addEventListener("click", startMainCountdown);
       updateHomeStatusUI();

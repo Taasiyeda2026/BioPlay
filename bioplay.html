@@ -1006,16 +1006,212 @@
         align-items: flex-start;
       }
 
-      .btn {
-        width: 100%;
-      }
-
       .code-row {
         flex-direction: column;
       }
 
       .summary-two-cards {
         grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      html, body {
+        overflow-x: hidden;
+      }
+
+      body {
+        padding: 8px;
+        zoom: 100%;
+      }
+
+      .app,
+      .screen {
+        min-height: calc(100vh - 16px);
+      }
+
+      .screen {
+        padding: 12px;
+      }
+
+      .top-strip {
+        padding: 10px 12px;
+        gap: 6px;
+        font-size: .95rem;
+      }
+
+      .hero {
+        min-height: calc(100vh - 94px);
+      }
+
+      .hero-box {
+        width: 100%;
+        padding: 12px;
+      }
+
+      .logo-wrap {
+        min-height: 84px;
+      }
+
+      .logo {
+        width: min(220px, 72vw);
+        max-height: 80px;
+      }
+
+      .lead,
+      .question-text,
+      .summary-list,
+      .finish-list {
+        line-height: 1.6;
+      }
+
+      .instruction-layer .lead {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+      }
+
+      .wait-message {
+        width: 100%;
+        padding: 10px 12px;
+      }
+
+      .btn,
+      .btn-next {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .actions {
+        gap: 8px;
+      }
+
+      .modal-card {
+        width: 100%;
+        padding: 16px;
+      }
+
+      .input {
+        flex-basis: 100%;
+        max-width: 100%;
+      }
+
+      .doors-card,
+      .question-card,
+      .finish-card,
+      .summary-image-card,
+      .summary-text-card,
+      .code-panel,
+      .codes-reminder {
+        padding: 14px;
+      }
+
+      .door-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .door-title {
+        font-size: 1.15rem;
+      }
+
+      .question-layout {
+        gap: 14px;
+      }
+
+      .question-visual {
+        min-height: 210px;
+      }
+
+      .question-visual img {
+        max-width: min(240px, 90%);
+      }
+
+      .answer {
+        padding: 12px 14px;
+        min-height: 54px;
+      }
+
+      .summary-creature {
+        width: 150px;
+        height: 150px;
+        margin-bottom: 18px;
+      }
+
+      .summary-creature img {
+        max-width: 114px;
+        max-height: 114px;
+      }
+
+      .code-display-item {
+        flex-wrap: wrap;
+        row-gap: 4px;
+      }
+
+      .code-text {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+      }
+
+      .video-frame {
+        width: 100%;
+        border-radius: 16px;
+      }
+
+      .video-caption {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .screen {
+        padding: 10px;
+      }
+
+      .doors-count-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+
+      .doors-count-select {
+        width: 100%;
+        max-width: 100%;
+        flex: 1 1 auto;
+      }
+
+      .countdown-box {
+        padding: 14px;
+      }
+
+      .countdown-label {
+        font-size: 1rem;
+      }
+
+      .answers {
+        gap: 10px;
+      }
+
+      .code-middle {
+        letter-spacing: .01em;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .doors-title,
+      .section-title,
+      .question-title,
+      .finish-title,
+      .modal-title {
+        font-size: 1.62rem;
+      }
+
+      .title {
+        font-size: clamp(1.7rem, 10vw, 2.1rem);
+      }
+
+      .code-text {
+        font-size: 1.1em;
+        letter-spacing: .06em;
       }
     }
   </style>

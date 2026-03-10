@@ -239,7 +239,7 @@
       display: none;
       place-items: center;
       z-index: 10;
-      background: var(--bg);
+      background: var(--bg) url('images/game-intro.svg') center / cover no-repeat;
     }
 
     .countdown.active {
@@ -1404,7 +1404,7 @@
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
-              <img src="${getDoorImage(doorId)}" alt="דלת ${doorId}" onerror="this.style.display='none'">
+              <img src="images/q.png" alt="נחשו מי?" onerror="this.style.display='none'">
             </div>
             <div>
               <h2 class="question-title">מתכוננים לדלת ${doorId}</h2>

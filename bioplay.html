@@ -721,14 +721,39 @@
     .doors-count-row {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       margin-top: 14px;
     }
 
     .doors-count-label {
       color: var(--muted);
-      font-size: 1rem;
+      font-size: .95rem;
       white-space: nowrap;
+    }
+
+    .doors-count-select {
+      flex: 0 0 86px;
+      width: 86px;
+      min-height: 36px;
+      max-width: 86px;
+      border-radius: 10px;
+      font-size: .92rem;
+      padding: 4px 28px 4px 8px;
+      line-height: 1.2;
+      text-transform: none;
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+        linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+      background-position:
+        calc(100% - 14px) calc(50% - 2px),
+        calc(100% - 9px) calc(50% - 2px);
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+
+    .doors-count-select option {
+      font-size: .92rem;
     }
 
     .doors-count-value {
@@ -1032,7 +1057,7 @@
       logoTapResetTimer:   null,
       completedDoors:      new Set(),
       doorsData:           [],   // loaded from doors.json
-      doorsCount:          10,   // guide can set 10–27
+      doorsCount:          5,    // default when no prior selection
       stepCodesEntered:    {},   // { doorId: [code1, code2, code3] }
       selectedAnswers:     {},   // { doorId: { stepIndex: selectedOption } }
     };
@@ -1252,7 +1277,7 @@
               </div>
               <div class="doors-count-row">
                 <span class="doors-count-label">מספר דלתות:</span>
-                <select id="doors-count-select" class="input" style="flex:1;min-height:44px;text-transform:none">
+                <select id="doors-count-select" class="input doors-count-select">
                   ${Array.from({length:26},(_,i)=>i+2).map(n=>`<option value="${n}"${n===state.doorsCount?" selected":""}>${n}</option>`).join("")}
                 </select>
               </div>
@@ -1307,7 +1332,7 @@
           const ok = result?.success === true || result?.ok === true
                   || result?.status === "started" || result?.result === "started";
           if (ok) {
-            const chosen = parseInt(doorsSelect.value) || 2;
+            const chosen = parseInt(doorsSelect.value, 10) || 5;
             state.doorsCount = Math.max(2, Math.min(chosen, Math.max(27, state.doorsData.length)));
             applyGameStatus("started");
             guideFeedback.textContent = `המשחק הופעל • ${state.doorsCount} דלתות`;

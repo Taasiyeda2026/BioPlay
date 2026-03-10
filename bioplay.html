@@ -1474,7 +1474,7 @@
       if (!step) return;
       const el = document.getElementById(`door-${doorId}-step-${stepIndex}`);
 
-      const questionImage = doorId === 1 ? "images/q.png" : getCreatureImage(door);
+      const questionImage = stepIndex === 1 ? "images/q.png" : getCreatureImage(door);
 
       el.innerHTML = `
         ${topStrip(`דלת ${doorId}`, `שלב ${stepIndex} מתוך 3`)}

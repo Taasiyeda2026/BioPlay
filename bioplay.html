@@ -1428,7 +1428,18 @@
     function buildSelectedDoors() {
       const max = Math.min(state.doorsCount, state.doorsData.length);
       const shuffled = shuffleArray(state.doorsData);
-      state.selectedDoors = shuffled.slice(0, max);
+      state.selectedDoors = shuffled.slice(0, max).map((door, index) => ({
+        ...door,
+        displayNumber: index + 1,
+      }));
+    }
+
+    function getSelectedDoor(doorId) {
+      return state.selectedDoors.find(d => d.id === doorId);
+    }
+
+    function getDoorDisplayNumber(doorId) {
+      return getSelectedDoor(doorId)?.displayNumber ?? doorId;
     }
 
     // ── Screen transition ────────────────────────────────────
@@ -1737,11 +1748,11 @@
 
       const cards = visible.map(door => `
         <article class="door-card">
-          <div class="door-title">דלת ${door.id}</div>
+          <div class="door-title">דלת ${door.displayNumber}</div>
           <div class="door-image-wrap">
             <img class="door-image"
               src="${getDoorImage(door.id)}"
-              alt="דלת ${door.id}"
+              alt="דלת ${door.displayNumber}"
               onerror="this.onerror=null;this.src='${ASSETS.doorFallback}'">
             <div class="door-footer">
               <button class="btn btn-primary" data-door="${door.id}">התחל</button>
@@ -1804,17 +1815,18 @@
       ensureDoorSections(doorId);
       const door = getDoor(doorId);
       if (!door) return;
+      const displayNumber = getDoorDisplayNumber(doorId);
       const el = document.getElementById(`door-${doorId}-intro`);
 
       el.innerHTML = `
-        ${topStrip(`דלת ${doorId}`, "שלב הכנה")}
+        ${topStrip(`דלת ${displayNumber}`, "שלב הכנה")}
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
               <img src="images/q.png" alt="נחשו מי?" onerror="this.style.display='none'">
             </div>
             <div>
-              <h2 class="question-title">מתכוננים לדלת ${doorId}</h2>
+              <h2 class="question-title">מתכוננים לדלת ${displayNumber}</h2>
               <p class="question-text">${nl(door.intro)}</p>
               <div class="actions">
                 <button class="btn btn-primary" id="intro-go-${doorId}">התחל שלב 1</button>
@@ -1833,6 +1845,7 @@
       ensureDoorSections(doorId);
       const door = getDoor(doorId);
       if (!door) return;
+      const displayNumber = getDoorDisplayNumber(doorId);
       const step = door.steps[stepIndex - 1];
       if (!step) return;
       const el = document.getElementById(`door-${doorId}-step-${stepIndex}`);
@@ -1840,7 +1853,7 @@
       const questionImage = stepIndex === 1 ? "images/q.png" : getCreatureImage(door);
 
       el.innerHTML = `
-        ${topStrip(`דלת ${doorId}`, `שלב ${stepIndex} מתוך 3`)}
+        ${topStrip(`דלת ${displayNumber}`, `שלב ${stepIndex} מתוך 3`)}
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
@@ -1885,12 +1898,13 @@
       ensureDoorSections(doorId);
       const door = getDoor(doorId);
       if (!door) return;
+      const displayNumber = getDoorDisplayNumber(doorId);
       const step         = door.steps[codeStage - 1];
       const expectedCode = String((step && step.code) || "");
       const el           = document.getElementById(`door-${doorId}-code-${codeStage}`);
 
       el.innerHTML = `
-        ${topStrip(`דלת ${doorId}`, `שער קוד ${codeStage} מתוך 3`)}
+        ${topStrip(`דלת ${displayNumber}`, `שער קוד ${codeStage} מתוך 3`)}
         <div class="card question-card">
           <div class="question-layout">
             <div class="question-visual">
@@ -1962,12 +1976,13 @@
       ensureDoorSections(doorId);
       const door      = getDoor(doorId);
       if (!door) return;
+      const displayNumber = getDoorDisplayNumber(doorId);
       const step      = door.steps[stepIndex - 1] || {};
       const isLast    = stepIndex === 3;
       const el        = document.getElementById(`door-${doorId}-confirm-${stepIndex}`);
 
       el.innerHTML = `
-        ${topStrip(`דלת ${doorId}`, `שלב ${stepIndex} הושלם`)}
+        ${topStrip(`דלת ${displayNumber}`, `שלב ${stepIndex} הושלם`)}
         <div class="card question-card">
           <div class="confirm-box">
             <div class="confirm-icon">🎉</div>
@@ -1994,12 +2009,13 @@
       ensureDoorSections(doorId);
       const door  = getDoor(doorId);
       if (!door) return;
+      const displayNumber = getDoorDisplayNumber(doorId);
       const finalLock = door.finalLock || {};
       const codes = state.stepCodesEntered[doorId] || [];
       const el    = document.getElementById(`door-${doorId}-final-lock`);
 
       el.innerHTML = `
-        ${topStrip(`דלת ${doorId}`, "מנעול אחרון")}
+        ${topStrip(`דלת ${displayNumber}`, "מנעול אחרון")}
         <div class="card question-card">
           <h2 class="question-title">${finalLock.title || "המנעול האחרון 🔐"}</h2>
           <p class="question-text">${nl(finalLock.text || "אספתם שלושה קודי מעבר...")}</p>
@@ -2060,12 +2076,13 @@
 
       const door = getDoor(doorId);
       if (!door) return;
+      const displayNumber = getDoorDisplayNumber(doorId);
 
       const summary = door.summary || {};
       const el = document.getElementById(`door-${doorId}-summary`);
 
       el.innerHTML = `
-        ${topStrip(`דלת ${doorId} נפתחה`, "")}
+        ${topStrip(`דלת ${displayNumber} נפתחה`, "")}
         <div class="card finish-card summary-stage">
           <div class="summary-layout">
             <div class="summary-image-panel">
@@ -2076,7 +2093,7 @@
             </div>
 
             <div class="summary-info-panel">
-              <h2 class="finish-title">${summary.title || `דלת ${doorId} נפתחה`}</h2>
+              <h2 class="finish-title">${summary.title || `דלת ${displayNumber} נפתחה`}</h2>
 
               <div class="summary-lines">
                 <p><strong>האורגניזם:</strong> ${summary.organism || door.creature || ""}</p>

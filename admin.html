@@ -1,1 +1,793 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>פאנל בקרת מדריך – BioPlay</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #07111f;
+      --bg-2:    #13284a;
+      --panel:   rgba(9, 19, 42, 0.92);
+      --text:    #eef5ff;
+      --muted:   #c4d4ef;
+      --accent:  #62d9ff;
+      --accent-2:#88f3b9;
+      --danger:  #ff91a8;
+      --warning: #ffd985;
+      --border:  rgba(255,255,255,.16);
+      --radius:  18px;
+      --ease:    250ms ease;
+    }
 
+    * { box-sizing: border-box; font-family: "Assistant", Arial, sans-serif; }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 18% 8%,  rgba(98,217,255,.18),  transparent 26%),
+        radial-gradient(circle at 82% 12%, rgba(136,243,185,.12), transparent 24%),
+        linear-gradient(160deg, var(--bg-2), var(--bg));
+      color: var(--text);
+      padding: 20px 16px 40px;
+    }
+
+    .container {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    /* ── Page header ─────────────────────────────────────── */
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .page-header img {
+      height: 52px;
+      object-fit: contain;
+    }
+
+    .page-title {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--warning);
+      text-shadow: 0 0 14px rgba(255,215,133,.3);
+      margin: 0;
+    }
+
+    .page-subtitle {
+      font-size: .95rem;
+      color: var(--muted);
+      margin: 2px 0 0;
+    }
+
+    /* ── Card ────────────────────────────────────────────── */
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 12px 32px rgba(0,0,0,.28);
+    }
+
+    .card-title {
+      font-size: 1.25rem;
+      font-weight: 800;
+      margin: 0 0 16px;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ── Buttons ─────────────────────────────────────────── */
+    .btn {
+      border: none;
+      border-radius: 12px;
+      min-height: 44px;
+      padding: 10px 22px;
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform var(--ease), filter var(--ease), box-shadow var(--ease);
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+      box-shadow: 0 8px 20px rgba(0,0,0,.3);
+    }
+
+    .btn:active:not(:disabled) { transform: scale(.97); }
+    .btn:disabled { opacity: .55; cursor: not-allowed; }
+
+    .btn-primary   { background: linear-gradient(135deg, var(--accent),  #29baff); color: #03111d; }
+    .btn-danger    { background: linear-gradient(135deg, #ff5e7a, #c83455); color: #fff; }
+    .btn-secondary { background: #26345e; color: var(--text); border: 1px solid var(--border); }
+    .btn-sm        { min-height: 34px; padding: 6px 14px; font-size: .88rem; }
+
+    /* ── Inputs ──────────────────────────────────────────── */
+    .input {
+      width: 100%;
+      min-height: 44px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: #0d1732;
+      color: var(--text);
+      padding: 8px 14px;
+      font-size: 1rem;
+      transition: border-color var(--ease);
+    }
+
+    .input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(98,217,255,.14);
+    }
+
+    .input-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .input-row .input { flex: 1; min-width: 180px; }
+
+    /* ── Feedback ────────────────────────────────────────── */
+    .feedback {
+      min-height: 26px;
+      margin-top: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .feedback.success { color: var(--accent-2); }
+    .feedback.error   { color: var(--danger);   }
+    .feedback.info    { color: var(--muted);     }
+
+    /* ── Status badge ────────────────────────────────────── */
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .status-badge.waiting {
+      background: rgba(255,217,133,.12);
+      color: var(--warning);
+      border: 1px solid rgba(255,217,133,.28);
+    }
+
+    .status-badge.started {
+      background: rgba(136,243,185,.12);
+      color: var(--accent-2);
+      border: 1px solid rgba(136,243,185,.28);
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1;  transform: scale(1); }
+      50%       { opacity: .3; transform: scale(.85); }
+    }
+
+    /* ── Controls row ────────────────────────────────────── */
+    .controls-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    /* ── Door count ──────────────────────────────────────── */
+    .count-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .count-label {
+      color: var(--muted);
+      font-size: .95rem;
+      white-space: nowrap;
+    }
+
+    .count-select {
+      width: 82px;
+      min-height: 38px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.22);
+      background: #0d1732;
+      color: var(--text);
+      padding: 4px 8px;
+      font-size: .95rem;
+      cursor: pointer;
+    }
+
+    .count-value {
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 1.1rem;
+    }
+
+    /* ── Divider ─────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 8px 0 18px;
+    }
+
+    /* ── Organism list ───────────────────────────────────── */
+    .search-row {
+      margin-bottom: 16px;
+    }
+
+    .org-item {
+      border: 1px solid rgba(98,217,255,.22);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      overflow: hidden;
+      transition: border-color var(--ease);
+    }
+
+    .org-item:hover {
+      border-color: rgba(98,217,255,.4);
+    }
+
+    .org-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 13px 18px;
+      cursor: pointer;
+      background: rgba(98,217,255,.05);
+      transition: background var(--ease);
+      user-select: none;
+    }
+
+    .org-header:hover {
+      background: rgba(98,217,255,.11);
+    }
+
+    .org-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .org-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(98,217,255,.14);
+      color: var(--accent);
+      font-size: .82rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .org-name {
+      font-weight: 800;
+      font-size: 1.08rem;
+    }
+
+    .org-toggle {
+      font-size: 1.1rem;
+      color: var(--accent);
+      transition: transform .25s ease;
+      flex-shrink: 0;
+    }
+
+    .org-item.open .org-toggle {
+      transform: rotate(180deg);
+    }
+
+    .org-body {
+      display: none;
+      padding: 16px 18px;
+      background: rgba(4,10,26,.65);
+    }
+
+    .org-item.open .org-body {
+      display: block;
+    }
+
+    /* ── Code table ──────────────────────────────────────── */
+    .code-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .96rem;
+    }
+
+    .code-table th {
+      text-align: right;
+      padding: 6px 10px;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: .88rem;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      white-space: nowrap;
+    }
+
+    .code-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.05);
+      vertical-align: middle;
+    }
+
+    .code-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .step-label {
+      color: var(--muted);
+      font-size: .9rem;
+      white-space: nowrap;
+    }
+
+    .step-title-cell {
+      color: var(--text);
+      font-size: .92rem;
+      line-height: 1.4;
+    }
+
+    .code-val {
+      display: inline-block;
+      font-family: "Courier New", monospace;
+      font-size: 1.15em;
+      letter-spacing: .12em;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(98,217,255,.1);
+      padding: 3px 12px;
+      border-radius: 8px;
+      min-width: 56px;
+      text-align: center;
+    }
+
+    .code-val.final {
+      color: var(--warning);
+      background: rgba(255,217,133,.12);
+      border: 1px solid rgba(255,217,133,.2);
+    }
+
+    /* ── Expand-all row ──────────────────────────────────── */
+    .list-controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 600px) {
+      body { padding: 10px 10px 30px; }
+
+      .page-title { font-size: 1.4rem; }
+
+      .controls-row { gap: 8px; }
+      .controls-row .btn { flex: 1 1 auto; }
+
+      .code-table th:nth-child(2),
+      .code-table td:nth-child(2) { display: none; }
+
+      .card { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <!-- ── Page header ──────────────────────────────────── -->
+    <div class="page-header">
+      <img src="images/logo.svg" alt="BioPlay לוגו" onerror="this.style.display='none'">
+      <div>
+        <h1 class="page-title">🎛️ פאנל בקרת מדריך</h1>
+        <p class="page-subtitle">BioPlay – דלתות הטבע</p>
+      </div>
+    </div>
+
+    <!-- ── LOGIN SECTION ────────────────────────────────── -->
+    <div id="login-section" class="card">
+      <h2 class="card-title">🔑 כניסת מדריך</h2>
+      <p style="color:var(--muted);margin:0 0 16px;line-height:1.7">
+        הזינו את קוד המדריך כדי לגשת לפאנל הבקרה.
+      </p>
+      <div class="input-row">
+        <input id="login-code" class="input" type="password"
+               placeholder="קוד מדריך" autocomplete="off">
+        <button id="login-btn" class="btn btn-primary" style="min-width:110px">כניסה</button>
+      </div>
+      <p class="feedback" id="login-feedback"></p>
+    </div>
+
+    <!-- ── CONTROL PANEL (after login) ─────────────────── -->
+    <div id="control-panel" class="hidden">
+
+      <!-- Game status & controls -->
+      <div class="card">
+        <h2 class="card-title">🎮 שליטה במשחק</h2>
+
+        <div class="status-row">
+          <span class="count-label">מצב:</span>
+          <span id="status-badge" class="status-badge waiting">
+            <span class="status-dot"></span>
+            <span id="status-text">ממתין להפעלה</span>
+          </span>
+        </div>
+
+        <div class="controls-row">
+          <button id="activate-btn" class="btn btn-primary">▶ הפעל משחק</button>
+          <button id="reset-btn"   class="btn btn-danger">⏹ אפס / נעל משחק</button>
+        </div>
+
+        <div class="divider" style="margin-top:18px"></div>
+
+        <div class="count-row">
+          <span class="count-label">מספר דלתות:</span>
+          <select id="doors-count-select" class="count-select" title="בחרו מספר דלתות"></select>
+          <span id="count-value" class="count-value"></span>
+        </div>
+
+        <p class="feedback" id="action-feedback"></p>
+      </div>
+
+      <!-- Logout -->
+      <div style="display:flex;justify-content:flex-start;margin-bottom:20px">
+        <button id="logout-btn" class="btn btn-secondary btn-sm">יציאה</button>
+      </div>
+
+      <!-- Organism reference list -->
+      <div class="card">
+        <h2 class="card-title">📋 מדריך קודי אורגניזמים</h2>
+        <p style="color:var(--muted);margin:0 0 16px;font-size:.95rem;line-height:1.65">
+          לחצו על שם האורגניזם לצפייה בכל קודי המעברים שלו.
+        </p>
+
+        <div class="search-row">
+          <input id="search-input" class="input" type="search"
+                 placeholder="🔍  חיפוש אורגניזם..."
+                 style="max-width:340px">
+        </div>
+
+        <div class="list-controls">
+          <button id="expand-all-btn"   class="btn btn-secondary btn-sm">פתח הכל</button>
+          <button id="collapse-all-btn" class="btn btn-secondary btn-sm">סגור הכל</button>
+        </div>
+
+        <div id="organisms-list">
+          <p style="color:var(--muted)">טוען נתונים...</p>
+        </div>
+      </div>
+
+    </div><!-- /control-panel -->
+  </div><!-- /container -->
+
+  <script>
+    const APPS_SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbxShbtJpFPOl8Jx7T73irGuJdXXc1M469UZNbFf3ByQ1ZSfoRZdvZHwEb2m6QHv26513Q/exec";
+    const GAME_ID          = "main_game";
+    const POLL_INTERVAL_MS = 4000;
+    const SESSION_KEY      = "bioplay_admin_code";
+    const DOORS_COUNT_KEY  = "bioplay_doors_count";
+
+    let adminCode        = "";
+    let pollTimer        = null;
+    let currentDoorsCount = parseInt(localStorage.getItem(DOORS_COUNT_KEY), 10) || 5;
+    if (currentDoorsCount < 2) currentDoorsCount = 5;
+
+    // ── DOM refs ──────────────────────────────────────────────
+    const loginSection   = document.getElementById("login-section");
+    const controlPanel   = document.getElementById("control-panel");
+    const loginCodeInput = document.getElementById("login-code");
+    const loginFeedback  = document.getElementById("login-feedback");
+    const loginBtn       = document.getElementById("login-btn");
+    const statusBadge    = document.getElementById("status-badge");
+    const statusText     = document.getElementById("status-text");
+    const actionFeedback = document.getElementById("action-feedback");
+    const activateBtn    = document.getElementById("activate-btn");
+    const resetBtn       = document.getElementById("reset-btn");
+    const logoutBtn      = document.getElementById("logout-btn");
+    const doorsSelect    = document.getElementById("doors-count-select");
+    const countValue     = document.getElementById("count-value");
+    const orgsList       = document.getElementById("organisms-list");
+    const searchInput    = document.getElementById("search-input");
+    const expandAllBtn   = document.getElementById("expand-all-btn");
+    const collapseAllBtn = document.getElementById("collapse-all-btn");
+
+    // ── Build door-count select ───────────────────────────────
+    for (let n = 2; n <= 30; n++) {
+      const opt = document.createElement("option");
+      opt.value = n;
+      opt.textContent = n;
+      if (n === currentDoorsCount) opt.selected = true;
+      doorsSelect.appendChild(opt);
+    }
+    countValue.textContent = currentDoorsCount;
+
+    doorsSelect.addEventListener("change", () => {
+      currentDoorsCount = parseInt(doorsSelect.value, 10) || 5;
+      countValue.textContent = currentDoorsCount;
+      localStorage.setItem(DOORS_COUNT_KEY, currentDoorsCount);
+    });
+
+    // ── Server helpers ────────────────────────────────────────
+    async function parseResponse(res) {
+      const raw = await res.text();
+      if (!raw) return {};
+      try { return JSON.parse(raw); } catch { return { raw }; }
+    }
+
+    async function fetchGameStatus() {
+      const url = `${APPS_SCRIPT_URL}?action=status&game_id=${encodeURIComponent(GAME_ID)}`;
+      const res = await fetch(url, { method: "GET", cache: "no-store" });
+      const data = await parseResponse(res);
+      return data?.status === "started" ? "started" : "waiting";
+    }
+
+    async function sendAction(action, code) {
+      const body = new URLSearchParams({ action, game_id: GAME_ID });
+      if (code) body.set("code", code);
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method:  "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body:    body.toString(),
+      });
+      const data = await parseResponse(res);
+      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
+      return data;
+    }
+
+    // ── Status UI ─────────────────────────────────────────────
+    function updateStatusUI(status) {
+      const started = status === "started";
+      statusBadge.className = `status-badge ${started ? "started" : "waiting"}`;
+      statusText.textContent = started ? "המשחק פעיל ✔" : "ממתין להפעלה";
+    }
+
+    async function pollStatus() {
+      try {
+        const status = await fetchGameStatus();
+        updateStatusUI(status);
+      } catch { /* silent */ }
+    }
+
+    function startPolling() {
+      clearInterval(pollTimer);
+      pollStatus();
+      pollTimer = setInterval(pollStatus, POLL_INTERVAL_MS);
+    }
+
+    // ── Login ─────────────────────────────────────────────────
+    async function doLogin() {
+      const code = loginCodeInput.value.trim();
+      if (!code) {
+        loginFeedback.textContent = "יש להזין קוד.";
+        loginFeedback.className   = "feedback error";
+        return;
+      }
+      loginBtn.disabled = true;
+      loginFeedback.textContent = "מאמת...";
+      loginFeedback.className   = "feedback info";
+      try {
+        const result = await sendAction("start", code);
+        const ok = result?.success === true || result?.ok === true
+                || result?.status === "started" || result?.result === "started";
+        if (ok) {
+          adminCode = code;
+          sessionStorage.setItem(SESSION_KEY, code);
+          localStorage.setItem(DOORS_COUNT_KEY, currentDoorsCount);
+          showControlPanel("started");
+        } else {
+          loginFeedback.textContent = "קוד שגוי. נסו שוב.";
+          loginFeedback.className   = "feedback error";
+        }
+      } catch (e) {
+        const net = e instanceof TypeError || String(e).includes("fetch");
+        loginFeedback.textContent = net ? "שגיאת חיבור. בדקו אינטרנט." : "שגיאה. נסו שוב.";
+        loginFeedback.className   = "feedback error";
+      }
+      loginBtn.disabled = false;
+    }
+
+    function showControlPanel(initialStatus) {
+      loginSection.classList.add("hidden");
+      controlPanel.classList.remove("hidden");
+      if (initialStatus) updateStatusUI(initialStatus);
+      startPolling();
+      loadOrganisms();
+    }
+
+    // ── Activate ──────────────────────────────────────────────
+    activateBtn.onclick = async () => {
+      if (!adminCode) return;
+      actionFeedback.textContent = "מפעיל...";
+      actionFeedback.className   = "feedback info";
+      activateBtn.disabled = true;
+      try {
+        const result = await sendAction("start", adminCode);
+        const ok = result?.success === true || result?.ok === true
+                || result?.status === "started" || result?.result === "started";
+        if (ok) {
+          localStorage.setItem(DOORS_COUNT_KEY, currentDoorsCount);
+          actionFeedback.textContent = `✔ המשחק הופעל – ${currentDoorsCount} דלתות נבחרו`;
+          actionFeedback.className   = "feedback success";
+          updateStatusUI("started");
+        } else {
+          actionFeedback.textContent = "שגיאה בהפעלה.";
+          actionFeedback.className   = "feedback error";
+        }
+      } catch (e) {
+        const net = e instanceof TypeError || String(e).includes("fetch");
+        actionFeedback.textContent = net ? "שגיאת חיבור." : "שגיאה בהפעלה.";
+        actionFeedback.className   = "feedback error";
+      }
+      activateBtn.disabled = false;
+    };
+
+    // ── Reset / Lock ──────────────────────────────────────────
+    resetBtn.onclick = async () => {
+      if (!adminCode) return;
+      actionFeedback.textContent = "מאפס...";
+      actionFeedback.className   = "feedback info";
+      resetBtn.disabled = true;
+      try {
+        await sendAction("reset", adminCode);
+      } catch { /* if backend lacks reset action, still update UI */ }
+      actionFeedback.textContent = "✔ המשחק אופס – כפתור ההתחלה הוסתר";
+      actionFeedback.className   = "feedback success";
+      updateStatusUI("waiting");
+      resetBtn.disabled = false;
+    };
+
+    // ── Logout ────────────────────────────────────────────────
+    logoutBtn.onclick = () => {
+      adminCode = "";
+      sessionStorage.removeItem(SESSION_KEY);
+      clearInterval(pollTimer);
+      controlPanel.classList.add("hidden");
+      loginSection.classList.remove("hidden");
+      loginCodeInput.value      = "";
+      loginFeedback.textContent = "";
+      loginFeedback.className   = "feedback";
+    };
+
+    // ── Organism list ─────────────────────────────────────────
+    async function loadOrganisms() {
+      try {
+        const res = await fetch("doors.json", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        renderOrganisms(Array.isArray(data) ? data : []);
+      } catch {
+        orgsList.innerHTML = `<p style="color:var(--danger)">שגיאה בטעינת doors.json</p>`;
+      }
+    }
+
+    function renderOrganisms(data) {
+      if (!data.length) {
+        orgsList.innerHTML = `<p style="color:var(--muted)">לא נמצאו אורגניזמים.</p>`;
+        return;
+      }
+
+      orgsList.innerHTML = data.map(door => {
+        const name = door.creature || door.title || `דלת ${door.id}`;
+        const stepRows = (door.steps || []).map((step, i) => `
+          <tr>
+            <td class="step-label">שלב ${i + 1}</td>
+            <td class="step-title-cell">${step.title || ""}</td>
+            <td><span class="code-val">${step.code || "—"}</span></td>
+          </tr>
+        `).join("");
+
+        return `
+          <div class="org-item"
+               data-name="${name.toLowerCase()}"
+               data-id="${door.id}">
+            <div class="org-header" onclick="toggleOrg(this)">
+              <div class="org-header-left">
+                <span class="org-num">${door.id}</span>
+                <span class="org-name">${name}</span>
+              </div>
+              <span class="org-toggle">▼</span>
+            </div>
+            <div class="org-body">
+              <table class="code-table">
+                <thead>
+                  <tr>
+                    <th>שלב</th>
+                    <th>שם השלב</th>
+                    <th>קוד מעבר</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${stepRows}
+                  <tr>
+                    <td class="step-label"><strong>מנעול סופי</strong></td>
+                    <td class="step-title-cell">${door.finalLock?.title || "קוד פתיחה"}</td>
+                    <td><span class="code-val final">${door.finalLockCode || "—"}</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function toggleOrg(header) {
+      header.closest(".org-item").classList.toggle("open");
+    }
+
+    // Expand / collapse all
+    expandAllBtn.onclick = () => {
+      document.querySelectorAll(".org-item").forEach(el => {
+        if (el.style.display !== "none") el.classList.add("open");
+      });
+    };
+
+    collapseAllBtn.onclick = () => {
+      document.querySelectorAll(".org-item").forEach(el => el.classList.remove("open"));
+    };
+
+    // Search filter
+    searchInput.addEventListener("input", () => {
+      const q = searchInput.value.toLowerCase().trim();
+      document.querySelectorAll(".org-item").forEach(item => {
+        const match = !q
+          || (item.dataset.name || "").includes(q)
+          || (item.dataset.id   || "").includes(q);
+        item.style.display = match ? "" : "none";
+      });
+    });
+
+    // ── Login form events ─────────────────────────────────────
+    loginBtn.onclick = doLogin;
+    loginCodeInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") doLogin();
+    });
+
+    // ── Auto-restore session ──────────────────────────────────
+    (async () => {
+      const saved = sessionStorage.getItem(SESSION_KEY);
+      if (saved) {
+        adminCode = saved;
+        loginCodeInput.value = saved;
+        showControlPanel();
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1677,7 +1677,7 @@
                   || result?.status === "started" || result?.result === "started";
           if (ok) {
             const chosen = parseInt(doorsSelect.value, 10) || 5;
-            state.doorsCount = Math.max(2, Math.min(chosen, Math.max(27, state.doorsData.length)));
+            state.doorsCount = Math.max(2, Math.min(chosen, Math.max(30, state.doorsData.length)));
             applyGameStatus("started");
             buildSelectedDoors();
             guideFeedback.textContent = `המשחק הופעל • ${state.doorsCount} דלתות`;

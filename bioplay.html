@@ -1366,10 +1366,14 @@
       doorFallback:"images/door-active.svg",
     };
 
+    const ADMIN_NAV_CODE = "BIO2026";
+
     const state = {
       gameStatus:          "waiting",
       statusPollTimer:     null,
       statusRequestInFlight: false,
+      logoTapCount:        0,
+      logoTapResetTimer:   null,
       completedDoors:      new Set(),
       doorsData:           [],   // loaded from doors.json
       selectedDoors:       [],   // doors selected for the current round
@@ -1600,6 +1604,19 @@
               <div class="countdown-label">המשימה מתחילה עכשיו</div>
             </div>
           </div>
+
+          <div class="admin-modal" id="admin-nav-modal">
+            <div class="modal-card">
+              <p class="modal-text">הזינו קוד גישה</p>
+              <input id="admin-nav-input" type="password" placeholder="קוד גישה"
+                style="width:100%;padding:10px 14px;font-size:1.1rem;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.08);color:var(--text);text-align:center;margin-bottom:10px;">
+              <p id="admin-nav-error" style="color:var(--danger);font-size:.9rem;min-height:1.2em;text-align:center;margin:0 0 10px;"></p>
+              <div style="display:flex;gap:10px;justify-content:center;">
+                <button class="btn btn-primary" id="admin-nav-submit">כניסה</button>
+                <button class="btn" id="admin-nav-cancel" style="background:rgba(255,255,255,.1)">ביטול</button>
+              </div>
+            </div>
+          </div>
         </div>
       `;
 
@@ -1611,6 +1628,44 @@
       };
 
       document.getElementById("start-btn")?.addEventListener("click", startMainCountdown);
+
+      // Triple-tap logo → admin nav modal
+      document.getElementById("logo-trigger").addEventListener("click", () => {
+        state.logoTapCount++;
+        clearTimeout(state.logoTapResetTimer);
+        if (state.logoTapCount >= 3) {
+          state.logoTapCount = 0;
+          document.getElementById("admin-nav-modal").classList.add("active");
+          document.getElementById("admin-nav-input").value = "";
+          document.getElementById("admin-nav-error").textContent = "";
+          setTimeout(() => document.getElementById("admin-nav-input")?.focus(), 50);
+        } else {
+          state.logoTapResetTimer = setTimeout(() => { state.logoTapCount = 0; }, 1200);
+        }
+      });
+
+      document.getElementById("admin-nav-submit").addEventListener("click", () => {
+        const val = document.getElementById("admin-nav-input").value.trim().toUpperCase();
+        if (val === ADMIN_NAV_CODE) {
+          window.location.href = "admin.html";
+        } else {
+          document.getElementById("admin-nav-error").textContent = "קוד שגוי";
+        }
+      });
+
+      document.getElementById("admin-nav-input").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") document.getElementById("admin-nav-submit").click();
+      });
+
+      document.getElementById("admin-nav-cancel").addEventListener("click", () => {
+        document.getElementById("admin-nav-modal").classList.remove("active");
+      });
+
+      document.getElementById("admin-nav-modal").addEventListener("click", (e) => {
+        if (e.target === document.getElementById("admin-nav-modal"))
+          document.getElementById("admin-nav-modal").classList.remove("active");
+      });
+
       updateHomeStatusUI();
     }
 

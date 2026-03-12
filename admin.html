@@ -3,789 +3,1199 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>פאנל בקרת מדריך – BioPlay</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <title>פאנל בקרה – BioPlay</title>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <style>
-    :root {
-      --bg:      #07111f;
-      --bg-2:    #13284a;
-      --panel:   rgba(9, 19, 42, 0.92);
-      --text:    #eef5ff;
-      --muted:   #c4d4ef;
-      --accent:  #62d9ff;
-      --accent-2:#88f3b9;
-      --danger:  #ff91a8;
-      --warning: #ffd985;
-      --border:  rgba(255,255,255,.16);
-      --radius:  18px;
-      --ease:    250ms ease;
-    }
+    /* ══════════════════════════════════════════════
+       RESET & BASE
+    ══════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    * { box-sizing: border-box; font-family: "Assistant", Arial, sans-serif; }
+    :root {
+      --dark:    #060e1e;
+      --frame:   #0d1a2e;
+      --border:  #1e3450;
+      --green-hi:#00e676;
+      --cyan-hi: #00bcd4;
+      --white-bg:#f4f7fb;
+      --card-bg: #edf3ee;
+      --card-bdr:#b8d4ba;
+      --text-dk: #1a2535;
+      --text-md: #445566;
+      --text-lt: #7a8fa0;
+      --badge-bg:#bbdefb;
+      --badge-c: #1565c0;
+      --final-bg:#fff8e1;
+      --final-bdr:#ffe082;
+      --final-c: #e65100;
+      --gold:    #ff9800;
+    }
 
     html, body {
-      margin: 0;
-      min-height: 100%;
-      background:
-        radial-gradient(circle at 18% 8%,  rgba(98,217,255,.18),  transparent 26%),
-        radial-gradient(circle at 82% 12%, rgba(136,243,185,.12), transparent 24%),
-        linear-gradient(160deg, var(--bg-2), var(--bg));
-      color: var(--text);
-      padding: 20px 16px 40px;
+      background: var(--dark);
+      color: var(--text-dk);
+      font-family: "Assistant", Arial, sans-serif;
+      min-height: 100svh;
+      overflow-x: hidden;
     }
 
-    .container {
-      max-width: 980px;
-      margin: 0 auto;
-    }
-
-    /* ── Page header ─────────────────────────────────────── */
-    .page-header {
+    /* ══════════════════════════════════════════════
+       LOGIN OVERLAY
+    ══════════════════════════════════════════════ */
+    #login-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(4, 10, 22, .96);
       display: flex;
       align-items: center;
-      gap: 14px;
-      margin-bottom: 28px;
-      padding-bottom: 18px;
-      border-bottom: 1px solid var(--border);
+      justify-content: center;
+      z-index: 200;
+      padding: 16px;
     }
 
-    .page-header img {
-      height: 52px;
-      object-fit: contain;
+    .login-box {
+      background: var(--white-bg);
+      border: 3px solid var(--border);
+      border-radius: 18px;
+      padding: 32px 28px;
+      width: min(380px, 100%);
+      text-align: center;
+      box-shadow: 0 0 40px rgba(0,230,118,.12), 0 20px 60px rgba(0,0,0,.5);
     }
 
-    .page-title {
-      font-size: 1.9rem;
-      font-weight: 800;
-      color: var(--warning);
-      text-shadow: 0 0 14px rgba(255,215,133,.3);
-      margin: 0;
+    .login-logo {
+      font-family: "Orbitron", sans-serif;
+      font-size: 1.4rem;
+      font-weight: 900;
+      letter-spacing: 3px;
+      color: var(--text-dk);
+      margin-bottom: 4px;
     }
 
-    .page-subtitle {
-      font-size: .95rem;
-      color: var(--muted);
-      margin: 2px 0 0;
+    .login-sub { font-size: .88rem; color: var(--text-lt); margin-bottom: 22px; }
+
+    .login-input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #c8d8e8;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      background: white;
+      color: var(--text-dk);
+      margin-bottom: 14px;
+      outline: none;
+      text-align: center;
+      letter-spacing: 3px;
+      direction: ltr;
+      font-family: "Courier New", monospace;
+      transition: border-color .2s;
     }
+    .login-input:focus { border-color: var(--green-hi); }
 
-    /* ── Card ────────────────────────────────────────────── */
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: 0 12px 32px rgba(0,0,0,.28);
-    }
-
-    .card-title {
-      font-size: 1.25rem;
-      font-weight: 800;
-      margin: 0 0 16px;
-      color: var(--accent);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .hidden { display: none !important; }
-
-    /* ── Buttons ─────────────────────────────────────────── */
-    .btn {
+    .login-btn {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #1a8a1a, #2ea02e);
+      color: white;
       border: none;
       border-radius: 12px;
-      min-height: 44px;
-      padding: 10px 22px;
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 800;
       cursor: pointer;
-      transition: transform var(--ease), filter var(--ease), box-shadow var(--ease);
+      font-family: "Assistant", sans-serif;
+      transition: filter .2s, transform .15s;
     }
+    .login-btn:hover { filter: brightness(1.12); }
+    .login-btn:active { transform: scale(.97); }
+    .login-btn:disabled { opacity: .6; cursor: not-allowed; }
 
-    .btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      filter: brightness(1.1);
-      box-shadow: 0 8px 20px rgba(0,0,0,.3);
+    .login-msg {
+      min-height: 22px;
+      margin-top: 12px;
+      font-size: .92rem;
+      font-weight: 700;
     }
+    .login-msg.error   { color: #c62828; }
+    .login-msg.success { color: #2e7d32; }
+    .login-msg.info    { color: var(--text-lt); }
 
-    .btn:active:not(:disabled) { transform: scale(.97); }
-    .btn:disabled { opacity: .55; cursor: not-allowed; }
-
-    .btn-primary   { background: linear-gradient(135deg, var(--accent),  #29baff); color: #03111d; }
-    .btn-danger    { background: linear-gradient(135deg, #ff5e7a, #c83455); color: #fff; }
-    .btn-secondary { background: #26345e; color: var(--text); border: 1px solid var(--border); }
-    .btn-sm        { min-height: 34px; padding: 6px 14px; font-size: .88rem; }
-
-    /* ── Inputs ──────────────────────────────────────────── */
-    .input {
+    /* ══════════════════════════════════════════════
+       OUTER FRAME (visible on larger screens)
+    ══════════════════════════════════════════════ */
+    #panel-outer {
+      position: relative;
       width: 100%;
-      min-height: 44px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.22);
-      background: #0d1732;
-      color: var(--text);
-      padding: 8px 14px;
-      font-size: 1rem;
-      transition: border-color var(--ease);
-    }
-
-    .input:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(98,217,255,.14);
-    }
-
-    .input-row {
+      min-height: 100svh;
       display: flex;
+      flex-direction: column;
+    }
+
+    /* ══════════════════════════════════════════════
+       MOBILE TOP BAR (sci-fi style header)
+    ══════════════════════════════════════════════ */
+    .top-bar {
+      background: var(--frame);
+      border-bottom: 3px solid var(--border);
+      padding: 10px 14px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       gap: 10px;
-      flex-wrap: wrap;
+      flex-shrink: 0;
+      /* corner accent lines */
+      box-shadow: 0 3px 0 var(--green-hi);
     }
 
-    .input-row .input { flex: 1; min-width: 180px; }
-
-    /* ── Feedback ────────────────────────────────────────── */
-    .feedback {
-      min-height: 26px;
-      margin-top: 10px;
-      font-weight: 700;
-      font-size: 1rem;
-    }
-
-    .feedback.success { color: var(--accent-2); }
-    .feedback.error   { color: var(--danger);   }
-    .feedback.info    { color: var(--muted);     }
-
-    /* ── Status badge ────────────────────────────────────── */
-    .status-row {
+    .top-bar-left {
       display: flex;
       align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
+      gap: 12px;
     }
 
-    .status-badge {
-      display: inline-flex;
+    .top-title {
+      font-family: "Orbitron", sans-serif;
+      font-size: .78rem;
+      font-weight: 900;
+      color: var(--green-hi);
+      letter-spacing: 2px;
+      line-height: 1.2;
+    }
+
+    .top-status {
+      display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 7px 16px;
-      border-radius: 20px;
+      gap: 6px;
+      font-size: .78rem;
       font-weight: 700;
-      font-size: 1rem;
-    }
-
-    .status-badge.waiting {
-      background: rgba(255,217,133,.12);
-      color: var(--warning);
-      border: 1px solid rgba(255,217,133,.28);
-    }
-
-    .status-badge.started {
-      background: rgba(136,243,185,.12);
-      color: var(--accent-2);
-      border: 1px solid rgba(136,243,185,.28);
     }
 
     .status-dot {
-      width: 10px;
-      height: 10px;
+      width: 9px; height: 9px;
       border-radius: 50%;
-      background: currentColor;
-      animation: pulse 2s ease-in-out infinite;
+      animation: blink 2s ease-in-out infinite;
     }
+    .status-dot.waiting { background: #ffa726; }
+    .status-dot.started { background: var(--green-hi); box-shadow: 0 0 8px var(--green-hi); }
+    .status-label { color: #ccc; }
+    .status-label.started { color: var(--green-hi); }
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1;  transform: scale(1); }
-      50%       { opacity: .3; transform: scale(.85); }
+    @keyframes blink { 50% { opacity: .25; } }
+
+    .logout-sm {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.18);
+      color: #aaa;
+      border-radius: 8px;
+      padding: 5px 12px;
+      font-size: .78rem;
+      cursor: pointer;
+      font-family: "Assistant", sans-serif;
+      transition: background .2s;
     }
+    .logout-sm:hover { background: rgba(255,255,255,.16); }
 
-    /* ── Controls row ────────────────────────────────────── */
-    .controls-row {
+    /* ══════════════════════════════════════════════
+       CONTENT AREA (white panel)
+    ══════════════════════════════════════════════ */
+    #panel-content {
+      flex: 1;
+      background: var(--white-bg);
       display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 18px;
+      flex-direction: column;
+      gap: 0;
+      overflow: hidden;
     }
 
-    /* ── Door count ──────────────────────────────────────── */
+    /* ══════════════════════════════════════════════
+       CONTROLS ROW (PLAY, RESET, doors count)
+    ══════════════════════════════════════════════ */
+    .controls-section {
+      padding: 16px 16px 10px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #dde6ee;
+    }
+
+    /* ── PLAY button ── */
+    .btn-play {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      border: 4px solid #155a15;
+      background:
+        radial-gradient(circle at 36% 28%, #b6ffb0 0%, #38c035 38%, #1c7a1c 65%, #0e4a0e 100%);
+      box-shadow:
+        0 5px 16px rgba(0,0,0,.5),
+        0 0 22px rgba(56,192,53,.3),
+        inset 0 -5px 10px rgba(0,0,0,.3);
+      color: white;
+      font-family: "Orbitron", sans-serif;
+      font-size: .8rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      cursor: pointer;
+      position: relative;
+      text-shadow: 0 1px 4px rgba(0,0,0,.6);
+      transition: transform .15s, box-shadow .15s;
+      flex-shrink: 0;
+    }
+    .btn-play::after {
+      content: '';
+      position: absolute;
+      top: 10%; left: 16%;
+      width: 68%; height: 38%;
+      background: radial-gradient(ellipse at 50% 25%, rgba(255,255,255,.55), transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .btn-play:hover:not(:disabled) {
+      transform: scale(1.07);
+      box-shadow: 0 8px 22px rgba(0,0,0,.55), 0 0 30px rgba(56,192,53,.45), inset 0 -5px 10px rgba(0,0,0,.3);
+    }
+    .btn-play:active:not(:disabled) { transform: scale(.96); }
+    .btn-play:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── RESET button ── */
+    .btn-reset {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      border: 4px solid #5a1515;
+      background:
+        radial-gradient(circle at 36% 28%, #ffb0b0 0%, #c83535 38%, #7a1c1c 65%, #4a0e0e 100%);
+      box-shadow:
+        0 5px 16px rgba(0,0,0,.5),
+        0 0 22px rgba(200,53,53,.3),
+        inset 0 -5px 10px rgba(0,0,0,.3);
+      color: white;
+      font-family: "Orbitron", sans-serif;
+      font-size: .75rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      cursor: pointer;
+      position: relative;
+      text-shadow: 0 1px 4px rgba(0,0,0,.6);
+      transition: transform .15s, box-shadow .15s;
+      flex-shrink: 0;
+    }
+    .btn-reset::after {
+      content: '';
+      position: absolute;
+      top: 10%; left: 16%;
+      width: 68%; height: 38%;
+      background: radial-gradient(ellipse at 50% 25%, rgba(255,255,255,.55), transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .btn-reset:hover:not(:disabled) {
+      transform: scale(1.07);
+      box-shadow: 0 8px 22px rgba(0,0,0,.55), 0 0 30px rgba(200,53,53,.45), inset 0 -5px 10px rgba(0,0,0,.3);
+    }
+    .btn-reset:active:not(:disabled) { transform: scale(.96); }
+    .btn-reset:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── Door count & feedback ── */
+    .controls-right {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      min-width: 0;
+    }
+
     .count-row {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-top: 16px;
-      flex-wrap: wrap;
+      gap: 8px;
     }
 
     .count-label {
-      color: var(--muted);
-      font-size: .95rem;
+      font-size: .82rem;
+      color: var(--text-md);
       white-space: nowrap;
     }
 
     .count-select {
-      width: 82px;
-      min-height: 38px;
+      padding: 5px 10px;
+      border: 1.5px solid #b0c4d4;
+      border-radius: 8px;
+      background: white;
+      color: var(--text-dk);
+      font-size: .9rem;
+      cursor: pointer;
+      width: 72px;
+    }
+
+    .action-msg {
+      min-height: 18px;
+      font-size: .82rem;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+    .action-msg.success { color: #2e7d32; }
+    .action-msg.error   { color: #c62828; }
+    .action-msg.info    { color: var(--text-lt); }
+
+    /* ══════════════════════════════════════════════
+       SEARCH ROW
+    ══════════════════════════════════════════════ */
+    .search-section {
+      padding: 10px 16px;
+      border-bottom: 1px solid #dde6ee;
+      position: relative;
+    }
+
+    .search-input-wrap {
+      display: flex;
+      gap: 8px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 2px solid #90bcd8;
       border-radius: 10px;
-      border: 1px solid rgba(255,255,255,.22);
-      background: #0d1732;
-      color: var(--text);
-      padding: 4px 8px;
       font-size: .95rem;
-      cursor: pointer;
+      background: white;
+      color: var(--text-dk);
+      outline: none;
+      font-family: "Assistant", sans-serif;
+      direction: rtl;
+      transition: border-color .2s;
     }
+    .search-input:focus { border-color: var(--badge-c); }
+    .search-input::placeholder { color: #a0b4c4; }
 
-    .count-value {
-      color: var(--accent);
-      font-weight: 800;
+    .search-btn-icon {
+      width: 44px; height: 44px;
+      border: 2px solid #90bcd8;
+      border-radius: 10px;
+      background: white;
       font-size: 1.1rem;
-    }
-
-    /* ── Divider ─────────────────────────────────────────── */
-    .divider {
-      height: 1px;
-      background: var(--border);
-      margin: 8px 0 18px;
-    }
-
-    /* ── Organism list ───────────────────────────────────── */
-    .search-row {
-      margin-bottom: 16px;
-    }
-
-    .org-item {
-      border: 1px solid rgba(98,217,255,.22);
-      border-radius: 14px;
-      margin-bottom: 10px;
-      overflow: hidden;
-      transition: border-color var(--ease);
-    }
-
-    .org-item:hover {
-      border-color: rgba(98,217,255,.4);
-    }
-
-    .org-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 13px 18px;
       cursor: pointer;
-      background: rgba(98,217,255,.05);
-      transition: background var(--ease);
-      user-select: none;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      transition: background .15s;
     }
+    .search-btn-icon:hover { background: #e3f2fd; }
 
-    .org-header:hover {
-      background: rgba(98,217,255,.11);
+    /* Autocomplete dropdown */
+    .search-dropdown {
+      position: absolute;
+      top: calc(100% - 2px);
+      right: 16px;
+      left: 16px;
+      background: white;
+      border: 2px solid #90bcd8;
+      border-top: none;
+      border-radius: 0 0 10px 10px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 50;
+      display: none;
+      box-shadow: 0 8px 24px rgba(0,0,0,.18);
     }
+    .search-dropdown.open { display: block; }
 
-    .org-header-left {
+    .dropdown-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: .93rem;
+      color: var(--text-dk);
+      border-bottom: 1px solid #eef2f6;
+      transition: background .15s;
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
+    }
+    .dropdown-item:last-child { border-bottom: none; }
+    .dropdown-item:hover { background: #e3f2fd; }
+    .dropdown-num {
+      background: var(--badge-bg);
+      color: var(--badge-c);
+      border-radius: 6px;
+      padding: 1px 7px;
+      font-size: .8rem;
+      font-weight: 800;
+      flex-shrink: 0;
     }
 
-    .org-num {
-      display: inline-flex;
+    /* ══════════════════════════════════════════════
+       SEARCH RESULT DISPLAY
+    ══════════════════════════════════════════════ */
+    .result-section {
+      padding: 10px 16px 6px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .result-wrap {
+      position: relative;
+      width: min(480px, 100%);
+    }
+
+    /* Orange bracket clips */
+    .result-wrap::before,
+    .result-wrap::after {
+      content: '';
+      position: absolute;
+      top: -9px;
+      width: 18px; height: 18px;
+      border-top: 4px solid var(--gold);
+      z-index: 1;
+    }
+    .result-wrap::before { right: 14px; border-right: 4px solid var(--gold); border-radius: 0 3px 0 0; }
+    .result-wrap::after  { left: 14px;  border-left:  4px solid var(--gold); border-radius: 3px 0 0 0; }
+
+    .result-box {
+      border: 2px solid #b0c4d4;
+      border-radius: 8px;
+      background: white;
+      padding: 9px 18px;
+      text-align: center;
+      font-size: .95rem;
+      font-weight: 800;
+      color: var(--text-md);
+      letter-spacing: .5px;
+      min-height: 42px;
+      display: flex;
       align-items: center;
       justify-content: center;
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      background: rgba(98,217,255,.14);
-      color: var(--accent);
-      font-size: .82rem;
-      font-weight: 800;
-      flex-shrink: 0;
     }
 
-    .org-name {
-      font-weight: 800;
-      font-size: 1.08rem;
+    /* ══════════════════════════════════════════════
+       STEP CARDS
+    ══════════════════════════════════════════════ */
+    .cards-section {
+      flex: 1;
+      padding: 10px 12px 6px;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      overflow: auto;
     }
 
-    .org-toggle {
-      font-size: 1.1rem;
-      color: var(--accent);
-      transition: transform .25s ease;
-      flex-shrink: 0;
-    }
-
-    .org-item.open .org-toggle {
-      transform: rotate(180deg);
-    }
-
-    .org-body {
-      display: none;
-      padding: 16px 18px;
-      background: rgba(4,10,26,.65);
-    }
-
-    .org-item.open .org-body {
-      display: block;
-    }
-
-    /* ── Code table ──────────────────────────────────────── */
-    .code-table {
+    /* Mobile: 2×2 grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
       width: 100%;
-      border-collapse: collapse;
-      font-size: .96rem;
+      max-width: 560px;
     }
 
-    .code-table th {
-      text-align: right;
-      padding: 6px 10px;
-      color: var(--muted);
-      font-weight: 700;
-      font-size: .88rem;
-      border-bottom: 1px solid rgba(255,255,255,.1);
-      white-space: nowrap;
+    .step-card-wrap {
+      position: relative;
+      padding-top: 18px;
     }
 
-    .code-table td {
-      padding: 9px 10px;
-      border-bottom: 1px solid rgba(255,255,255,.05);
-      vertical-align: middle;
+    .step-badge {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--badge-bg);
+      border: 3px solid #90bcd8;
+      color: var(--badge-c);
+      font-weight: 900;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2;
+      box-shadow: 0 2px 8px rgba(0,0,0,.15);
     }
 
-    .code-table tr:last-child td {
-      border-bottom: none;
+    .step-card-wrap.final .step-badge {
+      background: var(--final-bg);
+      border-color: var(--final-bdr);
+      color: var(--final-c);
+      font-size: .85rem;
     }
 
-    .step-label {
-      color: var(--muted);
-      font-size: .9rem;
-      white-space: nowrap;
+    .step-card {
+      border: 2px solid var(--card-bdr);
+      border-radius: 10px;
+      background: var(--card-bg);
+      overflow: hidden;
+      min-height: 100px;
     }
 
-    .step-title-cell {
-      color: var(--text);
-      font-size: .92rem;
-      line-height: 1.4;
+    .step-card-wrap.final .step-card {
+      background: var(--final-bg);
+      border-color: var(--final-bdr);
     }
 
-    .code-val {
-      display: inline-block;
-      font-family: "Courier New", monospace;
-      font-size: 1.15em;
-      letter-spacing: .12em;
-      font-weight: 700;
-      color: var(--accent);
-      background: rgba(98,217,255,.1);
-      padding: 3px 12px;
-      border-radius: 8px;
-      min-width: 56px;
+    /* Top portion of card */
+    .card-top {
+      padding: 26px 8px 6px; /* extra top for badge overlap */
+      border-bottom: 2px solid var(--card-bdr);
       text-align: center;
     }
-
-    .code-val.final {
-      color: var(--warning);
-      background: rgba(255,217,133,.12);
-      border: 1px solid rgba(255,217,133,.2);
+    .step-card-wrap.final .card-top {
+      border-bottom-color: var(--final-bdr);
     }
 
-    /* ── Expand-all row ──────────────────────────────────── */
-    .list-controls {
+    .card-top-label {
+      font-size: .68rem;
+      font-weight: 700;
+      color: var(--text-lt);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .card-code {
+      font-family: "Courier New", monospace;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--badge-c);
+      letter-spacing: 5px;
+      line-height: 1.1;
+      margin-top: 2px;
+    }
+
+    .step-card-wrap.final .card-code {
+      color: var(--final-c);
+      font-size: 1.5rem;
+    }
+
+    /* Bottom portion: two cells */
+    .card-bottom {
       display: flex;
-      gap: 10px;
-      margin-bottom: 14px;
-      flex-wrap: wrap;
+      min-height: 48px;
     }
 
-    /* ── Responsive ──────────────────────────────────────── */
-    @media (max-width: 600px) {
-      body { padding: 10px 10px 30px; }
+    .card-cell {
+      flex: 1;
+      padding: 6px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 2px;
+    }
 
-      .page-title { font-size: 1.4rem; }
+    .card-cell + .card-cell {
+      border-right: 2px solid var(--card-bdr); /* RTL: right border = visual left divider */
+    }
+    .step-card-wrap.final .card-cell + .card-cell {
+      border-right-color: var(--final-bdr);
+    }
 
-      .controls-row { gap: 8px; }
-      .controls-row .btn { flex: 1 1 auto; }
+    .cell-label {
+      font-size: .6rem;
+      font-weight: 700;
+      color: var(--text-lt);
+      text-transform: uppercase;
+      letter-spacing: .8px;
+    }
 
-      .code-table th:nth-child(2),
-      .code-table td:nth-child(2) { display: none; }
+    .cell-value {
+      font-size: .78rem;
+      font-weight: 700;
+      color: var(--text-dk);
+      line-height: 1.3;
+      word-break: break-word;
+    }
 
-      .card { padding: 16px; }
+    .cell-value.answer-correct { color: #1b5e20; }
+
+    /* ══════════════════════════════════════════════
+       FINAL CODE BAR (bottom)
+    ══════════════════════════════════════════════ */
+    .final-bar {
+      background: var(--frame);
+      border-top: 3px solid var(--border);
+      box-shadow: 0 -3px 0 var(--green-hi);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    .final-bar-label {
+      font-family: "Orbitron", sans-serif;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #888;
+      text-transform: uppercase;
+    }
+
+    .final-bar-code {
+      font-family: "Courier New", monospace;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--final-c);
+      letter-spacing: 6px;
+      text-shadow: 0 0 10px rgba(255,150,0,.3);
+    }
+
+    /* ══════════════════════════════════════════════
+       TOAST
+    ══════════════════════════════════════════════ */
+    #toast {
+      position: fixed;
+      bottom: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(8,18,38,.92);
+      color: white;
+      padding: 9px 20px;
+      border-radius: 20px;
+      font-size: .88rem;
+      font-weight: 700;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .3s;
+      z-index: 150;
+      border: 1px solid rgba(255,255,255,.15);
+    }
+    #toast.show { opacity: 1; }
+
+    /* ══════════════════════════════════════════════
+       TABLET / DESKTOP UPGRADES
+    ══════════════════════════════════════════════ */
+    @media (min-width: 600px) {
+      .btn-play, .btn-reset {
+        width: 96px; height: 96px;
+        font-size: .88rem;
+      }
+
+      .cards-grid {
+        max-width: 640px;
+        gap: 18px;
+      }
+
+      .card-code { font-size: 1.7rem; }
+      .cell-value { font-size: .84rem; }
+    }
+
+    /* ── Desktop landscape: 4 cards in a row inside sci-fi frame ── */
+    @media (min-width: 900px) {
+      body { display: flex; align-items: center; justify-content: center; }
+
+      #panel-outer {
+        width: min(1360px, 98vw);
+        height: min(780px, 97vh);
+        border: 5px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+        box-shadow:
+          0 0 0 1px rgba(0,230,118,.28),
+          0 0 60px rgba(0,0,0,.7),
+          inset 0 0 0 1px rgba(255,255,255,.04);
+        /* Sci-fi corner lights */
+        outline: 1px solid transparent;
+        position: relative;
+      }
+
+      /* Corner accent dots */
+      #panel-outer::before,
+      #panel-outer::after {
+        content: '';
+        position: absolute;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: var(--green-hi);
+        box-shadow: 0 0 10px var(--green-hi);
+        z-index: 10;
+      }
+      #panel-outer::before { top: 8px; right: 8px; }
+      #panel-outer::after  { bottom: 8px; left: 8px; }
+
+      .top-bar {
+        padding: 8px 20px 7px;
+      }
+
+      .controls-section { padding: 12px 20px 10px; }
+
+      /* 4 columns in a row */
+      .cards-section { padding: 8px 16px 4px; }
+
+      .cards-grid {
+        grid-template-columns: repeat(4, 1fr);
+        max-width: 100%;
+        gap: 16px;
+      }
+
+      .btn-play, .btn-reset {
+        width: 100px; height: 100px;
+        font-size: .9rem;
+      }
+
+      .card-code { font-size: 1.6rem; }
+    }
+
+    @media (min-width: 1100px) {
+      .card-code { font-size: 1.9rem; }
+      .cell-value { font-size: .9rem; }
+      .step-badge { width: 40px; height: 40px; font-size: 1.1rem; }
     }
   </style>
 </head>
 <body>
-  <div class="container">
 
-    <!-- ── Page header ──────────────────────────────────── -->
-    <div class="page-header">
-      <img src="images/logo.svg" alt="BioPlay לוגו" onerror="this.style.display='none'">
-      <div>
-        <h1 class="page-title">🎛️ פאנל בקרת מדריך</h1>
-        <p class="page-subtitle">BioPlay – דלתות הטבע</p>
+  <!-- ══ LOGIN OVERLAY ══════════════════════════════ -->
+  <div id="login-overlay">
+    <div class="login-box">
+      <div class="login-logo">BIOPLAY</div>
+      <p class="login-sub">כניסת מדריך – הזינו קוד</p>
+      <input id="login-code" class="login-input" type="password"
+             placeholder="• • • • • •" autocomplete="off">
+      <button id="login-btn" class="login-btn">כניסה למערכת</button>
+      <p class="login-msg" id="login-msg"></p>
+    </div>
+  </div>
+
+  <!-- ══ MAIN PANEL ══════════════════════════════════ -->
+  <div id="panel-outer">
+
+    <!-- Top bar -->
+    <div class="top-bar">
+      <div class="top-bar-left">
+        <div>
+          <div class="top-title">BIOPLAY ADMIN</div>
+        </div>
+        <div class="top-status">
+          <span class="status-dot waiting" id="status-dot"></span>
+          <span class="status-label" id="status-label">ממתין</span>
+        </div>
       </div>
+      <button class="logout-sm" id="logout-btn">יציאה</button>
     </div>
 
-    <!-- ── LOGIN SECTION ────────────────────────────────── -->
-    <div id="login-section" class="card">
-      <h2 class="card-title">🔑 כניסת מדריך</h2>
-      <p style="color:var(--muted);margin:0 0 16px;line-height:1.7">
-        הזינו את קוד המדריך כדי לגשת לפאנל הבקרה.
-      </p>
-      <div class="input-row">
-        <input id="login-code" class="input" type="password"
-               placeholder="קוד מדריך" autocomplete="off">
-        <button id="login-btn" class="btn btn-primary" style="min-width:110px">כניסה</button>
+    <!-- White content area -->
+    <div id="panel-content">
+
+      <!-- Controls row: PLAY, RESET, door count -->
+      <div class="controls-section">
+        <button class="btn-play" id="activate-btn">PLAY</button>
+        <button class="btn-reset" id="reset-btn">RESET</button>
+        <div class="controls-right">
+          <div class="count-row">
+            <span class="count-label">מספר דלתות:</span>
+            <select id="doors-count-select" class="count-select"></select>
+          </div>
+          <div class="action-msg" id="action-msg"></div>
+        </div>
       </div>
-      <p class="feedback" id="login-feedback"></p>
+
+      <!-- Search -->
+      <div class="search-section">
+        <div class="search-input-wrap">
+          <input id="search-input" class="search-input" type="search"
+                 placeholder="🔍  חיפוש אורגניזם...">
+          <button class="search-btn-icon" id="search-btn">🔍</button>
+        </div>
+        <div class="search-dropdown" id="search-dropdown"></div>
+      </div>
+
+      <!-- Result display -->
+      <div class="result-section">
+        <div class="result-wrap">
+          <div class="result-box" id="result-box">חפשו אורגניזם לצפייה בקודים</div>
+        </div>
+      </div>
+
+      <!-- Step cards — order: 1, 2, 3, final (RTL flex → shows final on left, 1 on right = like mockup) -->
+      <div class="cards-section">
+        <div class="cards-grid" id="cards-grid">
+
+          <!-- Card 1 -->
+          <div class="step-card-wrap">
+            <div class="step-badge">1</div>
+            <div class="step-card">
+              <div class="card-top">
+                <div class="card-top-label" id="c1-title">שלב 1</div>
+                <div class="card-code" id="c1-code">—</div>
+              </div>
+              <div class="card-bottom">
+                <div class="card-cell">
+                  <span class="cell-label">קוד</span>
+                  <span class="cell-value" id="c1-code2">—</span>
+                </div>
+                <div class="card-cell">
+                  <span class="cell-label">תשובה</span>
+                  <span class="cell-value answer-correct" id="c1-answer">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="step-card-wrap">
+            <div class="step-badge">2</div>
+            <div class="step-card">
+              <div class="card-top">
+                <div class="card-top-label" id="c2-title">שלב 2</div>
+                <div class="card-code" id="c2-code">—</div>
+              </div>
+              <div class="card-bottom">
+                <div class="card-cell">
+                  <span class="cell-label">קוד</span>
+                  <span class="cell-value" id="c2-code2">—</span>
+                </div>
+                <div class="card-cell">
+                  <span class="cell-label">תשובה</span>
+                  <span class="cell-value answer-correct" id="c2-answer">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div class="step-card-wrap">
+            <div class="step-badge">3</div>
+            <div class="step-card">
+              <div class="card-top">
+                <div class="card-top-label" id="c3-title">שלב 3</div>
+                <div class="card-code" id="c3-code">—</div>
+              </div>
+              <div class="card-bottom">
+                <div class="card-cell">
+                  <span class="cell-label">קוד</span>
+                  <span class="cell-value" id="c3-code2">—</span>
+                </div>
+                <div class="card-cell">
+                  <span class="cell-label">תשובה</span>
+                  <span class="cell-value answer-correct" id="c3-answer">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4 = Final lock -->
+          <div class="step-card-wrap final">
+            <div class="step-badge">4</div>
+            <div class="step-card">
+              <div class="card-top">
+                <div class="card-top-label" style="color:#b26200">מנעול סופי</div>
+                <div class="card-code" id="c4-code">—</div>
+              </div>
+              <div class="card-bottom">
+                <div class="card-cell" style="flex:1">
+                  <span class="cell-label">FINAL CODE</span>
+                  <span class="cell-value" id="c4-code2" style="font-family:'Courier New',monospace;color:var(--final-c);font-size:.95rem;letter-spacing:3px;font-weight:900">—</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /cards-grid -->
+      </div><!-- /cards-section -->
+
+    </div><!-- /panel-content -->
+
+    <!-- Bottom final code bar -->
+    <div class="final-bar">
+      <span class="final-bar-label">FINAL CODE</span>
+      <span class="final-bar-code" id="final-bar-code">——</span>
     </div>
 
-    <!-- ── CONTROL PANEL (after login) ─────────────────── -->
-    <div id="control-panel" class="hidden">
+  </div><!-- /panel-outer -->
 
-      <!-- Game status & controls -->
-      <div class="card">
-        <h2 class="card-title">🎮 שליטה במשחק</h2>
-
-        <div class="status-row">
-          <span class="count-label">מצב:</span>
-          <span id="status-badge" class="status-badge waiting">
-            <span class="status-dot"></span>
-            <span id="status-text">ממתין להפעלה</span>
-          </span>
-        </div>
-
-        <div class="controls-row">
-          <button id="activate-btn" class="btn btn-primary">▶ הפעל משחק</button>
-          <button id="reset-btn"   class="btn btn-danger">⏹ אפס / נעל משחק</button>
-        </div>
-
-        <div class="divider" style="margin-top:18px"></div>
-
-        <div class="count-row">
-          <span class="count-label">מספר דלתות:</span>
-          <select id="doors-count-select" class="count-select" title="בחרו מספר דלתות"></select>
-          <span id="count-value" class="count-value"></span>
-        </div>
-
-        <p class="feedback" id="action-feedback"></p>
-      </div>
-
-      <!-- Logout -->
-      <div style="display:flex;justify-content:flex-start;margin-bottom:20px">
-        <button id="logout-btn" class="btn btn-secondary btn-sm">יציאה</button>
-      </div>
-
-      <!-- Organism reference list -->
-      <div class="card">
-        <h2 class="card-title">📋 מדריך קודי אורגניזמים</h2>
-        <p style="color:var(--muted);margin:0 0 16px;font-size:.95rem;line-height:1.65">
-          לחצו על שם האורגניזם לצפייה בכל קודי המעברים שלו.
-        </p>
-
-        <div class="search-row">
-          <input id="search-input" class="input" type="search"
-                 placeholder="🔍  חיפוש אורגניזם..."
-                 style="max-width:340px">
-        </div>
-
-        <div class="list-controls">
-          <button id="expand-all-btn"   class="btn btn-secondary btn-sm">פתח הכל</button>
-          <button id="collapse-all-btn" class="btn btn-secondary btn-sm">סגור הכל</button>
-        </div>
-
-        <div id="organisms-list">
-          <p style="color:var(--muted)">טוען נתונים...</p>
-        </div>
-      </div>
-
-    </div><!-- /control-panel -->
-  </div><!-- /container -->
+  <div id="toast"></div>
 
   <script>
-    const APPS_SCRIPT_URL  = "https://script.google.com/macros/s/AKfycbxShbtJpFPOl8Jx7T73irGuJdXXc1M469UZNbFf3ByQ1ZSfoRZdvZHwEb2m6QHv26513Q/exec";
-    const GAME_ID          = "main_game";
-    const POLL_INTERVAL_MS = 4000;
-    const SESSION_KEY      = "bioplay_admin_code";
-    const DOORS_COUNT_KEY  = "bioplay_doors_count";
+    const APPS_URL   = "https://script.google.com/macros/s/AKfycbxShbtJpFPOl8Jx7T73irGuJdXXc1M469UZNbFf3ByQ1ZSfoRZdvZHwEb2m6QHv26513Q/exec";
+    const GAME_ID    = "main_game";
+    const POLL_MS    = 4000;
+    const SESS_KEY   = "bioplay_admin_code";
+    const DOORS_KEY  = "bioplay_doors_count";
 
-    let adminCode        = "";
-    let pollTimer        = null;
-    let currentDoorsCount = parseInt(localStorage.getItem(DOORS_COUNT_KEY), 10) || 5;
-    if (currentDoorsCount < 2) currentDoorsCount = 5;
+    let adminCode = "";
+    let pollTimer = null;
+    let doorsData = [];
+    let doorsCount = Math.max(2, parseInt(localStorage.getItem(DOORS_KEY), 10) || 5);
 
-    // ── DOM refs ──────────────────────────────────────────────
-    const loginSection   = document.getElementById("login-section");
-    const controlPanel   = document.getElementById("control-panel");
-    const loginCodeInput = document.getElementById("login-code");
-    const loginFeedback  = document.getElementById("login-feedback");
-    const loginBtn       = document.getElementById("login-btn");
-    const statusBadge    = document.getElementById("status-badge");
-    const statusText     = document.getElementById("status-text");
-    const actionFeedback = document.getElementById("action-feedback");
-    const activateBtn    = document.getElementById("activate-btn");
-    const resetBtn       = document.getElementById("reset-btn");
-    const logoutBtn      = document.getElementById("logout-btn");
-    const doorsSelect    = document.getElementById("doors-count-select");
-    const countValue     = document.getElementById("count-value");
-    const orgsList       = document.getElementById("organisms-list");
-    const searchInput    = document.getElementById("search-input");
-    const expandAllBtn   = document.getElementById("expand-all-btn");
-    const collapseAllBtn = document.getElementById("collapse-all-btn");
+    // ── DOM ──────────────────────────────────────────────────
+    const loginOverlay  = document.getElementById("login-overlay");
+    const loginCodeEl   = document.getElementById("login-code");
+    const loginMsg      = document.getElementById("login-msg");
+    const loginBtn      = document.getElementById("login-btn");
+    const statusDot     = document.getElementById("status-dot");
+    const statusLabel   = document.getElementById("status-label");
+    const actionMsg     = document.getElementById("action-msg");
+    const activateBtn   = document.getElementById("activate-btn");
+    const resetBtn      = document.getElementById("reset-btn");
+    const logoutBtn     = document.getElementById("logout-btn");
+    const doorsSelect   = document.getElementById("doors-count-select");
+    const searchInput   = document.getElementById("search-input");
+    const searchDropdown= document.getElementById("search-dropdown");
+    const resultBox     = document.getElementById("result-box");
+    const finalBarCode  = document.getElementById("final-bar-code");
+    const toastEl       = document.getElementById("toast");
 
-    // ── Build door-count select ───────────────────────────────
+    const cards = {
+      1: { title: document.getElementById("c1-title"), code: document.getElementById("c1-code"), code2: document.getElementById("c1-code2"), answer: document.getElementById("c1-answer") },
+      2: { title: document.getElementById("c2-title"), code: document.getElementById("c2-code"), code2: document.getElementById("c2-code2"), answer: document.getElementById("c2-answer") },
+      3: { title: document.getElementById("c3-title"), code: document.getElementById("c3-code"), code2: document.getElementById("c3-code2"), answer: document.getElementById("c3-answer") },
+      4: { code: document.getElementById("c4-code"), code2: document.getElementById("c4-code2") },
+    };
+
+    // ── Door count select ────────────────────────────────────
     for (let n = 2; n <= 30; n++) {
-      const opt = document.createElement("option");
-      opt.value = n;
-      opt.textContent = n;
-      if (n === currentDoorsCount) opt.selected = true;
-      doorsSelect.appendChild(opt);
+      const o = document.createElement("option");
+      o.value = n; o.textContent = n;
+      if (n === doorsCount) o.selected = true;
+      doorsSelect.appendChild(o);
     }
-    countValue.textContent = currentDoorsCount;
 
     doorsSelect.addEventListener("change", () => {
-      currentDoorsCount = parseInt(doorsSelect.value, 10) || 5;
-      countValue.textContent = currentDoorsCount;
-      localStorage.setItem(DOORS_COUNT_KEY, currentDoorsCount);
+      doorsCount = parseInt(doorsSelect.value, 10) || 5;
+      localStorage.setItem(DOORS_KEY, doorsCount);
     });
 
-    // ── Server helpers ────────────────────────────────────────
-    async function parseResponse(res) {
-      const raw = await res.text();
-      if (!raw) return {};
-      try { return JSON.parse(raw); } catch { return { raw }; }
+    // ── Toast ────────────────────────────────────────────────
+    let toastT;
+    function toast(msg, type = "info") {
+      toastEl.textContent = msg;
+      toastEl.style.background =
+        type === "success" ? "rgba(20,100,20,.95)"
+      : type === "error"   ? "rgba(150,20,20,.95)"
+      :                      "rgba(8,18,38,.92)";
+      toastEl.classList.add("show");
+      clearTimeout(toastT);
+      toastT = setTimeout(() => toastEl.classList.remove("show"), 3000);
     }
 
-    async function fetchGameStatus() {
-      const url = `${APPS_SCRIPT_URL}?action=status&game_id=${encodeURIComponent(GAME_ID)}`;
-      const res = await fetch(url, { method: "GET", cache: "no-store" });
-      const data = await parseResponse(res);
-      return data?.status === "started" ? "started" : "waiting";
+    // ── Server ───────────────────────────────────────────────
+    async function parse(res) {
+      const raw = await res.text();
+      if (!raw) return {};
+      try { return JSON.parse(raw); } catch { return {}; }
+    }
+
+    async function getStatus() {
+      const res = await fetch(`${APPS_URL}?action=status&game_id=${encodeURIComponent(GAME_ID)}`, { cache: "no-store" });
+      const d = await parse(res);
+      return d?.status === "started" ? "started" : "waiting";
     }
 
     async function sendAction(action, code) {
       const body = new URLSearchParams({ action, game_id: GAME_ID });
       if (code) body.set("code", code);
-      const res = await fetch(APPS_SCRIPT_URL, {
-        method:  "POST",
+      const res = await fetch(APPS_URL, {
+        method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body:    body.toString(),
+        body: body.toString(),
       });
-      const data = await parseResponse(res);
-      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
-      return data;
+      const d = await parse(res);
+      if (!res.ok) throw new Error(d?.error || `HTTP ${res.status}`);
+      return d;
     }
 
-    // ── Status UI ─────────────────────────────────────────────
-    function updateStatusUI(status) {
-      const started = status === "started";
-      statusBadge.className = `status-badge ${started ? "started" : "waiting"}`;
-      statusText.textContent = started ? "המשחק פעיל ✔" : "ממתין להפעלה";
-    }
-
-    async function pollStatus() {
-      try {
-        const status = await fetchGameStatus();
-        updateStatusUI(status);
-      } catch { /* silent */ }
+    // ── Status UI ────────────────────────────────────────────
+    function setStatus(s) {
+      const on = s === "started";
+      statusDot.className   = `status-dot ${on ? "started" : "waiting"}`;
+      statusLabel.className = `status-label ${on ? "started" : ""}`;
+      statusLabel.textContent = on ? "פעיל ✔" : "ממתין";
     }
 
     function startPolling() {
       clearInterval(pollTimer);
-      pollStatus();
-      pollTimer = setInterval(pollStatus, POLL_INTERVAL_MS);
+      (async () => { try { setStatus(await getStatus()); } catch {} })();
+      pollTimer = setInterval(async () => {
+        try { setStatus(await getStatus()); } catch {}
+      }, POLL_MS);
     }
 
-    // ── Login ─────────────────────────────────────────────────
+    // ── Login ────────────────────────────────────────────────
     async function doLogin() {
-      const code = loginCodeInput.value.trim();
-      if (!code) {
-        loginFeedback.textContent = "יש להזין קוד.";
-        loginFeedback.className   = "feedback error";
-        return;
-      }
+      const code = loginCodeEl.value.trim();
+      if (!code) { loginMsg.textContent = "יש להזין קוד."; loginMsg.className = "login-msg error"; return; }
       loginBtn.disabled = true;
-      loginFeedback.textContent = "מאמת...";
-      loginFeedback.className   = "feedback info";
+      loginMsg.textContent = "מאמת...";
+      loginMsg.className = "login-msg info";
       try {
-        const result = await sendAction("start", code);
-        const ok = result?.success === true || result?.ok === true
-                || result?.status === "started" || result?.result === "started";
+        const r = await sendAction("start", code);
+        const ok = r?.success === true || r?.ok === true || r?.status === "started" || r?.result === "started";
         if (ok) {
           adminCode = code;
-          sessionStorage.setItem(SESSION_KEY, code);
-          localStorage.setItem(DOORS_COUNT_KEY, currentDoorsCount);
-          showControlPanel("started");
+          sessionStorage.setItem(SESS_KEY, code);
+          localStorage.setItem(DOORS_KEY, doorsCount);
+          enterPanel("started");
         } else {
-          loginFeedback.textContent = "קוד שגוי. נסו שוב.";
-          loginFeedback.className   = "feedback error";
+          loginMsg.textContent = "קוד שגוי. נסו שוב.";
+          loginMsg.className = "login-msg error";
         }
       } catch (e) {
-        const net = e instanceof TypeError || String(e).includes("fetch");
-        loginFeedback.textContent = net ? "שגיאת חיבור. בדקו אינטרנט." : "שגיאה. נסו שוב.";
-        loginFeedback.className   = "feedback error";
+        loginMsg.textContent = e instanceof TypeError ? "שגיאת חיבור." : "שגיאה.";
+        loginMsg.className = "login-msg error";
       }
       loginBtn.disabled = false;
     }
 
-    function showControlPanel(initialStatus) {
-      loginSection.classList.add("hidden");
-      controlPanel.classList.remove("hidden");
-      if (initialStatus) updateStatusUI(initialStatus);
+    function enterPanel(initStatus) {
+      loginOverlay.style.display = "none";
+      if (initStatus) setStatus(initStatus);
       startPolling();
-      loadOrganisms();
+      loadDoors();
     }
 
-    // ── Activate ──────────────────────────────────────────────
+    loginBtn.onclick  = doLogin;
+    loginCodeEl.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+
+    // ── Activate ─────────────────────────────────────────────
     activateBtn.onclick = async () => {
       if (!adminCode) return;
-      actionFeedback.textContent = "מפעיל...";
-      actionFeedback.className   = "feedback info";
       activateBtn.disabled = true;
+      actionMsg.textContent = "מפעיל..."; actionMsg.className = "action-msg info";
       try {
-        const result = await sendAction("start", adminCode);
-        const ok = result?.success === true || result?.ok === true
-                || result?.status === "started" || result?.result === "started";
+        const r = await sendAction("start", adminCode);
+        const ok = r?.success === true || r?.ok === true || r?.status === "started" || r?.result === "started";
         if (ok) {
-          localStorage.setItem(DOORS_COUNT_KEY, currentDoorsCount);
-          actionFeedback.textContent = `✔ המשחק הופעל – ${currentDoorsCount} דלתות נבחרו`;
-          actionFeedback.className   = "feedback success";
-          updateStatusUI("started");
+          localStorage.setItem(DOORS_KEY, doorsCount);
+          actionMsg.textContent = `✔ הופעל – ${doorsCount} דלתות`; actionMsg.className = "action-msg success";
+          setStatus("started");
+          toast(`✔ המשחק הופעל! ${doorsCount} דלתות`, "success");
         } else {
-          actionFeedback.textContent = "שגיאה בהפעלה.";
-          actionFeedback.className   = "feedback error";
+          actionMsg.textContent = "שגיאה בהפעלה"; actionMsg.className = "action-msg error";
+          toast("שגיאה בהפעלה", "error");
         }
-      } catch (e) {
-        const net = e instanceof TypeError || String(e).includes("fetch");
-        actionFeedback.textContent = net ? "שגיאת חיבור." : "שגיאה בהפעלה.";
-        actionFeedback.className   = "feedback error";
+      } catch {
+        actionMsg.textContent = "שגיאת חיבור"; actionMsg.className = "action-msg error";
+        toast("שגיאת חיבור", "error");
       }
       activateBtn.disabled = false;
     };
 
-    // ── Reset / Lock ──────────────────────────────────────────
+    // ── Reset ────────────────────────────────────────────────
     resetBtn.onclick = async () => {
       if (!adminCode) return;
-      actionFeedback.textContent = "מאפס...";
-      actionFeedback.className   = "feedback info";
       resetBtn.disabled = true;
-      try {
-        await sendAction("reset", adminCode);
-      } catch { /* if backend lacks reset action, still update UI */ }
-      actionFeedback.textContent = "✔ המשחק אופס – כפתור ההתחלה הוסתר";
-      actionFeedback.className   = "feedback success";
-      updateStatusUI("waiting");
+      actionMsg.textContent = "מאפס..."; actionMsg.className = "action-msg info";
+      try { await sendAction("reset", adminCode); } catch {}
+      setStatus("waiting");
+      actionMsg.textContent = "✔ אופס – כפתור ההתחלה הוסתר"; actionMsg.className = "action-msg success";
+      toast("✔ המשחק אופס ונעול", "success");
       resetBtn.disabled = false;
     };
 
-    // ── Logout ────────────────────────────────────────────────
+    // ── Logout ───────────────────────────────────────────────
     logoutBtn.onclick = () => {
       adminCode = "";
-      sessionStorage.removeItem(SESSION_KEY);
+      sessionStorage.removeItem(SESS_KEY);
       clearInterval(pollTimer);
-      controlPanel.classList.add("hidden");
-      loginSection.classList.remove("hidden");
-      loginCodeInput.value      = "";
-      loginFeedback.textContent = "";
-      loginFeedback.className   = "feedback";
+      clearCards();
+      loginOverlay.style.display = "flex";
+      loginCodeEl.value = "";
+      loginMsg.textContent = "";
     };
 
-    // ── Organism list ─────────────────────────────────────────
-    async function loadOrganisms() {
+    // ── Load doors.json ──────────────────────────────────────
+    async function loadDoors() {
       try {
         const res = await fetch("doors.json", { cache: "no-store" });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        renderOrganisms(Array.isArray(data) ? data : []);
-      } catch {
-        orgsList.innerHTML = `<p style="color:var(--danger)">שגיאה בטעינת doors.json</p>`;
-      }
+        doorsData = await res.json();
+      } catch { doorsData = []; }
     }
 
-    function renderOrganisms(data) {
-      if (!data.length) {
-        orgsList.innerHTML = `<p style="color:var(--muted)">לא נמצאו אורגניזמים.</p>`;
-        return;
-      }
-
-      orgsList.innerHTML = data.map(door => {
-        const name = door.creature || door.title || `דלת ${door.id}`;
-        const stepRows = (door.steps || []).map((step, i) => `
-          <tr>
-            <td class="step-label">שלב ${i + 1}</td>
-            <td class="step-title-cell">${step.title || ""}</td>
-            <td><span class="code-val">${step.code || "—"}</span></td>
-          </tr>
-        `).join("");
-
-        return `
-          <div class="org-item"
-               data-name="${name.toLowerCase()}"
-               data-id="${door.id}">
-            <div class="org-header" onclick="toggleOrg(this)">
-              <div class="org-header-left">
-                <span class="org-num">${door.id}</span>
-                <span class="org-name">${name}</span>
-              </div>
-              <span class="org-toggle">▼</span>
-            </div>
-            <div class="org-body">
-              <table class="code-table">
-                <thead>
-                  <tr>
-                    <th>שלב</th>
-                    <th>שם השלב</th>
-                    <th>קוד מעבר</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${stepRows}
-                  <tr>
-                    <td class="step-label"><strong>מנעול סופי</strong></td>
-                    <td class="step-title-cell">${door.finalLock?.title || "קוד פתיחה"}</td>
-                    <td><span class="code-val final">${door.finalLockCode || "—"}</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function toggleOrg(header) {
-      header.closest(".org-item").classList.toggle("open");
-    }
-
-    // Expand / collapse all
-    expandAllBtn.onclick = () => {
-      document.querySelectorAll(".org-item").forEach(el => {
-        if (el.style.display !== "none") el.classList.add("open");
+    // ── Cards ────────────────────────────────────────────────
+    function clearCards() {
+      resultBox.textContent = "חפשו אורגניזם לצפייה בקודים";
+      finalBarCode.textContent = "——";
+      [1,2,3].forEach(i => {
+        cards[i].title.textContent  = `שלב ${i}`;
+        cards[i].code.textContent   = "—";
+        cards[i].code2.textContent  = "—";
+        cards[i].answer.textContent = "—";
       });
-    };
+      cards[4].code.textContent  = "—";
+      cards[4].code2.textContent = "—";
+    }
 
-    collapseAllBtn.onclick = () => {
-      document.querySelectorAll(".org-item").forEach(el => el.classList.remove("open"));
-    };
+    function fillCards(door) {
+      if (!door) { clearCards(); return; }
+      const name = door.creature || door.title || `דלת ${door.id}`;
+      resultBox.textContent = name;
+      (door.steps || []).forEach((step, i) => {
+        const n = i + 1;
+        if (n > 3) return;
+        cards[n].title.textContent  = step.title || `שלב ${n}`;
+        cards[n].code.textContent   = step.code  || "—";
+        cards[n].code2.textContent  = step.code  || "—";
+        cards[n].answer.textContent = step.answer || "—";
+      });
+      const fc = door.finalLockCode || "—";
+      cards[4].code.textContent  = fc;
+      cards[4].code2.textContent = fc;
+      finalBarCode.textContent   = fc;
+    }
 
-    // Search filter
+    // ── Search with autocomplete ─────────────────────────────
+    function buildDropdown(q) {
+      const items = q
+        ? doorsData.filter(d =>
+            (d.creature || "").toLowerCase().includes(q.toLowerCase()) ||
+            String(d.id) === q
+          )
+        : [];
+
+      if (!items.length) { searchDropdown.classList.remove("open"); return; }
+
+      searchDropdown.innerHTML = items.slice(0, 10).map(d => `
+        <div class="dropdown-item" data-id="${d.id}">
+          <span class="dropdown-num">${d.id}</span>
+          <span>${d.creature || d.title || `דלת ${d.id}`}</span>
+        </div>
+      `).join("");
+
+      searchDropdown.querySelectorAll(".dropdown-item").forEach(el => {
+        el.onclick = () => {
+          const door = doorsData.find(d => d.id === parseInt(el.dataset.id, 10));
+          fillCards(door);
+          searchInput.value = door ? (door.creature || door.title || "") : "";
+          searchDropdown.classList.remove("open");
+        };
+      });
+
+      searchDropdown.classList.add("open");
+    }
+
+    let searchT;
     searchInput.addEventListener("input", () => {
-      const q = searchInput.value.toLowerCase().trim();
-      document.querySelectorAll(".org-item").forEach(item => {
-        const match = !q
-          || (item.dataset.name || "").includes(q)
-          || (item.dataset.id   || "").includes(q);
-        item.style.display = match ? "" : "none";
-      });
+      clearTimeout(searchT);
+      searchT = setTimeout(() => buildDropdown(searchInput.value.trim()), 200);
     });
 
-    // ── Login form events ─────────────────────────────────────
-    loginBtn.onclick = doLogin;
-    loginCodeInput.addEventListener("keydown", e => {
-      if (e.key === "Enter") doLogin();
+    // Close dropdown on outside click
+    document.addEventListener("click", e => {
+      if (!e.target.closest(".search-section")) {
+        searchDropdown.classList.remove("open");
+      }
     });
 
-    // ── Auto-restore session ──────────────────────────────────
+    document.getElementById("search-btn").onclick = () => {
+      const q = searchInput.value.trim();
+      const door = doorsData.find(d =>
+        (d.creature || "").toLowerCase().includes(q.toLowerCase()) || String(d.id) === q
+      );
+      fillCards(door || null);
+      if (!door) resultBox.textContent = "לא נמצא";
+      searchDropdown.classList.remove("open");
+    };
+
+    // Enter key in search
+    searchInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") document.getElementById("search-btn").click();
+    });
+
+    // ── Auto-restore session ─────────────────────────────────
     (async () => {
-      const saved = sessionStorage.getItem(SESSION_KEY);
+      const saved = sessionStorage.getItem(SESS_KEY);
       if (saved) {
         adminCode = saved;
-        loginCodeInput.value = saved;
-        showControlPanel();
+        loginCodeEl.value = saved;
+        enterPanel();
       }
     })();
   </script>

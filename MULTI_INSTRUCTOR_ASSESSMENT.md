@@ -460,3 +460,304 @@
 - Google Sheet schema/config המשויך ל־Apps Script
 
 > הערה: בשלב 1 לא מתוכנן שינוי חובה ב־`doors.json` או `index.html`.
+
+---
+
+## יב. דרישת UI מחייבת לשלב 1 – לוח מדריך קומפקטי וממורכז (`admin.html`)
+
+### עקרונות מחייבים
+1. כל תוכן לוח הבקרה יוצג בתוך container מרכזי עם `max-width` בטווח **700–900px** (מומלץ: 820px).
+2. אין פריסה מסוג full-width dashboard במסכי desktop גדולים.
+3. כל האזורים יחולקו ל-cards/sections ברורים עם ריווח עקבי.
+4. הכפתורים יהיו בולטים אך לא מרוחים; רוחב הכפתורים יוגבל ויהיה מותאם לתפעול מהיר.
+5. ההיררכיה תהיה תפעולית (לא גרפית): מידע קריטי למעלה, מידע משני למטה.
+
+### היררכיית תוכן מחייבת במסך
+1. **פרטי חדר** (roomId, סטטוס token session, קישור תלמידים)
+2. **סטטוס משחק** (waiting/started + חיווי ברור)
+3. **פעולות מדריך** (`start` / `reset`)
+4. **הגדרות פעילות** (`doorsCount`)
+5. **מידע תפעולי משני** (טיפים, פעולות עזר, מידע לא קריטי)
+
+### שיקולי UX בזמן הפעלה חיה
+- התוכן הקריטי חייב להיות גלוי ללא גלילה ארוכה במסכי לפטופ נפוצים.
+- error/success messages צריכים להיות קריאים וקצרים.
+- יש להימנע מאנימציות או עומס ויזואלי שעלול להפריע לתפעול בזמן אמת.
+
+**קריטי:** הדרישה הזו היא חלק אינטגרלי משלב 1 ואינה אופציונלית.
+
+---
+
+## יג. מפרט ביצוע מעשי ומדויק לקראת מימוש (ללא כתיבת קוד מלאה)
+
+## 1) רשימת שינויים מפורטת לכל קובץ
+
+### `admin.html`
+**מה ישתנה בפועל (ספציפית):**
+1. קריאת `roomId` מתוך query string (`?room=...`) כבר ב-bootstrap.
+2. אם `roomId` חסר:
+   - ניסיון fallback לקישור ישן רק אם פשוט (דגל/בלוק קטן),
+   - אחרת שגיאה ברורה וחסימת פעולות מדריך.
+3. ביטול תלות ב-`GAME_ID = "main_game"`; כל API call יעבור עם `roomId`.
+4. פעולות `start/reset` יחייבו `teacherToken` שמוזן במסך המדריך (לא מה-URL).
+5. `sessionStorage`/`localStorage` יעברו ל-room-scoped keys.
+6. ארגון UI קומפקטי:
+   - container מרכזי (`max-width`),
+   - sections לפי היררכיה מחייבת,
+   - כפתורים בגודל קומפקטי מותאם desktop-first.
+7. עדכון הודעות שגיאה/סטטוס כדי להבחין בין:
+   - room חסר,
+   - token שגוי,
+   - room לא קיים,
+   - שגיאת רשת.
+
+**מה לא ישתנה בשלב 1:**
+- אין שמירת progress מפורט של תלמידים.
+- אין מעבר ל-realtime socket.
+
+---
+
+### `bioplay.html`
+**מה ישתנה בפועל (ספציפית):**
+1. קריאת `roomId` מה-URL כחובה.
+2. ביטול `GAME_ID = "main_game"` קשיח בכל polling.
+3. `status` יקבל מהשרת גם `doorsCount` ו-`selectedDoors` לחדר.
+4. ביטול בחירת `selectedDoors` רנדומלית לוקאלית כאשר התקבל ערך מהשרת.
+5. שמירת cache מקומי (אם נדרש) תחת room-scoped key בלבד.
+6. שגיאה ברורה אם `roomId` חסר / room לא קיים / room עדיין לא הופעל.
+
+**מה לא ישתנה בשלב 1:**
+- לוגיקת השאלות והמסכים הפדגוגיים עצמם.
+- אין persistence של progress לשרת.
+
+---
+
+### Google Apps Script backend (Web App)
+**מה ישתנה בפועל (ספציפית):**
+1. הוספת endpoint `create_room`.
+2. עדכון `status/start/reset` לעבוד לפי `roomId` ולא לפי game גלובלי.
+3. ולידציית `teacherToken` בכל פעולת מדריך.
+4. קביעת `selectedDoors` בזמן `start` בלבד (server-side).
+5. עדכון `updatedAt` בכל שינוי room state.
+6. החזרת שגיאות מובְנות (JSON עם `ok=false`, `errorCode`, `message`).
+
+---
+
+### Google Sheet schema/config
+**מה ישתנה בפועל (ספציפית):**
+1. יצירת sheet ייעודי ל-room states.
+2. הגדרת כותרות עמודות קבועות לשלב 1.
+3. שמירת `selectedDoors` בפורמט יציב (JSON string או CSV מוסכם).
+4. אינדוקס לוגי/חיפוש מהיר לפי `roomId` (ואופציונלית timestamp sort).
+
+---
+
+## 2) מבנה נתונים מדויק ב-Google Sheet (שלב 1)
+
+### גיליונות (Tabs)
+
+#### Sheet: `rooms`
+גיליון חובה לשלב 1.
+
+| עמודה | שם | חובה בשלב 1 | תיאור |
+|---|---|---|---|
+| A | `roomId` | כן | מזהה חדר ייחודי |
+| B | `teacherTokenHash` | כן | hash של token (לא token גלוי) |
+| C | `status` | כן | `waiting` / `started` |
+| D | `doorsCount` | כן | מספר דלתות לחדר |
+| E | `selectedDoors` | כן | מזהי דלתות (JSON string/CSV) |
+| F | `createdAt` | כן | זמן יצירת room |
+| G | `updatedAt` | כן | זמן עדכון אחרון |
+
+> הערה: לפי החלטות שלב 1 נשמרים רק נתוני room-level אלה.
+
+#### Sheet: `audit_log` (מומלץ, לא חובה קשיחה)
+לשימוש תפעולי בסיסי בלבד.
+
+| עמודה | שם | חובה בשלב 1 | תיאור |
+|---|---|---|---|
+| A | `timestamp` | מומלץ | זמן אירוע |
+| B | `roomId` | מומלץ | חדר רלוונטי |
+| C | `action` | מומלץ | `create_room/start/reset` |
+| D | `result` | מומלץ | `ok` / `error` |
+| E | `errorCode` | אופציונלי | קוד שגיאה אם נכשל |
+
+### נתונים לעתיד בלבד (לא בשלב 1)
+- progress מפורט לפי תלמיד/צוות.
+- דוחות למידה/היסטוריה פדגוגית מפורטת.
+
+---
+
+## 3) מפרט endpoint סופי ל-Apps Script (Phase 1)
+
+### כללי תגובה אחידה
+#### הצלחה
+```json
+{ "ok": true, "roomId": "R12345", "status": "waiting|started", "updatedAt": "ISO-8601" }
+```
+#### שגיאה
+```json
+{ "ok": false, "errorCode": "ROOM_NOT_FOUND", "message": "Room does not exist" }
+```
+
+### 3.1 `create_room`
+**Method:** POST  
+**הרשאה:** ללא `teacherToken` (יצירת חדר חדש)
+
+**קלט:**
+- `action=create_room`
+- `doorsCount` (אופציונלי; אם חסר → ברירת מחדל 5)
+
+**פלט הצלחה:**
+- `ok`, `roomId`, `teacherToken` (חד-פעמי להצגה), `status=waiting`, `doorsCount`, `selectedDoors=[]`, `createdAt`, `updatedAt`
+
+**מה נשמר/מתעדכן בשרת:**
+- שורה חדשה ב-`rooms` עם token hash, waiting, doorsCount, selectedDoors ריק.
+
+**שגיאות נדרשות:**
+- `INVALID_DOORS_COUNT`
+- `INTERNAL_ERROR`
+
+---
+
+### 3.2 `status`
+**Method:** GET  
+**הרשאה:** ציבורי לחדר (ללא token)
+
+**קלט:**
+- `action=status`
+- `roomId`
+
+**פלט הצלחה:**
+- `ok`, `roomId`, `status`, `doorsCount`, `selectedDoors`, `updatedAt`
+
+**מה נשמר/מתעדכן בשרת:**
+- אין שינוי נתונים (read only).
+
+**שגיאות נדרשות:**
+- `MISSING_ROOM_ID`
+- `ROOM_NOT_FOUND`
+
+---
+
+### 3.3 `start`
+**Method:** POST  
+**הרשאה:** מדריך בלבד (חובה token)
+
+**קלט:**
+- `action=start`
+- `roomId`
+- `teacherToken`
+- `doorsCount` (אופציונלי; אם נשלח תקין, מעדכן לפני יצירת selectedDoors)
+
+**פלט הצלחה:**
+- `ok`, `roomId`, `status=started`, `doorsCount`, `selectedDoors`, `updatedAt`
+
+**מה נשמר/מתעדכן בשרת:**
+- אימות token מול hash.
+- עדכון doorsCount (אם נשלח).
+- יצירת `selectedDoors` חדשה בזמן start.
+- עדכון status ל-`started` + `updatedAt`.
+
+**שגיאות נדרשות:**
+- `MISSING_ROOM_ID`
+- `MISSING_TEACHER_TOKEN`
+- `ROOM_NOT_FOUND`
+- `INVALID_TEACHER_TOKEN`
+- `INVALID_DOORS_COUNT`
+- `INTERNAL_ERROR`
+
+---
+
+### 3.4 `reset`
+**Method:** POST  
+**הרשאה:** מדריך בלבד (חובה token)
+
+**קלט:**
+- `action=reset`
+- `roomId`
+- `teacherToken`
+
+**פלט הצלחה:**
+- `ok`, `roomId`, `status=waiting`, `doorsCount`, `selectedDoors=[]`, `updatedAt`
+
+**מה נשמר/מתעדכן בשרת:**
+- אימות token.
+- איפוס status ל-`waiting`.
+- איפוס `selectedDoors` לריק (כדי ש-`start` הבא יקבע מחדש).
+- עדכון `updatedAt`.
+
+**שגיאות נדרשות:**
+- `MISSING_ROOM_ID`
+- `MISSING_TEACHER_TOKEN`
+- `ROOM_NOT_FOUND`
+- `INVALID_TEACHER_TOKEN`
+- `INTERNAL_ERROR`
+
+---
+
+## 4) סדר ביצוע מומלץ בפיתוח
+
+### שלב א – Backend foundation (חובה ראשון)
+**מה לבצע:**
+- בניית `rooms` sheet + helper functions לחיפוש/עדכון room.
+- מימוש `create_room/status/start/reset` עם שגיאות מובנות.
+
+**חסם יציאה לשלב הבא:**
+- Postman/manual curl מוכיח בידוד בין שני rooms שונים.
+
+### שלב ב – התאמת `admin.html`
+**מה לבצע:**
+- roomId מה-URL, token מה־UI, API calls room-based.
+- UI קומפקטי וממורכז לפי סעיף יב.
+
+**חסם יציאה לשלב הבא:**
+- מדריך יכול לנהל room אחד בלי להשפיע על room אחר.
+
+### שלב ג – התאמת `bioplay.html`
+**מה לבצע:**
+- roomId חובה, polling לפי room, selectedDoors מהשרת.
+- טיפול שגיאות חסר room/room לא קיים.
+
+**חסם יציאה לשלב הבא:**
+- שני תלמידים באותו room רואים אותן דלתות.
+
+### שלב ד – בדיקות סימולטניות E2E
+**מה לבצע:**
+- שני מדריכים + שתי קבוצות במקביל.
+- תרחישי start/reset חוצים, refresh, latency.
+
+**חסם סיום שלב 1:**
+- אין זליגת מצב בין rooms.
+
+### מה ניתן לדחות
+- audit_log מלא.
+- hardening מתקדם (expiry/rate limit מלא).
+- שמירת progress מפורט.
+
+---
+
+## 5) נקודות סיכון טכניות לפני מימוש
+
+### סיכוני state
+- שימוש במפתחות storage לא-ממוסגרים לפי room יגרום זליגה מקומית.
+- selectedDoors לא עקבי בין שרת/לקוח יגרום אי-אחידות בכיתה.
+
+### סיכוני room isolation
+- שימוש מקרי ב-fallback ל-`main_game` ישבור בידוד.
+- cache של room ישן במסך מדריך עלול להפעיל חדר שגוי.
+
+### סיכוני token
+- שמירת token גלוי ב-URL או בלוגים תדליף הרשאות.
+- אי שימוש ב-hash בשרת יחשוף סוד במאגר.
+
+### סיכוני תאימות לקישורים ישנים
+- fallback אגרסיבי מדי יגרום הפעלה לחדר שגוי.
+- שגיאה לא ברורה תייצר עומס תפעולי בזמן שיעור.
+
+### סיכוני UI/UX במסך מדריך
+- עומס מידע מעל לקפל יאט תפעול בזמן אמת.
+- כפתורים גדולים/מפוזרים מדי יפגעו במהירות ביצוע start/reset.
+- חיווי סטטוס לא בולט מספיק ייצור טעויות הפעלה.
+
+**קריטי:** כל החלטה במימוש בפועל חייבת להיצמד לסעיף יא (החלטות יישום מחייבות לשלב 1).

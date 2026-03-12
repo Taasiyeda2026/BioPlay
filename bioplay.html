@@ -1357,8 +1357,9 @@
 
   <script>
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxShbtJpFPOl8Jx7T73irGuJdXXc1M469UZNbFf3ByQ1ZSfoRZdvZHwEb2m6QHv26513Q/exec";
-    const GAME_ID        = "main_game";
     const POLL_INTERVAL_MS = 3000;
+    const qp = new URLSearchParams(window.location.search);
+    const ROOM_ID = (qp.get("room") || "").trim().toUpperCase();
 
     const ASSETS = {
       logo:        "images/logo.svg",
@@ -1380,6 +1381,8 @@
       doorsCount:          5,    // default when no prior selection
       stepCodesEntered:    {},   // { doorId: [code1, code2, code3] }
       selectedAnswers:     {},   // { doorId: { stepIndex: selectedOption } }
+      roomId:              ROOM_ID,
+      missingRoom:         !ROOM_ID,
     };
 
     // ── DOM refs ────────────────────────────────────────────
@@ -1434,6 +1437,12 @@
         ...door,
         displayNumber: index + 1,
       }));
+    }
+
+    function applySelectedDoors(doorIds) {
+      const idSet = new Set((doorIds || []).map(Number));
+      const selected = state.doorsData.filter(d => idSet.has(Number(d.id)));
+      state.selectedDoors = selected.map((door, index) => ({ ...door, displayNumber: index + 1 }));
     }
 
     function getSelectedDoor(doorId) {
@@ -1515,31 +1524,43 @@
       return s === "started" ? "started" : "waiting";
     }
 
-    function applyGameStatus(status) {
-      state.gameStatus = normalizeStatus(status);
-      if (state.gameStatus === "started") {
-        const saved = parseInt(localStorage.getItem("bioplay_doors_count"), 10);
-        if (saved && saved >= 2) {
-          state.doorsCount = Math.max(2, Math.min(saved, 30));
-        }
+    function applyGameStatus(payload) {
+      state.gameStatus = normalizeStatus(payload?.status || payload);
+      const status = payload || {};
+      if (status?.doorsCount) {
+        const dc = parseInt(status.doorsCount, 10);
+        if (dc >= 2) state.doorsCount = Math.min(30, dc);
+      }
+      if (Array.isArray(status?.selectedDoors) && status.selectedDoors.length) {
+        applySelectedDoors(status.selectedDoors);
       }
       updateHomeStatusUI();
     }
 
     function updateHomeStatusUI() {
-      const unlocked = isUnlocked();
+      const unlocked = isUnlocked() && !state.missingRoom;
       document.getElementById("wait-message")?.classList.toggle("hidden", unlocked);
       document.getElementById("start-btn")?.classList.toggle("hidden", !unlocked);
       const t = document.getElementById("home-status-text");
-      if (t) t.textContent = unlocked ? "המשחק הופעל" : "ממתינים להפעלת מדריך";
+      if (!t) return;
+      if (state.missingRoom) {
+        t.textContent = "חסר roomId";
+      } else {
+        t.textContent = unlocked ? "המשחק הופעל" : "ממתינים להפעלת מדריך";
+      }
     }
 
     async function fetchGameStatus() {
-      const url = `${APPS_SCRIPT_URL}?action=status&game_id=${encodeURIComponent(GAME_ID)}`;
+      if (!state.roomId) throw new Error("MISSING_ROOM_ID");
+      const url = `${APPS_SCRIPT_URL}?action=status&roomId=${encodeURIComponent(state.roomId)}`;
       const res  = await fetch(url, { method: "GET", cache: "no-store" });
       const data = await parseScriptResponse(res);
-      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
-      return normalizeStatus(data?.status);
+      if (!res.ok || data?.ok === false) throw new Error(data?.errorCode || data?.message || `HTTP ${res.status}`);
+      return {
+        status: normalizeStatus(data?.status),
+        doorsCount: data?.doorsCount,
+        selectedDoors: Array.isArray(data?.selectedDoors) ? data.selectedDoors : [],
+      };
     }
 
     async function pollGameStatus() {
@@ -1591,8 +1612,8 @@
               <p class="lead" style="text-align:right; width:fit-content; margin:0 auto">• בחרו דלת,<br>• עברו שלושה שלבים,<br>• וגלו איך הטבע הופך לרעיון חדש.</p>
 
               <div class="start-zone">
-                <p class="wait-message ${unlocked ? "hidden" : ""}" id="wait-message">אנא המתינו, מיד מתחילים</p>
-                <button class="btn btn-primary btn-start ${unlocked ? "" : "hidden"}" id="start-btn">התחלת המשחק</button>
+                <p class="wait-message ${unlocked ? "hidden" : ""}" id="wait-message">${state.missingRoom ? "חסר roomId בקישור. פנו למדריך לקבלת קישור תלמידים תקין." : "אנא המתינו, מיד מתחילים"}</p>
+                <button class="btn btn-primary btn-start ${unlocked && !state.missingRoom ? "" : "hidden"}" id="start-btn">התחלת המשחק</button>
               </div>
               <p class="soft-note">⭐</p>
             </div>
@@ -1647,7 +1668,7 @@
       document.getElementById("admin-nav-submit").addEventListener("click", () => {
         const val = document.getElementById("admin-nav-input").value.trim().toUpperCase();
         if (val === ADMIN_NAV_CODE) {
-          window.location.href = "admin.html";
+          window.location.href = state.roomId ? `admin.html?room=${encodeURIComponent(state.roomId)}` : "admin.html";
         } else {
           document.getElementById("admin-nav-error").textContent = "קוד שגוי";
         }
@@ -1696,10 +1717,6 @@
     function renderDoors() {
       const doorsScreen = document.getElementById("screen-doors");
 
-      if (!state.selectedDoors.length && state.doorsData.length) {
-        buildSelectedDoors();
-      }
-
       const visible = state.selectedDoors.length ? state.selectedDoors : [];
 
       if (!visible.length) {
@@ -1707,7 +1724,7 @@
           ${topStrip("מסך הדלתות", "טוען...")}
           <div class="card doors-card">
             <h2 class="doors-title">בחרו דלת</h2>
-            <p class="question-text">לא נמצאו דלתות. בדקו שקובץ doors.json קיים ותקין.</p>
+            <p class="question-text">לא נמצאו דלתות לחדר זה. המתינו להפעלת מדריך או בדקו את קישור ה-room.</p>
           </div>`;
         return;
       }
@@ -2103,6 +2120,10 @@
     (async () => {
       await loadDoorsData();
       renderHome();
+      if (state.missingRoom) {
+        updateHomeStatusUI();
+        return;
+      }
       startStatusPolling();
     })();
   </script>

@@ -39,6 +39,40 @@
       overflow-x: hidden;
     }
 
+    body {
+      padding: 18px 10px;
+    }
+
+    #panel-outer {
+      max-width: 860px;
+      margin: 0 auto;
+      border: 2px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: 0 18px 48px rgba(0,0,0,.45);
+      min-height: auto;
+    }
+
+    .room-info {
+      background: #f0f6ff;
+      border-bottom: 1px solid #d8e5f2;
+      padding: 10px 14px;
+      display: grid;
+      gap: 6px;
+      font-size: .92rem;
+      color: #294057;
+    }
+
+    .room-info strong { color: #10263f; }
+
+    .room-link {
+      color: #0b5ed7;
+      direction: ltr;
+      word-break: break-all;
+      font-family: "Courier New", monospace;
+      font-size: .84rem;
+    }
+
     /* ══════════════════════════════════════════════
        LOGIN OVERLAY
     ══════════════════════════════════════════════ */
@@ -679,19 +713,15 @@
 
     /* ── Desktop landscape: 4 cards in a row inside sci-fi frame ── */
     @media (min-width: 900px) {
-      body { display: flex; align-items: center; justify-content: center; }
+      body { display: block; }
 
       #panel-outer {
-        width: min(1360px, 98vw);
-        height: min(780px, 97vh);
-        border: 5px solid var(--border);
-        border-radius: 6px;
+        width: min(860px, 94vw);
+        height: auto;
+        border: 2px solid var(--border);
+        border-radius: 18px;
         overflow: hidden;
-        box-shadow:
-          0 0 0 1px rgba(0,230,118,.28),
-          0 0 60px rgba(0,0,0,.7),
-          inset 0 0 0 1px rgba(255,255,255,.04);
-        /* Sci-fi corner lights */
+        box-shadow: 0 18px 48px rgba(0,0,0,.45);
         outline: 1px solid transparent;
         position: relative;
       }
@@ -769,6 +799,11 @@
         </div>
       </div>
       <button class="logout-sm" id="logout-btn">יציאה</button>
+    </div>
+
+    <div class="room-info">
+      <div><strong>Room ID:</strong> <span id="room-id-label">—</span></div>
+      <div><strong>קישור תלמידים:</strong> <a id="student-link" class="room-link" href="#">—</a></div>
     </div>
 
     <!-- White content area -->
@@ -905,17 +940,20 @@
 
   <script>
     const APPS_URL   = "https://script.google.com/macros/s/AKfycbxShbtJpFPOl8Jx7T73irGuJdXXc1M469UZNbFf3ByQ1ZSfoRZdvZHwEb2m6QHv26513Q/exec";
-    const GAME_ID    = "main_game";
     const POLL_MS    = 4000;
-    const SESS_KEY   = "bioplay_admin_code";
-    const DOORS_KEY  = "bioplay_doors_count";
 
-    let adminCode = "";
+    const qp = new URLSearchParams(window.location.search);
+    const roomId = (qp.get("room") || "").trim().toUpperCase();
+
+    const scoped = (base) => `${base}_${roomId || "NO_ROOM"}`;
+    const SESS_KEY  = scoped("bioplay_admin_token");
+    const DOORS_KEY = scoped("bioplay_doors_count");
+
+    let teacherToken = "";
     let pollTimer = null;
     let doorsData = [];
     let doorsCount = Math.max(2, parseInt(localStorage.getItem(DOORS_KEY), 10) || 5);
 
-    // ── DOM ──────────────────────────────────────────────────
     const loginOverlay  = document.getElementById("login-overlay");
     const loginCodeEl   = document.getElementById("login-code");
     const loginMsg      = document.getElementById("login-msg");
@@ -932,6 +970,18 @@
     const resultBox     = document.getElementById("result-box");
     const finalBarCode  = document.getElementById("final-bar-code");
     const toastEl       = document.getElementById("toast");
+    const roomIdLabel   = document.getElementById("room-id-label");
+    const studentLinkEl = document.getElementById("student-link");
+
+    roomIdLabel.textContent = roomId || "חסר";
+    if (roomId) {
+      const studentUrl = `${window.location.origin}${window.location.pathname.replace(/admin\.html$/, "bioplay.html")}?room=${encodeURIComponent(roomId)}`;
+      studentLinkEl.textContent = studentUrl;
+      studentLinkEl.href = studentUrl;
+    } else {
+      studentLinkEl.textContent = "אין קישור – חסר room";
+      studentLinkEl.removeAttribute("href");
+    }
 
     const cards = {
       1: { title: document.getElementById("c1-title"), code: document.getElementById("c1-code"), code2: document.getElementById("c1-code2"), answer: document.getElementById("c1-answer") },
@@ -940,7 +990,6 @@
       4: { code: document.getElementById("c4-code"), code2: document.getElementById("c4-code2") },
     };
 
-    // ── Door count select ────────────────────────────────────
     for (let n = 2; n <= 30; n++) {
       const o = document.createElement("option");
       o.value = n; o.textContent = n;
@@ -953,20 +1002,25 @@
       localStorage.setItem(DOORS_KEY, doorsCount);
     });
 
-    // ── Toast ────────────────────────────────────────────────
     let toastT;
     function toast(msg, type = "info") {
       toastEl.textContent = msg;
-      toastEl.style.background =
-        type === "success" ? "rgba(20,100,20,.95)"
-      : type === "error"   ? "rgba(150,20,20,.95)"
-      :                      "rgba(8,18,38,.92)";
+      toastEl.style.background = type === "success" ? "rgba(20,100,20,.95)" : type === "error" ? "rgba(150,20,20,.95)" : "rgba(8,18,38,.92)";
       toastEl.classList.add("show");
       clearTimeout(toastT);
       toastT = setTimeout(() => toastEl.classList.remove("show"), 3000);
     }
 
-    // ── Server ───────────────────────────────────────────────
+    function setFatalRoomError() {
+      loginBtn.disabled = true;
+      activateBtn.disabled = true;
+      resetBtn.disabled = true;
+      loginMsg.textContent = "חסר roomId בקישור. יש לפתוח admin.html?room=<ROOM_ID>";
+      loginMsg.className = "login-msg error";
+      actionMsg.textContent = "לא ניתן לבצע פעולות ללא roomId";
+      actionMsg.className = "action-msg error";
+    }
+
     async function parse(res) {
       const raw = await res.text();
       if (!raw) return {};
@@ -974,25 +1028,26 @@
     }
 
     async function getStatus() {
-      const res = await fetch(`${APPS_URL}?action=status&game_id=${encodeURIComponent(GAME_ID)}`, { cache: "no-store" });
+      const url = `${APPS_URL}?action=status&roomId=${encodeURIComponent(roomId)}`;
+      const res = await fetch(url, { cache: "no-store" });
       const d = await parse(res);
+      if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
       return d?.status === "started" ? "started" : "waiting";
     }
 
-    async function sendAction(action, code) {
-      const body = new URLSearchParams({ action, game_id: GAME_ID });
-      if (code) body.set("code", code);
+    async function sendAction(action, token, extra = {}) {
+      const body = new URLSearchParams({ action, roomId, ...extra });
+      if (token) body.set("teacherToken", token);
       const res = await fetch(APPS_URL, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: body.toString(),
       });
       const d = await parse(res);
-      if (!res.ok) throw new Error(d?.error || `HTTP ${res.status}`);
+      if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
       return d;
     }
 
-    // ── Status UI ────────────────────────────────────────────
     function setStatus(s) {
       const on = s === "started";
       statusDot.className   = `status-dot ${on ? "started" : "waiting"}`;
@@ -1008,30 +1063,17 @@
       }, POLL_MS);
     }
 
-    // ── Login ────────────────────────────────────────────────
     async function doLogin() {
+      if (!roomId) return setFatalRoomError();
       const code = loginCodeEl.value.trim();
-      if (!code) { loginMsg.textContent = "יש להזין קוד."; loginMsg.className = "login-msg error"; return; }
+      if (!code) { loginMsg.textContent = "יש להזין טוקן מדריך."; loginMsg.className = "login-msg error"; return; }
       loginBtn.disabled = true;
-      loginMsg.textContent = "מאמת...";
-      loginMsg.className = "login-msg info";
-      try {
-        const r = await sendAction("start", code);
-        const ok = r?.success === true || r?.ok === true || r?.status === "started" || r?.result === "started";
-        if (ok) {
-          adminCode = code;
-          sessionStorage.setItem(SESS_KEY, code);
-          localStorage.setItem(DOORS_KEY, doorsCount);
-          enterPanel("started");
-        } else {
-          loginMsg.textContent = "קוד שגוי. נסו שוב.";
-          loginMsg.className = "login-msg error";
-        }
-      } catch (e) {
-        loginMsg.textContent = e instanceof TypeError ? "שגיאת חיבור." : "שגיאה.";
-        loginMsg.className = "login-msg error";
-      }
+      teacherToken = code;
+      sessionStorage.setItem(SESS_KEY, code);
+      localStorage.setItem(DOORS_KEY, doorsCount);
+      loginMsg.textContent = "";
       loginBtn.disabled = false;
+      enterPanel();
     }
 
     function enterPanel(initStatus) {
@@ -1044,45 +1086,41 @@
     loginBtn.onclick  = doLogin;
     loginCodeEl.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
 
-    // ── Activate ─────────────────────────────────────────────
     activateBtn.onclick = async () => {
-      if (!adminCode) return;
+      if (!teacherToken || !roomId) return;
       activateBtn.disabled = true;
       actionMsg.textContent = "מפעיל..."; actionMsg.className = "action-msg info";
       try {
-        const r = await sendAction("start", adminCode);
-        const ok = r?.success === true || r?.ok === true || r?.status === "started" || r?.result === "started";
-        if (ok) {
-          localStorage.setItem(DOORS_KEY, doorsCount);
-          actionMsg.textContent = `✔ הופעל – ${doorsCount} דלתות`; actionMsg.className = "action-msg success";
-          setStatus("started");
-          toast(`✔ המשחק הופעל! ${doorsCount} דלתות`, "success");
-        } else {
-          actionMsg.textContent = "שגיאה בהפעלה"; actionMsg.className = "action-msg error";
-          toast("שגיאה בהפעלה", "error");
-        }
-      } catch {
-        actionMsg.textContent = "שגיאת חיבור"; actionMsg.className = "action-msg error";
-        toast("שגיאת חיבור", "error");
+        const r = await sendAction("start", teacherToken, { doorsCount });
+        const resolvedCount = parseInt(r?.doorsCount, 10) || doorsCount;
+        localStorage.setItem(DOORS_KEY, resolvedCount);
+        actionMsg.textContent = `✔ הופעל – ${resolvedCount} דלתות`; actionMsg.className = "action-msg success";
+        setStatus("started");
+        toast(`✔ המשחק הופעל! Room ${roomId}`, "success");
+      } catch (e) {
+        actionMsg.textContent = String(e.message || "שגיאת הפעלה"); actionMsg.className = "action-msg error";
+        toast("שגיאה בהפעלה", "error");
       }
       activateBtn.disabled = false;
     };
 
-    // ── Reset ────────────────────────────────────────────────
     resetBtn.onclick = async () => {
-      if (!adminCode) return;
+      if (!teacherToken || !roomId) return;
       resetBtn.disabled = true;
       actionMsg.textContent = "מאפס..."; actionMsg.className = "action-msg info";
-      try { await sendAction("reset", adminCode); } catch {}
-      setStatus("waiting");
-      actionMsg.textContent = "✔ אופס – כפתור ההתחלה הוסתר"; actionMsg.className = "action-msg success";
-      toast("✔ המשחק אופס ונעול", "success");
+      try {
+        await sendAction("reset", teacherToken);
+        setStatus("waiting");
+        actionMsg.textContent = "✔ אופס – המשחק חזר למצב המתנה"; actionMsg.className = "action-msg success";
+        toast("✔ החדר אופס", "success");
+      } catch (e) {
+        actionMsg.textContent = String(e.message || "שגיאת איפוס"); actionMsg.className = "action-msg error";
+      }
       resetBtn.disabled = false;
     };
 
-    // ── Logout ───────────────────────────────────────────────
     logoutBtn.onclick = () => {
-      adminCode = "";
+      teacherToken = "";
       sessionStorage.removeItem(SESS_KEY);
       clearInterval(pollTimer);
       clearCards();
@@ -1091,7 +1129,6 @@
       loginMsg.textContent = "";
     };
 
-    // ── Load doors.json ──────────────────────────────────────
     async function loadDoors() {
       try {
         const res = await fetch("doors.json", { cache: "no-store" });
@@ -1099,7 +1136,6 @@
       } catch { doorsData = []; }
     }
 
-    // ── Cards ────────────────────────────────────────────────
     function clearCards() {
       resultBox.textContent = "חפשו אורגניזם לצפייה בקודים";
       finalBarCode.textContent = "——";
@@ -1131,7 +1167,6 @@
       finalBarCode.textContent   = fc;
     }
 
-    // ── Search with autocomplete ─────────────────────────────
     function buildDropdown(q) {
       const items = q
         ? doorsData.filter(d =>
@@ -1167,7 +1202,6 @@
       searchT = setTimeout(() => buildDropdown(searchInput.value.trim()), 200);
     });
 
-    // Close dropdown on outside click
     document.addEventListener("click", e => {
       if (!e.target.closest(".search-section")) {
         searchDropdown.classList.remove("open");
@@ -1184,20 +1218,20 @@
       searchDropdown.classList.remove("open");
     };
 
-    // Enter key in search
     searchInput.addEventListener("keydown", e => {
       if (e.key === "Enter") document.getElementById("search-btn").click();
     });
 
-    // ── Auto-restore session ─────────────────────────────────
     (async () => {
+      if (!roomId) return setFatalRoomError();
       const saved = sessionStorage.getItem(SESS_KEY);
       if (saved) {
-        adminCode = saved;
+        teacherToken = saved;
         loginCodeEl.value = saved;
         enterPanel();
       }
     })();
   </script>
+
 </body>
 </html>

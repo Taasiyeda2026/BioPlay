@@ -429,3 +429,34 @@
 - **Phase 1 (מהיר ויציב מספיק):** Apps Script Room-Based.
 - **Phase 2 (סקייל/מוצר):** מעבר הדרגתי ל־Firebase/Supabase לפי עומס וצרכים.
 
+
+---
+
+## יא. החלטות יישום מחייבות לשלב 1
+
+1. הפיתוח יתבצע בשלב ראשון על גבי **Google Apps Script + Google Sheet בלבד**.
+2. אין מעבר בשלב זה ל־**Firebase** או **Supabase**.
+3. אין בשלב זה שמירת **progress מפורט** של תלמידים בשרת.
+4. השרת ישמור רק **room-level state**:
+   - `roomId`
+   - `teacherToken`
+   - `status`
+   - `doorsCount`
+   - `selectedDoors`
+   - `createdAt`
+   - `updatedAt`
+5. `selectedDoors` ייקבע בשרת בזמן **`start` בלבד** (ולא ב־`create_room`).
+6. כל קריאות ה-client יעבדו עם `roomId` מה־URL, ללא `main_game` קשיח.
+7. פעולות מדריך (`start` / `reset`) יחייבו `teacherToken` תקין.
+8. קישור תלמידים לא יכלול token.
+9. קישור מדריך יהיה עם `roomId` בלבד, והטוקן יוזן במסך המדריך (`admin.html?room=<ROOM_ID>`).
+10. תאימות לקישורים ישנים תישמר רק אם פשוטה ליישום; אחרת יוחזר מסר שגיאה ברור כאשר `roomId` חסר.
+11. לפני שינוי קוד בפועל תוגש רשימת קבצים סופית לביצוע.
+
+### רשימת קבצים סופית לשינוי (לפני כתיבת קוד)
+- `admin.html`
+- `bioplay.html`
+- Google Apps Script backend (קובץ הקוד של ה־Web App)
+- Google Sheet schema/config המשויך ל־Apps Script
+
+> הערה: בשלב 1 לא מתוכנן שינוי חובה ב־`doors.json` או `index.html`.

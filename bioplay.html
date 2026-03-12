@@ -1370,8 +1370,6 @@
       gameStatus:          "waiting",
       statusPollTimer:     null,
       statusRequestInFlight: false,
-      logoTapCount:        0,
-      logoTapResetTimer:   null,
       completedDoors:      new Set(),
       doorsData:           [],   // loaded from doors.json
       selectedDoors:       [],   // doors selected for the current round
@@ -1515,6 +1513,12 @@
 
     function applyGameStatus(status) {
       state.gameStatus = normalizeStatus(status);
+      if (state.gameStatus === "started") {
+        const saved = parseInt(localStorage.getItem("bioplay_doors_count"), 10);
+        if (saved && saved >= 2) {
+          state.doorsCount = Math.max(2, Math.min(saved, 30));
+        }
+      }
       updateHomeStatusUI();
     }
 
@@ -1546,19 +1550,6 @@
       clearInterval(state.statusPollTimer);
       pollGameStatus();
       state.statusPollTimer = setInterval(pollGameStatus, POLL_INTERVAL_MS);
-    }
-
-    async function sendGameAction(action, code = "") {
-      const body = new URLSearchParams({ action, game_id: GAME_ID });
-      if (code) body.set("code", code);
-      const res  = await fetch(APPS_SCRIPT_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: body.toString(),
-      });
-      const data = await parseScriptResponse(res);
-      if (!res.ok) throw new Error(data?.error || `HTTP ${res.status}`);
-      return data;
     }
 
     // ── Load doors.json ──────────────────────────────────────
@@ -1609,25 +1600,6 @@
               <div class="countdown-label">המשימה מתחילה עכשיו</div>
             </div>
           </div>
-
-          <!-- Guide modal (hidden behind logo triple-tap) -->
-          <div class="admin-modal" id="guide-modal">
-            <div class="modal-card">
-              <h3 class="modal-title">אזור מדריך</h3>
-              <p class="modal-text">הזינו קוד מדריך להפעלה ובחרו מספר דלתות (בורר).</p>
-              <div class="code-row">
-                <input id="guide-code-input" class="input" type="password" placeholder="קוד מדריך" autocomplete="off">
-                <button class="btn btn-primary" id="guide-start-btn">הפעל</button>
-              </div>
-              <div class="doors-count-row">
-                <span class="doors-count-label">מספר דלתות:</span>
-                <select id="doors-count-select" class="input doors-count-select">
-                  ${Array.from({length:26},(_,i)=>i+2).map(n=>`<option value="${n}"${n===state.doorsCount?" selected":""}>${n}</option>`).join("")}
-                </select>
-              </div>
-              <p class="feedback" id="guide-feedback"></p>
-            </div>
-          </div>
         </div>
       `;
 
@@ -1637,67 +1609,6 @@
       document.getElementById("logo-trigger").onerror = function () {
         this.classList.add("logo-error"); this.alt = "שגיאת לוגו";
       };
-
-      const guideModal    = document.getElementById("guide-modal");
-      const guideInput    = document.getElementById("guide-code-input");
-      const guideFeedback = document.getElementById("guide-feedback");
-      const doorsSelect   = document.getElementById("doors-count-select");
-
-      // Triple-tap logo → open guide modal
-      document.getElementById("logo-trigger").addEventListener("click", () => {
-        state.logoTapCount++;
-        clearTimeout(state.logoTapResetTimer);
-        state.logoTapResetTimer = setTimeout(() => { state.logoTapCount = 0; }, 1400);
-        if (state.logoTapCount >= 3) {
-          state.logoTapCount = 0;
-          doorsSelect.value     = state.doorsCount;
-          guideFeedback.textContent = "";
-          guideFeedback.className   = "feedback";
-          guideInput.value = "";
-          guideModal.classList.add("active");
-          guideInput.focus();
-        }
-      });
-
-      // Click on the overlay backdrop (not the card) → close
-      guideModal.addEventListener("click", e => {
-        if (e.target === guideModal) guideModal.classList.remove("active");
-      });
-
-      const activateGame = async () => {
-        const code = guideInput.value.trim();
-        if (!code) {
-          guideFeedback.textContent = "יש להזין קוד לפני הפעלה.";
-          guideFeedback.className   = "feedback error";
-          return;
-        }
-        try {
-          const result = await sendGameAction("start", code);
-          const ok = result?.success === true || result?.ok === true
-                  || result?.status === "started" || result?.result === "started";
-          if (ok) {
-            const chosen = parseInt(doorsSelect.value, 10) || 5;
-            state.doorsCount = Math.max(2, Math.min(chosen, Math.max(30, state.doorsData.length)));
-            applyGameStatus("started");
-            buildSelectedDoors();
-            guideFeedback.textContent = `המשחק הופעל • ${state.doorsCount} דלתות`;
-            guideFeedback.className   = "feedback success";
-            guideInput.value = "";
-            burstEffect();
-            setTimeout(() => guideModal.classList.remove("active"), 1500);
-          } else {
-            guideFeedback.textContent = "קוד שגוי";
-            guideFeedback.className   = "feedback error";
-          }
-        } catch (e) {
-          const net = e instanceof TypeError || String(e).includes("fetch");
-          guideFeedback.textContent = net ? "שגיאת חיבור לשרת. בדקו אינטרנט." : "קוד שגוי";
-          guideFeedback.className   = "feedback error";
-        }
-      };
-
-      document.getElementById("guide-start-btn").onclick = activateGame;
-      guideInput.addEventListener("keydown", e => { if (e.key === "Enter") activateGame(); });
 
       document.getElementById("start-btn")?.addEventListener("click", startMainCountdown);
       updateHomeStatusUI();

@@ -8,7 +8,7 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --page-bg: #ecf2f7;
+      --page-bg: #1f2732;
       --panel-bg: #ffffff;
       --panel-soft: #f4f9ff;
       --frame: #163251;
@@ -36,14 +36,39 @@
     html, body {
       min-height: 100%;
       font-family: "Assistant", Arial, sans-serif;
-      background: linear-gradient(180deg, #f8fbfd 0%, var(--page-bg) 100%);
+      background:
+        radial-gradient(circle at 18% 16%, rgba(151, 178, 201, 0.16) 0, rgba(151, 178, 201, 0) 44%),
+        radial-gradient(circle at 82% 20%, rgba(136, 152, 176, 0.11) 0, rgba(136, 152, 176, 0) 40%),
+        radial-gradient(circle at 50% 90%, rgba(120, 139, 163, 0.10) 0, rgba(120, 139, 163, 0) 50%),
+        linear-gradient(180deg, #323d49 0%, #242d38 52%, #1a212c 100%);
       color: var(--text-main);
     }
 
-    body { padding: 16px 12px; }
+    body {
+      padding: 16px 12px;
+      position: relative;
+      isolation: isolate;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      background-image:
+        radial-gradient(circle at 12% 22%, rgba(255, 255, 255, 0.34) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 78% 34%, rgba(255, 255, 255, 0.26) 0 1px, transparent 2px),
+        radial-gradient(circle at 33% 72%, rgba(255, 255, 255, 0.2) 0 1px, transparent 2px),
+        radial-gradient(circle at 63% 86%, rgba(255, 255, 255, 0.24) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 90% 74%, rgba(255, 255, 255, 0.18) 0 1px, transparent 2px);
+      opacity: .35;
+    }
 
     #panel-outer {
-      max-width: 1220px;
+      max-width: 1040px;
+      --main-block-span: 2;
+      --main-block-cols: 3;
       margin: 0 auto;
       background: linear-gradient(180deg, #f9fcff 0%, #f2f7fc 100%);
       border: 1px solid var(--border);
@@ -53,7 +78,8 @@
       display: grid;
       grid-template-areas:
         "header  header  header"
-        "content content control"
+        "status  status  status"
+        "content content content"
         "db      db      db";
       grid-template-columns: 1fr 1fr 1fr;
     }
@@ -61,23 +87,20 @@
     .admin-header {
       grid-area: header;
       position: relative;
-      display: grid;
-      grid-template-columns: 1fr;
-      grid-template-areas:
-        "title"
-        "status";
-      align-items: start;
-      gap: 10px 18px;
-      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 20px;
       background: linear-gradient(180deg, #fbfdff 0%, #f0f6fc 100%);
       border-bottom: 1px solid var(--border);
       box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.7);
+      width: calc((100% - 28px) * var(--main-block-span) / var(--main-block-cols));
+      max-width: calc(100% - 28px);
+      justify-self: center;
     }
 
     .header-title {
-      grid-area: title;
-      align-self: center;
-      justify-self: end;
+      text-align: center;
     }
 
     .header-title h1 {
@@ -99,11 +122,17 @@
 
     .status-strip {
       grid-area: status;
-      display: flex;
-      flex-wrap: wrap;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
-      justify-content: flex-end;
-      align-self: start;
+      padding: 10px 14px;
+      width: calc((100% - 28px) * var(--main-block-span) / var(--main-block-cols));
+      max-width: calc(100% - 28px);
+      justify-self: center;
+    }
+
+    .status-strip:empty {
+      display: none;
     }
 
     .status-chip {
@@ -111,7 +140,7 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      width: var(--chip-size);
+      width: 100%;
       min-height: var(--chip-height);
       border-radius: 999px;
       padding: 6px 10px;
@@ -179,10 +208,13 @@
     #panel-content {
       grid-area: content;
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
       padding: 14px;
       background: transparent;
+      width: calc((100% - 28px) * var(--main-block-span) / var(--main-block-cols));
+      max-width: calc(100% - 28px);
+      justify-self: center;
     }
 
     .panel {
@@ -208,13 +240,32 @@
     }
 
     .panel-control {
-      grid-area: control;
-      margin: 14px 0 14px 14px;
+      margin: 0;
     }
 
     .panel-db {
       grid-area: db;
-      margin: 0 14px 14px;
+      margin: 0 0 14px;
+      width: calc((100% - 28px) * var(--main-block-span) / var(--main-block-cols));
+      max-width: calc(100% - 28px);
+      justify-self: center;
+    }
+
+    .panel-setup {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .panel-link {
+      grid-column: 3;
+      grid-row: 1;
+    }
+
+    .panel-setup,
+    .panel-link {
+      display: grid;
+      gap: 10px;
+      align-content: start;
     }
 
     .field-group { margin-bottom: 10px; display: grid; gap: 6px; }
@@ -224,6 +275,7 @@
       align-items: end;
       gap: 10px;
       flex-wrap: nowrap;
+      width: 100%;
     }
 
     .compact-field {
@@ -233,13 +285,15 @@
     }
 
     .compact-field-room {
-      flex: 0 1 180px;
-      max-width: 180px;
+      flex: 1 1 190px;
+      min-width: 0;
+      max-width: none;
     }
 
     .compact-field-doors {
-      flex: 0 0 92px;
-      max-width: 92px;
+      flex: 0 0 88px;
+      width: 88px;
+      max-width: 88px;
     }
 
     .compact-select {
@@ -285,82 +339,82 @@
     .btn:active:not(:disabled) { transform: translateY(0); box-shadow: inset 0 3px 7px rgba(9, 27, 45, 0.28), 0 3px 8px rgba(12, 34, 56, 0.12); }
     .btn:disabled { opacity: .6; cursor: not-allowed; }
 
-    .btn-room,
-    .btn-copy-link {
-      width: fit-content;
-      min-width: 124px;
-      min-height: 46px;
-      border-radius: 999px;
-      padding: 10px 22px;
-      margin-top: 10px;
-      font-size: .93rem;
-      font-weight: 900;
-      letter-spacing: .2px;
-      box-shadow: inset 0 2px 0 rgba(255,255,255,.35), inset 0 -9px 14px rgba(0,0,0,.2), 0 10px 18px rgba(17, 40, 63, 0.26);
-    }
+.btn-room,
+.btn-copy-link {
+  width: fit-content;
+  min-width: 124px;
+  min-height: 46px;
+  border-radius: 999px;
+  padding: 10px 22px;
+  margin-top: 10px;
+  font-size: .93rem;
+  font-weight: 900;
+  letter-spacing: .2px;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.35), inset 0 -9px 14px rgba(0,0,0,.2), 0 10px 18px rgba(17, 40, 63, 0.26);
+}
 
-    .btn-room {
-      background: linear-gradient(180deg, #4d97df 0%, #2a70b5 54%, #184f84 100%);
-      border-color: #154772;
-      color: #ffffff;
-    }
+.btn-room {
+  background: linear-gradient(180deg, #4d97df 0%, #2a70b5 54%, #184f84 100%);
+  border-color: #154772;
+  color: #ffffff;
+  text-shadow: 0 1px 1px rgba(0,0,0,.22);
+}
 
-    .btn-copy-link {
-      background: linear-gradient(180deg, #ffe27a 0%, #efbc18 52%, #b98400 100%);
-      border-color: #8a6200;
-      color: #3a2800;
-      text-shadow: 0 1px 0 rgba(255,235,170,.42);
-      box-shadow:
-        inset 0 2px 0 rgba(255,255,255,.34),
-        inset 0 -10px 14px rgba(0,0,0,.18),
-        0 10px 18px rgba(17, 40, 63, 0.24);
-    }
+.btn-copy-link {
+  background: linear-gradient(180deg, #5bbf8a 0%, #2f9b61 54%, #1f6f45 100%);
+  border-color: #1d623d;
+  color: #ffffff;
+  text-shadow: 0 1px 1px rgba(0,0,0,.22);
+}
 
-    .room-link-input {
-      direction: ltr;
-      font-family: "Courier New", monospace;
-      font-size: .82rem;
-    }
-
-
-    .setup-box {
-      border: 1px dashed #c7d9e8;
-      border-radius: 10px;
-      background: linear-gradient(180deg, #f8fbff, #eef5fc);
-      min-height: 54px;
-      padding: 10px;
-      display: grid;
-      gap: 10px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
-    }
-
+.room-link-input {
+  direction: ltr;
+  font-family: "Courier New", monospace;
+  font-size: .82rem;
+}
+    .setup-box,
     .link-box {
       border: 1px dashed #c7d9e8;
       border-radius: 10px;
       background: linear-gradient(180deg, #f8fbff, #eef5fc);
-      min-height: 54px;
+      min-height: 138px;
       padding: 10px;
       display: grid;
-      gap: 6px;
+      gap: 10px;
+      align-content: start;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
     }
 
-    .controls-section { display: grid; gap: 10px; }
+    .panel-link .btn-copy-link,
+    .panel-setup .btn-room {
+      justify-self: center;
+      margin-top: 0;
+    }
+
+    .controls-section {
+      display: grid;
+      gap: 8px;
+      justify-items: center;
+      align-content: start;
+      min-height: 100%;
+    }
 
     .control-buttons {
       display: flex;
       justify-content: center;
       gap: 14px;
-      margin-bottom: 4px;
+      margin-bottom: 14px;
+      width: fit-content;
+      margin-inline: auto;
     }
 
     .btn-play, .btn-reset {
-      width: 114px;
-      height: 114px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
       border: 1px solid rgba(255,255,255,0.22);
       color: #fff;
-      font-size: 1.24rem;
+      font-size: .92rem;
       font-weight: 900;
       letter-spacing: .55px;
       cursor: pointer;
@@ -398,10 +452,62 @@
 
     .control-help { display: grid; gap: 6px; font-size: .88rem; color: var(--text-soft); }
 
+    .control-stats {
+      width: 100%;
+      display: grid;
+      gap: 6px;
+      justify-items: center;
+    }
+
+    .control-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .9rem;
+      font-weight: 800;
+      color: #335774;
+    }
+
+    .control-stat strong {
+      color: #102f4c;
+    }
+
+    .link-note-box {
+      border: 1px dashed #c7d9e8;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #f8fbff, #eef5fc);
+      padding: 12px;
+      color: #5a7892;
+      font-size: .95rem;
+      font-weight: 700;
+      line-height: 1.5;
+      text-align: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+    }
+
     .action-msg {
       min-height: 18px;
       margin-top: 14px;
       font-size: .84rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+
+    .setup-help-text {
+      margin-top: 2px;
+      font-size: .77rem;
+      color: #6d8499;
+      text-align: center;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .copy-help-text {
+      margin-top: 2px;
+      font-size: .77rem;
+      color: #6d8499;
+      text-align: center;
       font-weight: 700;
       line-height: 1.35;
     }
@@ -778,29 +884,35 @@
     /* ── Tablet (701px – 1100px) ── */
     @media (max-width: 1100px) and (min-width: 701px) {
       #panel-outer {
+        --main-block-span: 1;
+        --main-block-cols: 1;
         grid-template-areas:
-          "header header"
-          "content control"
-          "db db";
-        grid-template-columns: 2fr 1fr;
+          "header"
+          "status"
+          "content"
+          "db";
+        grid-template-columns: 1fr;
       }
-      #panel-content { grid-template-columns: 1fr 1fr; }
+      #panel-content { grid-template-columns: 1fr 1fr 1fr; }
       .admin-header { padding-left: 12px; padding-right: 12px; }
-      .header-title { align-self: flex-end; }
-      .status-strip { justify-content: flex-start; }
       .logout-sm { left: 12px; width: 96px; }
-      .status-chip { width: auto; min-width: 150px; }
+      .panel-db {
+        margin-bottom: 14px;
+      }
       /* שמירת margins העקביים בטאבלט */
     }
 
     /* ── Mobile (≤700px) ── */
     @media (max-width: 700px) {
       #panel-outer {
+        --main-block-span: 1;
+        --main-block-cols: 1;
         grid-template-areas:
-          "header  control"
-          "content content"
-          "db      db";
-        grid-template-columns: 1fr 1fr;
+          "header"
+          "status"
+          "content"
+          "db";
+        grid-template-columns: 1fr;
         gap: 14px;
         padding: 12px;
       }
@@ -812,22 +924,17 @@
 
       .admin-header { padding: 12px; }
       .logout-sm { left: 12px; width: 86px; font-size: .78rem; }
-      .header-title { align-self: flex-end; }
       .header-title h1 { font-size: 1.3rem; }
       .header-title p  { font-size: .85rem; }
 
-      /* chips: גריד 2×2 */
-      .status-strip {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        justify-content: start;
-      }
-      .status-chip { width: auto; min-width: 0; font-size: .8rem; padding: 5px 8px; }
+      .status-strip { gap: 8px; padding: 8px 10px; }
+      .status-chip { font-size: .8rem; padding: 5px 8px; }
+
+      body { padding: 12px; }
 
       /* כפתורי PLAY/RESET — מתאימים לעמודה צרה (~155px) */
-      .btn-play, .btn-reset { width: 90px; height: 90px; font-size: 1rem; }
-      .control-buttons { gap: 10px; }
+      .btn-play, .btn-reset { width: 76px; height: 76px; font-size: .86rem; }
+      .control-buttons { gap: 8px; }
 
       /* שמירת תיקוני טיפוגרפיה וכרטיסים */
       .compact-fields-row { gap: 8px; }
@@ -848,6 +955,8 @@
     }
 
     @media (max-width: 560px) {
+      .control-buttons { gap: 8px; }
+      .btn-play, .btn-reset { width: 72px; height: 72px; font-size: .82rem; }
       .cards-grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -870,55 +979,61 @@
         <h1>BIOPLAY ADMIN</h1>
         <p>לוח בקרה למדריך</p>
       </div>
-      <div class="status-strip">
-        <div class="status-chip"><span class="status-dot waiting" id="status-dot"></span><span class="status-label" id="status-label">ממתין</span></div>
-        <div class="status-chip"><span>חדר פעיל: <strong id="room-id-label">—</strong></span></div>
-        <div class="status-chip"><span>סטטוס מערכת: <strong id="room-status-label">טרם נוצר</strong></span></div>
-        <div class="status-chip"><span>מספר דלתות: <strong id="header-doors-count">5</strong></span></div>
-      </div>
       <button class="logout-sm" id="logout-btn">יציאה</button>
     </header>
 
-    <section class="panel panel-control">
-      <h2>שליטה במשחק</h2>
-      <div class="controls-section">
-        <div class="control-buttons">
-          <button class="btn-play" id="activate-btn" disabled>PLAY</button>
-          <button class="btn-reset" id="reset-btn">RESET</button>
-        </div>
-      </div>
-    </section>
+    <div class="status-strip"></div>
 
     <main id="panel-content" class="admin-grid">
-      <section class="panel panel-setup">
-        <h2>הגדרת משחק</h2>
-        <div class="setup-box">
-          <div class="field-group compact-fields-row">
-            <div class="compact-field compact-field-room">
-              <label for="room-name-select">חדר</label>
-              <select id="room-name-select" class="room-select compact-select">
-                <option value="">טוען...</option>
-              </select>
-            </div>
-            <div class="compact-field compact-field-doors">
-              <label for="doors-count-select">דלתות</label>
-              <select id="doors-count-select" class="count-select compact-select"></select>
-            </div>
+      <section class="panel panel-control">
+        <h2>שליטה במשחק</h2>
+        <div class="controls-section">
+          <div class="control-buttons">
+            <button class="btn-play" id="activate-btn" disabled>PLAY</button>
+            <button class="btn-reset" id="reset-btn">RESET</button>
           </div>
-          <button class="btn btn-room" id="room-btn">צור חדר</button>
-          <div class="action-msg" id="action-msg"></div>
+          <div class="control-stats">
+            <div class="control-stat">חדר פעיל: <strong id="room-id-label">—</strong></div>
+            <div class="control-stat">סטטוס מערכת: <span class="status-dot waiting" id="status-dot"></span><strong id="room-status-label">ממתין</strong><span class="status-label" id="status-label" style="display:none">ממתין</span></div>
+            <div class="control-stat">מספר דלתות: <strong id="header-doors-count">5</strong></div>
+          </div>
         </div>
       </section>
 
-      <section class="panel panel-link">
-        <h2>גישת תלמידים</h2>
-        <div class="link-box">
-          <small>קישור מלא לתלמידים</small>
-          <input id="student-link-input" class="room-link-input" type="text" readonly value="טרם נוצר קישור תלמידים" />
-        </div>
-        <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק</button>
-        <div class="link-box"><small>QR לתלמידים</small></div>
-      </section>
+     <section class="panel panel-setup">
+  <h2>הגדרת משחק</h2>
+  <div class="setup-box">
+    <div class="field-group compact-fields-row">
+      <div class="compact-field compact-field-room">
+        <label for="room-name-select">חדר</label>
+        <select id="room-name-select" class="room-select compact-select">
+          <option value="">טוען...</option>
+        </select>
+      </div>
+      <div class="compact-field compact-field-doors">
+        <label for="doors-count-select">דלתות</label>
+        <select id="doors-count-select" class="count-select compact-select"></select>
+      </div>
+    </div>
+    <button class="btn btn-room" id="room-btn">צור חדר</button>
+    <small class="setup-help-text">בחרו חדר ומספר דלתות ולחצו על "צור חדר"</small>
+    <div class="action-msg" id="action-msg"></div>
+  </div>
+</section>
+
+<section class="panel panel-link">
+  <h2>גישת תלמידים</h2>
+  <div class="link-box">
+    <div class="field-group">
+      <label for="student-link-input">קישור מלא לתלמידים</label>
+      <input id="student-link-input" class="room-link-input" type="text" readonly value="טרם נוצר קישור תלמידים" />
+    </div>
+    <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק</button>
+    <small class="copy-help-text">העתיקו את הקישור ושלחו אותו בצ'אט של Zoom</small>
+    <div class="action-msg action-msg-placeholder" aria-hidden="true"></div>
+  </div>
+</section>
+
     </main>
 
     <section class="panel panel-db">
@@ -997,7 +1112,7 @@
 
   function studentUrlForRoom() {
     if (!roomId) return "";
-    return `${window.location.origin}${window.location.pathname.replace(/admin\.html$/, "bioplay.html")}?room=${encodeURIComponent(roomId)}`;
+    return `${window.location.origin}${window.location.pathname.replace(/admin(?:-dev)?\.html$/, "bioplay.html")}?room=${encodeURIComponent(roomId)}`;
   }
 
   function syncDashboardMeta(statusText = "ממתין") {
@@ -1007,7 +1122,8 @@
   }
 
   function updateRoomInfo(statusText = "ממתין") {
-    roomIdLabel.textContent = activeRoomName || roomId || "—";
+    const selectedFriendlyRoom = roomNameSelect.value.trim();
+    roomIdLabel.textContent = roomId ? (selectedFriendlyRoom || activeRoomName || "—") : "—";
     roomStatusLabel.textContent = roomId ? statusText : "טרם נוצר";
 
     const studentUrl = studentUrlForRoom();
@@ -1138,7 +1254,7 @@
   async function createRoom() {
     const selectedRoomName = roomNameSelect.value.trim();
     if (!selectedRoomName) {
-      actionMsg.textContent = "בחרו חדר מהרשימה לפני יצירה";
+      actionMsg.textContent = "בחרו חדר";
       actionMsg.className = "action-msg info";
       return;
     }
@@ -1224,12 +1340,15 @@
   copyLinkBtn.onclick = async () => {
     const url = studentUrlForRoom();
     if (!url) return;
+    const formattedText = `לכניסה למשחק לחצו (${url})`;
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(formattedText);
       toast("הקישור הועתק", "success");
     } catch (_) {
+      studentLinkInput.value = formattedText;
       studentLinkInput.select();
       document.execCommand("copy");
+      studentLinkInput.value = url;
       toast("הקישור הועתק", "success");
     }
   };
@@ -1449,14 +1568,15 @@
     await loadDoors();
     refreshStorageScope();
 
-    if (!roomId) {
-      loginOverlay.style.display = "none";
-      clearCards();
-      setStatus("waiting");
-      actionMsg.textContent = "בחרו חדר מהרשימה ולחצו על \"צור חדר\" כדי להתחיל.";
-      actionMsg.className = "action-msg info";
-      return;
-    }
+if (!roomId) {
+  loginOverlay.style.display = "none";
+  clearCards();
+  setStatus("waiting");
+  actionMsg.textContent = "";
+  actionMsg.className = "action-msg";
+  return;
+
+}
 
     const saved = sessionStorage.getItem(getSessKey(roomId));
     if (saved) {
@@ -1468,7 +1588,7 @@
     }
 
     loginOverlay.style.display = "none";
-    actionMsg.textContent = "אין טוקן שמור לחדר הזה. בחרו חדר ולחצו \"צור חדר\".";
+    actionMsg.textContent = "כדי להתחיל, בחרו חדר ולחצו על \"צור חדר\".";
     actionMsg.className = "action-msg info";
   })();
 </script>

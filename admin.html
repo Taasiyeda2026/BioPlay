@@ -29,6 +29,7 @@
       --final-bdr:#ffe082;
       --final-c: #e65100;
       --gold:    #ff9800;
+      --room-blue:#1565c0;
     }
 
     html, body {
@@ -289,6 +290,44 @@
     }
     .btn-play:active:not(:disabled) { transform: scale(.96); }
     .btn-play:disabled { opacity: .5; cursor: not-allowed; }
+
+    /* ── ROOM button ── */
+    .btn-room {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      border: 4px solid #0d47a1;
+      background:
+        radial-gradient(circle at 36% 28%, #b3e5fc 0%, #42a5f5 38%, #1e88e5 65%, #0d47a1 100%);
+      box-shadow:
+        0 5px 16px rgba(0,0,0,.5),
+        0 0 22px rgba(66,165,245,.35),
+        inset 0 -5px 10px rgba(0,0,0,.3);
+      color: white;
+      font-family: "Orbitron", sans-serif;
+      font-size: .8rem;
+      font-weight: 900;
+      letter-spacing: 1px;
+      cursor: pointer;
+      position: relative;
+      text-shadow: 0 1px 4px rgba(0,0,0,.6);
+      transition: transform .15s, box-shadow .15s;
+      flex-shrink: 0;
+    }
+    .btn-room::after {
+      content: '';
+      position: absolute;
+      top: 10%; left: 16%;
+      width: 68%; height: 38%;
+      background: radial-gradient(ellipse at 50% 25%, rgba(255,255,255,.55), transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .btn-room:hover:not(:disabled) {
+      transform: scale(1.07);
+      box-shadow: 0 8px 22px rgba(0,0,0,.55), 0 0 30px rgba(66,165,245,.5), inset 0 -5px 10px rgba(0,0,0,.3);
+    }
+    .btn-room:active:not(:disabled) { transform: scale(.96); }
+    .btn-room:disabled { opacity: .5; cursor: not-allowed; }
 
     /* ── RESET button ── */
     .btn-reset {
@@ -704,7 +743,7 @@
        TABLET / DESKTOP UPGRADES
     ══════════════════════════════════════════════ */
     @media (min-width: 600px) {
-      .btn-play, .btn-reset {
+      .btn-play, .btn-reset, .btn-room {
         width: 96px; height: 96px;
         font-size: .88rem;
       }
@@ -762,7 +801,7 @@
         gap: 16px;
       }
 
-      .btn-play, .btn-reset {
+      .btn-play, .btn-reset, .btn-room {
         width: 100px; height: 100px;
         font-size: .9rem;
       }
@@ -780,7 +819,7 @@
 <body>
 
   <!-- ══ LOGIN OVERLAY ══════════════════════════════ -->
-  <div id="login-overlay">
+  <div id="login-overlay" style="display:none">
     <div class="login-box">
       <div class="login-logo">BIOPLAY</div>
       <p class="login-sub">כניסת מדריך – הזינו קוד</p>
@@ -809,7 +848,7 @@
     </div>
 
     <div class="room-info">
-      <div><strong>Room ID:</strong> <span id="room-id-label">—</span></div>
+      <div><strong>ROOM פעיל:</strong> <span id="room-id-label">—</span></div>
       <div><strong>קישור תלמידים:</strong> <a id="student-link" class="room-link" href="#">—</a></div>
     </div>
 
@@ -818,6 +857,7 @@
 
       <!-- Controls row: PLAY, RESET, door count -->
       <div class="controls-section">
+        <button class="btn-room" id="room-btn">ROOM</button>
         <button class="btn-play" id="activate-btn">PLAY</button>
         <button class="btn-reset" id="reset-btn">RESET</button>
         <div class="controls-right">
@@ -950,16 +990,24 @@
     const POLL_MS    = 4000;
 
     const qp = new URLSearchParams(window.location.search);
-    const roomId = (qp.get("room") || "").trim().toUpperCase();
+    let roomId = "";
 
-    const scoped = (base) => `${base}_${roomId || "NO_ROOM"}`;
-    const SESS_KEY  = scoped("bioplay_admin_token");
-    const DOORS_KEY = scoped("bioplay_doors_count");
+    function scoped(base, rid = roomId) {
+      return `${base}_${rid || "NO_ROOM"}`;
+    }
+
+    function getSessKey(rid = roomId) {
+      return scoped("bioplay_admin_token", rid);
+    }
+
+    function getDoorsKey(rid = roomId) {
+      return scoped("bioplay_doors_count", rid);
+    }
 
     let teacherToken = "";
     let pollTimer = null;
     let doorsData = [];
-    let doorsCount = Math.max(2, parseInt(localStorage.getItem(DOORS_KEY), 10) || 5);
+    let doorsCount = 5;
 
     const loginOverlay  = document.getElementById("login-overlay");
     const loginCodeEl   = document.getElementById("login-code");
@@ -968,6 +1016,7 @@
     const statusDot     = document.getElementById("status-dot");
     const statusLabel   = document.getElementById("status-label");
     const actionMsg     = document.getElementById("action-msg");
+    const roomBtn       = document.getElementById("room-btn");
     const activateBtn   = document.getElementById("activate-btn");
     const resetBtn      = document.getElementById("reset-btn");
     const logoutBtn     = document.getElementById("logout-btn");
@@ -980,14 +1029,38 @@
     const roomIdLabel   = document.getElementById("room-id-label");
     const studentLinkEl = document.getElementById("student-link");
 
-    roomIdLabel.textContent = roomId || "חסר";
-    if (roomId) {
-      const studentUrl = `${window.location.origin}${window.location.pathname.replace(/admin\.html$/, "bioplay.html")}?room=${encodeURIComponent(roomId)}`;
-      studentLinkEl.textContent = studentUrl;
-      studentLinkEl.href = studentUrl;
-    } else {
-      studentLinkEl.textContent = "אין קישור – חסר room";
-      studentLinkEl.removeAttribute("href");
+    function updateRoomInfo() {
+      roomIdLabel.textContent = roomId || "—";
+      if (roomId) {
+        const studentUrl = `${window.location.origin}${window.location.pathname.replace(/admin\.html$/, "bioplay.html")}?room=${encodeURIComponent(roomId)}`;
+        studentLinkEl.textContent = studentUrl;
+        studentLinkEl.href = studentUrl;
+      } else {
+        studentLinkEl.textContent = "טרם נוצר חדר";
+        studentLinkEl.removeAttribute("href");
+      }
+    }
+
+    function updateUrlWithRoom() {
+      const next = new URL(window.location.href);
+      if (roomId) next.searchParams.set("room", roomId);
+      else next.searchParams.delete("room");
+      window.history.replaceState({}, "", next.toString());
+    }
+
+    function refreshStorageScope(previousRoomId = "") {
+      if (previousRoomId && previousRoomId !== roomId) {
+        sessionStorage.removeItem(getSessKey(previousRoomId));
+      }
+      const savedDoors = parseInt(localStorage.getItem(getDoorsKey(roomId)), 10);
+      doorsCount = Math.max(2, Number.isFinite(savedDoors) ? savedDoors : 5);
+      doorsSelect.value = String(doorsCount);
+      if (teacherToken && roomId) {
+        sessionStorage.setItem(getSessKey(roomId), teacherToken);
+      }
+      localStorage.setItem(getDoorsKey(roomId), doorsCount);
+      updateRoomInfo();
+      updateUrlWithRoom();
     }
 
     const cards = {
@@ -1006,7 +1079,7 @@
 
     doorsSelect.addEventListener("change", () => {
       doorsCount = parseInt(doorsSelect.value, 10) || 5;
-      localStorage.setItem(DOORS_KEY, doorsCount);
+      localStorage.setItem(getDoorsKey(roomId), doorsCount);
     });
 
     let toastT;
@@ -1018,13 +1091,11 @@
       toastT = setTimeout(() => toastEl.classList.remove("show"), 3000);
     }
 
-    function setFatalRoomError() {
-      loginBtn.disabled = true;
+    function setFatalRoomError(msg = "לא ניתן ליצור חדר כעת") {
+      roomBtn.disabled = false;
       activateBtn.disabled = true;
       resetBtn.disabled = true;
-      loginMsg.textContent = "חסר roomId בקישור. יש לפתוח admin.html?room=<ROOM_ID>";
-      loginMsg.className = "login-msg error";
-      actionMsg.textContent = "לא ניתן לבצע פעולות ללא roomId";
+      actionMsg.textContent = msg;
       actionMsg.className = "action-msg error";
     }
 
@@ -1055,6 +1126,41 @@
       return d;
     }
 
+    async function createRoom() {
+      roomBtn.disabled = true;
+      actionMsg.textContent = "יוצר ROOM חדש...";
+      actionMsg.className = "action-msg info";
+      try {
+        const res = await fetch(APPS_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: new URLSearchParams({ action: "create_room", doorsCount }).toString(),
+        });
+        const d = await parse(res);
+        if (!res.ok || d?.ok === false || !d?.roomId || !d?.teacherToken) {
+          throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
+        }
+
+        const previousRoomId = roomId;
+        roomId = String(d.roomId).trim().toUpperCase();
+        teacherToken = String(d.teacherToken).trim();
+        refreshStorageScope(previousRoomId);
+
+        clearCards();
+        setStatus(d?.status === "started" ? "started" : "waiting");
+        if (pollTimer) startPolling();
+
+        actionMsg.textContent = `✔ ROOM ${roomId} מוכן. קישור תלמידים מוכן לשיתוף.`;
+        actionMsg.className = "action-msg success";
+        toast("✔ ROOM חדש נוצר", "success");
+      } catch (e) {
+        actionMsg.textContent = "שגיאה ביצירת ROOM";
+        actionMsg.className = "action-msg error";
+        toast(String(e.message || "שגיאה ביצירת ROOM"), "error");
+      }
+      roomBtn.disabled = false;
+    }
+
     function setStatus(s) {
       const on = s === "started";
       statusDot.className   = `status-dot ${on ? "started" : "waiting"}`;
@@ -1071,13 +1177,17 @@
     }
 
     async function doLogin() {
-      if (!roomId) return setFatalRoomError();
+      if (!roomId) {
+        loginMsg.textContent = "צרו ROOM לפני ההתחברות.";
+        loginMsg.className = "login-msg error";
+        return;
+      }
       const code = loginCodeEl.value.trim();
       if (!code) { loginMsg.textContent = "יש להזין טוקן מדריך."; loginMsg.className = "login-msg error"; return; }
       loginBtn.disabled = true;
       teacherToken = code;
-      sessionStorage.setItem(SESS_KEY, code);
-      localStorage.setItem(DOORS_KEY, doorsCount);
+      sessionStorage.setItem(getSessKey(roomId), code);
+      localStorage.setItem(getDoorsKey(roomId), doorsCount);
       loginMsg.textContent = "";
       loginBtn.disabled = false;
       enterPanel();
@@ -1090,17 +1200,19 @@
       loadDoors();
     }
 
+    roomBtn.onclick = createRoom;
+
     loginBtn.onclick  = doLogin;
     loginCodeEl.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
 
     activateBtn.onclick = async () => {
-      if (!teacherToken || !roomId) return;
+      if (!teacherToken || !roomId) { actionMsg.textContent = "לחצו ROOM ליצירת חדר פעיל לפני PLAY"; actionMsg.className = "action-msg info"; return; }
       activateBtn.disabled = true;
       actionMsg.textContent = "מפעיל..."; actionMsg.className = "action-msg info";
       try {
         const r = await sendAction("start", teacherToken, { doorsCount });
         const resolvedCount = parseInt(r?.doorsCount, 10) || doorsCount;
-        localStorage.setItem(DOORS_KEY, resolvedCount);
+        localStorage.setItem(getDoorsKey(roomId), resolvedCount);
         actionMsg.textContent = `✔ הופעל – ${resolvedCount} דלתות`; actionMsg.className = "action-msg success";
         setStatus("started");
         toast(`✔ המשחק הופעל! Room ${roomId}`, "success");
@@ -1112,7 +1224,7 @@
     };
 
     resetBtn.onclick = async () => {
-      if (!teacherToken || !roomId) return;
+      if (!teacherToken || !roomId) { actionMsg.textContent = "אין ROOM פעיל לאיפוס"; actionMsg.className = "action-msg info"; return; }
       resetBtn.disabled = true;
       actionMsg.textContent = "מאפס..."; actionMsg.className = "action-msg info";
       try {
@@ -1128,12 +1240,14 @@
 
     logoutBtn.onclick = () => {
       teacherToken = "";
-      sessionStorage.removeItem(SESS_KEY);
+      if (roomId) sessionStorage.removeItem(getSessKey(roomId));
       clearInterval(pollTimer);
       clearCards();
-      loginOverlay.style.display = "flex";
+      loginOverlay.style.display = "none";
       loginCodeEl.value = "";
       loginMsg.textContent = "";
+      actionMsg.textContent = "התנתקתם. לחצו ROOM ליצירת חדר חדש.";
+      actionMsg.className = "action-msg info";
     };
 
     async function loadDoors() {
@@ -1230,13 +1344,30 @@
     });
 
     (async () => {
-      if (!roomId) return setFatalRoomError();
-      const saved = sessionStorage.getItem(SESS_KEY);
+      roomId = (qp.get("room") || "").trim().toUpperCase();
+      refreshStorageScope();
+
+      if (!roomId) {
+        loginOverlay.style.display = "none";
+        clearCards();
+        setStatus("waiting");
+        actionMsg.textContent = "לחצו על ROOM כדי ליצור חדר חדש ולהתחיל.";
+        actionMsg.className = "action-msg info";
+        return;
+      }
+
+      const saved = sessionStorage.getItem(getSessKey(roomId));
       if (saved) {
         teacherToken = saved;
         loginCodeEl.value = saved;
+        loginOverlay.style.display = "none";
         enterPanel();
+        return;
       }
+
+      loginOverlay.style.display = "none";
+      actionMsg.textContent = "אין טוקן שמור לחדר הזה. לחצו ROOM ליצירת חדר חדש.";
+      actionMsg.className = "action-msg info";
     })();
   </script>
 

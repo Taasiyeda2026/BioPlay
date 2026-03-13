@@ -1,1 +1,1 @@
-roomId,teacherTokenHash,status,doorsCount,selectedDoors,createdAt,updatedAt
+roomId,teacherTokenHash,status,doorsCount,selectedDoors,createdAt,updatedAt,roomName

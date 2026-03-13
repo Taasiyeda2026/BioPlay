@@ -1,5 +1,7 @@
 const SHEET_ROOMS = 'rooms';
-const HEADER = ['roomId', 'teacherTokenHash', 'status', 'doorsCount', 'selectedDoors', 'createdAt', 'updatedAt'];
+const SHEET_ROOM_NAMES = 'room_names';
+const ROOM_NAME_COLUMN = 'roomName';
+const HEADER = ['roomId', 'teacherTokenHash', 'status', 'doorsCount', 'selectedDoors', 'createdAt', 'updatedAt', 'roomName'];
 const MIN_DOORS = 2;
 const MAX_DOORS = 30;
 const DEFAULT_DOORS = 5;
@@ -21,6 +23,7 @@ function route_(e, method) {
     ensureRoomsSheet_();
 
     if (action === 'status' && method === 'GET') return status_(p);
+    if (action === 'room_names' && method === 'GET') return roomNames_();
     if (action === 'create_room' && method === 'POST') return createRoom_(p);
     if (action === 'start' && method === 'POST') return startRoom_(p);
     if (action === 'reset' && method === 'POST') return resetRoom_(p);
@@ -34,11 +37,13 @@ function route_(e, method) {
 function createRoom_(p) {
   const doorsCount = parseDoorsCount_(p.doorsCount);
   if (!doorsCount) return err_('INVALID_DOORS_COUNT', 'doorsCount must be 2..30');
+  const roomName = clean_(p.roomName);
+  if (!roomName) return err_('MISSING_ROOM_NAME', 'roomName is required');
 
   const roomId = genRoomId_();
   const teacherToken = genTeacherToken_();
   const now = nowIso_();
-  const row = [roomId, sha256_(teacherToken), 'waiting', doorsCount, '[]', now, now];
+  const row = [roomId, sha256_(teacherToken), 'waiting', doorsCount, '[]', now, now, roomName];
 
   sheet_().appendRow(row);
   return ok_({
@@ -47,9 +52,15 @@ function createRoom_(p) {
     status: 'waiting',
     doorsCount,
     selectedDoors: [],
+    roomName,
     createdAt: now,
     updatedAt: now
   });
+}
+
+function roomNames_() {
+  const names = loadRoomNames_();
+  return ok_({ roomNames: names });
 }
 
 function status_(p) {
@@ -121,9 +132,31 @@ function publicRoom_(room) {
     status: room.status,
     doorsCount: room.doorsCount,
     selectedDoors: parseDoors_(room.selectedDoors),
+    roomName: room.roomName || room.roomId,
     createdAt: room.createdAt,
     updatedAt: room.updatedAt
   };
+}
+
+function loadRoomNames_() {
+  const sh = roomNamesSheet_();
+  const values = sh.getDataRange().getValues();
+  if (!values.length) return [];
+
+  const header = values[0].map(function(cell) { return clean_(cell).toLowerCase(); });
+  const idx = header.indexOf(ROOM_NAME_COLUMN.toLowerCase());
+  if (idx === -1) return [];
+
+  var uniq = {};
+  var names = [];
+  for (var i = 1; i < values.length; i++) {
+    var raw = clean_(values[i][idx]);
+    if (!raw) continue;
+    if (uniq[raw]) continue;
+    uniq[raw] = true;
+    names.push(raw);
+  }
+  return names;
 }
 
 function parseDoors_(value) {
@@ -165,6 +198,18 @@ function sheet_() {
   return sh;
 }
 
+function roomNamesSheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(SHEET_ROOM_NAMES);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_ROOM_NAMES);
+    sh.getRange(1, 1).setValue(ROOM_NAME_COLUMN);
+  }
+  const firstHeader = clean_(sh.getRange(1, 1).getValue());
+  if (!firstHeader) sh.getRange(1, 1).setValue(ROOM_NAME_COLUMN);
+  return sh;
+}
+
 function findRoom_(roomId) {
   const values = sheet_().getDataRange().getValues();
   for (let i = 1; i < values.length; i++) {
@@ -177,7 +222,8 @@ function findRoom_(roomId) {
         doorsCount: parseInt(values[i][3], 10) || DEFAULT_DOORS,
         selectedDoors: String(values[i][4] || '[]'),
         createdAt: String(values[i][5] || ''),
-        updatedAt: String(values[i][6] || '')
+        updatedAt: String(values[i][6] || ''),
+        roomName: String(values[i][7] || '')
       };
     }
   }

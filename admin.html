@@ -490,14 +490,15 @@
       border-bottom: 1px solid #dde6ee;
       position: relative;
       display: flex;
-      justify-content: flex-start;
+      justify-content: flex-end;
     }
 
     .search-input-wrap {
       display: flex;
       gap: 6px;
-      width: clamp(180px, 25%, 240px);
-      max-width: 100%;
+      width: min(170px, 100%);
+      max-width: 170px;
+      flex: 0 0 170px;
     }
 
     .search-input {
@@ -536,7 +537,7 @@
       top: calc(100% - 2px);
       right: 16px;
       left: auto;
-      width: clamp(180px, 25%, 240px);
+      width: min(170px, calc(100% - 32px));
       max-width: calc(100% - 32px);
       background: white;
       border: 2px solid #90bcd8;

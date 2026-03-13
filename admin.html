@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>פאנל בקרה – BioPlay</title>
-  <link href="https://script.google.com/macros/s/AKfycbwCJ_J-1uKPM3-yl8OAvIEwtuvX_nV-oDTQ9GOw4L1AgVGPPU_Tpj1ieASOKtJMjzNFxQ/exec">
+  <link href="https://script.google.com/macros/s/AKfycbw4x7TZ3-V43ouJxMo4gMi7OL1BImY_IWcMzVEnoBk7lN3mRGniku6uFymFLDpqpx4CXA/exec">
   <style>
     /* ══════════════════════════════════════════════
        RESET & BASE
@@ -928,7 +928,7 @@
 
 
     <div class="room-setup-section">
-      <div class="room-setup-title">1) בוחרים חדר 2) יוצרים חדר 3) מעתיקים קישור 4) לוחצים PLAY</div>
+      <div class="room-setup-title">1) בוחרים חדר 2) יוצרים חדר 3) מעתיקים קישור 4) לוחצים PLAY 5) בסיום לוחצים RESET</div>
       <div class="room-setup-row">
         <select id="room-name-select" class="room-select">
           <option value="">טוען רשימת חדרים...</option>
@@ -993,7 +993,7 @@
   <div id="toast"></div>
 
   <script>
-    const APPS_URL = "https://script.google.com/macros/s/AKfycbwCJ_J-1uKPM3-yl8OAvIEwtuvX_nV-oDTQ9GOw4L1AgVGPPU_Tpj1ieASOKtJMjzNFxQ/exec";
+    const APPS_URL = "https://script.google.com/macros/s/AKfycbw4x7TZ3-V43ouJxMo4gMi7OL1BImY_IWcMzVEnoBk7lN3mRGniku6uFymFLDpqpx4CXA/exec";
     const POLL_MS    = 4000;
 
     const qp = new URLSearchParams(window.location.search);
@@ -1139,17 +1139,42 @@
       return d;
     }
 
+    function normalizeRoomNames(rawNames) {
+      const seen = new Set();
+      const normalized = [];
+      for (const raw of rawNames || []) {
+        const name = String(raw || "").trim();
+        if (!name || seen.has(name)) continue;
+        seen.add(name);
+        normalized.push(name);
+      }
+      return normalized.sort((a, b) => a.localeCompare(b, "he"));
+    }
+
+    async function fetchRoomNamesFromAction(actionName) {
+      const res = await fetch(`${APPS_URL}?action=${encodeURIComponent(actionName)}`, { cache: "no-store" });
+      const d = await parse(res);
+      if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
+      return normalizeRoomNames(d?.roomNames || d?.rooms || d?.list || []);
+    }
+
     async function loadRoomNames() {
       roomNameSelect.innerHTML = '<option value="">טוען רשימת חדרים...</option>';
       try {
-        const res = await fetch(`${APPS_URL}?action=room_names`, { cache: "no-store" });
-        const d = await parse(res);
-        if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
-        const names = Array.isArray(d?.roomNames) ? d.roomNames : [];
+        let names = [];
+        const actionsToTry = ["list_room_names", "room_names"];
+        for (const actionName of actionsToTry) {
+          try {
+            names = await fetchRoomNamesFromAction(actionName);
+            if (names.length) break;
+          } catch (_) {}
+        }
+
         if (!names.length) {
-          roomNameSelect.innerHTML = '<option value="">לא נמצאו חדרים בגליון room_names</option>';
+          roomNameSelect.innerHTML = '<option value="">לא נמצאו חדרים זמינים</option>';
           return;
         }
+
         roomNameSelect.innerHTML = '<option value="">בחרו חדר...</option>' + names.map((name) => `<option value="${name}">${name}</option>`).join('');
       } catch (e) {
         roomNameSelect.innerHTML = '<option value="">שגיאה בטעינת רשימת חדרים</option>';

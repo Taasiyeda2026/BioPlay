@@ -416,6 +416,79 @@
   font-family: "Courier New", monospace;
   font-size: .82rem;
 }
+
+.link-status-box {
+  width: 100%;
+  min-height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+  color: var(--text-main);
+  padding: 8px 12px;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 1px 2px rgba(20,46,70,.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.link-status-text {
+  color: #5f7f99;
+}
+
+.link-loader {
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.link-loader span {
+  width: 7px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(34, 95, 159, 0.22);
+  box-shadow: 0 0 0 rgba(80, 180, 255, 0);
+  animation: linkPulse 1s infinite ease-in-out;
+}
+
+.link-loader span:nth-child(2) { animation-delay: .15s; }
+.link-loader span:nth-child(3) { animation-delay: .3s; }
+.link-loader span:nth-child(4) { animation-delay: .45s; }
+
+@keyframes linkPulse {
+  0%, 100% {
+    background: rgba(34, 95, 159, 0.22);
+    box-shadow: 0 0 0 rgba(80, 180, 255, 0);
+    transform: scaleY(.75);
+  }
+  50% {
+    background: #6bc7ff;
+    box-shadow: 0 0 10px rgba(107, 199, 255, 0.7);
+    transform: scaleY(1);
+  }
+}
+
+.link-status-box.loading .link-loader {
+  display: inline-flex;
+}
+
+.link-status-box.loading .link-status-text {
+  color: #225f9f;
+  font-weight: 800;
+}
+
+.link-status-box.ready .link-status-text {
+  color: #238d4b;
+  font-weight: 800;
+}
+
+.link-status-box.idle .link-status-text {
+  color: #6d8499;
+}
+
 .setup-box,
 .link-box {
   border: 1px dashed #c7d9e8;
@@ -1139,8 +1212,13 @@
   <h2>גישת תלמידים</h2>
   <div class="link-box">
     <div class="field-group">
-      <label for="student-link-input">קישור מלא לתלמידים</label>
-      <input id="student-link-input" class="room-link-input" type="text" readonly value="טרם נוצר קישור תלמידים" />
+      <label for="student-link-status">קישור לתלמידים</label>
+      <div id="student-link-status" class="link-status-box idle" aria-live="polite">
+        <span class="link-status-text">טרם נוצר קישור תלמידים</span>
+        <span class="link-loader" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </span>
+      </div>
     </div>
     <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק</button>
     <small class="copy-help-text">העתיקו את הקישור ושלחו אותו בצ'אט של Zoom</small>
@@ -1227,7 +1305,8 @@
   const roomIdLabel = document.getElementById("room-id-label");
   const roomStatusLabel = document.getElementById("room-status-label");
   const roomNameSelect = document.getElementById("room-name-select");
-  const studentLinkInput = document.getElementById("student-link-input");
+  const studentLinkStatus = document.getElementById("student-link-status");
+  const studentLinkStatusText = studentLinkStatus.querySelector(".link-status-text");
   const copyLinkBtn = document.getElementById("copy-link-btn");
   const headerDoorsCount = document.getElementById("header-doors-count");
   const dbTitle = document.getElementById("db-title");
@@ -1279,10 +1358,12 @@
 
     const studentUrl = studentUrlForRoom();
     if (studentUrl) {
-      studentLinkInput.value = studentUrl;
+      studentLinkStatusText.textContent = "הקישור מוכן לשליחה";
+      studentLinkStatus.className = "link-status-box ready";
       copyLinkBtn.disabled = false;
     } else {
-      studentLinkInput.value = "טרם נוצר קישור תלמידים";
+      studentLinkStatusText.textContent = "טרם נוצר קישור תלמידים";
+      studentLinkStatus.className = "link-status-box idle";
       copyLinkBtn.disabled = true;
     }
     syncDashboardMeta(statusText);
@@ -1588,15 +1669,37 @@
     const url = studentUrlForRoom();
     if (!url) return;
     const formattedText = `לכניסה למשחק לחצו (${url})`;
+    studentLinkStatusText.textContent = "מכין קישור...";
+    studentLinkStatus.className = "link-status-box loading";
     try {
       await navigator.clipboard.writeText(formattedText);
+      setTimeout(() => {
+        studentLinkStatusText.textContent = "הקישור הועתק בהצלחה";
+        studentLinkStatus.className = "link-status-box ready";
+      }, 1800);
       toast("הקישור הועתק", "success");
     } catch (_) {
-      studentLinkInput.value = formattedText;
-      studentLinkInput.select();
-      document.execCommand("copy");
-      studentLinkInput.value = url;
-      toast("הקישור הועתק", "success");
+      try {
+        const tempInput = document.createElement("textarea");
+        tempInput.value = formattedText;
+        tempInput.setAttribute("readonly", "");
+        tempInput.style.position = "absolute";
+        tempInput.style.opacity = "0";
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        const copied = document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        if (!copied) throw new Error("copy failed");
+        setTimeout(() => {
+          studentLinkStatusText.textContent = "הקישור הועתק בהצלחה";
+          studentLinkStatus.className = "link-status-box ready";
+        }, 1800);
+        toast("הקישור הועתק", "success");
+      } catch (copyErr) {
+        studentLinkStatusText.textContent = "הייתה שגיאה בהעתקה";
+        studentLinkStatus.className = "link-status-box idle";
+        toast("שגיאה בהעתקה", "error");
+      }
     }
   };
 

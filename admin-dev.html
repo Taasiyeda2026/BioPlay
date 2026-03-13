@@ -53,11 +53,12 @@
     }
 
     .admin-header {
+      position: relative;
       display: grid;
-      grid-template-columns: auto 1fr;
+      grid-template-columns: 1fr;
       grid-template-areas:
-        "title logout"
-        "title status";
+        "title"
+        "status";
       align-items: start;
       gap: 10px 18px;
       padding: 16px 20px;
@@ -133,9 +134,9 @@
     .status-label.started { color: #1f8b48; }
 
     .logout-sm {
-      grid-area: logout;
-      justify-self: start;
-      align-self: start;
+      position: absolute;
+      top: 16px;
+      left: 20px;
       width: 96px;
       min-height: 34px;
       border-radius: 999px;
@@ -306,6 +307,18 @@
       direction: ltr;
       font-family: "Courier New", monospace;
       font-size: .82rem;
+    }
+
+
+    .setup-box {
+      border: 1px dashed #c7d9e8;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #f8fbff, #eef5fc);
+      min-height: 54px;
+      padding: 10px;
+      display: grid;
+      gap: 10px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
     }
 
     .link-box {
@@ -751,18 +764,10 @@
 
     @media (max-width: 1100px) {
       .panel-setup, .panel-link, .panel-control, .panel-db { grid-column: span 12; }
-      .admin-header {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-      }
-      .header-title {
-        align-self: flex-end;
-      }
+      .admin-header { padding-left: 12px; padding-right: 12px; }
+      .header-title { align-self: flex-end; }
       .status-strip { justify-content: flex-start; }
-      .logout-sm {
-        width: 96px;
-      }
+      .logout-sm { left: 12px; width: 96px; }
       .status-chip {
         width: auto;
         min-width: 150px;
@@ -828,20 +833,22 @@
     <main id="panel-content" class="admin-grid">
       <section class="panel panel-setup">
         <h2>הגדרת משחק</h2>
-        <div class="field-group compact-fields-row">
-          <div class="compact-field compact-field-room">
-            <label for="room-name-select">חדר</label>
-            <select id="room-name-select" class="room-select compact-select">
-              <option value="">טוען...</option>
-            </select>
+        <div class="setup-box">
+          <div class="field-group compact-fields-row">
+            <div class="compact-field compact-field-room">
+              <label for="room-name-select">חדר</label>
+              <select id="room-name-select" class="room-select compact-select">
+                <option value="">טוען...</option>
+              </select>
+            </div>
+            <div class="compact-field compact-field-doors">
+              <label for="doors-count-select">דלתות</label>
+              <select id="doors-count-select" class="count-select compact-select"></select>
+            </div>
           </div>
-          <div class="compact-field compact-field-doors">
-            <label for="doors-count-select">דלתות</label>
-            <select id="doors-count-select" class="count-select compact-select"></select>
-          </div>
+          <button class="btn btn-room" id="room-btn">צור חדר</button>
+          <div class="action-msg" id="action-msg"></div>
         </div>
-        <button class="btn btn-room" id="room-btn">צור חדר</button>
-        <div class="action-msg" id="action-msg"></div>
       </section>
 
       <section class="panel panel-link">
@@ -866,11 +873,7 @@
 
 
       <section class="panel panel-db">
-        <h2>מאגר אורגניזמים</h2>
-        <div class="db-stats">
-          <div class="db-stat"><span>כמות אורגניזמים במאגר</span><strong id="db-total-count">0</strong></div>
-        </div>
-
+        <h2 id="db-title">מאגר אורגניזמים (0)</h2>
         <div class="search-section">
           <div class="search-input-wrap">
             <input id="search-input" class="search-input" type="search" placeholder="חפשו אורגניזם...">
@@ -879,7 +882,7 @@
           <div class="search-dropdown" id="search-dropdown"></div>
         </div>
 
-        <div class="result-box" id="result-box">חפשו אורגניזם לצפייה בקודים</div>
+        <div class="result-box" id="result-box">חפשו אורגניזם לקבלת הנתונים</div>
         <div class="cards-grid" id="cards-grid"></div>
 
         <div class="final-bar">
@@ -940,7 +943,7 @@
   const studentLinkInput = document.getElementById("student-link-input");
   const copyLinkBtn = document.getElementById("copy-link-btn");
   const headerDoorsCount = document.getElementById("header-doors-count");
-  const dbTotalCount = document.getElementById("db-total-count");
+  const dbTitle = document.getElementById("db-title");
 
   let activeRoomName = "";
 
@@ -1237,7 +1240,7 @@
       doorsData = await res.json();
     } catch { doorsData = []; }
     const count = Array.isArray(doorsData) ? doorsData.length : 0;
-    dbTotalCount.textContent = String(count);
+    dbTitle.textContent = `מאגר אורגניזמים (${count})`;
   }
 
   function createStepCard(step, stepNumber) {
@@ -1295,7 +1298,7 @@
   }
 
   function clearCards() {
-    resultBox.textContent = "חפשו אורגניזם לצפייה בקודים";
+    resultBox.textContent = "חפשו אורגניזם לקבלת הנתונים";
     resultBox.classList.remove("has-result");
     finalBarCode.textContent = "——";
     renderCards();

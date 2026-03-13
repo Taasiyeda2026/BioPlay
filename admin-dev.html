@@ -55,8 +55,8 @@
       display: grid;
       grid-template-areas:
         "header  header  header"
-        "status  status  control"
-        "content content control"
+        "status  status  status"
+        "content content content"
         "db      db      db";
       grid-template-columns: 1fr 1fr 1fr;
     }
@@ -103,6 +103,9 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       padding: 10px 14px;
+      width: calc((100% - 28px) * var(--main-block-span) / var(--main-block-cols));
+      max-width: calc(100% - 28px);
+      justify-self: center;
     }
 
     .status-strip:empty {
@@ -182,10 +185,13 @@
     #panel-content {
       grid-area: content;
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 14px;
       padding: 14px;
       background: transparent;
+      width: calc((100% - 28px) * var(--main-block-span) / var(--main-block-cols));
+      max-width: calc(100% - 28px);
+      justify-self: center;
     }
 
     .panel {
@@ -211,8 +217,7 @@
     }
 
     .panel-control {
-      grid-area: control;
-      margin: 14px 0 14px 14px;
+      margin: 0;
     }
 
     .panel-db {
@@ -229,8 +234,8 @@
     }
 
     .panel-link {
-      grid-column: 2;
-      grid-row: 2;
+      grid-column: 3;
+      grid-row: 1;
     }
 
     .field-group { margin-bottom: 10px; display: grid; gap: 6px; }
@@ -837,13 +842,13 @@
         --main-block-span: 1;
         --main-block-cols: 1;
         grid-template-areas:
-          "header  header"
-          "status  control"
-          "content control"
-          "db      db";
-        grid-template-columns: 2fr 1fr;
+          "header"
+          "status"
+          "content"
+          "db";
+        grid-template-columns: 1fr;
       }
-      #panel-content { grid-template-columns: 1fr 1fr; }
+      #panel-content { grid-template-columns: 1fr 1fr 1fr; }
       .admin-header { padding-left: 12px; padding-right: 12px; }
       .logout-sm { left: 12px; width: 96px; }
       .panel-db {
@@ -858,11 +863,11 @@
         --main-block-span: 1;
         --main-block-cols: 1;
         grid-template-areas:
-          "header  header"
-          "status  control"
-          "content content"
-          "db      db";
-        grid-template-columns: 1fr 1fr;
+          "header"
+          "status"
+          "content"
+          "db";
+        grid-template-columns: 1fr;
         gap: 14px;
         padding: 12px;
       }
@@ -934,22 +939,22 @@
 
     <div class="status-strip"></div>
 
-    <section class="panel panel-control">
-      <h2>שליטה במשחק</h2>
-      <div class="controls-section">
-        <div class="control-buttons">
-          <button class="btn-play" id="activate-btn" disabled>PLAY</button>
-          <button class="btn-reset" id="reset-btn">RESET</button>
-        </div>
-        <div class="control-stats">
-          <div class="control-stat">חדר פעיל: <strong id="room-id-label">—</strong></div>
-          <div class="control-stat">סטטוס מערכת: <span class="status-dot waiting" id="status-dot"></span><strong id="room-status-label">ממתין</strong><span class="status-label" id="status-label" style="display:none">ממתין</span></div>
-          <div class="control-stat">מספר דלתות: <strong id="header-doors-count">5</strong></div>
-        </div>
-      </div>
-    </section>
-
     <main id="panel-content" class="admin-grid">
+      <section class="panel panel-control">
+        <h2>שליטה במשחק</h2>
+        <div class="controls-section">
+          <div class="control-buttons">
+            <button class="btn-play" id="activate-btn" disabled>PLAY</button>
+            <button class="btn-reset" id="reset-btn">RESET</button>
+          </div>
+          <div class="control-stats">
+            <div class="control-stat">חדר פעיל: <strong id="room-id-label">—</strong></div>
+            <div class="control-stat">סטטוס מערכת: <span class="status-dot waiting" id="status-dot"></span><strong id="room-status-label">ממתין</strong><span class="status-label" id="status-label" style="display:none">ממתין</span></div>
+            <div class="control-stat">מספר דלתות: <strong id="header-doors-count">5</strong></div>
+          </div>
+        </div>
+      </section>
+
       <section class="panel panel-setup">
         <h2>הגדרת משחק</h2>
         <div class="setup-box">

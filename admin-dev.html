@@ -261,6 +261,13 @@
       grid-row: 1;
     }
 
+    .panel-setup,
+    .panel-link {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+
     .field-group { margin-bottom: 10px; display: grid; gap: 6px; }
 
     .compact-fields-row {
@@ -343,21 +350,12 @@
       box-shadow: inset 0 2px 0 rgba(255,255,255,.35), inset 0 -9px 14px rgba(0,0,0,.2), 0 10px 18px rgba(17, 40, 63, 0.26);
     }
 
-    .btn-room {
+    .btn-room,
+    .btn-copy-link {
       background: linear-gradient(180deg, #4d97df 0%, #2a70b5 54%, #184f84 100%);
       border-color: #154772;
       color: #ffffff;
-    }
-
-    .btn-copy-link {
-      background: linear-gradient(180deg, #ffe27a 0%, #efbc18 52%, #b98400 100%);
-      border-color: #8a6200;
-      color: #3a2800;
-      text-shadow: 0 1px 0 rgba(255,235,170,.42);
-      box-shadow:
-        inset 0 2px 0 rgba(255,255,255,.34),
-        inset 0 -10px 14px rgba(0,0,0,.18),
-        0 10px 18px rgba(17, 40, 63, 0.24);
+      text-shadow: 0 1px 1px rgba(0,0,0,.22);
     }
 
     .room-link-input {
@@ -372,16 +370,12 @@
       border: 1px dashed #c7d9e8;
       border-radius: 10px;
       background: linear-gradient(180deg, #f8fbff, #eef5fc);
-      min-height: 54px;
+      min-height: 138px;
       padding: 10px;
       display: grid;
       gap: 10px;
+      align-content: start;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
-    }
-
-    .panel-link {
-      display: grid;
-      gap: 10px;
     }
 
     .panel-link .btn-copy-link,
@@ -408,12 +402,12 @@
     }
 
     .btn-play, .btn-reset {
-      width: 104px;
-      height: 104px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
       border: 1px solid rgba(255,255,255,0.22);
       color: #fff;
-      font-size: 1.14rem;
+      font-size: .92rem;
       font-weight: 900;
       letter-spacing: .55px;
       cursor: pointer;
@@ -488,6 +482,16 @@
       min-height: 18px;
       margin-top: 14px;
       font-size: .84rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+
+    .setup-help-text {
+      margin-top: 2px;
+      font-size: .77rem;
+      color: #6d8499;
+      text-align: center;
       font-weight: 700;
       line-height: 1.35;
     }
@@ -922,8 +926,8 @@
       body { padding: 12px; }
 
       /* כפתורי PLAY/RESET — מתאימים לעמודה צרה (~155px) */
-      .btn-play, .btn-reset { width: 100px; height: 100px; font-size: 1.1rem; }
-      .control-buttons { gap: 10px; }
+      .btn-play, .btn-reset { width: 76px; height: 76px; font-size: .86rem; }
+      .control-buttons { gap: 8px; }
 
       /* שמירת תיקוני טיפוגרפיה וכרטיסים */
       .compact-fields-row { gap: 8px; }
@@ -944,8 +948,8 @@
     }
 
     @media (max-width: 560px) {
-      .control-buttons { gap: 10px; }
-      .btn-play, .btn-reset { width: 96px; height: 96px; font-size: 1rem; }
+      .control-buttons { gap: 8px; }
+      .btn-play, .btn-reset { width: 72px; height: 72px; font-size: .82rem; }
       .cards-grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -1005,6 +1009,7 @@
             </div>
           </div>
           <button class="btn btn-room" id="room-btn">צור חדר</button>
+          <small class="setup-help-text">בחרו חדר ומספר דלתות ולחצו על "צור חדר"</small>
           <div class="action-msg" id="action-msg"></div>
         </div>
       </section>

@@ -847,8 +847,10 @@
       }
       .status-chip { width: auto; min-width: 0; font-size: .8rem; padding: 5px 8px; }
 
+      body { padding: 12px; }
+
       /* כפתורי PLAY/RESET — מתאימים לעמודה צרה (~155px) */
-      .btn-play, .btn-reset { width: 90px; height: 90px; font-size: 1rem; }
+      .btn-play, .btn-reset { width: 100px; height: 100px; font-size: 1.1rem; }
       .control-buttons { gap: 10px; }
 
       /* שמירת תיקוני טיפוגרפיה וכרטיסים */
@@ -870,6 +872,8 @@
     }
 
     @media (max-width: 560px) {
+      .control-buttons { gap: 10px; }
+      .btn-play, .btn-reset { width: 96px; height: 96px; font-size: 1rem; }
       .cards-grid { grid-template-columns: 1fr; }
     }
   </style>

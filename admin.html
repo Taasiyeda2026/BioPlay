@@ -946,7 +946,7 @@
   <div id="toast"></div>
 
   <script>
-    const APPS_URL   = "https://script.google.com/macros/s/AKfycbxShbtJpFPOl8Jx7T73irGuJdXXc1M469UZNbFf3ByQ1ZSfoRZdvZHwEb2m6QHv26513Q/exec";
+    const APPS_URL = "https://script.google.com/macros/s/AKfycbwCJ_J-1uKPM3-yl8OAvIEwtuvX_nV-oDTQ9GOw4L1AgVGPPU_Tpj1ieASOKtJMjzNFxQ/exec";
     const POLL_MS    = 4000;
 
     const qp = new URLSearchParams(window.location.search);
@@ -1175,14 +1175,25 @@
     }
 
     function buildDropdown(q) {
-      const items = q
-        ? doorsData.filter(d =>
-            (d.creature || "").toLowerCase().includes(q.toLowerCase()) ||
-            String(d.id) === q
-          )
-        : [];
+      const cleanQ = (q || "").trim();
 
-      if (!items.length) { searchDropdown.classList.remove("open"); return; }
+      if (!cleanQ) {
+        searchDropdown.classList.remove("open");
+        searchDropdown.innerHTML = "";
+        return;
+      }
+
+      const qLower = cleanQ.toLowerCase();
+      const items = doorsData.filter(d =>
+        (d.creature || "").toLowerCase().includes(qLower) ||
+        String(d.id) === cleanQ
+      );
+
+      if (!items.length) {
+        searchDropdown.classList.remove("open");
+        searchDropdown.innerHTML = "";
+        return;
+      }
 
       searchDropdown.innerHTML = items.slice(0, 10).map(d => `
         <div class="dropdown-item" data-id="${d.id}">
@@ -1217,11 +1228,25 @@
 
     document.getElementById("search-btn").onclick = () => {
       const q = searchInput.value.trim();
+
+      if (!q) {
+        clearCards();
+        resultBox.textContent = "יש להזין ערך לחיפוש";
+        searchDropdown.classList.remove("open");
+        return;
+      }
+
+      const qLower = q.toLowerCase();
       const door = doorsData.find(d =>
-        (d.creature || "").toLowerCase().includes(q.toLowerCase()) || String(d.id) === q
+        (d.creature || "").toLowerCase().includes(qLower) || String(d.id) === q
       );
+
       fillCards(door || null);
-      if (!door) resultBox.textContent = "לא נמצא";
+
+      if (!door) {
+        resultBox.textContent = "לא נמצא";
+      }
+
       searchDropdown.classList.remove("open");
     };
 

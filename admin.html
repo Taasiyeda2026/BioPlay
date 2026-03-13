@@ -886,91 +886,9 @@
         </div>
       </div>
 
-      <!-- Step cards — order: 1, 2, 3, final (RTL flex → shows final on left, 1 on right = like mockup) -->
+      <!-- Step cards (rendered dynamically by selected door data) -->
       <div class="cards-section">
-        <div class="cards-grid" id="cards-grid">
-
-          <!-- Card 1 -->
-          <div class="step-card-wrap">
-            <div class="step-badge">1</div>
-            <div class="step-card">
-              <div class="card-top">
-                <div class="card-top-label" id="c1-title">שלב 1</div>
-                <div class="card-code" id="c1-code">—</div>
-              </div>
-              <div class="card-bottom">
-                <div class="card-cell">
-                  <span class="cell-label">קוד</span>
-                  <span class="cell-value" id="c1-code2">—</span>
-                </div>
-                <div class="card-cell">
-                  <span class="cell-label">תשובה</span>
-                  <span class="cell-value answer-correct" id="c1-answer">—</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 2 -->
-          <div class="step-card-wrap">
-            <div class="step-badge">2</div>
-            <div class="step-card">
-              <div class="card-top">
-                <div class="card-top-label" id="c2-title">שלב 2</div>
-                <div class="card-code" id="c2-code">—</div>
-              </div>
-              <div class="card-bottom">
-                <div class="card-cell">
-                  <span class="cell-label">קוד</span>
-                  <span class="cell-value" id="c2-code2">—</span>
-                </div>
-                <div class="card-cell">
-                  <span class="cell-label">תשובה</span>
-                  <span class="cell-value answer-correct" id="c2-answer">—</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 3 -->
-          <div class="step-card-wrap">
-            <div class="step-badge">3</div>
-            <div class="step-card">
-              <div class="card-top">
-                <div class="card-top-label" id="c3-title">שלב 3</div>
-                <div class="card-code" id="c3-code">—</div>
-              </div>
-              <div class="card-bottom">
-                <div class="card-cell">
-                  <span class="cell-label">קוד</span>
-                  <span class="cell-value" id="c3-code2">—</span>
-                </div>
-                <div class="card-cell">
-                  <span class="cell-label">תשובה</span>
-                  <span class="cell-value answer-correct" id="c3-answer">—</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Card 4 = Final lock -->
-          <div class="step-card-wrap final">
-            <div class="step-badge">4</div>
-            <div class="step-card">
-              <div class="card-top">
-                <div class="card-top-label" style="color:#b26200">מנעול סופי</div>
-                <div class="card-code" id="c4-code">—</div>
-              </div>
-              <div class="card-bottom">
-                <div class="card-cell" style="flex:1">
-                  <span class="cell-label">FINAL CODE</span>
-                  <span class="cell-value" id="c4-code2" style="font-family:'Courier New',monospace;color:var(--final-c);font-size:.95rem;letter-spacing:3px;font-weight:900">—</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        </div><!-- /cards-grid -->
+        <div class="cards-grid" id="cards-grid"></div><!-- /cards-grid -->
       </div><!-- /cards-section -->
 
     </div><!-- /panel-content -->
@@ -1024,6 +942,7 @@
     const searchInput   = document.getElementById("search-input");
     const searchDropdown= document.getElementById("search-dropdown");
     const resultBox     = document.getElementById("result-box");
+    const cardsGrid     = document.getElementById("cards-grid");
     const finalBarCode  = document.getElementById("final-bar-code");
     const toastEl       = document.getElementById("toast");
     const roomIdLabel   = document.getElementById("room-id-label");
@@ -1062,13 +981,6 @@
       updateRoomInfo();
       updateUrlWithRoom();
     }
-
-    const cards = {
-      1: { title: document.getElementById("c1-title"), code: document.getElementById("c1-code"), code2: document.getElementById("c1-code2"), answer: document.getElementById("c1-answer") },
-      2: { title: document.getElementById("c2-title"), code: document.getElementById("c2-code"), code2: document.getElementById("c2-code2"), answer: document.getElementById("c2-answer") },
-      3: { title: document.getElementById("c3-title"), code: document.getElementById("c3-code"), code2: document.getElementById("c3-code2"), answer: document.getElementById("c3-answer") },
-      4: { code: document.getElementById("c4-code"), code2: document.getElementById("c4-code2") },
-    };
 
     for (let n = 2; n <= 30; n++) {
       const o = document.createElement("option");
@@ -1257,35 +1169,75 @@
       } catch { doorsData = []; }
     }
 
+    function createStepCard(step, stepNumber) {
+      const wrap = document.createElement("div");
+      wrap.className = "step-card-wrap";
+      wrap.innerHTML = `
+        <div class="step-badge">${stepNumber}</div>
+        <div class="step-card">
+          <div class="card-top">
+            <div class="card-top-label">${step.title || `שלב ${stepNumber}`}</div>
+          </div>
+          <div class="card-bottom">
+            <div class="card-cell">
+              <span class="cell-label">תשובה נכונה</span>
+              <span class="cell-value answer-correct">${step.answer || "—"}</span>
+            </div>
+            <div class="card-cell">
+              <span class="cell-label">קוד נכון</span>
+              <span class="cell-value">${step.code || "—"}</span>
+            </div>
+            <div class="card-cell">
+              <span class="cell-label">קוד שגוי</span>
+              <span class="cell-value">${step.wrongCode || "—"}</span>
+            </div>
+          </div>
+        </div>
+      `;
+      return wrap;
+    }
+
+    function createFinalCard(finalLockCode, badgeNumber) {
+      const wrap = document.createElement("div");
+      wrap.className = "step-card-wrap final";
+      wrap.innerHTML = `
+        <div class="step-badge">${badgeNumber}</div>
+        <div class="step-card">
+          <div class="card-top">
+            <div class="card-top-label" style="color:#b26200">מנעול סופי</div>
+            <div class="card-code">${finalLockCode}</div>
+          </div>
+          <div class="card-bottom">
+            <div class="card-cell" style="flex:1">
+              <span class="cell-label">FINAL CODE</span>
+              <span class="cell-value" style="font-family:'Courier New',monospace;color:var(--final-c);font-size:.95rem;letter-spacing:3px;font-weight:900">${finalLockCode}</span>
+            </div>
+          </div>
+        </div>
+      `;
+      return wrap;
+    }
+
+    function renderCards(steps = [], finalLockCode = "") {
+      cardsGrid.innerHTML = "";
+      steps.forEach((step, i) => cardsGrid.appendChild(createStepCard(step || {}, i + 1)));
+      if (finalLockCode) cardsGrid.appendChild(createFinalCard(finalLockCode, steps.length + 1));
+    }
+
     function clearCards() {
       resultBox.textContent = "חפשו אורגניזם לצפייה בקודים";
       finalBarCode.textContent = "——";
-      [1,2,3].forEach(i => {
-        cards[i].title.textContent  = `שלב ${i}`;
-        cards[i].code.textContent   = "—";
-        cards[i].code2.textContent  = "—";
-        cards[i].answer.textContent = "—";
-      });
-      cards[4].code.textContent  = "—";
-      cards[4].code2.textContent = "—";
+      renderCards();
     }
 
     function fillCards(door) {
       if (!door) { clearCards(); return; }
       const name = door.creature || door.title || `דלת ${door.id}`;
       resultBox.textContent = name;
-      (door.steps || []).forEach((step, i) => {
-        const n = i + 1;
-        if (n > 3) return;
-        cards[n].title.textContent  = step.title || `שלב ${n}`;
-        cards[n].code.textContent   = step.code  || "—";
-        cards[n].code2.textContent  = step.code  || "—";
-        cards[n].answer.textContent = step.answer || "—";
-      });
-      const fc = door.finalLockCode || "—";
-      cards[4].code.textContent  = fc;
-      cards[4].code2.textContent = fc;
-      finalBarCode.textContent   = fc;
+      const steps = Array.isArray(door.steps) ? door.steps : [];
+      const finalLockCode = (door.finalLockCode || "").trim();
+      renderCards(steps, finalLockCode);
+      finalBarCode.textContent = finalLockCode || "——";
     }
 
     function buildDropdown(q) {

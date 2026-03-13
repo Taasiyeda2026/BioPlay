@@ -45,14 +45,21 @@
     #panel-outer {
       max-width: 1220px;
       margin: 0 auto;
-      background: var(--panel-bg);
+      background: linear-gradient(180deg, #f9fcff 0%, #f2f7fc 100%);
       border: 1px solid var(--border);
       border-radius: 20px;
       box-shadow: var(--shadow);
       overflow: hidden;
+      display: grid;
+      grid-template-areas:
+        "header  header  header"
+        "content content control"
+        "db      db      db";
+      grid-template-columns: 1fr 1fr 1fr;
     }
 
     .admin-header {
+      grid-area: header;
       position: relative;
       display: grid;
       grid-template-columns: 1fr;
@@ -170,11 +177,12 @@
     }
 
     #panel-content {
+      grid-area: content;
       display: grid;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-template-columns: 1fr 1fr;
       gap: 14px;
-      padding: 16px;
-      background: linear-gradient(180deg, #f9fcff 0%, #f2f7fc 100%);
+      padding: 14px;
+      background: transparent;
     }
 
     .panel {
@@ -199,10 +207,15 @@
       color: var(--text-soft);
     }
 
-    .panel-setup { grid-column: span 4; }
-    .panel-link { grid-column: span 4; }
-    .panel-control { grid-column: span 4; }
-    .panel-db { grid-column: span 12; }
+    .panel-control {
+      grid-area: control;
+      margin: 14px 0 14px 14px;
+    }
+
+    .panel-db {
+      grid-area: db;
+      margin: 0 14px 14px;
+    }
 
     .field-group { margin-bottom: 10px; display: grid; gap: 6px; }
 
@@ -762,28 +775,66 @@
     .login-msg { min-height: 22px; margin-top: 8px; }
     .login-msg.error { color: var(--red); }
 
-    @media (max-width: 1100px) {
-      .panel-setup, .panel-link, .panel-control, .panel-db { grid-column: span 12; }
+    /* ── Tablet (701px – 1100px) ── */
+    @media (max-width: 1100px) and (min-width: 701px) {
+      #panel-outer {
+        grid-template-areas:
+          "header header"
+          "content control"
+          "db db";
+        grid-template-columns: 2fr 1fr;
+      }
+      #panel-content { grid-template-columns: 1fr 1fr; }
       .admin-header { padding-left: 12px; padding-right: 12px; }
       .header-title { align-self: flex-end; }
       .status-strip { justify-content: flex-start; }
       .logout-sm { left: 12px; width: 96px; }
-      .status-chip {
-        width: auto;
-        min-width: 150px;
-      }
+      .status-chip { width: auto; min-width: 150px; }
+      /* שמירת margins העקביים בטאבלט */
     }
 
+    /* ── Mobile (≤700px) ── */
     @media (max-width: 700px) {
+      #panel-outer {
+        grid-template-areas:
+          "header  control"
+          "content content"
+          "db      db";
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        padding: 12px;
+      }
+
+      /* ביטול margins — הגריד מנהל ריווח */
+      .panel-control { margin: 0; }
+      .panel-db      { margin: 0; }
+      #panel-content { padding: 0; gap: 14px; grid-template-columns: 1fr 1fr; }
+
+      .admin-header { padding: 12px; }
+      .logout-sm { left: 12px; width: 86px; font-size: .78rem; }
+      .header-title { align-self: flex-end; }
+      .header-title h1 { font-size: 1.3rem; }
+      .header-title p  { font-size: .85rem; }
+
+      /* chips: גריד 2×2 */
+      .status-strip {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        justify-content: start;
+      }
+      .status-chip { width: auto; min-width: 0; font-size: .8rem; padding: 5px 8px; }
+
+      /* כפתורי PLAY/RESET — מתאימים לעמודה צרה (~155px) */
+      .btn-play, .btn-reset { width: 90px; height: 90px; font-size: 1rem; }
+      .control-buttons { gap: 10px; }
+
+      /* שמירת תיקוני טיפוגרפיה וכרטיסים */
       .compact-fields-row { gap: 8px; }
       .compact-field-room { flex-basis: 150px; max-width: 150px; }
       .compact-field-doors { flex-basis: 78px; max-width: 78px; }
       .compact-select { min-height: 38px; padding: 6px 8px; }
-
-      body { padding: 12px; }
-      .control-buttons { gap: 10px; }
       .search-input { flex-basis: 65%; max-width: 100%; }
-      .btn-play, .btn-reset { width: 100px; height: 100px; font-size: 1.1rem; }
       .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; }
       .step-badge { width: 52px; height: 52px; font-size: 1.05rem; border-width: 4px; }
       .step-card { min-height: 220px; border-width: 3px; border-radius: 18px; }
@@ -797,8 +848,6 @@
     }
 
     @media (max-width: 560px) {
-      .control-buttons { gap: 10px; }
-      .btn-play, .btn-reset { width: 96px; height: 96px; font-size: 1rem; }
       .cards-grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -830,6 +879,16 @@
       <button class="logout-sm" id="logout-btn">יציאה</button>
     </header>
 
+    <section class="panel panel-control">
+      <h2>שליטה במשחק</h2>
+      <div class="controls-section">
+        <div class="control-buttons">
+          <button class="btn-play" id="activate-btn" disabled>PLAY</button>
+          <button class="btn-reset" id="reset-btn">RESET</button>
+        </div>
+      </div>
+    </section>
+
     <main id="panel-content" class="admin-grid">
       <section class="panel panel-setup">
         <h2>הגדרת משחק</h2>
@@ -860,37 +919,26 @@
         <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק</button>
         <div class="link-box"><small>QR לתלמידים</small></div>
       </section>
-
-      <section class="panel panel-control">
-        <h2>שליטה במשחק</h2>
-        <div class="controls-section">
-          <div class="control-buttons">
-            <button class="btn-play" id="activate-btn" disabled>PLAY</button>
-            <button class="btn-reset" id="reset-btn">RESET</button>
-          </div>
-</div>
-      </section>
-
-
-      <section class="panel panel-db">
-        <h2 id="db-title">מאגר אורגניזמים (0)</h2>
-        <div class="search-section">
-          <div class="search-input-wrap">
-            <input id="search-input" class="search-input" type="search" placeholder="חפשו אורגניזם...">
-            <button class="search-btn-icon" id="search-btn">🔍</button>
-          </div>
-          <div class="search-dropdown" id="search-dropdown"></div>
-        </div>
-
-        <div class="result-box" id="result-box">חפשו אורגניזם לקבלת הנתונים</div>
-        <div class="cards-grid" id="cards-grid"></div>
-
-        <div class="final-bar">
-          <span class="final-bar-label">FINAL CODE</span>
-          <span class="final-bar-code" id="final-bar-code">——</span>
-        </div>
-      </section>
     </main>
+
+    <section class="panel panel-db">
+      <h2 id="db-title">מאגר אורגניזמים (0)</h2>
+      <div class="search-section">
+        <div class="search-input-wrap">
+          <input id="search-input" class="search-input" type="search" placeholder="חפשו אורגניזם...">
+          <button class="search-btn-icon" id="search-btn">🔍</button>
+        </div>
+        <div class="search-dropdown" id="search-dropdown"></div>
+      </div>
+
+      <div class="result-box" id="result-box">חפשו אורגניזם לקבלת הנתונים</div>
+      <div class="cards-grid" id="cards-grid"></div>
+
+      <div class="final-bar">
+        <span class="final-bar-label">FINAL CODE</span>
+        <span class="final-bar-code" id="final-bar-code">——</span>
+      </div>
+    </section>
   </div>
 
   <div id="toast"></div>

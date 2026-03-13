@@ -187,27 +187,28 @@
     .status-chip strong { color: #102f4c; }
     .status-label.started { color: #1f8b48; }
 
-    .logout-sm {
-      position: absolute;
-      top: 14px;
-      left: 18px;
-      width: 78px;
-      min-height: 30px;
-      border-radius: 999px;
-      border: 1px solid #8f1d1d;
-      background: linear-gradient(180deg, #f26e6e 0%, #cf3030 54%, #921d1d 100%);
-      color: #ffffff;
-      padding: 4px 10px;
-      font-size: .76rem;
-      font-weight: 800;
-      cursor: pointer;
-      text-shadow: 0 1px 1px rgba(0,0,0,.28);
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.25),
-        inset 0 -8px 12px rgba(0,0,0,.18),
-        0 6px 12px rgba(52, 10, 10, 0.18);
-      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
-    }
+.logout-sm {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  width: 62px;
+  min-height: 24px;
+  border-radius: 999px;
+  border: 1px solid #8f1d1d;
+  background: linear-gradient(180deg, #f26e6e 0%, #cf3030 54%, #921d1d 100%);
+  color: #ffffff;
+  padding: 2px 6px;
+  font-size: .64rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  text-shadow: 0 1px 1px rgba(0,0,0,.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    inset 0 -6px 10px rgba(0,0,0,.16),
+    0 4px 8px rgba(52, 10, 10, 0.16);
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
     .logout-sm:hover {
       transform: translateY(-1px);
       filter: saturate(1.04);
@@ -443,7 +444,7 @@
       display: flex;
       justify-content: center;
       gap: 10px;
-      margin-bottom: 14px;
+      margin-bottom: 18px;
       width: fit-content;
       margin-inline: auto;
     }
@@ -544,7 +545,7 @@
     }
 
     .copy-help-text {
-      margin-top: 0;
+      margin-top: 8;
       font-size: .74rem;
       color: #6d8499;
       text-align: center;

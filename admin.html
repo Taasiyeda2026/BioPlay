@@ -31,6 +31,7 @@
       --control-height: 40px;
       --chip-size: 170px;
       --chip-height: 40px;
+      --inner-width: calc(100% - 32px);
     }
 
     html, body {
@@ -92,9 +93,9 @@
       background: linear-gradient(180deg, #fbfdff 0%, #f0f6fc 100%);
       border-bottom: 1px solid var(--border);
       box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.7);
-      width: 100%;
-      max-width: 100%;
-      justify-self: stretch;
+      width: var(--inner-width);
+      max-width: var(--inner-width);
+      justify-self: center;
     }
 
     .header-title {
@@ -142,9 +143,9 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       padding: 10px 14px;
-      width: 100%;
-      max-width: 100%;
-      justify-self: stretch;
+      width: var(--inner-width);
+      max-width: var(--inner-width);
+      justify-self: center;
     }
 
     .status-strip:empty {
@@ -227,11 +228,11 @@
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
-      padding: 10px;
+      padding: 0;
       background: transparent;
-      width: 100%;
-      max-width: 100%;
-      justify-self: stretch;
+      width: var(--inner-width);
+      max-width: var(--inner-width);
+      justify-self: center;
     }
 
     .panel {
@@ -280,9 +281,9 @@
     .panel-db {
       grid-area: db;
       margin: 0 0 14px;
-      width: auto;
-      max-width: none;
-      justify-self: stretch;
+      width: var(--inner-width);
+      max-width: var(--inner-width);
+      justify-self: center;
     }
 
     .panel-setup,
@@ -930,8 +931,6 @@
     /* ── Tablet (701px – 1100px) ── */
     @media (max-width: 1100px) and (min-width: 701px) {
       #panel-outer {
-        --main-block-span: 1;
-        --main-block-cols: 1;
         grid-template-areas:
           "header"
           "status"
@@ -957,8 +956,6 @@
     /* ── Mobile (≤700px) ── */
     @media (max-width: 700px) {
       #panel-outer {
-        --main-block-span: 1;
-        --main-block-cols: 1;
         grid-template-areas:
           "header"
           "status"
@@ -1199,6 +1196,10 @@
     return scoped("bioplay_last_created_room_name", rid);
   }
 
+  function getPlayGlowKey(rid = currentRoomId) {
+    return scoped("bioplay_play_glow_until", rid);
+  }
+
   let currentTeacherToken = "";
   let pollTimer = null;
   let playGlowTimer = null;
@@ -1304,8 +1305,8 @@
   function removePlayGlow() {
     activateBtn.classList.remove("active-glow");
     clearPlayGlowTimer();
-    if (roomId) {
-      localStorage.removeItem(getPlayGlowKey(roomId));
+    if (currentRoomId) {
+      localStorage.removeItem(getPlayGlowKey(currentRoomId));
     }
   }
 
@@ -1340,7 +1341,7 @@
     localStorage.setItem(getDoorsKey(currentRoomId), doorsCount);
     updateRoomInfo();
     updateUrlWithRoom();
-    const savedGlowUntil = parseInt(localStorage.getItem(getPlayGlowKey(roomId)), 10);
+    const savedGlowUntil = parseInt(localStorage.getItem(getPlayGlowKey(currentRoomId)), 10);
     if (Number.isFinite(savedGlowUntil)) {
       applyPlayGlow(savedGlowUntil);
     }
@@ -1630,6 +1631,9 @@
       localStorage.setItem(getDoorsKey(currentRoomId), resolvedCount);
       actionMsg.textContent = `✔ הופעל – ${resolvedCount} דלתות`; actionMsg.className = "action-msg success";
       setStatus("started");
+      const glowUntil = Date.now() + PLAY_GLOW_MS;
+      localStorage.setItem(getPlayGlowKey(currentRoomId), String(glowUntil));
+      applyPlayGlow(glowUntil);
       toast(`✔ המשחק הופעל! Room ${currentRoomId}`, "success");
     } catch (e) {
       console.error("[PLAY DEBUG] activate failed", e);
@@ -1833,8 +1837,8 @@
     await loadRoomNames();
     await loadDoors();
     refreshStorageScope();
-    if (roomId) {
-      const savedGlowUntil = parseInt(localStorage.getItem(getPlayGlowKey(roomId)), 10);
+    if (currentRoomId) {
+      const savedGlowUntil = parseInt(localStorage.getItem(getPlayGlowKey(currentRoomId)), 10);
       if (Number.isFinite(savedGlowUntil)) {
         applyPlayGlow(savedGlowUntil);
       }

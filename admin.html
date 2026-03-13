@@ -409,25 +409,40 @@
   font-family: "Courier New", monospace;
   font-size: .82rem;
 }
-    .setup-box,
-    .link-box {
-      border: 1px dashed #c7d9e8;
-      border-radius: 10px;
-      background: linear-gradient(180deg, #f8fbff, #eef5fc);
-      min-height: unset;
-      padding: 8px 10px;
-      display: grid;
-      gap: 8px;
-      align-content: start;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
-    }
+.setup-box {
+  border: 1px dashed #c7d9e8;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #f8fbff, #eef5fc);
+  min-height: unset;
+  padding: 8px 10px;
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  align-content: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+}
 
-    .panel-link .btn-copy-link,
-    .panel-setup .btn-room {
-      justify-self: center;
-      margin-top: 0;
-    }
+.link-box {
+  border: 1px dashed #c7d9e8;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #f8fbff, #eef5fc);
+  min-height: unset;
+  padding: 8px 10px;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+}
 
+.panel-link .btn-copy-link,
+.panel-setup .btn-room {
+  justify-self: center;
+  margin-top: 6px;
+}
+
+.panel-setup .btn-room {
+  margin-bottom: 6px;
+}
     .controls-section {
       display: grid;
       gap: 6px;
@@ -532,7 +547,7 @@
 
 
     .setup-help-text {
-      margin-top: 0;
+      margin-top: 8px;
       font-size: .74rem;
       color: #6d8499;
       text-align: center;

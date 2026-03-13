@@ -195,7 +195,7 @@
       box-shadow: 0 0 0 4px rgba(47, 128, 237, 0.12);
     }
 
-    .room-select { flex: 0 1 30%; width: 30%; min-width: 150px; max-width: 240px; }in-width: 150px; max-width: 240px; }
+    .room-select { flex: 0 1 30%; width: 30%; min-width: 150px; max-width: 240px; }
 
     .room-link-input {
       flex: 1;
@@ -345,10 +345,52 @@
 
     #panel-content {
       background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(245,248,252,0.8) 100%);
+      display: grid;
+      gap: 0;
+    }
+
+    .controls-section {
+      padding: 14px;
       display: flex;
-     .search-section {
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255,255,255,0.45);
+    }
+
+    .controls-right {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .count-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .count-label {
+      font-size: 0.85rem;
+      color: var(--text-soft);
+      font-weight: 700;
+    }
+
+    .action-msg {
+      min-height: 18px;
+      font-size: 0.84rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .action-msg.success { color: var(--green-dark); }
+    .action-msg.error { color: var(--red-dark); }
+    .action-msg.info { color: var(--text-soft); }
+
+    .search-section {
       padding: 12px 14px 0;
-      border-bottom: 0;
       position: relative;
       display: flex;
       justify-content: center;
@@ -356,29 +398,20 @@
     }
 
     .search-meta-row {
- .search-input-wrap {
       display: flex;
-      gap: 8px;
-      width: min(210px, 100%);
-      max-width: 210px;
-      flex: 0 0 210px;
-    }}
-
-    .search-input-wrap {rch-meta-row {
- .search-input-wrap {
-      display: flex;
-      gap: 8px;
-      width: min(210px, 100%);
-      max-width: 210px;
-      flex: 0 0 210px;
-    }}
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
 
     .search-input-wrap {
       display: flex;
       gap: 8px;
-      width: min(210px, 100%);
-      max-width: 210px;
-      flex: 0 0 210px;
+      width: min(360px, 100%);
+      max-width: 100%;
+      flex: 0 1 360px;
     }
 
     .search-input {
@@ -402,8 +435,9 @@
     .search-dropdown {
       position: absolute;
       top: calc(100% - 1px);
-      right: 14px;
-      width: min(210px, calc(100% - 28px));
+      right: 50%;
+      transform: translateX(50%);
+      width: min(360px, calc(100% - 28px));
       background: #fff;
       border: 1px solid var(--line-2);
       border-top: none;
@@ -430,14 +464,15 @@
     .dropdown-item:hover { background: #f7fbff; }
     .dropdown-item:last-child { border-bottom: none; }
 
-    .dropdown-num .meta-strip {
-      padding: 12px 14px 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-    }    }
+    .dropdown-num {
+      background: #e6effd;
+      color: #225ca6;
+      border-radius: 8px;
+      padding: 2px 8px;
+      font-weight: 900;
+      font-size: 0.78rem;
+      line-height: 1;
+    }
 
     .meta-strip {
       padding: 12px 14px 0;
@@ -768,6 +803,7 @@
       .result-section,
       .cards-section,
       .final-bar { padding-left: 12px; padding-right: 12px; }
+      .room-select { width: 100%; min-width: 100%; max-width: 100%; flex: 1 1 100%; }
       .search-input-wrap { width: 100%; max-width: 100%; flex: 1 1 auto; }
       .cards-grid { grid-template-columns: 1fr; }
       .btn-room, .btn-play, .btn-reset { width: 82px; height: 82px; }
@@ -825,32 +861,19 @@
         <div class="controls-right">
           <div class="count-row">
             <span class="count-label">מספר דלתות:</span>
-       <div class="search-section">
+            <select id="doors-count-select" class="count-select"></select>
+          </div>
+          <div class="action-msg" id="action-msg"></div>
+        </div>
+      </div>
+
+      <div class="search-section">
         <div class="search-meta-row">
           <div class="meta-pill">כמות אורגניזמים במאגר: <strong id="db-total-count">0</strong></div>
           <div class="search-input-wrap">
             <input id="search-input" class="search-input" type="search" placeholder="חיפוש אורגניזם...">
             <button class="search-btn-icon" id="search-btn">🔍</button>
           </div>
-        </div>
-        <div class="search-dropdown" id="search-dropdown"></div>
-      </div>
-
-      <div class="result-section">     <div class="search-section">
-        <div class="search-meta-row">
-          <div class="meta-pill">כמות אורגניזמים במאגר: <strong id="db-total-count">0</strong></div>
-          <div class="search-input-wrap">
-            <input id="search-input" class="search-input" type="search" placeholder="חיפוש אורגניזם...">
-            <button class="search-btn-icon" id="search-btn">🔍</button>
-          </div>
-        </div>
-        <div class="search-dropdown" id="search-dropdown"></div>
-      </div>
-
-      <div class="result-section">
-        <div class="search-input-wrap">
-          <input id="search-input" class="search-input" type="search" placeholder="חיפוש אורגניזם...">
-          <button class="search-btn-icon" id="search-btn">🔍</button>
         </div>
         <div class="search-dropdown" id="search-dropdown"></div>
       </div>

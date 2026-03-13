@@ -468,6 +468,14 @@
     .btn-play {
       background: radial-gradient(circle at 30% 18%, #71f0a0 0%, #23a956 34%, #167540 68%, #0d4a28 100%);
     }
+    .btn-play.active-glow {
+      box-shadow:
+        inset 0 10px 16px rgba(255,255,255,0.16),
+        inset 0 -22px 28px rgba(0,0,0,.36),
+        0 18px 28px rgba(0,0,0,.30),
+        0 10px 24px rgba(0, 255, 100, 0.40),
+        0 18px 36px rgba(80, 255, 140, 0.32);
+    }
     .btn-reset {
       background: radial-gradient(circle at 30% 18%, #f07a7a 0%, #cf2f2f 34%, #971d1d 68%, #5e0f0f 100%);
     }
@@ -1167,6 +1175,7 @@
 <script>
   const APPS_URL = "https://script.google.com/macros/s/AKfycbw4x7TZ3-V43ouJxMo4gMi7OL1BImY_IWcMzVEnoBk7lN3mRGniku6uFymFLDpqpx4CXA/exec";
   const POLL_MS = 4000;
+  const PLAY_GLOW_MS = 30 * 60 * 1000;
 
   const qp = new URLSearchParams(window.location.search);
   let roomId = "";
@@ -1183,8 +1192,13 @@
     return scoped("bioplay_doors_count", rid);
   }
 
+  function getPlayGlowKey(rid = roomId) {
+    return scoped("bioplay_play_glow_until", rid);
+  }
+
   let teacherToken = "";
   let pollTimer = null;
+  let playGlowTimer = null;
   let doorsData = [];
   let doorsCount = 5;
 
@@ -1250,7 +1264,41 @@
     window.history.replaceState({}, "", next.toString());
   }
 
+  function clearPlayGlowTimer() {
+    if (playGlowTimer) {
+      clearTimeout(playGlowTimer);
+      playGlowTimer = null;
+    }
+  }
+
+  function removePlayGlow() {
+    activateBtn.classList.remove("active-glow");
+    clearPlayGlowTimer();
+    if (roomId) {
+      localStorage.removeItem(getPlayGlowKey(roomId));
+    }
+  }
+
+  function applyPlayGlow(untilTs) {
+    const now = Date.now();
+    const remaining = untilTs - now;
+
+    if (remaining <= 0) {
+      removePlayGlow();
+      return;
+    }
+
+    activateBtn.classList.add("active-glow");
+    clearPlayGlowTimer();
+
+    playGlowTimer = setTimeout(() => {
+      removePlayGlow();
+    }, remaining);
+  }
+
   function refreshStorageScope(previousRoomId = "") {
+    clearPlayGlowTimer();
+    activateBtn.classList.remove("active-glow");
     if (previousRoomId && previousRoomId !== roomId) {
       sessionStorage.removeItem(getSessKey(previousRoomId));
     }
@@ -1263,6 +1311,10 @@
     localStorage.setItem(getDoorsKey(roomId), doorsCount);
     updateRoomInfo();
     updateUrlWithRoom();
+    const savedGlowUntil = parseInt(localStorage.getItem(getPlayGlowKey(roomId)), 10);
+    if (Number.isFinite(savedGlowUntil)) {
+      applyPlayGlow(savedGlowUntil);
+    }
   }
 
   for (let n = 2; n <= 30; n++) {
@@ -1493,6 +1545,9 @@
       localStorage.setItem(getDoorsKey(roomId), resolvedCount);
       actionMsg.textContent = `✔ הופעל – ${resolvedCount} דלתות`; actionMsg.className = "action-msg success";
       setStatus("started");
+      const glowUntil = Date.now() + PLAY_GLOW_MS;
+      localStorage.setItem(getPlayGlowKey(roomId), String(glowUntil));
+      applyPlayGlow(glowUntil);
       toast(`✔ המשחק הופעל! Room ${roomId}`, "success");
     } catch (e) {
       console.error("[PLAY DEBUG] activate failed", e);
@@ -1509,6 +1564,7 @@
     try {
       await sendAction("reset", teacherToken);
       setStatus("waiting");
+      removePlayGlow();
       actionMsg.textContent = "✔ אופס – המשחק חזר למצב המתנה"; actionMsg.className = "action-msg success";
       toast("✔ החדר אופס", "success");
     } catch (e) {
@@ -1521,6 +1577,7 @@
     teacherToken = "";
     if (roomId) sessionStorage.removeItem(getSessKey(roomId));
     clearInterval(pollTimer);
+    removePlayGlow();
     clearCards();
     loginOverlay.style.display = "none";
     loginCodeEl.value = "";
@@ -1695,6 +1752,12 @@
     await loadRoomNames();
     await loadDoors();
     refreshStorageScope();
+    if (roomId) {
+      const savedGlowUntil = parseInt(localStorage.getItem(getPlayGlowKey(roomId)), 10);
+      if (Number.isFinite(savedGlowUntil)) {
+        applyPlayGlow(savedGlowUntil);
+      }
+    }
 
 if (!roomId) {
   loginOverlay.style.display = "none";

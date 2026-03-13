@@ -29,6 +29,8 @@
       --shadow-soft: 0 10px 22px rgba(18, 45, 72, 0.08);
       --radius: 16px;
       --control-height: 42px;
+      --chip-size: 170px;
+      --chip-height: 40px;
     }
 
     html, body {
@@ -83,16 +85,20 @@
     .status-chip {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
-      min-height: 36px;
+      width: var(--chip-size);
+      min-height: var(--chip-height);
       border-radius: 999px;
-      padding: 6px 12px;
-      border: 1px solid var(--border);
-      background: #fff;
-      color: var(--text-main);
-      font-size: .92rem;
-      font-weight: 800;
-      box-shadow: 0 5px 14px rgba(20, 52, 84, 0.08);
+      padding: 6px 10px;
+      border: 1px solid #97b4cf;
+      background: linear-gradient(180deg, #ffffff 0%, #deebf8 100%);
+      color: #173652;
+      font-size: .9rem;
+      font-weight: 900;
+      text-align: center;
+      text-shadow: 0 1px 0 rgba(255,255,255,.8);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 7px 16px rgba(20, 52, 84, 0.13);
     }
 
     .status-dot {
@@ -106,18 +112,21 @@
     .status-dot.waiting { background: #f59e0b; }
     .status-dot.off { background: var(--red); box-shadow: 0 0 0 4px rgba(201,71,71,.12); }
 
-    .status-label { color: var(--text-soft); }
-    .status-label.started { color: var(--green); }
+    .status-label { color: #335774; font-weight: 900; }
+    .status-chip strong { color: #102f4c; }
+    .status-label.started { color: #1f8b48; }
 
     .logout-sm {
-      border-radius: 10px;
+      width: var(--chip-size);
+      min-height: var(--chip-height);
+      border-radius: 999px;
       border: 1px solid #a8bfd4;
-      background: linear-gradient(180deg, #ffffff 0%, #eef4fa 100%);
+      background: linear-gradient(180deg, #ffffff 0%, #e8f1fb 100%);
       color: #36556f;
       padding: 8px 14px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 6px 14px rgba(16, 43, 68, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 6px 14px rgba(16, 43, 68, 0.1);
       transition: transform .15s ease, box-shadow .15s ease;
     }
     .logout-sm:hover { transform: translateY(-1px); box-shadow: 0 8px 16px rgba(16, 43, 68, 0.12); }
@@ -224,21 +233,31 @@
     .btn:active:not(:disabled) { transform: translateY(0); box-shadow: inset 0 3px 7px rgba(9, 27, 45, 0.28), 0 3px 8px rgba(12, 34, 56, 0.12); }
     .btn:disabled { opacity: .6; cursor: not-allowed; }
 
+    .btn-room,
+    .btn-copy-link {
+      width: fit-content;
+      min-width: 124px;
+      min-height: 46px;
+      border-radius: 999px;
+      padding: 10px 22px;
+      margin-top: 10px;
+      font-size: .93rem;
+      font-weight: 900;
+      letter-spacing: .2px;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,.35), inset 0 -9px 14px rgba(0,0,0,.2), 0 10px 18px rgba(17, 40, 63, 0.26);
+    }
+
     .btn-room {
-      width: 100%;
-      background: linear-gradient(180deg, #3f82cb, #225f9f);
-      border-color: #1e5389;
-      color: #fff;
-      margin-top: 4px;
+      background: linear-gradient(180deg, #4d97df 0%, #2a70b5 54%, #184f84 100%);
+      border-color: #154772;
+      color: #ffffff;
     }
 
     .btn-copy-link {
-      width: 100%;
-      margin-top: 10px;
-      background: linear-gradient(180deg, #f2f8ff, #dcecff);
-      border-color: #9fc0df;
-      color: #1f558b;
-      box-shadow: 0 6px 14px rgba(20, 55, 90, 0.12);
+      background: linear-gradient(180deg, #ffd95f 0%, #f2b80c 52%, #c28a00 100%);
+      border-color: #8f6400;
+      color: #3a2800;
+      text-shadow: 0 1px 0 rgba(255,235,170,.45);
     }
 
     .room-link-input {
@@ -273,17 +292,18 @@
       border-radius: 50%;
       border: none;
       color: #fff;
-      font-size: 1.25rem;
+      font-size: 1.24rem;
       font-weight: 900;
-      letter-spacing: .5px;
+      letter-spacing: .55px;
       cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.4);
-      box-shadow: inset 0 8px 16px rgba(255,255,255,0.24), inset 0 -10px 18px rgba(0,0,0,.18), 0 14px 24px rgba(0,0,0,0.18);
-      transition: transform .12s ease, box-shadow .12s ease;
+      border: 1px solid rgba(255,255,255,0.28);
+      text-shadow: 0 1px 1px rgba(0,0,0,.35);
+      box-shadow: inset 0 12px 20px rgba(255,255,255,0.2), inset 0 -16px 24px rgba(0,0,0,.28), 0 16px 28px rgba(0,0,0,0.28);
+      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
     }
-    .btn-play { background: radial-gradient(circle at 28% 24%, #58d885, #1f8a49 68%, #16693a 100%); }
-    .btn-reset { background: radial-gradient(circle at 28% 24%, #e57f7f, #b13a3a 68%, #862525 100%); }
-    .btn-play:hover:not(:disabled), .btn-reset:hover:not(:disabled) { transform: scale(1.03) translateY(-1px); box-shadow: inset 0 10px 18px rgba(255,255,255,0.28), inset 0 -10px 18px rgba(0,0,0,.2), 0 18px 28px rgba(0,0,0,.24); }
+    .btn-play { background: radial-gradient(circle at 30% 18%, #54df89 0%, #1f9d52 42%, #16753d 72%, #0f532b 100%); }
+    .btn-reset { background: radial-gradient(circle at 30% 18%, #ea6666 0%, #cb2f2f 42%, #9a1f1f 72%, #681212 100%); }
+    .btn-play:hover:not(:disabled), .btn-reset:hover:not(:disabled) { transform: scale(1.035) translateY(-1px); filter: saturate(1.06); box-shadow: inset 0 12px 20px rgba(255,255,255,0.24), inset 0 -14px 22px rgba(0,0,0,.3), 0 20px 32px rgba(0,0,0,.3); }
     .btn-play:active:not(:disabled), .btn-reset:active:not(:disabled) { transform: scale(1); }
     .btn-play:disabled, .btn-reset:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 
@@ -295,6 +315,11 @@
     .action-msg.info { color: var(--text-soft); }
 
     .monitor-list, .db-stats { display: grid; gap: 8px; }
+
+    .db-stats {
+      grid-template-columns: max-content;
+      justify-content: start;
+    }
 
     .monitor-item, .db-stat {
       display: flex;
@@ -314,21 +339,34 @@
     .search-section { position: relative; margin: 14px 0 10px; }
     .search-input-wrap { display: flex; gap: 10px; }
 
+    .search-input {
+      flex: 0 1 50%;
+      max-width: 340px;
+    }
+
     .search-btn-icon {
       width: 42px;
       min-width: 42px;
-      border-radius: 10px;
-      border: 1px solid var(--border-strong);
-      background: linear-gradient(180deg, #ffffff, #edf3fb);
+      border-radius: 12px;
+      border: 1px solid #5f86ab;
+      background: linear-gradient(180deg, #f8fbff 0%, #d6e5f6 55%, #bfd5ec 100%);
+      color: #1f4f7d;
+      font-size: 1.08rem;
+      font-weight: 900;
       cursor: pointer;
-      box-shadow: 0 4px 10px rgba(16, 43, 68, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.85), inset 0 -6px 10px rgba(40,79,120,.12), 0 6px 12px rgba(16, 43, 68, 0.14);
+      transition: transform .14s ease, box-shadow .14s ease;
+    }
+    .search-btn-icon:hover {
+      transform: translateY(-1px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 -6px 10px rgba(40,79,120,.14), 0 8px 15px rgba(16, 43, 68, 0.18);
     }
 
     .search-dropdown {
       position: absolute;
       top: calc(100% + 4px);
       right: 0;
-      width: 100%;
+      width: min(390px, 100%);
       max-height: 200px;
       overflow-y: auto;
       display: none;
@@ -361,18 +399,43 @@
     }
 
     .result-box {
-      min-height: 52px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, #ffffff, #f6fbff);
-      padding: 11px;
+      min-height: 66px;
+      border-radius: 12px;
+      border: 1px solid #d1dfee;
+      background: linear-gradient(180deg, #ffffff, #f3f9ff);
+      padding: 11px 16px;
       color: var(--text-soft);
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
       margin-bottom: 10px;
-      font-weight: 800;
+      font-weight: 700;
+      font-size: 1rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 5px 12px rgba(17, 46, 76, 0.08);
+    }
+
+    .result-box.has-result {
+      color: #123d68;
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: .4px;
+      background: linear-gradient(180deg, #ffffff, #e9f4ff);
+      border-color: #a8c7e4;
+    }
+
+    .db-stat strong {
+      display: inline-flex;
+      min-width: 54px;
+      min-height: 34px;
+      padding: 4px 10px;
+      border-radius: 10px;
+      border: 1px solid #bfd2e5;
+      background: linear-gradient(180deg, #ffffff 0%, #eaf3fc 100%);
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
     }
 
     .cards-grid {
@@ -604,6 +667,7 @@
       .panel-setup, .panel-link, .panel-control, .panel-monitor, .panel-db { grid-column: span 12; }
       .admin-header { flex-direction: column; align-items: flex-start; }
       .status-strip { justify-content: flex-start; }
+      .status-chip, .logout-sm { width: auto; min-width: 150px; }
     }
 
     @media (max-width: 700px) {
@@ -614,6 +678,7 @@
 
       body { padding: 12px; }
       .control-buttons { gap: 10px; }
+      .search-input { flex-basis: 65%; max-width: 100%; }
       .btn-play, .btn-reset { width: 100px; height: 100px; font-size: 1.1rem; }
       .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; }
       .step-badge { width: 52px; height: 52px; font-size: 1.05rem; border-width: 4px; }
@@ -686,7 +751,7 @@
           <small>קישור מלא לתלמידים</small>
           <input id="student-link-input" class="room-link-input" type="text" readonly value="טרם נוצר קישור תלמידים" />
         </div>
-        <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק קישור לתלמידים</button>
+        <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק</button>
         <div class="link-box"><small>QR לתלמידים (מוכן לשימוש עתידי)</small></div>
       </section>
 
@@ -717,7 +782,6 @@
         <h2>מאגר אורגניזמים</h2>
         <div class="db-stats">
           <div class="db-stat"><span>כמות אורגניזמים במאגר</span><strong id="db-total-count">0</strong></div>
-          <div class="db-stat"><span>אורגניזמים זמינים</span><strong id="db-available-count">0</strong></div>
         </div>
 
         <div class="search-section">
@@ -794,7 +858,6 @@
   const monitorLink = document.getElementById("monitor-link");
   const monitorStatus = document.getElementById("monitor-status");
   const dbTotalCount = document.getElementById("db-total-count");
-  const dbAvailableCount = document.getElementById("db-available-count");
 
   let activeRoomName = "";
 
@@ -1096,7 +1159,6 @@
     } catch { doorsData = []; }
     const count = Array.isArray(doorsData) ? doorsData.length : 0;
     dbTotalCount.textContent = String(count);
-    dbAvailableCount.textContent = String(count);
   }
 
   function createStepCard(step, stepNumber) {
@@ -1155,6 +1217,7 @@
 
   function clearCards() {
     resultBox.textContent = "חפשו אורגניזם לצפייה בקודים";
+    resultBox.classList.remove("has-result");
     finalBarCode.textContent = "——";
     renderCards();
   }
@@ -1163,6 +1226,7 @@
     if (!door) { clearCards(); return; }
     const name = door.creature || door.title || `דלת ${door.id}`;
     resultBox.textContent = name;
+    resultBox.classList.add("has-result");
     const steps = Array.isArray(door.steps) ? door.steps : [];
     const finalLockCode = (door.finalLockCode || "").trim();
     renderCards(steps, finalLockCode);

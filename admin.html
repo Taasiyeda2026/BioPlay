@@ -409,7 +409,8 @@
   font-family: "Courier New", monospace;
   font-size: .82rem;
 }
-.setup-box {
+.setup-box,
+.link-box {
   border: 1px dashed #c7d9e8;
   border-radius: 10px;
   background: linear-gradient(180deg, #f8fbff, #eef5fc);
@@ -421,19 +422,6 @@
   align-content: center;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
 }
-
-.link-box {
-  border: 1px dashed #c7d9e8;
-  border-radius: 10px;
-  background: linear-gradient(180deg, #f8fbff, #eef5fc);
-  min-height: unset;
-  padding: 8px 10px;
-  display: grid;
-  gap: 8px;
-  align-content: start;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
-}
-
 .panel-link .btn-copy-link,
 .panel-setup .btn-room {
   justify-self: center;
@@ -455,7 +443,7 @@
       display: flex;
       justify-content: center;
       gap: 10px;
-      margin-bottom: 8px;
+      margin-bottom: 14px;
       width: fit-content;
       margin-inline: auto;
     }

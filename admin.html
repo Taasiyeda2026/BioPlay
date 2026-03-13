@@ -9,19 +9,18 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg-main: #071426;
-      --bg-panel: #0f2238;
-      --bg-panel-2: #132b45;
-      --border: #1f4f78;
-      --text-main: #eaf4ff;
-      --text-soft: #9fc3e6;
-      --green: #2dd36f;
-      --red: #d93636;
-      --orange: #ff9f1c;
-      --cyan: #32d0da;
-      --final-c: #ffd699;
-      --radius: 18px;
-      --glow: 0 0 0 1px rgba(120,180,255,0.15), 0 10px 30px rgba(0,0,0,0.35);
+      --bg-main: #f4f7fb;
+      --bg-alt: #eef3f8;
+      --panel-bg: #ffffff;
+      --panel-border: #d9e2ec;
+      --text-main: #1f2d3d;
+      --text-soft: #52606d;
+      --action-blue: #3b82f6;
+      --play-green: #22c55e;
+      --reset-red: #ef4444;
+      --success: #16a34a;
+      --radius: 16px;
+      --card-shadow: 0 10px 30px rgba(31, 45, 61, 0.08);
     }
 
     html, body {
@@ -29,348 +28,259 @@
       font-family: "Assistant", Arial, sans-serif;
       color: var(--text-main);
       background:
-        radial-gradient(circle at top, rgba(38, 92, 145, 0.2), transparent 35%),
-        linear-gradient(180deg, #081321 0%, var(--bg-main) 100%);
+        radial-gradient(circle at top, rgba(255,255,255,0.9), transparent 58%),
+        linear-gradient(180deg, #f8fbff 0%, var(--bg-main) 100%);
     }
 
-    body { padding: 18px 12px; }
+    body { padding: 26px 18px; }
 
     #panel-outer {
-      max-width: 1380px;
+      max-width: 1140px;
       margin: 0 auto;
       display: grid;
-      gap: 18px;
+      gap: 16px;
     }
 
     .admin-header {
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
       align-items: center;
-      gap: 18px;
-      background: linear-gradient(180deg, rgba(19,43,69,0.96), rgba(11,28,48,0.96));
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      box-shadow: var(--glow);
-      padding: 20px 24px;
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
+      border-radius: 18px;
+      box-shadow: var(--card-shadow);
+      padding: 16px 18px;
     }
 
-    .header-title h1 {
-      font-size: 1.8rem;
-      letter-spacing: .6px;
-      margin-bottom: 4px;
-    }
+    .header-title h1 { font-size: 1.35rem; letter-spacing: .4px; margin-bottom: 2px; }
+    .header-title p { color: var(--text-soft); font-size: .9rem; }
 
-    .header-title p {
-      color: var(--text-soft);
-      font-size: .95rem;
-    }
-
-    .status-strip {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: flex-end;
-    }
+    .status-strip { display: flex; flex-wrap: wrap; gap: 8px; }
 
     .status-chip {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      min-height: 40px;
+      gap: 7px;
+      min-height: 34px;
       border-radius: 999px;
-      padding: 8px 14px;
-      border: 1px solid rgba(159,195,230,0.2);
-      background: rgba(255,255,255,0.06);
+      padding: 6px 12px;
+      border: 1px solid var(--panel-border);
+      background: var(--bg-alt);
       color: var(--text-main);
-      font-size: .92rem;
+      font-size: .83rem;
       font-weight: 700;
     }
 
     .status-dot {
-      width: 10px;
-      height: 10px;
+      width: 9px;
+      height: 9px;
       border-radius: 50%;
-      background: var(--orange);
-      box-shadow: 0 0 10px currentColor;
+      background: #f59e0b;
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
     }
-    .status-dot.started { background: var(--green); }
-    .status-dot.waiting { background: var(--orange); }
-    .status-dot.off { background: var(--red); }
+    .status-dot.started { background: var(--play-green); box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2); }
+    .status-dot.waiting { background: #f59e0b; }
+    .status-dot.off { background: var(--reset-red); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2); }
     .status-label { color: var(--text-soft); }
-    .status-label.started { color: var(--green); }
+    .status-label.started { color: var(--success); }
 
-    #panel-content {
-      display: grid;
-      grid-template-columns: repeat(12, minmax(0, 1fr));
-      gap: 18px;
-    }
+    #panel-content { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; }
 
     .panel {
-      background: linear-gradient(180deg, rgba(19,43,69,0.96), rgba(11,28,48,0.96));
-      border: 1px solid var(--border);
+      background: var(--panel-bg);
+      border: 1px solid var(--panel-border);
       border-radius: var(--radius);
-      box-shadow: var(--glow);
-      padding: 20px;
+      box-shadow: var(--card-shadow);
+      padding: 16px;
       min-width: 0;
+      align-self: start;
     }
 
-    .panel h2 {
-      margin-bottom: 14px;
-      font-size: 1.15rem;
-    }
+    .panel h2 { margin-bottom: 12px; font-size: 1.02rem; }
+    .panel p, .panel small, .panel label { color: var(--text-soft); }
 
-    .panel p, .panel small, .panel label {
-      color: var(--text-soft);
-    }
+    .panel-setup, .panel-link, .panel-control, .panel-monitor { grid-column: span 4; }
+    .panel-db { grid-column: span 12; }
 
-    .panel-setup { grid-column: span 4; }
-    .panel-link { grid-column: span 4; }
-    .panel-control { grid-column: span 4; }
-    .panel-monitor { grid-column: span 4; }
-    .panel-db { grid-column: span 8; }
-
-    .field-group { margin-bottom: 12px; display: grid; gap: 8px; }
-
+    .field-group { margin-bottom: 10px; display: grid; gap: 6px; }
     input, select, button { font: inherit; }
 
-    .room-select,
-    .count-select,
-    .room-link-input,
-    .search-input {
-      width: 100%;
-      min-height: 46px;
-      border-radius: 12px;
-      border: 1px solid rgba(159,195,230,0.3);
-      background: rgba(255,255,255,0.92);
-      color: #0b1f33;
-      padding: 10px 12px;
+    .room-select, .count-select, .room-link-input, .search-input {
+      width: 100%; min-height: 42px; border-radius: 10px; border: 1px solid var(--panel-border);
+      background: #fff; color: var(--text-main); padding: 9px 11px;
     }
 
     .btn {
-      border: none;
-      border-radius: 14px;
-      min-height: 48px;
-      padding: 12px 16px;
+      border: 1px solid transparent;
+      border-radius: 12px;
+      min-height: 42px;
+      padding: 10px 14px;
       font-weight: 800;
       cursor: pointer;
-      transition: transform .15s ease, filter .15s ease, opacity .15s ease;
+      transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
     }
-    .btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.06); }
-    .btn:disabled { opacity: .6; cursor: not-allowed; }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.02); }
+    .btn:active:not(:disabled) { transform: translateY(1px); }
+    .btn:disabled { opacity: .58; cursor: not-allowed; }
 
     .btn-room {
       width: 100%;
-      background: linear-gradient(180deg, #4fa8ff, #2f7fd3);
       color: #fff;
+      background: linear-gradient(180deg, #65a2f8 0%, var(--action-blue) 100%);
+      border-color: #2d67c9;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 6px 14px rgba(59,130,246,0.25);
       margin-top: 4px;
     }
 
     .btn-copy-link {
       width: 100%;
       margin-top: 10px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(159,195,230,0.24);
+      background: #f8fbff;
+      border: 1px solid var(--panel-border);
       color: var(--text-main);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
     }
 
-    .room-link-input { direction: ltr; font-family: "Courier New", monospace; font-size: .82rem; }
-
-    .room-link-row { display: grid; gap: 10px; }
-
+    .room-link-input { direction: ltr; font-family: "Courier New", monospace; font-size: .79rem; }
     .link-box {
-      border: 1px dashed rgba(159,195,230,0.45);
-      border-radius: 12px;
-      background: rgba(255,255,255,0.04);
-      min-height: 58px;
-      padding: 12px;
+      border: 1px dashed #cbd7e5;
+      border-radius: 11px;
+      background: #f9fbfe;
+      min-height: 54px;
+      padding: 10px;
       display: grid;
-      gap: 8px;
+      gap: 7px;
     }
 
-    .controls-section { display: grid; gap: 14px; }
-
-    .control-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 18px;
-      margin-bottom: 6px;
-    }
+    .controls-section { display: grid; gap: 10px; }
+    .control-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 
     .btn-play, .btn-reset {
-      width: 128px;
-      height: 128px;
-      border-radius: 50%;
-      border: none;
+      min-height: 52px;
+      border-radius: 14px;
+      border: 1px solid transparent;
       color: #fff;
-      font-size: 1.4rem;
+      font-size: 1rem;
       font-weight: 900;
-      letter-spacing: .5px;
+      letter-spacing: .4px;
       cursor: pointer;
-      box-shadow: inset 0 8px 18px rgba(255,255,255,0.2), 0 16px 30px rgba(0,0,0,0.35);
-      transition: transform .12s ease, box-shadow .12s ease;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 10px 16px rgba(31,45,61,0.18);
+      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
     }
-    .btn-play { background: radial-gradient(circle at 30% 30%, #57f58d, #169a43); }
-    .btn-reset { background: radial-gradient(circle at 30% 30%, #ff7b7b, #a61d1d); }
-    .btn-play:hover:not(:disabled), .btn-reset:hover:not(:disabled) { transform: scale(1.03); }
+    .btn-play {
+      background: linear-gradient(180deg, #4ade80 0%, var(--play-green) 60%, #179d4a 100%);
+      border-color: #198f47;
+    }
+    .btn-reset {
+      background: linear-gradient(180deg, #f87171 0%, var(--reset-red) 58%, #d23333 100%);
+      border-color: #b72c2c;
+    }
+    .btn-play:hover:not(:disabled), .btn-reset:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn-play:active:not(:disabled), .btn-reset:active:not(:disabled) {
+      transform: translateY(2px);
+      box-shadow: inset 0 2px 6px rgba(0,0,0,.2), 0 6px 10px rgba(31,45,61,.16);
+    }
     .btn-play:disabled, .btn-reset:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 
-    .control-help { display: grid; gap: 6px; font-size: .88rem; color: var(--text-soft); }
-
-    .action-msg { min-height: 18px; font-size: .9rem; font-weight: 700; }
-    .action-msg.success { color: var(--green); }
-    .action-msg.error { color: #ff7979; }
+    .control-help { display: grid; gap: 4px; font-size: .82rem; color: var(--text-soft); }
+    .action-msg { min-height: 18px; font-size: .88rem; font-weight: 700; margin-top: 6px; }
+    .action-msg.success { color: var(--success); }
+    .action-msg.error { color: #c62828; }
     .action-msg.info { color: var(--text-soft); }
 
-    .monitor-list, .db-stats { display: grid; gap: 10px; }
+    .monitor-list, .db-stats { display: grid; gap: 8px; }
 
     .monitor-item, .db-stat {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-radius: 12px;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(159,195,230,0.2);
-      padding: 10px 12px;
-      min-height: 42px;
+      border-radius: 10px;
+      background: #f8fbff;
+      border: 1px solid var(--panel-border);
+      padding: 9px 11px;
+      min-height: 38px;
       gap: 10px;
     }
 
-    .monitor-item strong, .db-stat strong { color: var(--text-main); }
-
-    .search-section { position: relative; margin: 14px 0 10px; }
-
-    .search-input-wrap { display: flex; gap: 10px; }
-
+    .search-section { position: relative; margin: 12px 0 8px; }
+    .search-input-wrap { display: flex; gap: 8px; }
     .search-btn-icon {
-      width: 46px;
-      min-width: 46px;
-      border-radius: 12px;
-      border: 1px solid rgba(159,195,230,0.3);
-      background: rgba(255,255,255,0.92);
-      cursor: pointer;
+      width: 42px; min-width: 42px; border-radius: 10px; border: 1px solid var(--panel-border);
+      background: #fff; cursor: pointer;
     }
 
     .search-dropdown {
-      position: absolute;
-      top: calc(100% + 4px);
-      right: 0;
-      width: 100%;
-      max-height: 200px;
-      overflow-y: auto;
-      display: none;
-      background: #fff;
-      border-radius: 12px;
-      border: 1px solid rgba(159,195,230,0.5);
-      z-index: 20;
+      position: absolute; top: calc(100% + 4px); right: 0; width: 100%; max-height: 190px; overflow-y: auto;
+      display: none; background: #fff; border-radius: 10px; border: 1px solid var(--panel-border); z-index: 20;
+      box-shadow: 0 8px 16px rgba(31,45,61,0.12);
     }
     .search-dropdown.open { display: block; }
 
     .dropdown-item {
-      padding: 10px 12px;
-      color: #13314f;
-      cursor: pointer;
-      border-bottom: 1px solid #e7eef5;
-      display: flex;
-      gap: 8px;
-      align-items: center;
+      padding: 9px 11px; color: var(--text-main); cursor: pointer; border-bottom: 1px solid #e7eef5;
+      display: flex; gap: 8px; align-items: center;
     }
-
     .dropdown-item:last-child { border-bottom: 0; }
-
-    .dropdown-num {
-      background: #d9ecff;
-      color: #115da5;
-      border-radius: 8px;
-      padding: 2px 8px;
-      font-weight: 800;
-    }
+    .dropdown-num { background: #e6effd; color: #225ca6; border-radius: 8px; padding: 2px 7px; font-weight: 800; }
 
     .result-box {
-      min-height: 56px;
-      border-radius: 12px;
-      border: 1px solid rgba(159,195,230,0.25);
-      background: rgba(255,255,255,0.04);
-      padding: 14px;
-      color: var(--text-soft);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      margin-bottom: 14px;
+      min-height: 50px; border-radius: 10px; border: 1px solid var(--panel-border); background: #f8fbff;
+      padding: 12px; color: var(--text-soft); display: flex; align-items: center; justify-content: center;
+      text-align: center; margin-bottom: 12px;
     }
 
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .step-card-wrap { position: relative; padding-top: 16px; }
-    .step-badge {
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: #d8ebff;
-      color: #145fa8;
-      font-weight: 900;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 2px solid #98bee3;
-    }
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
 
     .step-card {
       border-radius: 12px;
-      border: 1px solid rgba(159,195,230,0.25);
-      overflow: hidden;
-      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--panel-border);
+      background: #fff;
+      box-shadow: 0 6px 16px rgba(31,45,61,0.08);
+      padding: 12px;
+      display: grid;
+      gap: 8px;
     }
-
-    .card-top { padding: 24px 10px 10px; text-align: center; border-bottom: 1px solid rgba(159,195,230,0.2); }
-    .card-top-label { color: var(--text-soft); font-size: .82rem; margin-bottom: 6px; }
-    .card-code { color: #ffca7a; font-weight: 900; }
-
-    .card-bottom { display: grid; grid-template-columns: repeat(3, 1fr); }
-    .card-cell { padding: 8px; text-align: center; border-left: 1px solid rgba(159,195,230,0.15); }
-    .card-cell:last-child { border-left: 0; }
-    .cell-label { display: block; font-size: .68rem; color: var(--text-soft); margin-bottom: 4px; }
-    .cell-value { font-size: .78rem; color: var(--text-main); font-weight: 700; word-break: break-word; }
+    .step-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .step-index {
+      min-width: 28px; height: 28px; border-radius: 50%; background: #e6effd; color: #1d4f8f;
+      display: inline-flex; align-items: center; justify-content: center; font-weight: 900;
+    }
+    .step-title { font-size: .86rem; color: var(--text-soft); font-weight: 700; }
+    .meta-row { display: grid; gap: 5px; font-size: .82rem; }
+    .meta-row strong { color: var(--text-main); }
 
     .final-bar {
-      margin-top: 14px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,159,28,0.35);
-      background: rgba(255,159,28,0.08);
-      min-height: 52px;
+      margin-top: 12px;
+      border-radius: 12px;
+      border: 1px solid #f2c883;
+      background: #fff9ec;
+      min-height: 46px;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 12px;
+      gap: 10px;
     }
-    .final-bar-label { color: #ffca7a; font-size: .8rem; letter-spacing: 1px; }
-    .final-bar-code { color: #ffd699; font-family: "Courier New", monospace; letter-spacing: 4px; font-size: 1.2rem; font-weight: 900; }
+    .final-bar-label { color: #b7791f; font-size: .78rem; letter-spacing: .7px; }
+    .final-bar-code { color: #8a5b14; font-family: "Courier New", monospace; letter-spacing: 3px; font-size: 1.02rem; font-weight: 900; }
 
     .logout-sm {
       border-radius: 10px;
-      border: 1px solid rgba(255,255,255,0.2);
-      background: rgba(255,255,255,0.07);
+      border: 1px solid var(--panel-border);
+      background: #f8fbff;
       color: var(--text-soft);
-      padding: 8px 14px;
+      padding: 8px 12px;
       cursor: pointer;
     }
 
     #toast {
       position: fixed;
-      bottom: 26px;
+      bottom: 24px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 10px 18px;
+      padding: 10px 16px;
       border-radius: 999px;
-      background: rgba(8,18,38,.92);
+      background: rgba(31,45,61,.92);
       color: #fff;
       opacity: 0;
       transition: opacity .25s;
@@ -381,39 +291,43 @@
     #login-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(4, 10, 22, .96);
+      background: rgba(9, 20, 35, .45);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 200;
       padding: 16px;
+      backdrop-filter: blur(4px);
     }
     .login-box {
       background: #f4f7fb;
-      border: 2px solid var(--border);
-      border-radius: 18px;
-      padding: 28px;
-      width: min(380px, 100%);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+      padding: 24px;
+      width: min(360px, 100%);
       text-align: center;
-      color: #1a2535;
+      color: var(--text-main);
     }
-    .login-logo { font-size: 1.3rem; font-weight: 900; letter-spacing: 3px; margin-bottom: 6px; }
-    .login-sub { color: #6b7f90; margin-bottom: 20px; }
-    .login-input { width: 100%; min-height: 46px; padding: 10px; border-radius: 10px; border: 1px solid #c8d8e8; margin-bottom: 10px; text-align: center; direction: ltr; }
-    .login-btn { width: 100%; min-height: 46px; border: none; border-radius: 10px; background: linear-gradient(180deg, #42ba66, #248e45); color: #fff; font-weight: 800; cursor: pointer; }
+    .login-logo { font-size: 1.25rem; font-weight: 900; letter-spacing: 3px; margin-bottom: 6px; }
+    .login-sub { color: var(--text-soft); margin-bottom: 16px; }
+    .login-input { width: 100%; min-height: 42px; padding: 10px; border-radius: 10px; border: 1px solid #c8d8e8; margin-bottom: 10px; text-align: center; direction: ltr; }
+    .login-btn {
+      width: 100%; min-height: 42px; border: 1px solid #198f47; border-radius: 10px;
+      background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%); color: #fff; font-weight: 800; cursor: pointer;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 8px 12px rgba(34,197,94,.25);
+    }
     .login-msg { min-height: 22px; margin-top: 8px; }
     .login-msg.error { color: #c62828; }
 
     @media (max-width: 1100px) {
       .panel-setup, .panel-link, .panel-control, .panel-monitor, .panel-db { grid-column: span 12; }
-      .admin-header { flex-direction: column; align-items: flex-start; }
-      .status-strip { justify-content: flex-start; }
+      .admin-header { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 700px) {
       body { padding: 12px; }
-      .control-buttons { gap: 10px; }
-      .btn-play, .btn-reset { width: 102px; height: 102px; font-size: 1.1rem; }
+      .control-buttons { grid-template-columns: 1fr; }
       .cards-grid { grid-template-columns: 1fr; }
     }
 </style>
@@ -434,7 +348,7 @@
     <header class="admin-header">
       <div class="header-title">
         <h1>BIOPLAY ADMIN</h1>
-        <p>Game Control Panel</p>
+        <p>לוח ניהול משחק – הפעלה וניטור בזמן אמת</p>
       </div>
       <div class="status-strip">
         <div class="status-chip"><span class="status-dot waiting" id="status-dot"></span><span class="status-label" id="status-label">ממתין</span></div>
@@ -493,9 +407,6 @@
           <div class="monitor-item"><span>מספר דלתות</span><strong id="monitor-doors">5</strong></div>
           <div class="monitor-item"><span>קישור נוצר</span><strong id="monitor-link">לא</strong></div>
           <div class="monitor-item"><span>מצב משחק</span><strong id="monitor-status">ממתין</strong></div>
-          <div class="monitor-item"><span>קבוצות מחוברות</span><strong>—</strong></div>
-          <div class="monitor-item"><span>קודים שהוזנו</span><strong>—</strong></div>
-          <div class="monitor-item"><span>דלתות שנפתחו</span><strong>—</strong></div>
         </div>
       </section>
 
@@ -503,7 +414,7 @@
         <h2>מאגר אורגניזמים</h2>
         <div class="db-stats">
           <div class="db-stat"><span>כמות אורגניזמים במאגר</span><strong id="db-total-count">0</strong></div>
-          <div class="db-stat"><span>אורגניזמים זמינים</span><strong id="db-available-count">0</strong></div>
+          <div class="db-stat"><span>שדות מוצגים</span><strong>שם אורגניזם, דלת, שלב, תשובה נכונה, קוד מעבר</strong></div>
         </div>
 
         <div class="search-section">
@@ -518,7 +429,7 @@
         <div class="cards-grid" id="cards-grid"></div>
 
         <div class="final-bar">
-          <span class="final-bar-label">FINAL CODE</span>
+          <span class="final-bar-label">קוד סופי</span>
           <span class="final-bar-code" id="final-bar-code">——</span>
         </div>
       </section>
@@ -580,7 +491,6 @@
     const monitorLink = document.getElementById("monitor-link");
     const monitorStatus = document.getElementById("monitor-status");
     const dbTotalCount = document.getElementById("db-total-count");
-    const dbAvailableCount = document.getElementById("db-available-count");
 
     let activeRoomName = "";
 
@@ -890,77 +800,59 @@
       } catch { doorsData = []; }
       const count = Array.isArray(doorsData) ? doorsData.length : 0;
       dbTotalCount.textContent = String(count);
-      dbAvailableCount.textContent = String(count);
     }
 
-    function createStepCard(step, stepNumber) {
-      const wrap = document.createElement("div");
-      wrap.className = "step-card-wrap";
-      wrap.innerHTML = `
-        <div class="step-badge">${stepNumber}</div>
-        <div class="step-card">
-          <div class="card-top">
-            <div class="card-top-label">${step.title || `שלב ${stepNumber}`}</div>
-          </div>
-          <div class="card-bottom">
-            <div class="card-cell">
-              <span class="cell-label">תשובה נכונה</span>
-              <span class="cell-value answer-correct">${step.answer || "—"}</span>
-            </div>
-            <div class="card-cell">
-              <span class="cell-label">קוד נכון</span>
-              <span class="cell-value">${step.code || "—"}</span>
-            </div>
-            <div class="card-cell">
-              <span class="cell-label">קוד שגוי</span>
-              <span class="cell-value">${step.wrongCode || "—"}</span>
-            </div>
-          </div>
+    function createStepCard(door, step, stepNumber) {
+      const card = document.createElement("article");
+      card.className = "step-card";
+      card.innerHTML = `
+        <div class="step-header">
+          <span class="step-title">${step.title || `שלב ${stepNumber}`}</span>
+          <span class="step-index">${stepNumber}</span>
         </div>
+        <div class="meta-row"><span>שם אורגניזם: <strong>${door.creature || door.title || "—"}</strong></span></div>
+        <div class="meta-row"><span>דלת: <strong>${door.id ?? "—"}</strong></span></div>
+        <div class="meta-row"><span>תשובה נכונה: <strong>${step.answer || "—"}</strong></span></div>
+        <div class="meta-row"><span>קוד מעבר: <strong>${step.code || "—"}</strong></span></div>
       `;
-      return wrap;
+      return card;
     }
 
-    function createFinalCard(finalLockCode, badgeNumber) {
-      const wrap = document.createElement("div");
-      wrap.className = "step-card-wrap final";
-      wrap.innerHTML = `
-        <div class="step-badge">${badgeNumber}</div>
-        <div class="step-card">
-          <div class="card-top">
-            <div class="card-top-label" style="color:#b26200">מנעול סופי</div>
-            <div class="card-code">${finalLockCode}</div>
-          </div>
-          <div class="card-bottom">
-            <div class="card-cell" style="flex:1">
-              <span class="cell-label">FINAL CODE</span>
-              <span class="cell-value" style="font-family:'Courier New',monospace;color:var(--final-c);font-size:.95rem;letter-spacing:3px;font-weight:900">${finalLockCode}</span>
-            </div>
-          </div>
+    function createFinalCard(door, finalLockCode) {
+      const card = document.createElement("article");
+      card.className = "step-card";
+      card.innerHTML = `
+        <div class="step-header">
+          <span class="step-title">מנעול סופי</span>
+          <span class="step-index">✓</span>
         </div>
+        <div class="meta-row"><span>שם אורגניזם: <strong>${door.creature || door.title || "—"}</strong></span></div>
+        <div class="meta-row"><span>דלת: <strong>${door.id ?? "—"}</strong></span></div>
+        <div class="meta-row"><span>קוד מעבר סופי: <strong>${finalLockCode || "—"}</strong></span></div>
       `;
-      return wrap;
+      return card;
     }
 
-    function renderCards(steps = [], finalLockCode = "") {
+    function renderCards(door = null) {
       cardsGrid.innerHTML = "";
-      steps.forEach((step, i) => cardsGrid.appendChild(createStepCard(step || {}, i + 1)));
-      if (finalLockCode) cardsGrid.appendChild(createFinalCard(finalLockCode, steps.length + 1));
+      if (!door) return;
+      const steps = Array.isArray(door.steps) ? door.steps : [];
+      steps.forEach((step, i) => cardsGrid.appendChild(createStepCard(door, step || {}, i + 1)));
+      if (door.finalLockCode) cardsGrid.appendChild(createFinalCard(door, door.finalLockCode.trim()));
     }
 
     function clearCards() {
       resultBox.textContent = "חפשו אורגניזם לצפייה בקודים";
       finalBarCode.textContent = "——";
-      renderCards();
+      renderCards(null);
     }
 
     function fillCards(door) {
       if (!door) { clearCards(); return; }
       const name = door.creature || door.title || `דלת ${door.id}`;
       resultBox.textContent = name;
-      const steps = Array.isArray(door.steps) ? door.steps : [];
       const finalLockCode = (door.finalLockCode || "").trim();
-      renderCards(steps, finalLockCode);
+      renderCards(door);
       finalBarCode.textContent = finalLockCode || "——";
     }
 

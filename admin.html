@@ -1287,17 +1287,30 @@
     toastT = setTimeout(() => toastEl.classList.remove("show"), 3000);
   }
 
-  async function parse(res) {
+  async function parseResponse(res) {
     const raw = await res.text();
-    if (!raw) return {};
-    try { return JSON.parse(raw); } catch { return {}; }
+    let data = null;
+    if (raw) {
+      try { data = JSON.parse(raw); } catch { data = null; }
+    }
+    return { raw, data };
+  }
+
+  function resolveApiError(res, data, raw) {
+    if (data && typeof data === "object") {
+      if (data.errorCode) return String(data.errorCode);
+      if (data.message) return String(data.message);
+      if (data.error) return String(data.error);
+    }
+    if (raw) return String(raw);
+    return `HTTP ${res.status}`;
   }
 
   async function getStatus() {
     const url = `${APPS_URL}?action=status&roomId=${encodeURIComponent(roomId)}`;
     const res = await fetch(url, { cache: "no-store" });
-    const d = await parse(res);
-    if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
+    const { data: d, raw } = await parseResponse(res);
+    if (!res.ok || d?.ok === false) throw new Error(resolveApiError(res, d, raw));
     return d?.status === "started" ? "started" : "waiting";
   }
 
@@ -1309,8 +1322,16 @@
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: body.toString(),
     });
-    const d = await parse(res);
-    if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
+    const { data: d, raw } = await parseResponse(res);
+    console.log("[PLAY DEBUG] sendAction response", {
+      action,
+      url: res.url,
+      responseStatus: res.status,
+      responseOk: res.ok,
+      responseBodyRaw: raw,
+      responseBodyParsed: d,
+    });
+    if (!res.ok || d?.ok === false) throw new Error(resolveApiError(res, d, raw));
     return d;
   }
 
@@ -1328,8 +1349,8 @@
 
   async function fetchRoomNamesFromAction(actionName) {
     const res = await fetch(`${APPS_URL}?action=${encodeURIComponent(actionName)}`, { cache: "no-store" });
-    const d = await parse(res);
-    if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
+    const { data: d, raw } = await parseResponse(res);
+    if (!res.ok || d?.ok === false) throw new Error(resolveApiError(res, d, raw));
     return normalizeRoomNames(d?.roomNames || d?.rooms || d?.list || []);
   }
 
@@ -1374,9 +1395,9 @@
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ action: "create_room", roomName: selectedRoomName, doorsCount }).toString(),
       });
-      const d = await parse(res);
+      const { data: d, raw } = await parseResponse(res);
       if (!res.ok || d?.ok === false || !d?.roomId || !d?.teacherToken) {
-        throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
+        throw new Error(resolveApiError(res, d, raw));
       }
 
       const previousRoomId = roomId;
@@ -1474,6 +1495,7 @@
       setStatus("started");
       toast(`✔ המשחק הופעל! Room ${roomId}`, "success");
     } catch (e) {
+      console.error("[PLAY DEBUG] activate failed", e);
       actionMsg.textContent = String(e.message || "שגיאת הפעלה"); actionMsg.className = "action-msg error";
       toast("שגיאה בהפעלה", "error");
     }

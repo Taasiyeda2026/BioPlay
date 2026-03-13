@@ -428,10 +428,6 @@
   justify-self: center;
   margin-top: 6px;
 }
-
-.panel-setup .btn-room {
-  margin-bottom: 8px;
-}
     .controls-section {
       display: grid;
       gap: 6px;
@@ -535,22 +531,18 @@
     }
 
 
-    .setup-help-text {
-      margin-top: 8px;
-      font-size: .74rem;
-      color: #6d8499;
-      text-align: center;
-      font-weight: 700;
-      line-height: 1.25;
-    }
-
+    .setup-help-text,
     .copy-help-text {
       margin-top: 8px;
+      min-height: 38px;
       font-size: .74rem;
       color: #6d8499;
       text-align: center;
       font-weight: 700;
       line-height: 1.25;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
     }
     .action-msg.success { color: var(--green); }
     .action-msg.error { color: var(--red); }
@@ -936,7 +928,13 @@
       }
       #panel-content { grid-template-columns: 1fr 1fr 1fr; }
       .admin-header { padding-left: 12px; padding-right: 12px; }
-      .logout-sm { left: 12px; width: 96px; }
+      .logout-sm {
+        left: 12px;
+        width: 62px;
+        min-height: 24px;
+        padding: 2px 6px;
+        font-size: .64rem;
+      }
       .panel-db {
         margin-bottom: 14px;
       }
@@ -987,12 +985,12 @@
       }
 
       .logout-sm {
-        top: 12px;
-        left: 10px;
-        width: 68px;
-        min-height: 28px;
-        padding: 4px 8px;
-        font-size: .72rem;
+        top: 10px;
+        left: 8px;
+        width: 58px;
+        min-height: 24px;
+        padding: 3px 6px;
+        font-size: .64rem;
       }
 
       .status-strip { gap: 8px; padding: 8px 10px; }
@@ -1007,7 +1005,11 @@
       /* שמירת תיקוני טיפוגרפיה וכרטיסים */
       .compact-fields-row { gap: 8px; }
       .compact-field-room,
-      .compact-field-doors { flex: 0 0 96px; width: 96px; max-width: 96px; }
+      .compact-field-doors {
+        flex: 0 0 80px;
+        width: 80px;
+        max-width: 80px;
+      }
       .compact-select { min-height: 40px; padding: 6px 10px; }
       .search-input { flex-basis: 65%; max-width: 100%; }
       .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; }
@@ -1046,9 +1048,10 @@
       }
 
       .logout-sm {
-        width: 62px;
-        min-height: 26px;
-        font-size: .68rem;
+        width: 56px;
+        min-height: 22px;
+        padding: 2px 5px;
+        font-size: .62rem;
       }
     }
 

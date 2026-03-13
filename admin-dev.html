@@ -29,6 +29,8 @@
       --shadow-soft: 0 10px 22px rgba(18, 45, 72, 0.08);
       --radius: 16px;
       --control-height: 42px;
+      --chip-size: 170px;
+      --chip-height: 40px;
     }
 
     html, body {
@@ -83,16 +85,19 @@
     .status-chip {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
-      min-height: 36px;
+      width: var(--chip-size);
+      min-height: var(--chip-height);
       border-radius: 999px;
-      padding: 6px 12px;
-      border: 1px solid var(--border);
-      background: #fff;
+      padding: 6px 10px;
+      border: 1px solid #aac1d6;
+      background: linear-gradient(180deg, #ffffff 0%, #eaf2fa 100%);
       color: var(--text-main);
-      font-size: .92rem;
+      font-size: .88rem;
       font-weight: 800;
-      box-shadow: 0 5px 14px rgba(20, 52, 84, 0.08);
+      text-align: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 6px 14px rgba(20, 52, 84, 0.1);
     }
 
     .status-dot {
@@ -110,14 +115,16 @@
     .status-label.started { color: var(--green); }
 
     .logout-sm {
-      border-radius: 10px;
+      width: var(--chip-size);
+      min-height: var(--chip-height);
+      border-radius: 999px;
       border: 1px solid #a8bfd4;
-      background: linear-gradient(180deg, #ffffff 0%, #eef4fa 100%);
+      background: linear-gradient(180deg, #ffffff 0%, #e8f1fb 100%);
       color: #36556f;
       padding: 8px 14px;
       font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 6px 14px rgba(16, 43, 68, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 6px 14px rgba(16, 43, 68, 0.1);
       transition: transform .15s ease, box-shadow .15s ease;
     }
     .logout-sm:hover { transform: translateY(-1px); box-shadow: 0 8px 16px rgba(16, 43, 68, 0.12); }
@@ -224,21 +231,28 @@
     .btn:active:not(:disabled) { transform: translateY(0); box-shadow: inset 0 3px 7px rgba(9, 27, 45, 0.28), 0 3px 8px rgba(12, 34, 56, 0.12); }
     .btn:disabled { opacity: .6; cursor: not-allowed; }
 
+    .btn-room,
+    .btn-copy-link {
+      width: fit-content;
+      min-width: 118px;
+      min-height: 44px;
+      border-radius: 999px;
+      padding: 10px 20px;
+      margin-top: 10px;
+      font-size: .92rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.32), inset 0 -7px 12px rgba(0,0,0,.14), 0 8px 16px rgba(17, 40, 63, 0.22);
+    }
+
     .btn-room {
-      width: 100%;
-      background: linear-gradient(180deg, #3f82cb, #225f9f);
-      border-color: #1e5389;
+      background: linear-gradient(180deg, #4b95dc 0%, #2f76bb 55%, #215f99 100%);
+      border-color: #1f558b;
       color: #fff;
-      margin-top: 4px;
     }
 
     .btn-copy-link {
-      width: 100%;
-      margin-top: 10px;
-      background: linear-gradient(180deg, #f2f8ff, #dcecff);
-      border-color: #9fc0df;
-      color: #1f558b;
-      box-shadow: 0 6px 14px rgba(20, 55, 90, 0.12);
+      background: linear-gradient(180deg, #ffe580 0%, #ffc830 55%, #e2a800 100%);
+      border-color: #bc8b00;
+      color: #543a00;
     }
 
     .room-link-input {
@@ -277,12 +291,12 @@
       font-weight: 900;
       letter-spacing: .5px;
       cursor: pointer;
-      border: 1px solid rgba(255,255,255,0.4);
-      box-shadow: inset 0 8px 16px rgba(255,255,255,0.24), inset 0 -10px 18px rgba(0,0,0,.18), 0 14px 24px rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.34);
+      box-shadow: inset 0 10px 18px rgba(255,255,255,0.24), inset 0 -12px 20px rgba(0,0,0,.2), 0 14px 24px rgba(0,0,0,0.22);
       transition: transform .12s ease, box-shadow .12s ease;
     }
-    .btn-play { background: radial-gradient(circle at 28% 24%, #58d885, #1f8a49 68%, #16693a 100%); }
-    .btn-reset { background: radial-gradient(circle at 28% 24%, #e57f7f, #b13a3a 68%, #862525 100%); }
+    .btn-play { background: radial-gradient(circle at 30% 22%, #8bf0af 4%, #2ea95f 58%, #1f7f47 83%, #176237 100%); }
+    .btn-reset { background: radial-gradient(circle at 30% 22%, #f0a3a3 4%, #c64545 58%, #9f2f2f 83%, #7c2222 100%); }
     .btn-play:hover:not(:disabled), .btn-reset:hover:not(:disabled) { transform: scale(1.03) translateY(-1px); box-shadow: inset 0 10px 18px rgba(255,255,255,0.28), inset 0 -10px 18px rgba(0,0,0,.2), 0 18px 28px rgba(0,0,0,.24); }
     .btn-play:active:not(:disabled), .btn-reset:active:not(:disabled) { transform: scale(1); }
     .btn-play:disabled, .btn-reset:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
@@ -295,6 +309,11 @@
     .action-msg.info { color: var(--text-soft); }
 
     .monitor-list, .db-stats { display: grid; gap: 8px; }
+
+    .db-stats {
+      grid-template-columns: max-content;
+      justify-content: start;
+    }
 
     .monitor-item, .db-stat {
       display: flex;
@@ -314,6 +333,11 @@
     .search-section { position: relative; margin: 14px 0 10px; }
     .search-input-wrap { display: flex; gap: 10px; }
 
+    .search-input {
+      flex: 0 1 50%;
+      max-width: 340px;
+    }
+
     .search-btn-icon {
       width: 42px;
       min-width: 42px;
@@ -328,7 +352,7 @@
       position: absolute;
       top: calc(100% + 4px);
       right: 0;
-      width: 100%;
+      width: min(390px, 100%);
       max-height: 200px;
       overflow-y: auto;
       display: none;
@@ -361,18 +385,43 @@
     }
 
     .result-box {
-      min-height: 52px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: linear-gradient(180deg, #ffffff, #f6fbff);
-      padding: 11px;
+      min-height: 66px;
+      border-radius: 12px;
+      border: 1px solid #d1dfee;
+      background: linear-gradient(180deg, #ffffff, #f3f9ff);
+      padding: 11px 16px;
       color: var(--text-soft);
       display: flex;
       align-items: center;
       justify-content: center;
       text-align: center;
       margin-bottom: 10px;
-      font-weight: 800;
+      font-weight: 700;
+      font-size: 1rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 5px 12px rgba(17, 46, 76, 0.08);
+    }
+
+    .result-box.has-result {
+      color: #123d68;
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: .4px;
+      background: linear-gradient(180deg, #ffffff, #e9f4ff);
+      border-color: #a8c7e4;
+    }
+
+    .db-stat strong {
+      display: inline-flex;
+      min-width: 54px;
+      min-height: 34px;
+      padding: 4px 10px;
+      border-radius: 10px;
+      border: 1px solid #bfd2e5;
+      background: linear-gradient(180deg, #ffffff 0%, #eaf3fc 100%);
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
     }
 
     .cards-grid {
@@ -604,6 +653,7 @@
       .panel-setup, .panel-link, .panel-control, .panel-monitor, .panel-db { grid-column: span 12; }
       .admin-header { flex-direction: column; align-items: flex-start; }
       .status-strip { justify-content: flex-start; }
+      .status-chip, .logout-sm { width: auto; min-width: 150px; }
     }
 
     @media (max-width: 700px) {
@@ -614,6 +664,7 @@
 
       body { padding: 12px; }
       .control-buttons { gap: 10px; }
+      .search-input { flex-basis: 65%; max-width: 100%; }
       .btn-play, .btn-reset { width: 100px; height: 100px; font-size: 1.1rem; }
       .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; }
       .step-badge { width: 52px; height: 52px; font-size: 1.05rem; border-width: 4px; }
@@ -686,7 +737,7 @@
           <small>קישור מלא לתלמידים</small>
           <input id="student-link-input" class="room-link-input" type="text" readonly value="טרם נוצר קישור תלמידים" />
         </div>
-        <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק קישור לתלמידים</button>
+        <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק</button>
         <div class="link-box"><small>QR לתלמידים (מוכן לשימוש עתידי)</small></div>
       </section>
 
@@ -717,7 +768,6 @@
         <h2>מאגר אורגניזמים</h2>
         <div class="db-stats">
           <div class="db-stat"><span>כמות אורגניזמים במאגר</span><strong id="db-total-count">0</strong></div>
-          <div class="db-stat"><span>אורגניזמים זמינים</span><strong id="db-available-count">0</strong></div>
         </div>
 
         <div class="search-section">
@@ -794,7 +844,6 @@
   const monitorLink = document.getElementById("monitor-link");
   const monitorStatus = document.getElementById("monitor-status");
   const dbTotalCount = document.getElementById("db-total-count");
-  const dbAvailableCount = document.getElementById("db-available-count");
 
   let activeRoomName = "";
 
@@ -1096,7 +1145,6 @@
     } catch { doorsData = []; }
     const count = Array.isArray(doorsData) ? doorsData.length : 0;
     dbTotalCount.textContent = String(count);
-    dbAvailableCount.textContent = String(count);
   }
 
   function createStepCard(step, stepNumber) {
@@ -1155,6 +1203,7 @@
 
   function clearCards() {
     resultBox.textContent = "חפשו אורגניזם לצפייה בקודים";
+    resultBox.classList.remove("has-result");
     finalBarCode.textContent = "——";
     renderCards();
   }
@@ -1163,6 +1212,7 @@
     if (!door) { clearCards(); return; }
     const name = door.creature || door.title || `דלת ${door.id}`;
     resultBox.textContent = name;
+    resultBox.classList.add("has-result");
     const steps = Array.isArray(door.steps) ? door.steps : [];
     const finalLockCode = (door.finalLockCode || "").trim();
     renderCards(steps, finalLockCode);

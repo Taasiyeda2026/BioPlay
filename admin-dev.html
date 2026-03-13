@@ -1568,14 +1568,15 @@
     await loadDoors();
     refreshStorageScope();
 
-    if (!roomId) {
-      loginOverlay.style.display = "none";
-      clearCards();
-      setStatus("waiting");
-      actionMsg.textContent = "בחרו חדר מהרשימה ולחצו על \"צור חדר\" כדי להתחיל.";
-      actionMsg.className = "action-msg info";
-      return;
-    }
+if (!roomId) {
+  loginOverlay.style.display = "none";
+  clearCards();
+  setStatus("waiting");
+  actionMsg.textContent = "";
+  actionMsg.className = "action-msg";
+  return;
+
+}
 
     const saved = sessionStorage.getItem(getSessKey(roomId));
     if (saved) {
@@ -1587,7 +1588,7 @@
     }
 
     loginOverlay.style.display = "none";
-    actionMsg.textContent = "אין טוקן שמור לחדר הזה. בחרו חדר ולחצו \"צור חדר\".";
+    actionMsg.textContent = "כדי להתחיל, בחרו חדר ולחצו על \"צור חדר\".";
     actionMsg.className = "action-msg info";
   })();
 </script>

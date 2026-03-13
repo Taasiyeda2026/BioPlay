@@ -44,6 +44,8 @@
 
     #panel-outer {
       max-width: 1220px;
+      --main-block-span: 2;
+      --main-block-cols: 3;
       margin: 0 auto;
       background: linear-gradient(180deg, #f9fcff 0%, #f2f7fc 100%);
       border: 1px solid var(--border);
@@ -69,6 +71,9 @@
       background: linear-gradient(180deg, #fbfdff 0%, #f0f6fc 100%);
       border-bottom: 1px solid var(--border);
       box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.7);
+      width: calc((100% - 28px) * var(--main-block-span) / var(--main-block-cols));
+      max-width: calc(100% - 28px);
+      justify-self: center;
     }
 
     .header-title {
@@ -212,7 +217,10 @@
 
     .panel-db {
       grid-area: db;
-      margin: 0 14px 14px;
+      margin: 0 0 14px;
+      width: calc((100% - 28px) * var(--main-block-span) / var(--main-block-cols));
+      max-width: calc(100% - 28px);
+      justify-self: center;
     }
 
     .panel-setup {
@@ -826,6 +834,8 @@
     /* ── Tablet (701px – 1100px) ── */
     @media (max-width: 1100px) and (min-width: 701px) {
       #panel-outer {
+        --main-block-span: 1;
+        --main-block-cols: 1;
         grid-template-areas:
           "header  header"
           "status  control"
@@ -836,12 +846,17 @@
       #panel-content { grid-template-columns: 1fr 1fr; }
       .admin-header { padding-left: 12px; padding-right: 12px; }
       .logout-sm { left: 12px; width: 96px; }
+      .panel-db {
+        margin-bottom: 14px;
+      }
       /* שמירת margins העקביים בטאבלט */
     }
 
     /* ── Mobile (≤700px) ── */
     @media (max-width: 700px) {
       #panel-outer {
+        --main-block-span: 1;
+        --main-block-cols: 1;
         grid-template-areas:
           "header  header"
           "status  control"

@@ -996,36 +996,40 @@
         </div>
       </section>
 
-      <section class="panel panel-setup">
-        <h2>הגדרת משחק</h2>
-        <div class="setup-box">
-          <div class="field-group compact-fields-row">
-            <div class="compact-field compact-field-room">
-              <label for="room-name-select">חדר</label>
-              <select id="room-name-select" class="room-select compact-select">
-                <option value="">טוען...</option>
-              </select>
-            </div>
-            <div class="compact-field compact-field-doors">
-              <label for="doors-count-select">דלתות</label>
-              <select id="doors-count-select" class="count-select compact-select"></select>
-            </div>
-          </div>
-          <button class="btn btn-room" id="room-btn">צור חדר</button>
-          <small class="setup-help-text">בחרו חדר ומספר דלתות</small>
-          <div class="action-msg" id="action-msg"></div>
-        </div>
-      </section>
+     <section class="panel panel-setup">
+  <h2>הגדרת משחק</h2>
+  <div class="setup-box">
+    <div class="field-group compact-fields-row">
+      <div class="compact-field compact-field-room">
+        <label for="room-name-select">חדר</label>
+        <select id="room-name-select" class="room-select compact-select">
+          <option value="">טוען...</option>
+        </select>
+      </div>
+      <div class="compact-field compact-field-doors">
+        <label for="doors-count-select">דלתות</label>
+        <select id="doors-count-select" class="count-select compact-select"></select>
+      </div>
+    </div>
+    <button class="btn btn-room" id="room-btn">צור חדר</button>
+    <small class="setup-help-text">בחרו חדר ומספר דלתות ולחצו על "צור חדר"</small>
+    <div class="action-msg" id="action-msg"></div>
+  </div>
+</section>
 
-      <section class="panel panel-link">
-        <h2>גישת תלמידים</h2>
-        <div class="link-box">
-          <small>קישור מלא לתלמידים</small>
-          <input id="student-link-input" class="room-link-input" type="text" readonly value="טרם נוצר קישור תלמידים" />
-          <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק</button>
-          <small class="copy-help-text">העתיקו את הקישור ושלחו אותו בצ'אט של Zoom</small>
-        </div>
-      </section>
+<section class="panel panel-link">
+  <h2>גישת תלמידים</h2>
+  <div class="link-box">
+    <div class="field-group">
+      <label for="student-link-input">קישור מלא לתלמידים</label>
+      <input id="student-link-input" class="room-link-input" type="text" readonly value="טרם נוצר קישור תלמידים" />
+    </div>
+    <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק</button>
+    <small class="copy-help-text">העתיקו את הקישור ושלחו אותו בצ'אט של Zoom</small>
+    <div class="action-msg action-msg-placeholder" aria-hidden="true"></div>
+  </div>
+</section>
+
     </main>
 
     <section class="panel panel-db">
@@ -1246,7 +1250,7 @@
   async function createRoom() {
     const selectedRoomName = roomNameSelect.value.trim();
     if (!selectedRoomName) {
-      actionMsg.textContent = "בחרו חדר מהרשימה לפני יצירה";
+      actionMsg.textContent = "בחרו חדר";
       actionMsg.className = "action-msg info";
       return;
     }

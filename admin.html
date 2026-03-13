@@ -626,19 +626,22 @@
       letter-spacing: 1px;
     }
 
-    .card-code {
-      font-family: "Courier New", monospace;
-      font-size: 1.5rem;
+    .card-answer {
+      font-family: "Assistant", sans-serif;
+      font-size: 1.08rem;
       font-weight: 900;
-      color: var(--badge-c);
-      letter-spacing: 5px;
-      line-height: 1.1;
-      margin-top: 2px;
+      color: #1b5e20;
+      letter-spacing: .2px;
+      line-height: 1.35;
+      margin-top: 4px;
     }
 
-    .step-card-wrap.final .card-code {
+    .step-card-wrap.final .card-answer {
       color: var(--final-c);
       font-size: 1.5rem;
+      font-family: "Courier New", monospace;
+      letter-spacing: 5px;
+      line-height: 1.1;
     }
 
     /* Bottom portion: two cells */
@@ -680,8 +683,6 @@
       line-height: 1.3;
       word-break: break-word;
     }
-
-    .cell-value.answer-correct { color: #1b5e20; }
 
     /* ══════════════════════════════════════════════
        FINAL CODE BAR (bottom)
@@ -753,7 +754,7 @@
         gap: 18px;
       }
 
-      .card-code { font-size: 1.7rem; }
+      .card-answer { font-size: 1.02rem; }
       .cell-value { font-size: .84rem; }
     }
 
@@ -806,11 +807,11 @@
         font-size: .9rem;
       }
 
-      .card-code { font-size: 1.6rem; }
+      .card-answer { font-size: 1rem; }
     }
 
     @media (min-width: 1100px) {
-      .card-code { font-size: 1.9rem; }
+      .card-answer { font-size: 1.12rem; }
       .cell-value { font-size: .9rem; }
       .step-badge { width: 40px; height: 40px; font-size: 1.1rem; }
     }
@@ -896,16 +897,16 @@
             <div class="step-card">
               <div class="card-top">
                 <div class="card-top-label" id="c1-title">שלב 1</div>
-                <div class="card-code" id="c1-code">—</div>
+                <div class="card-answer" id="c1-answer">תשובה נכונה: —</div>
               </div>
               <div class="card-bottom">
                 <div class="card-cell">
-                  <span class="cell-label">קוד</span>
-                  <span class="cell-value" id="c1-code2">—</span>
+                  <span class="cell-label">קוד נכון</span>
+                  <span class="cell-value" id="c1-code-correct">—</span>
                 </div>
                 <div class="card-cell">
-                  <span class="cell-label">תשובה</span>
-                  <span class="cell-value answer-correct" id="c1-answer">—</span>
+                  <span class="cell-label">קוד שגוי</span>
+                  <span class="cell-value" id="c1-code-wrong">—</span>
                 </div>
               </div>
             </div>
@@ -917,16 +918,16 @@
             <div class="step-card">
               <div class="card-top">
                 <div class="card-top-label" id="c2-title">שלב 2</div>
-                <div class="card-code" id="c2-code">—</div>
+                <div class="card-answer" id="c2-answer">תשובה נכונה: —</div>
               </div>
               <div class="card-bottom">
                 <div class="card-cell">
-                  <span class="cell-label">קוד</span>
-                  <span class="cell-value" id="c2-code2">—</span>
+                  <span class="cell-label">קוד נכון</span>
+                  <span class="cell-value" id="c2-code-correct">—</span>
                 </div>
                 <div class="card-cell">
-                  <span class="cell-label">תשובה</span>
-                  <span class="cell-value answer-correct" id="c2-answer">—</span>
+                  <span class="cell-label">קוד שגוי</span>
+                  <span class="cell-value" id="c2-code-wrong">—</span>
                 </div>
               </div>
             </div>
@@ -938,16 +939,16 @@
             <div class="step-card">
               <div class="card-top">
                 <div class="card-top-label" id="c3-title">שלב 3</div>
-                <div class="card-code" id="c3-code">—</div>
+                <div class="card-answer" id="c3-answer">תשובה נכונה: —</div>
               </div>
               <div class="card-bottom">
                 <div class="card-cell">
-                  <span class="cell-label">קוד</span>
-                  <span class="cell-value" id="c3-code2">—</span>
+                  <span class="cell-label">קוד נכון</span>
+                  <span class="cell-value" id="c3-code-correct">—</span>
                 </div>
                 <div class="card-cell">
-                  <span class="cell-label">תשובה</span>
-                  <span class="cell-value answer-correct" id="c3-answer">—</span>
+                  <span class="cell-label">קוד שגוי</span>
+                  <span class="cell-value" id="c3-code-wrong">—</span>
                 </div>
               </div>
             </div>
@@ -959,7 +960,7 @@
             <div class="step-card">
               <div class="card-top">
                 <div class="card-top-label" style="color:#b26200">מנעול סופי</div>
-                <div class="card-code" id="c4-code">—</div>
+                <div class="card-answer" id="c4-code">—</div>
               </div>
               <div class="card-bottom">
                 <div class="card-cell" style="flex:1">
@@ -1064,9 +1065,9 @@
     }
 
     const cards = {
-      1: { title: document.getElementById("c1-title"), code: document.getElementById("c1-code"), code2: document.getElementById("c1-code2"), answer: document.getElementById("c1-answer") },
-      2: { title: document.getElementById("c2-title"), code: document.getElementById("c2-code"), code2: document.getElementById("c2-code2"), answer: document.getElementById("c2-answer") },
-      3: { title: document.getElementById("c3-title"), code: document.getElementById("c3-code"), code2: document.getElementById("c3-code2"), answer: document.getElementById("c3-answer") },
+      1: { title: document.getElementById("c1-title"), answer: document.getElementById("c1-answer"), codeCorrect: document.getElementById("c1-code-correct"), codeWrong: document.getElementById("c1-code-wrong") },
+      2: { title: document.getElementById("c2-title"), answer: document.getElementById("c2-answer"), codeCorrect: document.getElementById("c2-code-correct"), codeWrong: document.getElementById("c2-code-wrong") },
+      3: { title: document.getElementById("c3-title"), answer: document.getElementById("c3-answer"), codeCorrect: document.getElementById("c3-code-correct"), codeWrong: document.getElementById("c3-code-wrong") },
       4: { code: document.getElementById("c4-code"), code2: document.getElementById("c4-code2") },
     };
 
@@ -1262,9 +1263,9 @@
       finalBarCode.textContent = "——";
       [1,2,3].forEach(i => {
         cards[i].title.textContent  = `שלב ${i}`;
-        cards[i].code.textContent   = "—";
-        cards[i].code2.textContent  = "—";
-        cards[i].answer.textContent = "—";
+        cards[i].answer.textContent = "תשובה נכונה: —";
+        cards[i].codeCorrect.textContent = "—";
+        cards[i].codeWrong.textContent = "—";
       });
       cards[4].code.textContent  = "—";
       cards[4].code2.textContent = "—";
@@ -1277,10 +1278,12 @@
       (door.steps || []).forEach((step, i) => {
         const n = i + 1;
         if (n > 3) return;
-        cards[n].title.textContent  = step.title || `שלב ${n}`;
-        cards[n].code.textContent   = step.code  || "—";
-        cards[n].code2.textContent  = step.code  || "—";
-        cards[n].answer.textContent = step.answer || "—";
+        const correctCode = step.correctCode || step.correct_code || step.code || "—";
+        const wrongCode = step.wrongCode || step.wrong_code || step.incorrectCode || step.fakeCode || "—";
+        cards[n].title.textContent  = `שלב ${n}`;
+        cards[n].answer.textContent = `תשובה נכונה: ${step.answer || "—"}`;
+        cards[n].codeCorrect.textContent = correctCode;
+        cards[n].codeWrong.textContent = wrongCode;
       });
       const fc = door.finalLockCode || "—";
       cards[4].code.textContent  = fc;

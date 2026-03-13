@@ -100,6 +100,10 @@
       padding: 10px 14px;
     }
 
+    .status-strip:empty {
+      display: none;
+    }
+
     .status-chip {
       display: inline-flex;
       align-items: center;
@@ -342,9 +346,9 @@
 
     .controls-section {
       display: grid;
-      gap: 10px;
+      gap: 8px;
       justify-items: center;
-      align-content: center;
+      align-content: start;
       min-height: 100%;
     }
 
@@ -398,6 +402,26 @@
     .btn-play:disabled, .btn-reset:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 
     .control-help { display: grid; gap: 6px; font-size: .88rem; color: var(--text-soft); }
+
+    .control-stats {
+      width: 100%;
+      display: grid;
+      gap: 6px;
+      justify-items: center;
+    }
+
+    .control-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .9rem;
+      font-weight: 800;
+      color: #335774;
+    }
+
+    .control-stat strong {
+      color: #102f4c;
+    }
 
     .link-note-box {
       border: 1px dashed #c7d9e8;
@@ -883,12 +907,7 @@
       <button class="logout-sm" id="logout-btn">יציאה</button>
     </header>
 
-    <div class="status-strip">
-      <div class="status-chip"><span class="status-dot waiting" id="status-dot"></span><span class="status-label" id="status-label">ממתין</span></div>
-      <div class="status-chip"><span>חדר פעיל: <strong id="room-id-label">—</strong></span></div>
-      <div class="status-chip"><span>סטטוס מערכת: <strong id="room-status-label">טרם נוצר</strong></span></div>
-      <div class="status-chip"><span>מספר דלתות: <strong id="header-doors-count">5</strong></span></div>
-    </div>
+    <div class="status-strip"></div>
 
     <section class="panel panel-control">
       <h2>שליטה במשחק</h2>
@@ -896,6 +915,11 @@
         <div class="control-buttons">
           <button class="btn-play" id="activate-btn" disabled>PLAY</button>
           <button class="btn-reset" id="reset-btn">RESET</button>
+        </div>
+        <div class="control-stats">
+          <div class="control-stat">חדר פעיל: <strong id="room-id-label">—</strong></div>
+          <div class="control-stat">סטטוס מערכת: <span class="status-dot waiting" id="status-dot"></span><strong id="room-status-label">ממתין</strong><span class="status-label" id="status-label" style="display:none">ממתין</span></div>
+          <div class="control-stat">מספר דלתות: <strong id="header-doors-count">5</strong></div>
         </div>
       </div>
     </section>
@@ -928,8 +952,6 @@
           <input id="student-link-input" class="room-link-input" type="text" readonly value="טרם נוצר קישור תלמידים" />
         </div>
         <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק</button>
-        <div class="link-box"><small>QR לתלמידים</small></div>
-        <div class="link-note-box">בחרו חדר מהרשימה ולחצו על "צור חדר" כדי להתחיל.</div>
       </section>
     </main>
 

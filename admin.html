@@ -28,7 +28,7 @@
       --shadow: 0 22px 48px rgba(15, 41, 67, 0.14);
       --shadow-soft: 0 10px 22px rgba(18, 45, 72, 0.08);
       --radius: 16px;
-      --control-height: 42px;
+      --control-height: 40px;
       --chip-size: 170px;
       --chip-height: 40px;
     }
@@ -209,8 +209,8 @@
       grid-area: content;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      padding: 14px;
+      gap: 10px;
+      padding: 10px;
       background: transparent;
       width: calc((100% - 28px) * var(--main-block-span) / var(--main-block-cols));
       max-width: calc(100% - 28px);
@@ -222,13 +222,13 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow-soft);
-      padding: 14px;
+      padding: 10px 12px;
       min-width: 0;
     }
 
     .panel h2 {
-      margin-bottom: 14px;
-      font-size: 1.12rem;
+      margin-bottom: 8px;
+      font-size: 1.02rem;
       color: #123555;
       font-weight: 900;
       letter-spacing: .2px;
@@ -268,37 +268,37 @@
       align-content: start;
     }
 
-    .field-group { margin-bottom: 10px; display: grid; gap: 6px; }
+    .field-group { margin-bottom: 6px; display: grid; gap: 4px; }
 
     .compact-fields-row {
       display: flex;
       align-items: end;
-      gap: 10px;
+      justify-content: center;
+      gap: 8px;
       flex-wrap: nowrap;
       width: 100%;
     }
 
     .compact-field {
       display: grid;
-      gap: 6px;
+      gap: 4px;
       min-width: 0;
     }
 
-    .compact-field-room {
-      flex: 1 1 190px;
-      min-width: 0;
-      max-width: none;
-    }
-
+    .compact-field-room,
     .compact-field-doors {
-      flex: 0 0 88px;
-      width: 88px;
-      max-width: 88px;
+      flex: 0 0 96px;
+      width: 96px;
+      max-width: 96px;
     }
 
     .compact-select {
+      width: 100%;
+      height: 40px;
       min-height: var(--control-height);
       padding: 6px 10px;
+      border-radius: 10px;
+      font-size: .95rem;
     }
     input, select, button { font: inherit; }
 
@@ -307,6 +307,7 @@
     .room-link-input,
     .search-input {
       width: 100%;
+      height: 40px;
       min-height: var(--control-height);
       border-radius: 10px;
       border: 1px solid var(--border-strong);
@@ -314,6 +315,24 @@
       color: var(--text-main);
       padding: 8px 12px;
       box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 1px 2px rgba(20,46,70,.05);
+    }
+
+    .compact-field label,
+    .field-group label {
+      font-size: .84rem;
+      line-height: 1.2;
+      margin-bottom: 0;
+    }
+
+    .room-select,
+    .count-select,
+    .compact-select {
+      width: 100%;
+      height: 40px;
+      min-height: 40px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: .95rem;
     }
     .room-select:focus,
     .count-select:focus,
@@ -342,12 +361,12 @@
 .btn-room,
 .btn-copy-link {
   width: fit-content;
-  min-width: 124px;
-  min-height: 46px;
+  min-width: 112px;
+  min-height: 40px;
   border-radius: 999px;
-  padding: 10px 22px;
-  margin-top: 10px;
-  font-size: .93rem;
+  padding: 8px 18px;
+  margin-top: 4px;
+  font-size: .88rem;
   font-weight: 900;
   letter-spacing: .2px;
   box-shadow: inset 0 2px 0 rgba(255,255,255,.35), inset 0 -9px 14px rgba(0,0,0,.2), 0 10px 18px rgba(17, 40, 63, 0.26);
@@ -377,10 +396,10 @@
       border: 1px dashed #c7d9e8;
       border-radius: 10px;
       background: linear-gradient(180deg, #f8fbff, #eef5fc);
-      min-height: 138px;
-      padding: 10px;
+      min-height: unset;
+      padding: 8px 10px;
       display: grid;
-      gap: 10px;
+      gap: 8px;
       align-content: start;
       box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
     }
@@ -393,7 +412,7 @@
 
     .controls-section {
       display: grid;
-      gap: 8px;
+      gap: 6px;
       justify-items: center;
       align-content: start;
       min-height: 100%;
@@ -402,8 +421,8 @@
     .control-buttons {
       display: flex;
       justify-content: center;
-      gap: 14px;
-      margin-bottom: 14px;
+      gap: 10px;
+      margin-bottom: 8px;
       width: fit-content;
       margin-inline: auto;
     }
@@ -463,7 +482,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      font-size: .9rem;
+      font-size: .84rem;
       font-weight: 800;
       color: #335774;
     }
@@ -486,30 +505,30 @@
     }
 
     .action-msg {
-      min-height: 18px;
-      margin-top: 14px;
-      font-size: .84rem;
+      min-height: 16px;
+      margin-top: 6px;
+      font-size: .8rem;
       font-weight: 700;
-      line-height: 1.35;
+      line-height: 1.25;
     }
 
 
     .setup-help-text {
-      margin-top: 2px;
-      font-size: .77rem;
+      margin-top: 0;
+      font-size: .74rem;
       color: #6d8499;
       text-align: center;
       font-weight: 700;
-      line-height: 1.35;
+      line-height: 1.25;
     }
 
     .copy-help-text {
-      margin-top: 2px;
-      font-size: .77rem;
+      margin-top: 0;
+      font-size: .74rem;
       color: #6d8499;
       text-align: center;
       font-weight: 700;
-      line-height: 1.35;
+      line-height: 1.25;
     }
     .action-msg.success { color: var(--green); }
     .action-msg.error { color: var(--red); }
@@ -938,9 +957,9 @@
 
       /* שמירת תיקוני טיפוגרפיה וכרטיסים */
       .compact-fields-row { gap: 8px; }
-      .compact-field-room { flex-basis: 150px; max-width: 150px; }
-      .compact-field-doors { flex-basis: 78px; max-width: 78px; }
-      .compact-select { min-height: 38px; padding: 6px 8px; }
+      .compact-field-room,
+      .compact-field-doors { flex: 0 0 96px; width: 96px; max-width: 96px; }
+      .compact-select { min-height: 40px; padding: 6px 10px; }
       .search-input { flex-basis: 65%; max-width: 100%; }
       .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; }
       .step-badge { width: 52px; height: 52px; font-size: 1.05rem; border-width: 4px; }

@@ -70,7 +70,9 @@
     .header-title {
       grid-area: title;
       align-self: center;
-      justify-self: end;
+      justify-self: center;
+      text-align: center;
+      width: 100%;
     }
 
     .header-title h1 {
@@ -310,7 +312,8 @@
     }
 
 
-    .setup-box {
+    .setup-box,
+    .link-box {
       border: 1px dashed #c7d9e8;
       border-radius: 10px;
       background: linear-gradient(180deg, #f8fbff, #eef5fc);
@@ -321,18 +324,24 @@
       box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
     }
 
-    .link-box {
-      border: 1px dashed #c7d9e8;
-      border-radius: 10px;
-      background: linear-gradient(180deg, #f8fbff, #eef5fc);
-      min-height: 54px;
-      padding: 10px;
+    .panel-link {
       display: grid;
-      gap: 6px;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+      gap: 10px;
     }
 
-    .controls-section { display: grid; gap: 10px; }
+    .panel-link .btn-copy-link,
+    .panel-setup .btn-room {
+      justify-self: center;
+      margin-top: 0;
+    }
+
+    .controls-section {
+      display: grid;
+      gap: 10px;
+      justify-items: center;
+      align-content: center;
+      min-height: 100%;
+    }
 
     .control-buttons {
       display: flex;
@@ -384,6 +393,19 @@
     .btn-play:disabled, .btn-reset:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 
     .control-help { display: grid; gap: 6px; font-size: .88rem; color: var(--text-soft); }
+
+    .link-note-box {
+      border: 1px dashed #c7d9e8;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #f8fbff, #eef5fc);
+      padding: 12px;
+      color: #5a7892;
+      font-size: .95rem;
+      font-weight: 700;
+      line-height: 1.5;
+      text-align: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+    }
 
     .action-msg {
       min-height: 18px;
@@ -859,6 +881,7 @@
         </div>
         <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק</button>
         <div class="link-box"><small>QR לתלמידים</small></div>
+        <div class="link-note-box">בחרו חדר מהרשימה ולחצו על "צור חדר" כדי להתחיל.</div>
       </section>
 
       <section class="panel panel-control">

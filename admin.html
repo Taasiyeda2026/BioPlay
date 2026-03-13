@@ -74,6 +74,79 @@
       font-size: .84rem;
     }
 
+
+    .room-setup-section {
+      margin: 14px 16px 0;
+      padding: 14px;
+      border: 1px solid #d8e5f2;
+      border-radius: 12px;
+      background: #f8fbff;
+      display: grid;
+      gap: 10px;
+    }
+
+    .room-setup-title {
+      font-size: .95rem;
+      font-weight: 800;
+      color: #10263f;
+    }
+
+    .room-setup-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .room-select {
+      flex: 1;
+      min-width: 180px;
+      padding: 10px 12px;
+      border: 1.5px solid #90bcd8;
+      border-radius: 10px;
+      background: white;
+      font-size: .95rem;
+      color: var(--text-dk);
+      font-family: "Assistant", sans-serif;
+    }
+
+    .room-link-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .room-link-input {
+      flex: 1;
+      min-width: 220px;
+      padding: 9px 10px;
+      border: 1.5px solid #b7cde0;
+      border-radius: 10px;
+      background: #fff;
+      direction: ltr;
+      font-size: .83rem;
+      color: #13314f;
+      font-family: "Courier New", monospace;
+    }
+
+    .btn-copy-link {
+      border: none;
+      border-radius: 10px;
+      padding: 9px 14px;
+      background: #1976d2;
+      color: #fff;
+      font-size: .88rem;
+      font-weight: 800;
+      cursor: pointer;
+      font-family: "Assistant", sans-serif;
+    }
+
+    .btn-copy-link:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+    }
+
     /* ══════════════════════════════════════════════
        LOGIN OVERLAY
     ══════════════════════════════════════════════ */
@@ -849,8 +922,23 @@
     </div>
 
     <div class="room-info">
-      <div><strong>ROOM פעיל:</strong> <span id="room-id-label">—</span></div>
-      <div><strong>קישור תלמידים:</strong> <a id="student-link" class="room-link" href="#">—</a></div>
+      <div><strong>חדר פעיל:</strong> <span id="room-id-label">—</span></div>
+      <div><strong>סטטוס החדר:</strong> <span id="room-status-label">טרם נוצר</span></div>
+    </div>
+
+
+    <div class="room-setup-section">
+      <div class="room-setup-title">1) בוחרים חדר 2) יוצרים חדר 3) מעתיקים קישור 4) לוחצים PLAY</div>
+      <div class="room-setup-row">
+        <select id="room-name-select" class="room-select">
+          <option value="">טוען רשימת חדרים...</option>
+        </select>
+        <button class="btn-room" id="room-btn">צור חדר</button>
+      </div>
+      <div class="room-link-row">
+        <input id="student-link-input" class="room-link-input" type="text" readonly value="טרם נוצר קישור תלמידים" />
+        <button id="copy-link-btn" class="btn-copy-link" disabled>העתק קישור</button>
+      </div>
     </div>
 
     <!-- White content area -->
@@ -858,7 +946,7 @@
 
       <!-- Controls row: PLAY, RESET, door count -->
       <div class="controls-section">
-        <button class="btn-room" id="room-btn">ROOM</button>
+        
         <button class="btn-play" id="activate-btn">PLAY</button>
         <button class="btn-reset" id="reset-btn">RESET</button>
         <div class="controls-right">
@@ -1028,17 +1116,29 @@
     const finalBarCode  = document.getElementById("final-bar-code");
     const toastEl       = document.getElementById("toast");
     const roomIdLabel   = document.getElementById("room-id-label");
-    const studentLinkEl = document.getElementById("student-link");
+    const roomStatusLabel = document.getElementById("room-status-label");
+    const roomNameSelect = document.getElementById("room-name-select");
+    const studentLinkInput = document.getElementById("student-link-input");
+    const copyLinkBtn = document.getElementById("copy-link-btn");
 
-    function updateRoomInfo() {
-      roomIdLabel.textContent = roomId || "—";
-      if (roomId) {
-        const studentUrl = `${window.location.origin}${window.location.pathname.replace(/admin\.html$/, "bioplay.html")}?room=${encodeURIComponent(roomId)}`;
-        studentLinkEl.textContent = studentUrl;
-        studentLinkEl.href = studentUrl;
+    let activeRoomName = "";
+
+    function studentUrlForRoom() {
+      if (!roomId) return "";
+      return `${window.location.origin}${window.location.pathname.replace(/admin\.html$/, "bioplay.html")}?room=${encodeURIComponent(roomId)}`;
+    }
+
+    function updateRoomInfo(statusText = "ממתין") {
+      roomIdLabel.textContent = activeRoomName || roomId || "—";
+      roomStatusLabel.textContent = roomId ? statusText : "טרם נוצר";
+
+      const studentUrl = studentUrlForRoom();
+      if (studentUrl) {
+        studentLinkInput.value = studentUrl;
+        copyLinkBtn.disabled = false;
       } else {
-        studentLinkEl.textContent = "טרם נוצר חדר";
-        studentLinkEl.removeAttribute("href");
+        studentLinkInput.value = "טרם נוצר קישור תלמידים";
+        copyLinkBtn.disabled = true;
       }
     }
 
@@ -1127,15 +1227,40 @@
       return d;
     }
 
+    async function loadRoomNames() {
+      roomNameSelect.innerHTML = '<option value="">טוען רשימת חדרים...</option>';
+      try {
+        const res = await fetch(`${APPS_URL}?action=room_names`, { cache: "no-store" });
+        const d = await parse(res);
+        if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
+        const names = Array.isArray(d?.roomNames) ? d.roomNames : [];
+        if (!names.length) {
+          roomNameSelect.innerHTML = '<option value="">לא נמצאו חדרים בגליון room_names</option>';
+          return;
+        }
+        roomNameSelect.innerHTML = '<option value="">בחרו חדר...</option>' + names.map((name) => `<option value="${name}">${name}</option>`).join('');
+      } catch (e) {
+        roomNameSelect.innerHTML = '<option value="">שגיאה בטעינת רשימת חדרים</option>';
+        toast("שגיאה בטעינת רשימת חדרים", "error");
+      }
+    }
+
     async function createRoom() {
+      const selectedRoomName = roomNameSelect.value.trim();
+      if (!selectedRoomName) {
+        actionMsg.textContent = "בחרו חדר מהרשימה לפני יצירה";
+        actionMsg.className = "action-msg info";
+        return;
+      }
+
       roomBtn.disabled = true;
-      actionMsg.textContent = "יוצר ROOM חדש...";
+      actionMsg.textContent = "יוצר חדר...";
       actionMsg.className = "action-msg info";
       try {
         const res = await fetch(APPS_URL, {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({ action: "create_room", doorsCount }).toString(),
+          body: new URLSearchParams({ action: "create_room", roomName: selectedRoomName, doorsCount }).toString(),
         });
         const d = await parse(res);
         if (!res.ok || d?.ok === false || !d?.roomId || !d?.teacherToken) {
@@ -1144,6 +1269,7 @@
 
         const previousRoomId = roomId;
         roomId = String(d.roomId).trim().toUpperCase();
+        activeRoomName = String(d.roomName || selectedRoomName).trim();
         teacherToken = String(d.teacherToken).trim();
         refreshStorageScope(previousRoomId);
 
@@ -1151,13 +1277,13 @@
         setStatus(d?.status === "started" ? "started" : "waiting");
         if (pollTimer) startPolling();
 
-        actionMsg.textContent = `✔ ROOM ${roomId} מוכן. קישור תלמידים מוכן לשיתוף.`;
+        actionMsg.textContent = `✔ החדר "${activeRoomName}" מוכן. קישור תלמידים מוכן לשיתוף.`;
         actionMsg.className = "action-msg success";
-        toast("✔ ROOM חדש נוצר", "success");
+        toast("✔ חדר חדש נוצר", "success");
       } catch (e) {
-        actionMsg.textContent = "שגיאה ביצירת ROOM";
+        actionMsg.textContent = "שגיאה ביצירת חדר";
         actionMsg.className = "action-msg error";
-        toast(String(e.message || "שגיאה ביצירת ROOM"), "error");
+        toast(String(e.message || "שגיאה ביצירת חדר"), "error");
       }
       roomBtn.disabled = false;
     }
@@ -1167,6 +1293,7 @@
       statusDot.className   = `status-dot ${on ? "started" : "waiting"}`;
       statusLabel.className = `status-label ${on ? "started" : ""}`;
       statusLabel.textContent = on ? "פעיל ✔" : "ממתין";
+      updateRoomInfo(on ? "פעיל" : "ממתין");
     }
 
     function startPolling() {
@@ -1179,7 +1306,7 @@
 
     async function doLogin() {
       if (!roomId) {
-        loginMsg.textContent = "צרו ROOM לפני ההתחברות.";
+        loginMsg.textContent = "צרו חדר לפני ההתחברות.";
         loginMsg.className = "login-msg error";
         return;
       }
@@ -1203,11 +1330,24 @@
 
     roomBtn.onclick = createRoom;
 
+    copyLinkBtn.onclick = async () => {
+      const url = studentUrlForRoom();
+      if (!url) return;
+      try {
+        await navigator.clipboard.writeText(url);
+        toast("הקישור הועתק", "success");
+      } catch (_) {
+        studentLinkInput.select();
+        document.execCommand("copy");
+        toast("הקישור הועתק", "success");
+      }
+    };
+
     loginBtn.onclick  = doLogin;
     loginCodeEl.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
 
     activateBtn.onclick = async () => {
-      if (!teacherToken || !roomId) { actionMsg.textContent = "לחצו ROOM ליצירת חדר פעיל לפני PLAY"; actionMsg.className = "action-msg info"; return; }
+      if (!teacherToken || !roomId) { actionMsg.textContent = "צרו חדר פעיל לפני PLAY"; actionMsg.className = "action-msg info"; return; }
       activateBtn.disabled = true;
       actionMsg.textContent = "מפעיל..."; actionMsg.className = "action-msg info";
       try {
@@ -1225,7 +1365,7 @@
     };
 
     resetBtn.onclick = async () => {
-      if (!teacherToken || !roomId) { actionMsg.textContent = "אין ROOM פעיל לאיפוס"; actionMsg.className = "action-msg info"; return; }
+      if (!teacherToken || !roomId) { actionMsg.textContent = "אין חדר פעיל לאיפוס"; actionMsg.className = "action-msg info"; return; }
       resetBtn.disabled = true;
       actionMsg.textContent = "מאפס..."; actionMsg.className = "action-msg info";
       try {
@@ -1247,7 +1387,7 @@
       loginOverlay.style.display = "none";
       loginCodeEl.value = "";
       loginMsg.textContent = "";
-      actionMsg.textContent = "התנתקתם. לחצו ROOM ליצירת חדר חדש.";
+      actionMsg.textContent = "התנתקתם. בחרו חדר ולחצו \"צור חדר\".";
       actionMsg.className = "action-msg info";
     };
 
@@ -1373,13 +1513,14 @@
 
     (async () => {
       roomId = (qp.get("room") || "").trim().toUpperCase();
+      await loadRoomNames();
       refreshStorageScope();
 
       if (!roomId) {
         loginOverlay.style.display = "none";
         clearCards();
         setStatus("waiting");
-        actionMsg.textContent = "לחצו על ROOM כדי ליצור חדר חדש ולהתחיל.";
+        actionMsg.textContent = "בחרו חדר מהרשימה ולחצו על \"צור חדר\" כדי להתחיל.";
         actionMsg.className = "action-msg info";
         return;
       }
@@ -1394,7 +1535,7 @@
       }
 
       loginOverlay.style.display = "none";
-      actionMsg.textContent = "אין טוקן שמור לחדר הזה. לחצו ROOM ליצירת חדר חדש.";
+      actionMsg.textContent = "אין טוקן שמור לחדר הזה. בחרו חדר ולחצו \"צור חדר\".";
       actionMsg.className = "action-msg info";
     })();
   </script>

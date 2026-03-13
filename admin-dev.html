@@ -1041,7 +1041,7 @@
 
   function studentUrlForRoom() {
     if (!roomId) return "";
-    return `${window.location.origin}${window.location.pathname.replace(/admin\.html$/, "bioplay.html")}?room=${encodeURIComponent(roomId)}`;
+    return `${window.location.origin}${window.location.pathname.replace(/admin(?:-dev)?\.html$/, "bioplay.html")}?room=${encodeURIComponent(roomId)}`;
   }
 
   function syncDashboardMeta(statusText = "ממתין") {
@@ -1051,7 +1051,8 @@
   }
 
   function updateRoomInfo(statusText = "ממתין") {
-    roomIdLabel.textContent = activeRoomName || roomId || "—";
+    const selectedFriendlyRoom = roomNameSelect.value.trim();
+    roomIdLabel.textContent = roomId ? (selectedFriendlyRoom || activeRoomName || "—") : "—";
     roomStatusLabel.textContent = roomId ? statusText : "טרם נוצר";
 
     const studentUrl = studentUrlForRoom();

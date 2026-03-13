@@ -4,283 +4,719 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>פאנל בקרה – BioPlay</title>
-  <link href="https://script.google.com/macros/s/AKfycbw4x7TZ3-V43ouJxMo4gMi7OL1BImY_IWcMzVEnoBk7lN3mRGniku6uFymFLDpqpx4CXA/exec">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg-main: #f4f7fb;
-      --bg-alt: #eef3f8;
+      --page-bg: #ecf2f7;
       --panel-bg: #ffffff;
-      --panel-border: #d9e2ec;
-      --text-main: #1f2d3d;
-      --text-soft: #52606d;
-      --action-blue: #3b82f6;
-      --play-green: #22c55e;
-      --reset-red: #ef4444;
-      --success: #16a34a;
+      --panel-soft: #f4f9ff;
+      --frame: #163251;
+      --border: #c8d8e8;
+      --border-strong: #87a9c6;
+      --text-main: #17324d;
+      --text-soft: #5f7f99;
+      --text-faint: #8fa5b7;
+      --green: #238d4b;
+      --green-2: #dff6e6;
+      --red: #b83b3b;
+      --red-2: #fde8e8;
+      --blue: #225f9f;
+      --blue-2: #e3effc;
+      --gold: #ffb300;
+      --gold-2: #fff6dd;
+      --shadow: 0 22px 48px rgba(15, 41, 67, 0.14);
+      --shadow-soft: 0 10px 22px rgba(18, 45, 72, 0.08);
       --radius: 16px;
-      --card-shadow: 0 10px 30px rgba(31, 45, 61, 0.08);
+      --control-height: 42px;
+      --chip-size: 170px;
+      --chip-height: 40px;
     }
 
     html, body {
       min-height: 100%;
       font-family: "Assistant", Arial, sans-serif;
+      background: linear-gradient(180deg, #f8fbfd 0%, var(--page-bg) 100%);
       color: var(--text-main);
-      background:
-        radial-gradient(circle at top, rgba(255,255,255,0.9), transparent 58%),
-        linear-gradient(180deg, #f8fbff 0%, var(--bg-main) 100%);
     }
 
-    body { padding: 26px 18px; }
+    body { padding: 16px 12px; }
 
     #panel-outer {
-      max-width: 1140px;
+      max-width: 1220px;
       margin: 0 auto;
+      background: linear-gradient(180deg, #f9fcff 0%, #f2f7fc 100%);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
       display: grid;
-      gap: 16px;
+      grid-template-areas:
+        "header  header  header"
+        "content content control"
+        "db      db      db";
+      grid-template-columns: 1fr 1fr 1fr;
     }
 
     .admin-header {
+      grid-area: header;
+      position: relative;
       display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 14px;
-      align-items: center;
-      background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
-      border-radius: 18px;
-      box-shadow: var(--card-shadow);
-      padding: 16px 18px;
+      grid-template-columns: 1fr;
+      grid-template-areas:
+        "title"
+        "status";
+      align-items: start;
+      gap: 10px 18px;
+      padding: 16px 20px;
+      background: linear-gradient(180deg, #fbfdff 0%, #f0f6fc 100%);
+      border-bottom: 1px solid var(--border);
+      box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.7);
     }
 
-    .header-title h1 { font-size: 1.35rem; letter-spacing: .4px; margin-bottom: 2px; }
-    .header-title p { color: var(--text-soft); font-size: .9rem; }
+    .header-title {
+      grid-area: title;
+      align-self: center;
+      justify-self: end;
+    }
 
-    .status-strip { display: flex; flex-wrap: wrap; gap: 8px; }
+    .header-title h1 {
+      font-size: 1.9rem;
+      margin-bottom: 4px;
+      color: #102f4c;
+      letter-spacing: .8px;
+      font-weight: 900;
+      text-shadow:
+        0 1px 0 rgba(255,255,255,.85),
+        0 2px 6px rgba(16,47,76,.14);
+    }
+
+    .header-title p {
+      color: #5a7892;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .status-strip {
+      grid-area: status;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: flex-end;
+      align-self: start;
+    }
 
     .status-chip {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      min-height: 34px;
+      justify-content: center;
+      gap: 8px;
+      width: var(--chip-size);
+      min-height: var(--chip-height);
       border-radius: 999px;
-      padding: 6px 12px;
-      border: 1px solid var(--panel-border);
-      background: var(--bg-alt);
-      color: var(--text-main);
-      font-size: .83rem;
-      font-weight: 700;
+      padding: 6px 10px;
+      border: 1px solid #97b4cf;
+      background: linear-gradient(180deg, #ffffff 0%, #deebf8 100%);
+      color: #173652;
+      font-size: .9rem;
+      font-weight: 900;
+      text-align: center;
+      text-shadow: 0 1px 0 rgba(255,255,255,.8);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 7px 16px rgba(20, 52, 84, 0.13);
     }
 
     .status-dot {
-      width: 9px;
-      height: 9px;
+      width: 10px;
+      height: 10px;
       border-radius: 50%;
       background: #f59e0b;
-      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
     }
-    .status-dot.started { background: var(--play-green); box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2); }
+    .status-dot.started { background: var(--green); box-shadow: 0 0 0 4px rgba(38,166,83,.15); }
     .status-dot.waiting { background: #f59e0b; }
-    .status-dot.off { background: var(--reset-red); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2); }
-    .status-label { color: var(--text-soft); }
-    .status-label.started { color: var(--success); }
+    .status-dot.off { background: var(--red); box-shadow: 0 0 0 4px rgba(201,71,71,.12); }
 
-    #panel-content { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 16px; }
+    .status-label { color: #335774; font-weight: 900; }
+    .status-chip strong { color: #102f4c; }
+    .status-label.started { color: #1f8b48; }
+
+    .logout-sm {
+      position: absolute;
+      top: 16px;
+      left: 20px;
+      width: 96px;
+      min-height: 34px;
+      border-radius: 999px;
+      border: 1px solid #8f1d1d;
+      background: linear-gradient(180deg, #f26e6e 0%, #cf3030 54%, #921d1d 100%);
+      color: #ffffff;
+      padding: 6px 12px;
+      font-size: .84rem;
+      font-weight: 800;
+      cursor: pointer;
+      text-shadow: 0 1px 1px rgba(0,0,0,.28);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.25),
+        inset 0 -8px 12px rgba(0,0,0,.18),
+        0 6px 12px rgba(52, 10, 10, 0.18);
+      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+    }
+    .logout-sm:hover {
+      transform: translateY(-1px);
+      filter: saturate(1.04);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.28),
+        inset 0 -8px 12px rgba(0,0,0,.20),
+        0 8px 14px rgba(52, 10, 10, 0.22);
+    }
+    .logout-sm:active {
+      transform: translateY(0);
+      box-shadow:
+        inset 0 2px 6px rgba(0,0,0,.20),
+        0 3px 8px rgba(52, 10, 10, 0.16);
+    }
+
+    #panel-content {
+      grid-area: content;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      padding: 14px;
+      background: transparent;
+    }
 
     .panel {
       background: var(--panel-bg);
-      border: 1px solid var(--panel-border);
+      border: 1px solid var(--border);
       border-radius: var(--radius);
-      box-shadow: var(--card-shadow);
-      padding: 16px;
+      box-shadow: var(--shadow-soft);
+      padding: 14px;
       min-width: 0;
-      align-self: start;
     }
 
-    .panel h2 { margin-bottom: 12px; font-size: 1.02rem; }
-    .panel p, .panel small, .panel label { color: var(--text-soft); }
+    .panel h2 {
+      margin-bottom: 14px;
+      font-size: 1.12rem;
+      color: #123555;
+      font-weight: 900;
+      letter-spacing: .2px;
+      text-shadow: 0 1px 0 rgba(255,255,255,.7);
+    }
 
-    .panel-setup, .panel-link, .panel-control, .panel-monitor { grid-column: span 4; }
-    .panel-db { grid-column: span 12; }
+    .panel p, .panel small, .panel label {
+      color: var(--text-soft);
+    }
+
+    .panel-control {
+      grid-area: control;
+      margin: 14px 0 14px 14px;
+    }
+
+    .panel-db {
+      grid-area: db;
+      margin: 0 14px 14px;
+    }
 
     .field-group { margin-bottom: 10px; display: grid; gap: 6px; }
+
+    .compact-fields-row {
+      display: flex;
+      align-items: end;
+      gap: 10px;
+      flex-wrap: nowrap;
+    }
+
+    .compact-field {
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .compact-field-room {
+      flex: 0 1 180px;
+      max-width: 180px;
+    }
+
+    .compact-field-doors {
+      flex: 0 0 92px;
+      max-width: 92px;
+    }
+
+    .compact-select {
+      min-height: var(--control-height);
+      padding: 6px 10px;
+    }
     input, select, button { font: inherit; }
 
-    .room-select, .count-select, .room-link-input, .search-input {
-      width: 100%; min-height: 42px; border-radius: 10px; border: 1px solid var(--panel-border);
-      background: #fff; color: var(--text-main); padding: 9px 11px;
+    .room-select,
+    .count-select,
+    .room-link-input,
+    .search-input {
+      width: 100%;
+      min-height: var(--control-height);
+      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+      color: var(--text-main);
+      padding: 8px 12px;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 1px 2px rgba(20,46,70,.05);
+    }
+    .room-select:focus,
+    .count-select:focus,
+    .room-link-input:focus,
+    .search-input:focus,
+    .login-input:focus {
+      outline: none;
+      border-color: #6f97bc;
+      box-shadow: 0 0 0 3px rgba(58, 121, 182, 0.16);
     }
 
     .btn {
-      border: 1px solid transparent;
-      border-radius: 12px;
-      min-height: 42px;
-      padding: 10px 14px;
+      border-radius: 11px;
+      min-height: var(--control-height);
+      padding: 9px 14px;
       font-weight: 800;
       cursor: pointer;
-      transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
+      border: 1px solid transparent;
+      box-shadow: 0 7px 15px rgba(17, 40, 63, 0.18);
+      transition: transform .15s ease, filter .15s ease, opacity .15s ease, box-shadow .15s ease;
     }
-    .btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.02); }
-    .btn:active:not(:disabled) { transform: translateY(1px); }
-    .btn:disabled { opacity: .58; cursor: not-allowed; }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.03); box-shadow: 0 9px 20px rgba(16, 39, 63, 0.22); }
+    .btn:active:not(:disabled) { transform: translateY(0); box-shadow: inset 0 3px 7px rgba(9, 27, 45, 0.28), 0 3px 8px rgba(12, 34, 56, 0.12); }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+
+    .btn-room,
+    .btn-copy-link {
+      width: fit-content;
+      min-width: 124px;
+      min-height: 46px;
+      border-radius: 999px;
+      padding: 10px 22px;
+      margin-top: 10px;
+      font-size: .93rem;
+      font-weight: 900;
+      letter-spacing: .2px;
+      box-shadow: inset 0 2px 0 rgba(255,255,255,.35), inset 0 -9px 14px rgba(0,0,0,.2), 0 10px 18px rgba(17, 40, 63, 0.26);
+    }
 
     .btn-room {
-      width: 100%;
-      color: #fff;
-      background: linear-gradient(180deg, #65a2f8 0%, var(--action-blue) 100%);
-      border-color: #2d67c9;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 6px 14px rgba(59,130,246,0.25);
-      margin-top: 4px;
+      background: linear-gradient(180deg, #4d97df 0%, #2a70b5 54%, #184f84 100%);
+      border-color: #154772;
+      color: #ffffff;
     }
 
     .btn-copy-link {
-      width: 100%;
-      margin-top: 10px;
-      background: #f8fbff;
-      border: 1px solid var(--panel-border);
-      color: var(--text-main);
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.8);
+      background: linear-gradient(180deg, #ffe27a 0%, #efbc18 52%, #b98400 100%);
+      border-color: #8a6200;
+      color: #3a2800;
+      text-shadow: 0 1px 0 rgba(255,235,170,.42);
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,.34),
+        inset 0 -10px 14px rgba(0,0,0,.18),
+        0 10px 18px rgba(17, 40, 63, 0.24);
     }
 
-    .room-link-input { direction: ltr; font-family: "Courier New", monospace; font-size: .79rem; }
-    .link-box {
-      border: 1px dashed #cbd7e5;
-      border-radius: 11px;
-      background: #f9fbfe;
+    .room-link-input {
+      direction: ltr;
+      font-family: "Courier New", monospace;
+      font-size: .82rem;
+    }
+
+
+    .setup-box {
+      border: 1px dashed #c7d9e8;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #f8fbff, #eef5fc);
       min-height: 54px;
       padding: 10px;
       display: grid;
-      gap: 7px;
+      gap: 10px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+    }
+
+    .link-box {
+      border: 1px dashed #c7d9e8;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #f8fbff, #eef5fc);
+      min-height: 54px;
+      padding: 10px;
+      display: grid;
+      gap: 6px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
     }
 
     .controls-section { display: grid; gap: 10px; }
-    .control-buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+
+    .control-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 4px;
+    }
 
     .btn-play, .btn-reset {
-      min-height: 52px;
-      border-radius: 14px;
-      border: 1px solid transparent;
+      width: 114px;
+      height: 114px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.22);
       color: #fff;
-      font-size: 1rem;
+      font-size: 1.24rem;
       font-weight: 900;
-      letter-spacing: .4px;
+      letter-spacing: .55px;
       cursor: pointer;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 10px 16px rgba(31,45,61,0.18);
+      text-shadow: 0 2px 2px rgba(0,0,0,.42);
+      box-shadow:
+        inset 0 10px 16px rgba(255,255,255,0.16),
+        inset 0 -22px 28px rgba(0,0,0,.36),
+        0 18px 28px rgba(0,0,0,.30),
+        0 6px 10px rgba(8,20,34,.18);
       transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
     }
     .btn-play {
-      background: linear-gradient(180deg, #4ade80 0%, var(--play-green) 60%, #179d4a 100%);
-      border-color: #198f47;
+      background: radial-gradient(circle at 30% 18%, #71f0a0 0%, #23a956 34%, #167540 68%, #0d4a28 100%);
     }
     .btn-reset {
-      background: linear-gradient(180deg, #f87171 0%, var(--reset-red) 58%, #d23333 100%);
-      border-color: #b72c2c;
+      background: radial-gradient(circle at 30% 18%, #f07a7a 0%, #cf2f2f 34%, #971d1d 68%, #5e0f0f 100%);
     }
-    .btn-play:hover:not(:disabled), .btn-reset:hover:not(:disabled) { transform: translateY(-1px); }
+    .btn-play:hover:not(:disabled), .btn-reset:hover:not(:disabled) {
+      transform: scale(1.04) translateY(-1px);
+      filter: saturate(1.08) contrast(1.03);
+      box-shadow:
+        inset 0 10px 16px rgba(255,255,255,0.18),
+        inset 0 -22px 28px rgba(0,0,0,.38),
+        0 22px 34px rgba(0,0,0,.33),
+        0 8px 12px rgba(8,20,34,.20);
+    }
     .btn-play:active:not(:disabled), .btn-reset:active:not(:disabled) {
-      transform: translateY(2px);
-      box-shadow: inset 0 2px 6px rgba(0,0,0,.2), 0 6px 10px rgba(31,45,61,.16);
+      transform: scale(1);
+      box-shadow:
+        inset 0 8px 14px rgba(255,255,255,.12),
+        inset 0 -16px 20px rgba(0,0,0,.42),
+        0 8px 14px rgba(0,0,0,.22);
     }
     .btn-play:disabled, .btn-reset:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
 
-    .control-help { display: grid; gap: 4px; font-size: .82rem; color: var(--text-soft); }
-    .action-msg { min-height: 18px; font-size: .88rem; font-weight: 700; margin-top: 6px; }
-    .action-msg.success { color: var(--success); }
-    .action-msg.error { color: #c62828; }
-    .action-msg.info { color: var(--text-soft); }
+    .control-help { display: grid; gap: 6px; font-size: .88rem; color: var(--text-soft); }
 
-    .monitor-list, .db-stats { display: grid; gap: 8px; }
+    .action-msg {
+      min-height: 18px;
+      margin-top: 14px;
+      font-size: .84rem;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+    .action-msg.success { color: var(--green); }
+    .action-msg.error { color: var(--red); }
+    .action-msg.info { color: #6a8399; }
 
-    .monitor-item, .db-stat {
+    .db-stats {
+      grid-template-columns: max-content;
+      justify-content: start;
+    }
+
+    .db-stat {
       display: flex;
       justify-content: space-between;
       align-items: center;
       border-radius: 10px;
-      background: #f8fbff;
-      border: 1px solid var(--panel-border);
-      padding: 9px 11px;
-      min-height: 38px;
+      background: linear-gradient(180deg, #f9fcff, #eef5fb);
+      border: 1px solid var(--border);
+      padding: 8px 11px;
+      min-height: 40px;
       gap: 10px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
     }
 
-    .search-section { position: relative; margin: 12px 0 8px; }
-    .search-input-wrap { display: flex; gap: 8px; }
+    .db-stat strong { color: var(--text-main); }
+
+    .search-section { position: relative; margin: 14px 0 10px; }
+    .search-input-wrap {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 0 1 50%;
+      max-width: 340px;
+    }
+
     .search-btn-icon {
-      width: 42px; min-width: 42px; border-radius: 10px; border: 1px solid var(--panel-border);
-      background: #fff; cursor: pointer;
+      width: 42px;
+      height: 42px;
+      min-width: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      border: 1px solid #5f86ab;
+      background: linear-gradient(180deg, #f8fbff 0%, #d6e5f6 55%, #bfd5ec 100%);
+      color: #1f4f7d;
+      font-size: 1rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.85),
+        inset 0 -6px 10px rgba(40,79,120,.14),
+        0 6px 12px rgba(16, 43, 68, 0.16);
+      transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
+    }
+    .search-btn-icon:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.9),
+        inset 0 -6px 10px rgba(40,79,120,.16),
+        0 8px 15px rgba(16, 43, 68, 0.20);
     }
 
     .search-dropdown {
-      position: absolute; top: calc(100% + 4px); right: 0; width: 100%; max-height: 190px; overflow-y: auto;
-      display: none; background: #fff; border-radius: 10px; border: 1px solid var(--panel-border); z-index: 20;
-      box-shadow: 0 8px 16px rgba(31,45,61,0.12);
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 0;
+      width: min(390px, 100%);
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      z-index: 20;
+      box-shadow: 0 12px 28px rgba(17, 46, 76, 0.12);
     }
     .search-dropdown.open { display: block; }
 
     .dropdown-item {
-      padding: 9px 11px; color: var(--text-main); cursor: pointer; border-bottom: 1px solid #e7eef5;
-      display: flex; gap: 8px; align-items: center;
+      padding: 9px 11px;
+      color: var(--text-main);
+      cursor: pointer;
+      border-bottom: 1px solid #e7eef5;
+      display: flex;
+      gap: 8px;
+      align-items: center;
     }
+
     .dropdown-item:last-child { border-bottom: 0; }
-    .dropdown-num { background: #e6effd; color: #225ca6; border-radius: 8px; padding: 2px 7px; font-weight: 800; }
+
+    .dropdown-num {
+      background: #d9ecff;
+      color: #115da5;
+      border-radius: 8px;
+      padding: 2px 8px;
+      font-weight: 800;
+    }
 
     .result-box {
-      min-height: 50px; border-radius: 10px; border: 1px solid var(--panel-border); background: #f8fbff;
-      padding: 12px; color: var(--text-soft); display: flex; align-items: center; justify-content: center;
-      text-align: center; margin-bottom: 12px;
+      min-height: 66px;
+      border-radius: 12px;
+      border: 1px solid #d1dfee;
+      background: linear-gradient(180deg, #ffffff, #f3f9ff);
+      padding: 11px 16px;
+      color: var(--text-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: 700;
+      font-size: 1rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 5px 12px rgba(17, 46, 76, 0.08);
     }
 
-    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+    .result-box.has-result {
+      color: #123d68;
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: .4px;
+      background: linear-gradient(180deg, #ffffff, #e9f4ff);
+      border-color: #a8c7e4;
+    }
+
+    .db-stat strong {
+      display: inline-flex;
+      min-width: 54px;
+      min-height: 34px;
+      padding: 4px 10px;
+      border-radius: 10px;
+      border: 1px solid #bfd2e5;
+      background: linear-gradient(180deg, #ffffff 0%, #eaf3fc 100%);
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px 28px;
+    }
+
+    .step-card-wrap { position: relative; padding-top: 18px; }
+
+    .step-badge {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      background: #b9daf5;
+      color: #1f63b8;
+      font-weight: 900;
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 5px solid #8fbfe6;
+      box-shadow: 0 6px 14px rgba(55, 105, 160, 0.16);
+      z-index: 2;
+    }
 
     .step-card {
-      border-radius: 12px;
-      border: 1px solid var(--panel-border);
-      background: #fff;
-      box-shadow: 0 6px 16px rgba(31,45,61,0.08);
-      padding: 12px;
-      display: grid;
-      gap: 8px;
+      border-radius: 16px;
+      border: 4px solid #b9d3bd;
+      overflow: hidden;
+      background: #eef5ef;
+      min-height: 248px;
     }
-    .step-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-    .step-index {
-      min-width: 28px; height: 28px; border-radius: 50%; background: #e6effd; color: #1d4f8f;
-      display: inline-flex; align-items: center; justify-content: center; font-weight: 900;
-    }
-    .step-title { font-size: .86rem; color: var(--text-soft); font-weight: 700; }
-    .meta-row { display: grid; gap: 5px; font-size: .82rem; }
-    .meta-row strong { color: var(--text-main); }
 
-    .final-bar {
-      margin-top: 12px;
-      border-radius: 12px;
-      border: 1px solid #f2c883;
-      background: #fff9ec;
-      min-height: 46px;
+    .step-card-wrap.final .step-card {
+      background: #fbf5dd;
+      border-color: #f1d16c;
+    }
+
+    .step-card-wrap.final .step-badge {
+      background: #fff7dc;
+      border-color: #f1d16c;
+      color: #e26a00;
+      box-shadow: 0 6px 14px rgba(226, 106, 0, 0.15);
+    }
+
+    .card-top {
+      min-height: 150px;
+      padding: 56px 16px 16px;
+      text-align: center;
+      border-bottom: 4px solid #b9d3bd;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 10px;
     }
-    .final-bar-label { color: #b7791f; font-size: .78rem; letter-spacing: .7px; }
-    .final-bar-code { color: #8a5b14; font-family: "Courier New", monospace; letter-spacing: 3px; font-size: 1.02rem; font-weight: 900; }
+    .step-card-wrap.final .card-top { border-bottom-color: #f1d16c; }
 
-    .logout-sm {
-      border-radius: 10px;
-      border: 1px solid var(--panel-border);
-      background: #f8fbff;
-      color: var(--text-soft);
-      padding: 8px 12px;
-      cursor: pointer;
+    .card-top-label {
+      color: #74889a;
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 0;
+    }
+
+    .card-answer {
+      color: #1f63b8;
+      font-weight: 900;
+      font-size: 1.1rem;
+      line-height: 1.35;
+      min-height: 28px;
+    }
+
+    .card-code {
+      color: #c96a00;
+      font-weight: 900;
+      font-size: 1.45rem;
+      line-height: 1.2;
+      letter-spacing: 3px;
+      font-family: "Courier New", monospace;
+    }
+
+    .card-divider-line {
+      width: 34px;
+      height: 6px;
+      border-radius: 999px;
+      background: #246ac3;
+    }
+
+    .step-card-wrap.final .card-divider-line {
+      background: #ec6c00;
+    }
+
+    .card-bottom {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      min-height: 94px;
+    }
+
+    .card-cell {
+      padding: 12px 10px;
+      text-align: center;
+      border-left: 4px solid #b9d3bd;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .card-cell:first-child { border-left: 0; }
+    .step-card-wrap.final .card-cell { border-left-color: #f1d16c; }
+    .step-card-wrap.final .card-cell:first-child { border-left: 0; }
+
+    .cell-label {
+      display: block;
+      font-size: 1rem;
+      color: #7d8f9f;
+      margin-bottom: 0;
+      font-weight: 800;
+    }
+
+    .cell-value {
+      font-size: 1.02rem;
+      color: var(--text-main);
+      font-weight: 800;
+      word-break: break-word;
+      line-height: 1.3;
+    }
+
+    .final-bar {
+      margin-top: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,179,0,0.42);
+      background: linear-gradient(180deg, rgba(255,245,214,.72) 0%, rgba(255,233,170,.42) 100%);
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.75),
+        0 6px 12px rgba(160, 113, 0, 0.08);
+    }
+
+    .final-bar-label {
+      color: #b67600;
+      font-size: .84rem;
+      letter-spacing: 1.2px;
+      font-weight: 900;
+    }
+
+    .final-bar-code {
+      color: #b95f00;
+      font-family: "Courier New", monospace;
+      letter-spacing: 4px;
+      font-size: 1.26rem;
+      font-weight: 900;
+      text-shadow: 0 1px 0 rgba(255,255,255,.4);
     }
 
     #toast {
       position: fixed;
-      bottom: 24px;
+      bottom: 26px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 10px 16px;
+      padding: 10px 18px;
       border-radius: 999px;
-      background: rgba(31,45,61,.92);
+      background: rgba(22, 45, 71, 0.94);
       color: #fff;
       opacity: 0;
       transition: opacity .25s;
@@ -291,46 +727,130 @@
     #login-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(9, 20, 35, .45);
+      background: rgba(7, 18, 32, .72);
+      backdrop-filter: blur(3px);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 200;
       padding: 16px;
-      backdrop-filter: blur(4px);
     }
+
     .login-box {
-      background: #f4f7fb;
-      border: 1px solid var(--panel-border);
-      border-radius: 16px;
-      box-shadow: var(--card-shadow);
-      padding: 24px;
-      width: min(360px, 100%);
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      width: min(380px, 100%);
       text-align: center;
       color: var(--text-main);
+      box-shadow: 0 20px 44px rgba(12, 35, 57, 0.2);
     }
-    .login-logo { font-size: 1.25rem; font-weight: 900; letter-spacing: 3px; margin-bottom: 6px; }
-    .login-sub { color: var(--text-soft); margin-bottom: 16px; }
-    .login-input { width: 100%; min-height: 42px; padding: 10px; border-radius: 10px; border: 1px solid #c8d8e8; margin-bottom: 10px; text-align: center; direction: ltr; }
+
+    .login-logo { font-size: 1.3rem; font-weight: 900; letter-spacing: 3px; margin-bottom: 6px; color: var(--frame); }
+    .login-sub { color: var(--text-soft); margin-bottom: 20px; }
+    .login-input {
+      width: 100%;
+      min-height: var(--control-height);
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      margin-bottom: 10px;
+      text-align: center;
+      direction: ltr;
+    }
+
     .login-btn {
-      width: 100%; min-height: 42px; border: 1px solid #198f47; border-radius: 10px;
-      background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%); color: #fff; font-weight: 800; cursor: pointer;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 8px 12px rgba(34,197,94,.25);
+      width: 100%;
+      min-height: var(--control-height);
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #3ba15c, #236f3e);
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 16px rgba(24, 74, 43, 0.22);
     }
+
     .login-msg { min-height: 22px; margin-top: 8px; }
-    .login-msg.error { color: #c62828; }
+    .login-msg.error { color: var(--red); }
 
-    @media (max-width: 1100px) {
-      .panel-setup, .panel-link, .panel-control, .panel-monitor, .panel-db { grid-column: span 12; }
-      .admin-header { grid-template-columns: 1fr; }
+    /* ── Tablet (701px – 1100px) ── */
+    @media (max-width: 1100px) and (min-width: 701px) {
+      #panel-outer {
+        grid-template-areas:
+          "header header"
+          "content control"
+          "db db";
+        grid-template-columns: 2fr 1fr;
+      }
+      #panel-content { grid-template-columns: 1fr 1fr; }
+      .admin-header { padding-left: 12px; padding-right: 12px; }
+      .header-title { align-self: flex-end; }
+      .status-strip { justify-content: flex-start; }
+      .logout-sm { left: 12px; width: 96px; }
+      .status-chip { width: auto; min-width: 150px; }
+      /* שמירת margins העקביים בטאבלט */
     }
 
+    /* ── Mobile (≤700px) ── */
     @media (max-width: 700px) {
-      body { padding: 12px; }
-      .control-buttons { grid-template-columns: 1fr; }
+      #panel-outer {
+        grid-template-areas:
+          "header  control"
+          "content content"
+          "db      db";
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        padding: 12px;
+      }
+
+      /* ביטול margins — הגריד מנהל ריווח */
+      .panel-control { margin: 0; }
+      .panel-db      { margin: 0; }
+      #panel-content { padding: 0; gap: 14px; grid-template-columns: 1fr 1fr; }
+
+      .admin-header { padding: 12px; }
+      .logout-sm { left: 12px; width: 86px; font-size: .78rem; }
+      .header-title { align-self: flex-end; }
+      .header-title h1 { font-size: 1.3rem; }
+      .header-title p  { font-size: .85rem; }
+
+      /* chips: גריד 2×2 */
+      .status-strip {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        justify-content: start;
+      }
+      .status-chip { width: auto; min-width: 0; font-size: .8rem; padding: 5px 8px; }
+
+      /* כפתורי PLAY/RESET — מתאימים לעמודה צרה (~155px) */
+      .btn-play, .btn-reset { width: 90px; height: 90px; font-size: 1rem; }
+      .control-buttons { gap: 10px; }
+
+      /* שמירת תיקוני טיפוגרפיה וכרטיסים */
+      .compact-fields-row { gap: 8px; }
+      .compact-field-room { flex-basis: 150px; max-width: 150px; }
+      .compact-field-doors { flex-basis: 78px; max-width: 78px; }
+      .compact-select { min-height: 38px; padding: 6px 8px; }
+      .search-input { flex-basis: 65%; max-width: 100%; }
+      .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; }
+      .step-badge { width: 52px; height: 52px; font-size: 1.05rem; border-width: 4px; }
+      .step-card { min-height: 220px; border-width: 3px; border-radius: 18px; }
+      .card-top { min-height: 132px; padding: 48px 10px 12px; border-bottom-width: 3px; }
+      .card-top-label { font-size: .96rem; }
+      .card-answer { font-size: .98rem; min-height: 24px; }
+      .card-bottom { min-height: 82px; }
+      .card-cell { padding: 10px 6px; border-left-width: 3px; }
+      .cell-label { font-size: .9rem; }
+      .cell-value { font-size: .92rem; }
+    }
+
+    @media (max-width: 560px) {
       .cards-grid { grid-template-columns: 1fr; }
     }
-</style>
+  </style>
 </head>
 <body>
 
@@ -348,7 +868,7 @@
     <header class="admin-header">
       <div class="header-title">
         <h1>BIOPLAY ADMIN</h1>
-        <p>לוח ניהול משחק – הפעלה וניטור בזמן אמת</p>
+        <p>לוח בקרה למדריך</p>
       </div>
       <div class="status-strip">
         <div class="status-chip"><span class="status-dot waiting" id="status-dot"></span><span class="status-label" id="status-label">ממתין</span></div>
@@ -359,21 +879,35 @@
       <button class="logout-sm" id="logout-btn">יציאה</button>
     </header>
 
+    <section class="panel panel-control">
+      <h2>שליטה במשחק</h2>
+      <div class="controls-section">
+        <div class="control-buttons">
+          <button class="btn-play" id="activate-btn" disabled>PLAY</button>
+          <button class="btn-reset" id="reset-btn">RESET</button>
+        </div>
+      </div>
+    </section>
+
     <main id="panel-content" class="admin-grid">
       <section class="panel panel-setup">
         <h2>הגדרת משחק</h2>
-        <div class="field-group">
-          <label for="room-name-select">בחירת חדר</label>
-          <select id="room-name-select" class="room-select">
-            <option value="">טוען רשימת חדרים...</option>
-          </select>
+        <div class="setup-box">
+          <div class="field-group compact-fields-row">
+            <div class="compact-field compact-field-room">
+              <label for="room-name-select">חדר</label>
+              <select id="room-name-select" class="room-select compact-select">
+                <option value="">טוען...</option>
+              </select>
+            </div>
+            <div class="compact-field compact-field-doors">
+              <label for="doors-count-select">דלתות</label>
+              <select id="doors-count-select" class="count-select compact-select"></select>
+            </div>
+          </div>
+          <button class="btn btn-room" id="room-btn">צור חדר</button>
+          <div class="action-msg" id="action-msg"></div>
         </div>
-        <div class="field-group">
-          <label for="doors-count-select">בחירת מספר דלתות</label>
-          <select id="doors-count-select" class="count-select"></select>
-        </div>
-        <button class="btn btn-room" id="room-btn">צור חדר</button>
-        <div class="action-msg" id="action-msg"></div>
       </section>
 
       <section class="panel panel-link">
@@ -382,589 +916,562 @@
           <small>קישור מלא לתלמידים</small>
           <input id="student-link-input" class="room-link-input" type="text" readonly value="טרם נוצר קישור תלמידים" />
         </div>
-        <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק קישור לתלמידים</button>
-        <div class="link-box"><small>QR לתלמידים (מוכן לשימוש עתידי)</small></div>
-      </section>
-
-      <section class="panel panel-control">
-        <h2>שליטה במשחק</h2>
-        <div class="controls-section">
-          <div class="control-buttons">
-            <button class="btn-play" id="activate-btn" disabled>PLAY</button>
-            <button class="btn-reset" id="reset-btn">RESET</button>
-          </div>
-          <div class="control-help">
-            <small>PLAY – מפעיל את המשחק לתלמידים</small>
-            <small>RESET – מאפס את מצב החדר בסיום</small>
-          </div>
-        </div>
-      </section>
-
-      <section class="panel panel-monitor">
-        <h2>ניטור משחק</h2>
-        <div class="monitor-list">
-          <div class="monitor-item"><span>חדר פעיל</span><strong id="monitor-room">—</strong></div>
-          <div class="monitor-item"><span>מספר דלתות</span><strong id="monitor-doors">5</strong></div>
-          <div class="monitor-item"><span>קישור נוצר</span><strong id="monitor-link">לא</strong></div>
-          <div class="monitor-item"><span>מצב משחק</span><strong id="monitor-status">ממתין</strong></div>
-        </div>
-      </section>
-
-      <section class="panel panel-db">
-        <h2>מאגר אורגניזמים</h2>
-        <div class="db-stats">
-          <div class="db-stat"><span>כמות אורגניזמים במאגר</span><strong id="db-total-count">0</strong></div>
-          <div class="db-stat"><span>שדות מוצגים</span><strong>שם אורגניזם, דלת, שלב, תשובה נכונה, קוד מעבר</strong></div>
-        </div>
-
-        <div class="search-section">
-          <div class="search-input-wrap">
-            <input id="search-input" class="search-input" type="search" placeholder="חפשו אורגניזם...">
-            <button class="search-btn-icon" id="search-btn">🔍</button>
-          </div>
-          <div class="search-dropdown" id="search-dropdown"></div>
-        </div>
-
-        <div class="result-box" id="result-box">חפשו אורגניזם לצפייה בקודים</div>
-        <div class="cards-grid" id="cards-grid"></div>
-
-        <div class="final-bar">
-          <span class="final-bar-label">קוד סופי</span>
-          <span class="final-bar-code" id="final-bar-code">——</span>
-        </div>
+        <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק</button>
+        <div class="link-box"><small>QR לתלמידים</small></div>
       </section>
     </main>
+
+    <section class="panel panel-db">
+      <h2 id="db-title">מאגר אורגניזמים (0)</h2>
+      <div class="search-section">
+        <div class="search-input-wrap">
+          <input id="search-input" class="search-input" type="search" placeholder="חפשו אורגניזם...">
+          <button class="search-btn-icon" id="search-btn">🔍</button>
+        </div>
+        <div class="search-dropdown" id="search-dropdown"></div>
+      </div>
+
+      <div class="result-box" id="result-box">חפשו אורגניזם לקבלת הנתונים</div>
+      <div class="cards-grid" id="cards-grid"></div>
+
+      <div class="final-bar">
+        <span class="final-bar-label">FINAL CODE</span>
+        <span class="final-bar-code" id="final-bar-code">——</span>
+      </div>
+    </section>
   </div>
 
   <div id="toast"></div>
 
 <script>
-    const APPS_URL = "https://script.google.com/macros/s/AKfycbw4x7TZ3-V43ouJxMo4gMi7OL1BImY_IWcMzVEnoBk7lN3mRGniku6uFymFLDpqpx4CXA/exec";
-    const POLL_MS    = 4000;
+  const APPS_URL = "https://script.google.com/macros/s/AKfycbw4x7TZ3-V43ouJxMo4gMi7OL1BImY_IWcMzVEnoBk7lN3mRGniku6uFymFLDpqpx4CXA/exec";
+  const POLL_MS = 4000;
 
-    const qp = new URLSearchParams(window.location.search);
-    let roomId = "";
+  const qp = new URLSearchParams(window.location.search);
+  let roomId = "";
 
-    function scoped(base, rid = roomId) {
-      return `${base}_${rid || "NO_ROOM"}`;
+  function scoped(base, rid = roomId) {
+    return `${base}_${rid || "NO_ROOM"}`;
+  }
+
+  function getSessKey(rid = roomId) {
+    return scoped("bioplay_admin_token", rid);
+  }
+
+  function getDoorsKey(rid = roomId) {
+    return scoped("bioplay_doors_count", rid);
+  }
+
+  let teacherToken = "";
+  let pollTimer = null;
+  let doorsData = [];
+  let doorsCount = 5;
+
+  const loginOverlay = document.getElementById("login-overlay");
+  const loginCodeEl = document.getElementById("login-code");
+  const loginMsg = document.getElementById("login-msg");
+  const loginBtn = document.getElementById("login-btn");
+  const statusDot = document.getElementById("status-dot");
+  const statusLabel = document.getElementById("status-label");
+  const actionMsg = document.getElementById("action-msg");
+  const roomBtn = document.getElementById("room-btn");
+  const activateBtn = document.getElementById("activate-btn");
+  const resetBtn = document.getElementById("reset-btn");
+  const logoutBtn = document.getElementById("logout-btn");
+  const doorsSelect = document.getElementById("doors-count-select");
+  const searchInput = document.getElementById("search-input");
+  const searchDropdown = document.getElementById("search-dropdown");
+  const resultBox = document.getElementById("result-box");
+  const cardsGrid = document.getElementById("cards-grid");
+  const finalBarCode = document.getElementById("final-bar-code");
+  const toastEl = document.getElementById("toast");
+  const roomIdLabel = document.getElementById("room-id-label");
+  const roomStatusLabel = document.getElementById("room-status-label");
+  const roomNameSelect = document.getElementById("room-name-select");
+  const studentLinkInput = document.getElementById("student-link-input");
+  const copyLinkBtn = document.getElementById("copy-link-btn");
+  const headerDoorsCount = document.getElementById("header-doors-count");
+  const dbTitle = document.getElementById("db-title");
+
+  let activeRoomName = "";
+
+  function studentUrlForRoom() {
+    if (!roomId) return "";
+    return `${window.location.origin}${window.location.pathname.replace(/admin\.html$/, "bioplay.html")}?room=${encodeURIComponent(roomId)}`;
+  }
+
+  function syncDashboardMeta(statusText = "ממתין") {
+    const hasRoom = Boolean(roomId);
+    headerDoorsCount.textContent = String(doorsCount || 0);
+    activateBtn.disabled = !hasRoom;
+  }
+
+  function updateRoomInfo(statusText = "ממתין") {
+    roomIdLabel.textContent = activeRoomName || roomId || "—";
+    roomStatusLabel.textContent = roomId ? statusText : "טרם נוצר";
+
+    const studentUrl = studentUrlForRoom();
+    if (studentUrl) {
+      studentLinkInput.value = studentUrl;
+      copyLinkBtn.disabled = false;
+    } else {
+      studentLinkInput.value = "טרם נוצר קישור תלמידים";
+      copyLinkBtn.disabled = true;
     }
+    syncDashboardMeta(statusText);
+  }
 
-    function getSessKey(rid = roomId) {
-      return scoped("bioplay_admin_token", rid);
+  function updateUrlWithRoom() {
+    const next = new URL(window.location.href);
+    if (roomId) next.searchParams.set("room", roomId);
+    else next.searchParams.delete("room");
+    window.history.replaceState({}, "", next.toString());
+  }
+
+  function refreshStorageScope(previousRoomId = "") {
+    if (previousRoomId && previousRoomId !== roomId) {
+      sessionStorage.removeItem(getSessKey(previousRoomId));
     }
-
-    function getDoorsKey(rid = roomId) {
-      return scoped("bioplay_doors_count", rid);
+    const savedDoors = parseInt(localStorage.getItem(getDoorsKey(roomId)), 10);
+    doorsCount = Math.max(2, Number.isFinite(savedDoors) ? savedDoors : 5);
+    doorsSelect.value = String(doorsCount);
+    if (teacherToken && roomId) {
+      sessionStorage.setItem(getSessKey(roomId), teacherToken);
     }
+    localStorage.setItem(getDoorsKey(roomId), doorsCount);
+    updateRoomInfo();
+    updateUrlWithRoom();
+  }
 
-    let teacherToken = "";
-    let pollTimer = null;
-    let doorsData = [];
-    let doorsCount = 5;
+  for (let n = 2; n <= 30; n++) {
+    const o = document.createElement("option");
+    o.value = n; o.textContent = n;
+    if (n === doorsCount) o.selected = true;
+    doorsSelect.appendChild(o);
+  }
 
-    const loginOverlay  = document.getElementById("login-overlay");
-    const loginCodeEl   = document.getElementById("login-code");
-    const loginMsg      = document.getElementById("login-msg");
-    const loginBtn      = document.getElementById("login-btn");
-    const statusDot     = document.getElementById("status-dot");
-    const statusLabel   = document.getElementById("status-label");
-    const actionMsg     = document.getElementById("action-msg");
-    const roomBtn       = document.getElementById("room-btn");
-    const activateBtn   = document.getElementById("activate-btn");
-    const resetBtn      = document.getElementById("reset-btn");
-    const logoutBtn     = document.getElementById("logout-btn");
-    const doorsSelect   = document.getElementById("doors-count-select");
-    const searchInput   = document.getElementById("search-input");
-    const searchDropdown= document.getElementById("search-dropdown");
-    const resultBox     = document.getElementById("result-box");
-    const cardsGrid     = document.getElementById("cards-grid");
-    const finalBarCode  = document.getElementById("final-bar-code");
-    const toastEl       = document.getElementById("toast");
-    const roomIdLabel   = document.getElementById("room-id-label");
-    const roomStatusLabel = document.getElementById("room-status-label");
-    const roomNameSelect = document.getElementById("room-name-select");
-    const studentLinkInput = document.getElementById("student-link-input");
-    const copyLinkBtn = document.getElementById("copy-link-btn");
-    const headerDoorsCount = document.getElementById("header-doors-count");
-    const monitorRoom = document.getElementById("monitor-room");
-    const monitorDoors = document.getElementById("monitor-doors");
-    const monitorLink = document.getElementById("monitor-link");
-    const monitorStatus = document.getElementById("monitor-status");
-    const dbTotalCount = document.getElementById("db-total-count");
+  doorsSelect.addEventListener("change", () => {
+    doorsCount = parseInt(doorsSelect.value, 10) || 5;
+    localStorage.setItem(getDoorsKey(roomId), doorsCount);
+    syncDashboardMeta(statusLabel.textContent.includes("פעיל") ? "פעיל" : "ממתין");
+  });
 
-    let activeRoomName = "";
+  let toastT;
+  function toast(msg, type = "info") {
+    toastEl.textContent = msg;
+    toastEl.style.background = type === "success" ? "rgba(20,100,20,.95)" : type === "error" ? "rgba(150,20,20,.95)" : "rgba(8,18,38,.92)";
+    toastEl.classList.add("show");
+    clearTimeout(toastT);
+    toastT = setTimeout(() => toastEl.classList.remove("show"), 3000);
+  }
 
-    function studentUrlForRoom() {
-      if (!roomId) return "";
-      return `${window.location.origin}${window.location.pathname.replace(/admin\.html$/, "bioplay.html")}?room=${encodeURIComponent(roomId)}`;
-    }
+  async function parse(res) {
+    const raw = await res.text();
+    if (!raw) return {};
+    try { return JSON.parse(raw); } catch { return {}; }
+  }
 
-    function syncDashboardMeta(statusText = "ממתין") {
-      const hasRoom = Boolean(roomId);
-      headerDoorsCount.textContent = String(doorsCount || 0);
-      monitorRoom.textContent = activeRoomName || roomId || "—";
-      monitorDoors.textContent = String(doorsCount || 0);
-      monitorLink.textContent = hasRoom ? "כן" : "לא";
-      monitorStatus.textContent = hasRoom ? statusText : "לא פעיל";
-      activateBtn.disabled = !hasRoom;
-    }
+  async function getStatus() {
+    const url = `${APPS_URL}?action=status&roomId=${encodeURIComponent(roomId)}`;
+    const res = await fetch(url, { cache: "no-store" });
+    const d = await parse(res);
+    if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
+    return d?.status === "started" ? "started" : "waiting";
+  }
 
-    function updateRoomInfo(statusText = "ממתין") {
-      roomIdLabel.textContent = activeRoomName || roomId || "—";
-      roomStatusLabel.textContent = roomId ? statusText : "טרם נוצר";
-
-      const studentUrl = studentUrlForRoom();
-      if (studentUrl) {
-        studentLinkInput.value = studentUrl;
-        copyLinkBtn.disabled = false;
-      } else {
-        studentLinkInput.value = "טרם נוצר קישור תלמידים";
-        copyLinkBtn.disabled = true;
-      }
-      syncDashboardMeta(statusText);
-    }
-
-    function updateUrlWithRoom() {
-      const next = new URL(window.location.href);
-      if (roomId) next.searchParams.set("room", roomId);
-      else next.searchParams.delete("room");
-      window.history.replaceState({}, "", next.toString());
-    }
-
-    function refreshStorageScope(previousRoomId = "") {
-      if (previousRoomId && previousRoomId !== roomId) {
-        sessionStorage.removeItem(getSessKey(previousRoomId));
-      }
-      const savedDoors = parseInt(localStorage.getItem(getDoorsKey(roomId)), 10);
-      doorsCount = Math.max(2, Number.isFinite(savedDoors) ? savedDoors : 5);
-      doorsSelect.value = String(doorsCount);
-      if (teacherToken && roomId) {
-        sessionStorage.setItem(getSessKey(roomId), teacherToken);
-      }
-      localStorage.setItem(getDoorsKey(roomId), doorsCount);
-      updateRoomInfo();
-      updateUrlWithRoom();
-    }
-
-    for (let n = 2; n <= 30; n++) {
-      const o = document.createElement("option");
-      o.value = n; o.textContent = n;
-      if (n === doorsCount) o.selected = true;
-      doorsSelect.appendChild(o);
-    }
-
-    doorsSelect.addEventListener("change", () => {
-      doorsCount = parseInt(doorsSelect.value, 10) || 5;
-      localStorage.setItem(getDoorsKey(roomId), doorsCount);
-      syncDashboardMeta(statusLabel.textContent.includes("פעיל") ? "פעיל" : "ממתין");
+  async function sendAction(action, token, extra = {}) {
+    const body = new URLSearchParams({ action, roomId, ...extra });
+    if (token) body.set("teacherToken", token);
+    const res = await fetch(APPS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
     });
+    const d = await parse(res);
+    if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
+    return d;
+  }
 
-    let toastT;
-    function toast(msg, type = "info") {
-      toastEl.textContent = msg;
-      toastEl.style.background = type === "success" ? "rgba(20,100,20,.95)" : type === "error" ? "rgba(150,20,20,.95)" : "rgba(8,18,38,.92)";
-      toastEl.classList.add("show");
-      clearTimeout(toastT);
-      toastT = setTimeout(() => toastEl.classList.remove("show"), 3000);
+  function normalizeRoomNames(rawNames) {
+    const seen = new Set();
+    const normalized = [];
+    for (const raw of rawNames || []) {
+      const name = String(raw || "").trim();
+      if (!name || seen.has(name)) continue;
+      seen.add(name);
+      normalized.push(name);
+    }
+    return normalized.sort((a, b) => a.localeCompare(b, "he"));
+  }
+
+  async function fetchRoomNamesFromAction(actionName) {
+    const res = await fetch(`${APPS_URL}?action=${encodeURIComponent(actionName)}`, { cache: "no-store" });
+    const d = await parse(res);
+    if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
+    return normalizeRoomNames(d?.roomNames || d?.rooms || d?.list || []);
+  }
+
+  async function loadRoomNames() {
+    roomNameSelect.innerHTML = '<option value="">טוען רשימת חדרים...</option>';
+    try {
+      let names = [];
+      const actionsToTry = ["list_room_names", "room_names"];
+      for (const actionName of actionsToTry) {
+        try {
+          names = await fetchRoomNamesFromAction(actionName);
+          if (names.length) break;
+        } catch (_) {}
+      }
+
+      if (!names.length) {
+        roomNameSelect.innerHTML = '<option value="">לא נמצאו חדרים זמינים</option>';
+        return;
+      }
+
+      roomNameSelect.innerHTML = '<option value="">בחרו חדר...</option>' + names.map((name) => `<option value="${name}">${name}</option>`).join('');
+    } catch (e) {
+      roomNameSelect.innerHTML = '<option value="">שגיאה בטעינת רשימת חדרים</option>';
+      toast("שגיאה בטעינת רשימת חדרים", "error");
+    }
+  }
+
+  async function createRoom() {
+    const selectedRoomName = roomNameSelect.value.trim();
+    if (!selectedRoomName) {
+      actionMsg.textContent = "בחרו חדר מהרשימה לפני יצירה";
+      actionMsg.className = "action-msg info";
+      return;
     }
 
-    function setFatalRoomError(msg = "לא ניתן ליצור חדר כעת") {
-      roomBtn.disabled = false;
-      activateBtn.disabled = true;
-      resetBtn.disabled = true;
-      actionMsg.textContent = msg;
-      actionMsg.className = "action-msg error";
-    }
-
-    async function parse(res) {
-      const raw = await res.text();
-      if (!raw) return {};
-      try { return JSON.parse(raw); } catch { return {}; }
-    }
-
-    async function getStatus() {
-      const url = `${APPS_URL}?action=status&roomId=${encodeURIComponent(roomId)}`;
-      const res = await fetch(url, { cache: "no-store" });
-      const d = await parse(res);
-      if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
-      return d?.status === "started" ? "started" : "waiting";
-    }
-
-    async function sendAction(action, token, extra = {}) {
-      const body = new URLSearchParams({ action, roomId, ...extra });
-      if (token) body.set("teacherToken", token);
+    roomBtn.disabled = true;
+    actionMsg.textContent = "יוצר חדר...";
+    actionMsg.className = "action-msg info";
+    try {
       const res = await fetch(APPS_URL, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: body.toString(),
+        body: new URLSearchParams({ action: "create_room", roomName: selectedRoomName, doorsCount }).toString(),
       });
       const d = await parse(res);
-      if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
-      return d;
-    }
-
-    function normalizeRoomNames(rawNames) {
-      const seen = new Set();
-      const normalized = [];
-      for (const raw of rawNames || []) {
-        const name = String(raw || "").trim();
-        if (!name || seen.has(name)) continue;
-        seen.add(name);
-        normalized.push(name);
-      }
-      return normalized.sort((a, b) => a.localeCompare(b, "he"));
-    }
-
-    async function fetchRoomNamesFromAction(actionName) {
-      const res = await fetch(`${APPS_URL}?action=${encodeURIComponent(actionName)}`, { cache: "no-store" });
-      const d = await parse(res);
-      if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
-      return normalizeRoomNames(d?.roomNames || d?.rooms || d?.list || []);
-    }
-
-    async function loadRoomNames() {
-      roomNameSelect.innerHTML = '<option value="">טוען רשימת חדרים...</option>';
-      try {
-        let names = [];
-        const actionsToTry = ["list_room_names", "room_names"];
-        for (const actionName of actionsToTry) {
-          try {
-            names = await fetchRoomNamesFromAction(actionName);
-            if (names.length) break;
-          } catch (_) {}
-        }
-
-        if (!names.length) {
-          roomNameSelect.innerHTML = '<option value="">לא נמצאו חדרים זמינים</option>';
-          return;
-        }
-
-        roomNameSelect.innerHTML = '<option value="">בחרו חדר...</option>' + names.map((name) => `<option value="${name}">${name}</option>`).join('');
-      } catch (e) {
-        roomNameSelect.innerHTML = '<option value="">שגיאה בטעינת רשימת חדרים</option>';
-        toast("שגיאה בטעינת רשימת חדרים", "error");
-      }
-    }
-
-    async function createRoom() {
-      const selectedRoomName = roomNameSelect.value.trim();
-      if (!selectedRoomName) {
-        actionMsg.textContent = "בחרו חדר מהרשימה לפני יצירה";
-        actionMsg.className = "action-msg info";
-        return;
+      if (!res.ok || d?.ok === false || !d?.roomId || !d?.teacherToken) {
+        throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
       }
 
-      roomBtn.disabled = true;
-      actionMsg.textContent = "יוצר חדר...";
-      actionMsg.className = "action-msg info";
-      try {
-        const res = await fetch(APPS_URL, {
-          method: "POST",
-          headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: new URLSearchParams({ action: "create_room", roomName: selectedRoomName, doorsCount }).toString(),
-        });
-        const d = await parse(res);
-        if (!res.ok || d?.ok === false || !d?.roomId || !d?.teacherToken) {
-          throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
-        }
+      const previousRoomId = roomId;
+      roomId = String(d.roomId).trim().toUpperCase();
+      activeRoomName = String(d.roomName || selectedRoomName).trim();
+      teacherToken = String(d.teacherToken).trim();
+      refreshStorageScope(previousRoomId);
 
-        const previousRoomId = roomId;
-        roomId = String(d.roomId).trim().toUpperCase();
-        activeRoomName = String(d.roomName || selectedRoomName).trim();
-        teacherToken = String(d.teacherToken).trim();
-        refreshStorageScope(previousRoomId);
-
-        clearCards();
-        setStatus(d?.status === "started" ? "started" : "waiting");
-        if (pollTimer) startPolling();
-
-        actionMsg.textContent = "החדר נוצר בהצלחה";
-        actionMsg.className = "action-msg success";
-        toast("✔ חדר חדש נוצר", "success");
-      } catch (e) {
-        actionMsg.textContent = "שגיאה ביצירת חדר";
-        actionMsg.className = "action-msg error";
-        toast(String(e.message || "שגיאה ביצירת חדר"), "error");
-      }
-      roomBtn.disabled = false;
-    }
-
-    function setStatus(s) {
-      const inactive = !roomId;
-      const on = s === "started" && !inactive;
-      statusDot.className = `status-dot ${inactive ? "off" : (on ? "started" : "waiting")}`;
-      statusLabel.className = `status-label ${on ? "started" : ""}`;
-      statusLabel.textContent = inactive ? "לא פעיל" : (on ? "פעיל ✔" : "ממתין");
-      updateRoomInfo(inactive ? "לא פעיל" : (on ? "פעיל" : "ממתין"));
-    }
-
-    function startPolling() {
-      clearInterval(pollTimer);
-      (async () => { try { setStatus(await getStatus()); } catch {} })();
-      pollTimer = setInterval(async () => {
-        try { setStatus(await getStatus()); } catch {}
-      }, POLL_MS);
-    }
-
-    async function doLogin() {
-      if (!roomId) {
-        loginMsg.textContent = "צרו חדר לפני ההתחברות.";
-        loginMsg.className = "login-msg error";
-        return;
-      }
-      const code = loginCodeEl.value.trim();
-      if (!code) { loginMsg.textContent = "יש להזין טוקן מדריך."; loginMsg.className = "login-msg error"; return; }
-      loginBtn.disabled = true;
-      teacherToken = code;
-      sessionStorage.setItem(getSessKey(roomId), code);
-      localStorage.setItem(getDoorsKey(roomId), doorsCount);
-      loginMsg.textContent = "";
-      loginBtn.disabled = false;
-      enterPanel();
-    }
-
-    function enterPanel(initStatus) {
-      loginOverlay.style.display = "none";
-      if (initStatus) setStatus(initStatus);
-      startPolling();
-      loadDoors();
-    }
-
-    roomBtn.onclick = createRoom;
-
-    copyLinkBtn.onclick = async () => {
-      const url = studentUrlForRoom();
-      if (!url) return;
-      try {
-        await navigator.clipboard.writeText(url);
-        toast("הקישור הועתק", "success");
-      } catch (_) {
-        studentLinkInput.select();
-        document.execCommand("copy");
-        toast("הקישור הועתק", "success");
-      }
-    };
-
-    loginBtn.onclick  = doLogin;
-    loginCodeEl.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
-
-    activateBtn.onclick = async () => {
-      if (!teacherToken || !roomId) { actionMsg.textContent = "צרו חדר פעיל לפני PLAY"; actionMsg.className = "action-msg info"; return; }
-      activateBtn.disabled = true;
-      actionMsg.textContent = "מפעיל..."; actionMsg.className = "action-msg info";
-      try {
-        const r = await sendAction("start", teacherToken, { doorsCount });
-        const resolvedCount = parseInt(r?.doorsCount, 10) || doorsCount;
-        localStorage.setItem(getDoorsKey(roomId), resolvedCount);
-        actionMsg.textContent = `✔ הופעל – ${resolvedCount} דלתות`; actionMsg.className = "action-msg success";
-        setStatus("started");
-        toast(`✔ המשחק הופעל! Room ${roomId}`, "success");
-      } catch (e) {
-        actionMsg.textContent = String(e.message || "שגיאת הפעלה"); actionMsg.className = "action-msg error";
-        toast("שגיאה בהפעלה", "error");
-      }
-      activateBtn.disabled = false;
-    };
-
-    resetBtn.onclick = async () => {
-      if (!teacherToken || !roomId) { actionMsg.textContent = "אין חדר פעיל לאיפוס"; actionMsg.className = "action-msg info"; return; }
-      resetBtn.disabled = true;
-      actionMsg.textContent = "מאפס..."; actionMsg.className = "action-msg info";
-      try {
-        await sendAction("reset", teacherToken);
-        setStatus("waiting");
-        actionMsg.textContent = "✔ אופס – המשחק חזר למצב המתנה"; actionMsg.className = "action-msg success";
-        toast("✔ החדר אופס", "success");
-      } catch (e) {
-        actionMsg.textContent = String(e.message || "שגיאת איפוס"); actionMsg.className = "action-msg error";
-      }
-      resetBtn.disabled = false;
-    };
-
-    logoutBtn.onclick = () => {
-      teacherToken = "";
-      if (roomId) sessionStorage.removeItem(getSessKey(roomId));
-      clearInterval(pollTimer);
       clearCards();
-      loginOverlay.style.display = "none";
-      loginCodeEl.value = "";
-      loginMsg.textContent = "";
-      actionMsg.textContent = "התנתקתם. בחרו חדר ולחצו \"צור חדר\".";
-      actionMsg.className = "action-msg info";
-    };
+      setStatus(d?.status === "started" ? "started" : "waiting");
+      if (pollTimer) startPolling();
 
-    async function loadDoors() {
-      try {
-        const res = await fetch("doors.json", { cache: "no-store" });
-        doorsData = await res.json();
-      } catch { doorsData = []; }
-      const count = Array.isArray(doorsData) ? doorsData.length : 0;
-      dbTotalCount.textContent = String(count);
+      actionMsg.textContent = "החדר נוצר בהצלחה";
+      actionMsg.className = "action-msg success";
+      toast("✔ חדר חדש נוצר", "success");
+    } catch (e) {
+      actionMsg.textContent = "שגיאה ביצירת חדר";
+      actionMsg.className = "action-msg error";
+      toast(String(e.message || "שגיאה ביצירת חדר"), "error");
     }
+    roomBtn.disabled = false;
+  }
 
-    function createStepCard(door, step, stepNumber) {
-      const card = document.createElement("article");
-      card.className = "step-card";
-      card.innerHTML = `
-        <div class="step-header">
-          <span class="step-title">${step.title || `שלב ${stepNumber}`}</span>
-          <span class="step-index">${stepNumber}</span>
+  function setStatus(s) {
+    const inactive = !roomId;
+    const on = s === "started" && !inactive;
+    statusDot.className = `status-dot ${inactive ? "off" : (on ? "started" : "waiting")}`;
+    statusLabel.className = `status-label ${on ? "started" : ""}`;
+    statusLabel.textContent = inactive ? "לא פעיל" : (on ? "פעיל ✔" : "ממתין");
+    updateRoomInfo(inactive ? "לא פעיל" : (on ? "פעיל" : "ממתין"));
+  }
+
+  function startPolling() {
+    clearInterval(pollTimer);
+    (async () => { try { setStatus(await getStatus()); } catch {} })();
+    pollTimer = setInterval(async () => {
+      try { setStatus(await getStatus()); } catch {}
+    }, POLL_MS);
+  }
+
+  async function doLogin() {
+    if (!roomId) {
+      loginMsg.textContent = "צרו חדר לפני ההתחברות.";
+      loginMsg.className = "login-msg error";
+      return;
+    }
+    const code = loginCodeEl.value.trim();
+    if (!code) { loginMsg.textContent = "יש להזין טוקן מדריך."; loginMsg.className = "login-msg error"; return; }
+    loginBtn.disabled = true;
+    teacherToken = code;
+    sessionStorage.setItem(getSessKey(roomId), code);
+    localStorage.setItem(getDoorsKey(roomId), doorsCount);
+    loginMsg.textContent = "";
+    loginBtn.disabled = false;
+    enterPanel();
+  }
+
+  function enterPanel(initStatus) {
+    loginOverlay.style.display = "none";
+    if (initStatus) setStatus(initStatus);
+    startPolling();
+    loadDoors();
+  }
+
+  roomBtn.onclick = createRoom;
+
+  copyLinkBtn.onclick = async () => {
+    const url = studentUrlForRoom();
+    if (!url) return;
+    try {
+      await navigator.clipboard.writeText(url);
+      toast("הקישור הועתק", "success");
+    } catch (_) {
+      studentLinkInput.select();
+      document.execCommand("copy");
+      toast("הקישור הועתק", "success");
+    }
+  };
+
+  loginBtn.onclick = doLogin;
+  loginCodeEl.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+
+  activateBtn.onclick = async () => {
+    if (!teacherToken || !roomId) { actionMsg.textContent = "צרו חדר פעיל לפני PLAY"; actionMsg.className = "action-msg info"; return; }
+    activateBtn.disabled = true;
+    actionMsg.textContent = "מפעיל..."; actionMsg.className = "action-msg info";
+    try {
+      const r = await sendAction("start", teacherToken, { doorsCount });
+      const resolvedCount = parseInt(r?.doorsCount, 10) || doorsCount;
+      localStorage.setItem(getDoorsKey(roomId), resolvedCount);
+      actionMsg.textContent = `✔ הופעל – ${resolvedCount} דלתות`; actionMsg.className = "action-msg success";
+      setStatus("started");
+      toast(`✔ המשחק הופעל! Room ${roomId}`, "success");
+    } catch (e) {
+      actionMsg.textContent = String(e.message || "שגיאת הפעלה"); actionMsg.className = "action-msg error";
+      toast("שגיאה בהפעלה", "error");
+    }
+    activateBtn.disabled = false;
+  };
+
+  resetBtn.onclick = async () => {
+    if (!teacherToken || !roomId) { actionMsg.textContent = "אין חדר פעיל לאיפוס"; actionMsg.className = "action-msg info"; return; }
+    resetBtn.disabled = true;
+    actionMsg.textContent = "מאפס..."; actionMsg.className = "action-msg info";
+    try {
+      await sendAction("reset", teacherToken);
+      setStatus("waiting");
+      actionMsg.textContent = "✔ אופס – המשחק חזר למצב המתנה"; actionMsg.className = "action-msg success";
+      toast("✔ החדר אופס", "success");
+    } catch (e) {
+      actionMsg.textContent = String(e.message || "שגיאת איפוס"); actionMsg.className = "action-msg error";
+    }
+    resetBtn.disabled = false;
+  };
+
+  logoutBtn.onclick = () => {
+    teacherToken = "";
+    if (roomId) sessionStorage.removeItem(getSessKey(roomId));
+    clearInterval(pollTimer);
+    clearCards();
+    loginOverlay.style.display = "none";
+    loginCodeEl.value = "";
+    loginMsg.textContent = "";
+    actionMsg.textContent = "התנתקתם. בחרו חדר ולחצו \"צור חדר\".";
+    actionMsg.className = "action-msg info";
+  };
+
+  async function loadDoors() {
+    try {
+      const res = await fetch("doors.json", { cache: "no-store" });
+      doorsData = await res.json();
+    } catch { doorsData = []; }
+    const count = Array.isArray(doorsData) ? doorsData.length : 0;
+    dbTitle.textContent = `מאגר אורגניזמים (${count})`;
+  }
+
+  function createStepCard(step, stepNumber) {
+    const wrap = document.createElement("div");
+    wrap.className = "step-card-wrap";
+    wrap.innerHTML = `
+      <div class="step-badge">${stepNumber}</div>
+      <div class="step-card">
+        <div class="card-top">
+          <div class="card-top-label">${step.title || `שלב ${stepNumber}`}</div>
+          <div class="card-answer">${step.answer || "—"}</div>
+          <div class="card-divider-line"></div>
         </div>
-        <div class="meta-row"><span>שם אורגניזם: <strong>${door.creature || door.title || "—"}</strong></span></div>
-        <div class="meta-row"><span>דלת: <strong>${door.id ?? "—"}</strong></span></div>
-        <div class="meta-row"><span>תשובה נכונה: <strong>${step.answer || "—"}</strong></span></div>
-        <div class="meta-row"><span>קוד מעבר: <strong>${step.code || "—"}</strong></span></div>
-      `;
-      return card;
-    }
-
-    function createFinalCard(door, finalLockCode) {
-      const card = document.createElement("article");
-      card.className = "step-card";
-      card.innerHTML = `
-        <div class="step-header">
-          <span class="step-title">מנעול סופי</span>
-          <span class="step-index">✓</span>
+        <div class="card-bottom">
+          <div class="card-cell">
+            <span class="cell-label">קוד</span>
+            <span class="cell-value">${step.code || "—"}</span>
+          </div>
+          <div class="card-cell">
+            <span class="cell-label">תשובה</span>
+            <span class="cell-value">${step.answer || "—"}</span>
+          </div>
         </div>
-        <div class="meta-row"><span>שם אורגניזם: <strong>${door.creature || door.title || "—"}</strong></span></div>
-        <div class="meta-row"><span>דלת: <strong>${door.id ?? "—"}</strong></span></div>
-        <div class="meta-row"><span>קוד מעבר סופי: <strong>${finalLockCode || "—"}</strong></span></div>
-      `;
-      return card;
-    }
+      </div>
+    `;
+    return wrap;
+  }
 
-    function renderCards(door = null) {
-      cardsGrid.innerHTML = "";
-      if (!door) return;
-      const steps = Array.isArray(door.steps) ? door.steps : [];
-      steps.forEach((step, i) => cardsGrid.appendChild(createStepCard(door, step || {}, i + 1)));
-      if (door.finalLockCode) cardsGrid.appendChild(createFinalCard(door, door.finalLockCode.trim()));
-    }
-
-    function clearCards() {
-      resultBox.textContent = "חפשו אורגניזם לצפייה בקודים";
-      finalBarCode.textContent = "——";
-      renderCards(null);
-    }
-
-    function fillCards(door) {
-      if (!door) { clearCards(); return; }
-      const name = door.creature || door.title || `דלת ${door.id}`;
-      resultBox.textContent = name;
-      const finalLockCode = (door.finalLockCode || "").trim();
-      renderCards(door);
-      finalBarCode.textContent = finalLockCode || "——";
-    }
-
-    function buildDropdown(q) {
-      const cleanQ = (q || "").trim();
-
-      if (!cleanQ) {
-        searchDropdown.classList.remove("open");
-        searchDropdown.innerHTML = "";
-        return;
-      }
-
-      const qLower = cleanQ.toLowerCase();
-      const items = doorsData.filter(d =>
-        (d.creature || "").toLowerCase().includes(qLower) ||
-        String(d.id) === cleanQ
-      );
-
-      if (!items.length) {
-        searchDropdown.classList.remove("open");
-        searchDropdown.innerHTML = "";
-        return;
-      }
-
-      searchDropdown.innerHTML = items.slice(0, 10).map(d => `
-        <div class="dropdown-item" data-id="${d.id}">
-          <span class="dropdown-num">${d.id}</span>
-          <span>${d.creature || d.title || `דלת ${d.id}`}</span>
+  function createFinalCard(finalLockCode, badgeNumber) {
+    const wrap = document.createElement("div");
+    wrap.className = "step-card-wrap final";
+    wrap.innerHTML = `
+      <div class="step-badge">${badgeNumber}</div>
+      <div class="step-card">
+        <div class="card-top">
+          <div class="card-top-label" style="color:#b07a16">מנעול סופי</div>
+          <div class="card-code">${finalLockCode || "—"}</div>
+          <div class="card-divider-line"></div>
         </div>
-      `).join("");
+        <div class="card-bottom">
+          <div class="card-cell" style="grid-column: 1 / -1; border-left:0;">
+            <span class="cell-label" style="letter-spacing:2px; text-transform:uppercase;">FINAL CODE</span>
+            <span class="cell-value" style="font-family:'Courier New',monospace;color:#e26a00;font-size:1.05rem;letter-spacing:3px;font-weight:900">${finalLockCode || "—"}</span>
+          </div>
+        </div>
+      </div>
+    `;
+    return wrap;
+  }
 
-      searchDropdown.querySelectorAll(".dropdown-item").forEach(el => {
-        el.onclick = () => {
-          const door = doorsData.find(d => d.id === parseInt(el.dataset.id, 10));
-          fillCards(door);
-          searchInput.value = door ? (door.creature || door.title || "") : "";
-          searchDropdown.classList.remove("open");
-        };
-      });
+  function renderCards(steps = [], finalLockCode = "") {
+    cardsGrid.innerHTML = "";
+    steps.forEach((step, i) => cardsGrid.appendChild(createStepCard(step || {}, i + 1)));
+    if (finalLockCode) cardsGrid.appendChild(createFinalCard(finalLockCode, steps.length + 1));
+  }
 
-      searchDropdown.classList.add("open");
-    }
+  function clearCards() {
+    resultBox.textContent = "חפשו אורגניזם לקבלת הנתונים";
+    resultBox.classList.remove("has-result");
+    finalBarCode.textContent = "——";
+    renderCards();
+  }
 
-    let searchT;
-    searchInput.addEventListener("input", () => {
-      clearTimeout(searchT);
-      searchT = setTimeout(() => buildDropdown(searchInput.value.trim()), 200);
-    });
+  function fillCards(door) {
+    if (!door) { clearCards(); return; }
+    const name = door.creature || door.title || `דלת ${door.id}`;
+    resultBox.textContent = name;
+    resultBox.classList.add("has-result");
+    const steps = Array.isArray(door.steps) ? door.steps : [];
+    const finalLockCode = (door.finalLockCode || "").trim();
+    renderCards(steps, finalLockCode);
+    finalBarCode.textContent = finalLockCode || "——";
+  }
 
-    document.addEventListener("click", e => {
-      if (!e.target.closest(".search-section")) {
-        searchDropdown.classList.remove("open");
-      }
-    });
+  function buildDropdown(q) {
+    const cleanQ = (q || "").trim();
 
-    document.getElementById("search-btn").onclick = () => {
-      const q = searchInput.value.trim();
-
-      if (!q) {
-        clearCards();
-        resultBox.textContent = "יש להזין ערך לחיפוש";
-        searchDropdown.classList.remove("open");
-        return;
-      }
-
-      const qLower = q.toLowerCase();
-      const door = doorsData.find(d =>
-        (d.creature || "").toLowerCase().includes(qLower) || String(d.id) === q
-      );
-
-      fillCards(door || null);
-
-      if (!door) {
-        resultBox.textContent = "לא נמצא";
-      }
-
+    if (!cleanQ) {
       searchDropdown.classList.remove("open");
-    };
+      searchDropdown.innerHTML = "";
+      return;
+    }
 
-    searchInput.addEventListener("keydown", e => {
-      if (e.key === "Enter") document.getElementById("search-btn").click();
+    const qLower = cleanQ.toLowerCase();
+    const items = doorsData.filter(d =>
+      (d.creature || "").toLowerCase().includes(qLower) ||
+      String(d.id) === cleanQ
+    );
+
+    if (!items.length) {
+      searchDropdown.classList.remove("open");
+      searchDropdown.innerHTML = "";
+      return;
+    }
+
+    searchDropdown.innerHTML = items.slice(0, 10).map(d => `
+      <div class="dropdown-item" data-id="${d.id}">
+        <span class="dropdown-num">${d.id}</span>
+        <span>${d.creature || d.title || `דלת ${d.id}`}</span>
+      </div>
+    `).join("");
+
+    searchDropdown.querySelectorAll(".dropdown-item").forEach(el => {
+      el.onclick = () => {
+        const door = doorsData.find(d => d.id === parseInt(el.dataset.id, 10));
+        fillCards(door);
+        searchInput.value = door ? (door.creature || door.title || "") : "";
+        searchDropdown.classList.remove("open");
+      };
     });
 
-    (async () => {
-      roomId = (qp.get("room") || "").trim().toUpperCase();
-      await loadRoomNames();
-      await loadDoors();
-      refreshStorageScope();
+    searchDropdown.classList.add("open");
+  }
 
-      if (!roomId) {
-        loginOverlay.style.display = "none";
-        clearCards();
-        setStatus("waiting");
-        actionMsg.textContent = "בחרו חדר מהרשימה ולחצו על \"צור חדר\" כדי להתחיל.";
-        actionMsg.className = "action-msg info";
-        return;
-      }
+  let searchT;
+  searchInput.addEventListener("input", () => {
+    clearTimeout(searchT);
+    searchT = setTimeout(() => buildDropdown(searchInput.value.trim()), 200);
+  });
 
-      const saved = sessionStorage.getItem(getSessKey(roomId));
-      if (saved) {
-        teacherToken = saved;
-        loginCodeEl.value = saved;
-        loginOverlay.style.display = "none";
-        enterPanel();
-        return;
-      }
+  document.addEventListener("click", e => {
+    if (!e.target.closest(".search-section")) {
+      searchDropdown.classList.remove("open");
+    }
+  });
 
+  document.getElementById("search-btn").onclick = () => {
+    const q = searchInput.value.trim();
+
+    if (!q) {
+      clearCards();
+      resultBox.textContent = "יש להזין ערך לחיפוש";
+      searchDropdown.classList.remove("open");
+      return;
+    }
+
+    const qLower = q.toLowerCase();
+    const door = doorsData.find(d =>
+      (d.creature || "").toLowerCase().includes(qLower) || String(d.id) === q
+    );
+
+    fillCards(door || null);
+
+    if (!door) {
+      resultBox.textContent = "לא נמצא";
+    }
+
+    searchDropdown.classList.remove("open");
+  };
+
+  searchInput.addEventListener("keydown", e => {
+    if (e.key === "Enter") document.getElementById("search-btn").click();
+  });
+
+  (async () => {
+    roomId = (qp.get("room") || "").trim().toUpperCase();
+    await loadRoomNames();
+    await loadDoors();
+    refreshStorageScope();
+
+    if (!roomId) {
       loginOverlay.style.display = "none";
-      actionMsg.textContent = "אין טוקן שמור לחדר הזה. בחרו חדר ולחצו \"צור חדר\".";
+      clearCards();
+      setStatus("waiting");
+      actionMsg.textContent = "בחרו חדר מהרשימה ולחצו על \"צור חדר\" כדי להתחיל.";
       actionMsg.className = "action-msg info";
-    })();
-  </script>
+      return;
+    }
+
+    const saved = sessionStorage.getItem(getSessKey(roomId));
+    if (saved) {
+      teacherToken = saved;
+      loginCodeEl.value = saved;
+      loginOverlay.style.display = "none";
+      enterPanel();
+      return;
+    }
+
+    loginOverlay.style.display = "none";
+    actionMsg.textContent = "אין טוקן שמור לחדר הזה. בחרו חדר ולחצו \"צור חדר\".";
+    actionMsg.className = "action-msg info";
+  })();
+</script>
 
 </body>
 </html>

@@ -320,9 +320,9 @@
 
     .compact-field-room,
     .compact-field-doors {
-      flex: 0 0 80px;
-      width: 80px;
-      max-width: 80px;
+      flex: 0 0 70px;
+      width: 70px;
+      max-width: 70px;
     }
 
     .compact-select {
@@ -1180,9 +1180,9 @@
       .compact-fields-row { gap: 8px; }
       .compact-field-room,
       .compact-field-doors {
-        flex: 0 0 80px;
-        width: 80px;
-        max-width: 80px;
+        flex: 0 0 70px;
+        width: 70px;
+        max-width: 70px;
       }
       .setup-box,
       .link-box {
@@ -1341,7 +1341,7 @@
     <div class="field-group">
       <label for="student-link-status">קישור לתלמידים</label>
       <div id="student-link-status" class="link-status-box idle" aria-live="polite">
-        <span class="link-status-text">טרם נוצר קישור תלמידים</span>
+        <span class="link-status-text">קישור למשחק</span>
         <span class="link-loader" aria-hidden="true">
           <span></span><span></span><span></span><span></span>
         </span>
@@ -1526,7 +1526,7 @@
       studentLinkStatus.className = "link-status-box ready";
       copyLinkBtn.disabled = false;
     } else {
-      studentLinkStatusText.textContent = "טרם נוצר קישור תלמידים";
+      studentLinkStatusText.textContent = "קישור למשחק";
       studentLinkStatus.className = "link-status-box idle";
       copyLinkBtn.disabled = true;
     }

@@ -1312,6 +1312,7 @@
   const dbTitle = document.getElementById("db-title");
 
   let lastSuccessfulCreatedRoom = "";
+  let lastCreateSucceeded = false;
 
   function studentUrlForRoom() {
     if (!currentRoomId) return "";
@@ -1323,6 +1324,7 @@
     return Boolean(
       currentRoomId &&
       currentTeacherToken &&
+      lastCreateSucceeded &&
       lastSuccessfulCreatedRoom &&
       selectedRoomName &&
       selectedRoomName === lastSuccessfulCreatedRoom
@@ -1334,20 +1336,29 @@
     activateBtn.disabled = !canPlayNow();
   }
 
+  function clearSessionRoomState() {
+    const roomStatePrefixes = ["bioplay_admin_token_", "bioplay_last_created_room_name_"];
+    for (let i = sessionStorage.length - 1; i >= 0; i--) {
+      const key = sessionStorage.key(i);
+      if (!key) continue;
+      if (roomStatePrefixes.some((prefix) => key.startsWith(prefix))) {
+        sessionStorage.removeItem(key);
+      }
+    }
+  }
+
   function clearActiveRoomState(options = {}) {
     const { clearCurrentRoomId = false } = options;
-    const previousRoomId = currentRoomId;
     currentTeacherToken = "";
+    currentRoomId = clearCurrentRoomId ? "" : currentRoomId;
     lastSuccessfulCreatedRoom = "";
+    lastCreateSucceeded = false;
     loginCodeEl.value = "";
-    if (previousRoomId) {
-      sessionStorage.removeItem(getSessKey(previousRoomId));
-      sessionStorage.removeItem(getCreatedRoomNameKey(previousRoomId));
-    }
+    clearSessionRoomState();
     if (clearCurrentRoomId) {
-      currentRoomId = "";
       updateUrlWithRoom();
     }
+    removePlayGlow();
     syncDashboardMeta();
   }
 
@@ -1410,7 +1421,7 @@
 
   function refreshStorageScope(previousRoomId = "") {
     if (previousRoomId && previousRoomId !== currentRoomId) {
-      sessionStorage.removeItem(getSessKey(previousRoomId));
+      clearSessionRoomState();
     }
     const savedDoors = parseInt(localStorage.getItem(getDoorsKey(currentRoomId)), 10);
     doorsCount = Math.max(2, Number.isFinite(savedDoors) ? savedDoors : 5);
@@ -1478,30 +1489,17 @@
   }
 
   async function sendAction(action, token, extra = {}) {
-    const body = new URLSearchParams({ action, roomId: currentRoomId, ...extra });
+    const targetRoomId = String(extra.roomId || currentRoomId || "").trim().toUpperCase();
+    const payload = { ...extra };
+    delete payload.roomId;
+    const body = new URLSearchParams({ action, roomId: targetRoomId, ...payload });
     if (token) body.set("teacherToken", token);
-    console.log("[PLAY DEBUG] sendAction request", {
-      action,
-      requestEndpoint: APPS_URL,
-      selectedRoomNameInUi: roomNameSelect.value.trim(),
-      selectedRoomCodeInUi: currentRoomId,
-      tokenSent: token || "",
-      requestBody: body.toString(),
-    });
     const res = await fetch(APPS_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: body.toString(),
     });
     const { data: d, raw } = await parseResponse(res);
-    console.log("[PLAY DEBUG] sendAction response", {
-      action,
-      url: res.url,
-      responseStatus: res.status,
-      responseOk: res.ok,
-      responseBodyRaw: raw,
-      responseBodyParsed: d,
-    });
     if (!res.ok || d?.ok === false) throw new Error(resolveApiError(res, d, raw));
     return d;
   }
@@ -1549,9 +1547,25 @@
     }
   }
 
+
+  function parseCreateRoomPayload(payload) {
+    if (!payload || payload.ok !== true) return null;
+    const roomId = String(payload.roomId || "").trim().toUpperCase();
+    const teacherToken = String(payload.teacherToken || "").trim();
+    if (!roomId || !teacherToken) return null;
+    return { roomId, teacherToken, status: payload?.status === "started" ? "started" : "waiting" };
+  }
+
+  function buildCreateRoomFailureMessage(userMessage) {
+    const baseMessage = "יצירת החדר נכשלה. יש לבחור חדר תקין ולנסות שוב.";
+    const details = String(userMessage || "").trim();
+    if (!details) return baseMessage;
+    return `${baseMessage} (${details})`;
+  }
+
   async function createRoom() {
     const selectedRoomName = roomNameSelect.value.trim();
-    clearActiveRoomState();
+    clearActiveRoomState({ clearCurrentRoomId: true });
     if (!selectedRoomName) {
       actionMsg.textContent = "בחרו חדר";
       actionMsg.className = "action-msg info";
@@ -1568,52 +1582,31 @@
         body: new URLSearchParams({ action: "create_room", roomName: selectedRoomName, doorsCount }).toString(),
       });
       const { data: d, raw } = await parseResponse(res);
-      console.log("[PLAY DEBUG] createRoom response", {
-        endpoint: APPS_URL,
-        selectedRoomNameInUi: selectedRoomName,
-        responseStatus: res.status,
-        responseOk: res.ok,
-        responseUrl: res.url,
-        responseBodyRaw: raw,
-        responseBodyParsed: d,
-      });
-      if (!res.ok || d?.ok === false || !d?.roomId || !d?.teacherToken) {
+      const validPayload = parseCreateRoomPayload(d);
+      if (!res.ok || !validPayload) {
         throw new Error(resolveApiError(res, d, raw));
       }
 
-      const previousRoomId = currentRoomId;
-      currentRoomId = String(d.roomId).trim().toUpperCase();
+      currentRoomId = validPayload.roomId;
+      currentTeacherToken = validPayload.teacherToken;
       lastSuccessfulCreatedRoom = selectedRoomName;
-      currentTeacherToken = String(d.teacherToken).trim();
-      refreshStorageScope(previousRoomId);
+      lastCreateSucceeded = true;
+      refreshStorageScope();
       syncDashboardMeta();
-      console.log("[PLAY DEBUG] stored values after createRoom", {
-        selectedRoomNameInUi: selectedRoomName,
-        lastSuccessfulCreatedRoom,
-        currentRoomId,
-        currentTeacherToken,
-        sessionStorageKey: getSessKey(currentRoomId),
-        sessionStorageValue: sessionStorage.getItem(getSessKey(currentRoomId)),
-      });
 
       clearCards();
-      setStatus(d?.status === "started" ? "started" : "waiting");
+      setStatus(validPayload.status);
       if (pollTimer) startPolling();
 
       actionMsg.textContent = "החדר נוצר בהצלחה";
       actionMsg.className = "action-msg success";
       toast("✔ חדר חדש נוצר", "success");
     } catch (e) {
+      const friendlyMessage = buildCreateRoomFailureMessage(e.message || "");
       clearActiveRoomState({ clearCurrentRoomId: true });
-      console.error("[PLAY DEBUG] createRoom failed", {
-        selectedRoomNameInUi: selectedRoomName,
-        selectedRoomCodeInState: currentRoomId,
-        tokenInState: currentTeacherToken,
-        error: e,
-      });
-      actionMsg.textContent = "יצירת החדר נכשלה. יש לבחור חדר תקין וללחוץ שוב על \"צור חדר\".";
+      actionMsg.textContent = friendlyMessage;
       actionMsg.className = "action-msg error";
-      toast(String(e.message || "שגיאה ביצירת חדר"), "error");
+      toast(friendlyMessage, "error");
       syncDashboardMeta();
     }
     roomBtn.disabled = false;
@@ -1713,33 +1706,29 @@
   });
 
   activateBtn.onclick = async () => {
-    if (!currentTeacherToken || !currentRoomId || !lastSuccessfulCreatedRoom) { actionMsg.textContent = "צרו חדר פעיל לפני PLAY"; actionMsg.className = "action-msg info"; return; }
+    if (!canPlayNow()) { actionMsg.textContent = "צרו חדר פעיל לפני PLAY"; actionMsg.className = "action-msg info"; return; }
     const selectedRoomName = roomNameSelect.value.trim();
     if (!selectedRoomName || selectedRoomName !== lastSuccessfulCreatedRoom) {
       actionMsg.textContent = "יש ליצור מחדש את החדר שנבחר לפני PLAY";
       actionMsg.className = "action-msg error";
-      console.warn("[PLAY DEBUG] selected room mismatch before PLAY", {
-        selectedRoomNameInUi: selectedRoomName,
-        lastSuccessfulCreatedRoom,
-        currentRoomId,
-        currentTeacherToken,
-      });
       return;
     }
+    const activeRoomId = currentRoomId;
+    const activeTeacherToken = currentTeacherToken;
     activateBtn.disabled = true;
     actionMsg.textContent = "מפעיל..."; actionMsg.className = "action-msg info";
     try {
-      const r = await sendAction("start", currentTeacherToken, { doorsCount });
+      const r = await sendAction("start", activeTeacherToken, { doorsCount, roomId: activeRoomId });
       const resolvedCount = parseInt(r?.doorsCount, 10) || doorsCount;
-      localStorage.setItem(getDoorsKey(currentRoomId), resolvedCount);
+      localStorage.setItem(getDoorsKey(activeRoomId), resolvedCount);
       actionMsg.textContent = `✔ הופעל – ${resolvedCount} דלתות`; actionMsg.className = "action-msg success";
       setStatus("started");
       const glowUntil = Date.now() + PLAY_GLOW_MS;
-      localStorage.setItem(getPlayGlowKey(currentRoomId), String(glowUntil));
+      localStorage.setItem(getPlayGlowKey(activeRoomId), String(glowUntil));
       applyPlayGlow(glowUntil);
-      toast(`✔ המשחק הופעל! Room ${currentRoomId}`, "success");
+      toast(`✔ המשחק הופעל! Room ${activeRoomId}`, "success");
     } catch (e) {
-      console.error("[PLAY DEBUG] activate failed", e);
+      console.error(e);
       actionMsg.textContent = String(e.message || "שגיאת הפעלה"); actionMsg.className = "action-msg error";
       toast("שגיאה בהפעלה", "error");
     }
@@ -1748,10 +1737,12 @@
 
   resetBtn.onclick = async () => {
     if (!currentTeacherToken || !currentRoomId) { actionMsg.textContent = "אין חדר פעיל לאיפוס"; actionMsg.className = "action-msg info"; return; }
+    const activeRoomId = currentRoomId;
+    const activeTeacherToken = currentTeacherToken;
     resetBtn.disabled = true;
     actionMsg.textContent = "מאפס..."; actionMsg.className = "action-msg info";
     try {
-      await sendAction("reset", currentTeacherToken);
+      await sendAction("reset", activeTeacherToken, { roomId: activeRoomId });
       setStatus("waiting");
       removePlayGlow();
       actionMsg.textContent = "✔ אופס – המשחק חזר למצב המתנה"; actionMsg.className = "action-msg success";
@@ -1963,6 +1954,7 @@ if (!currentRoomId) {
     if (saved && savedRoomName && selectedRoomName && savedRoomName === selectedRoomName) {
       currentTeacherToken = saved;
       lastSuccessfulCreatedRoom = savedRoomName;
+      lastCreateSucceeded = true;
       loginCodeEl.value = saved;
       loginOverlay.style.display = "none";
       syncDashboardMeta();
@@ -1970,8 +1962,7 @@ if (!currentRoomId) {
       return;
     }
     if (saved) {
-      sessionStorage.removeItem(getSessKey(currentRoomId));
-      sessionStorage.removeItem(getCreatedRoomNameKey(currentRoomId));
+      clearSessionRoomState();
     }
 
     loginOverlay.style.display = "none";

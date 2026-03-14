@@ -28,9 +28,10 @@
       --shadow: 0 22px 48px rgba(15, 41, 67, 0.14);
       --shadow-soft: 0 10px 22px rgba(18, 45, 72, 0.08);
       --radius: 16px;
-      --control-height: 42px;
+      --control-height: 40px;
       --chip-size: 170px;
       --chip-height: 40px;
+      --inner-width: calc(100% - 32px);
     }
 
     html, body {
@@ -48,6 +49,7 @@
       padding: 16px 12px;
       position: relative;
       isolation: isolate;
+      overflow-x: hidden;
     }
 
     body::before {
@@ -66,9 +68,7 @@
     }
 
     #panel-outer {
-      max-width: 1040px;
-      --main-block-span: 2;
-      --main-block-cols: 3;
+      max-width: 920px;
       margin: 0 auto;
       background: linear-gradient(180deg, #f9fcff 0%, #f2f7fc 100%);
       border: 1px solid var(--border);
@@ -77,11 +77,11 @@
       overflow: hidden;
       display: grid;
       grid-template-areas:
-        "header  header  header"
-        "status  status  status"
-        "content content content"
-        "db      db      db";
-      grid-template-columns: 1fr 1fr 1fr;
+        "header"
+        "status"
+        "content"
+        "db";
+      grid-template-columns: 1fr;
     }
 
     .admin-header {
@@ -94,13 +94,31 @@
       background: linear-gradient(180deg, #fbfdff 0%, #f0f6fc 100%);
       border-bottom: 1px solid var(--border);
       box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.7);
-      width: calc((100% - 28px) * var(--main-block-span) / var(--main-block-cols));
-      max-width: calc(100% - 28px);
+      width: var(--inner-width);
+      max-width: var(--inner-width);
       justify-self: center;
     }
 
     .header-title {
       text-align: center;
+      display: grid;
+      gap: 4px;
+      justify-items: center;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: nowrap;
+    }
+
+    .header-logo {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      display: block;
     }
 
     .header-title h1 {
@@ -126,8 +144,8 @@
       grid-template-columns: 1fr 1fr;
       gap: 10px;
       padding: 10px 14px;
-      width: calc((100% - 28px) * var(--main-block-span) / var(--main-block-cols));
-      max-width: calc(100% - 28px);
+      width: var(--inner-width);
+      max-width: var(--inner-width);
       justify-self: center;
     }
 
@@ -169,27 +187,28 @@
     .status-chip strong { color: #102f4c; }
     .status-label.started { color: #1f8b48; }
 
-    .logout-sm {
-      position: absolute;
-      top: 16px;
-      left: 20px;
-      width: 96px;
-      min-height: 34px;
-      border-radius: 999px;
-      border: 1px solid #8f1d1d;
-      background: linear-gradient(180deg, #f26e6e 0%, #cf3030 54%, #921d1d 100%);
-      color: #ffffff;
-      padding: 6px 12px;
-      font-size: .84rem;
-      font-weight: 800;
-      cursor: pointer;
-      text-shadow: 0 1px 1px rgba(0,0,0,.28);
-      box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.25),
-        inset 0 -8px 12px rgba(0,0,0,.18),
-        0 6px 12px rgba(52, 10, 10, 0.18);
-      transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
-    }
+.logout-sm {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  width: 62px;
+  min-height: 24px;
+  border-radius: 999px;
+  border: 1px solid #8f1d1d;
+  background: linear-gradient(180deg, #f26e6e 0%, #cf3030 54%, #921d1d 100%);
+  color: #ffffff;
+  padding: 2px 6px;
+  font-size: .64rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  text-shadow: 0 1px 1px rgba(0,0,0,.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    inset 0 -6px 10px rgba(0,0,0,.16),
+    0 4px 8px rgba(52, 10, 10, 0.16);
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
     .logout-sm:hover {
       transform: translateY(-1px);
       filter: saturate(1.04);
@@ -209,12 +228,15 @@
       grid-area: content;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      padding: 14px;
+      gap: 10px;
+      align-items: stretch;
+      padding: 0;
       background: transparent;
-      width: calc((100% - 28px) * var(--main-block-span) / var(--main-block-cols));
-      max-width: calc(100% - 28px);
+      width: var(--inner-width);
+      max-width: var(--inner-width);
+      min-width: 0;
       justify-self: center;
+      box-sizing: border-box;
     }
 
     .panel {
@@ -222,13 +244,13 @@
       border: 1px solid var(--border);
       border-radius: var(--radius);
       box-shadow: var(--shadow-soft);
-      padding: 14px;
+      padding: 6px 8px;
       min-width: 0;
     }
 
     .panel h2 {
-      margin-bottom: 14px;
-      font-size: 1.12rem;
+      margin-bottom: 6px;
+      font-size: .98rem;
       color: #123555;
       font-weight: 900;
       letter-spacing: .2px;
@@ -239,66 +261,77 @@
       color: var(--text-soft);
     }
 
-    .panel-control {
-      margin: 0;
-    }
+.panel-control,
+.panel-setup,
+.panel-link {
+  min-height: auto;
+  box-sizing: border-box;
+  max-width: 100%;
+  min-width: 0;
+  width: 100%;
+}
+
+.panel-control {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.panel-setup {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.panel-link {
+  grid-column: 3;
+  grid-row: 1;
+}
 
     .panel-db {
       grid-area: db;
       margin: 0 0 14px;
-      width: calc((100% - 28px) * var(--main-block-span) / var(--main-block-cols));
-      max-width: calc(100% - 28px);
+      width: var(--inner-width);
+      max-width: var(--inner-width);
       justify-self: center;
-    }
-
-    .panel-setup {
-      grid-column: 2;
-      grid-row: 1;
-    }
-
-    .panel-link {
-      grid-column: 3;
-      grid-row: 1;
     }
 
     .panel-setup,
     .panel-link {
       display: grid;
-      gap: 10px;
+      gap: 6px;
       align-content: start;
     }
 
-    .field-group { margin-bottom: 10px; display: grid; gap: 6px; }
+    .field-group { margin-bottom: 4px; display: grid; gap: 4px; }
 
     .compact-fields-row {
       display: flex;
       align-items: end;
-      gap: 10px;
+      justify-content: center;
+      gap: 8px;
       flex-wrap: nowrap;
       width: 100%;
     }
 
     .compact-field {
       display: grid;
-      gap: 6px;
+      gap: 4px;
       min-width: 0;
     }
 
-    .compact-field-room {
-      flex: 1 1 190px;
-      min-width: 0;
-      max-width: none;
-    }
-
+    .compact-field-room,
     .compact-field-doors {
-      flex: 0 0 88px;
-      width: 88px;
-      max-width: 88px;
+      flex: 0 0 70px;
+      width: 70px;
+      max-width: 70px;
     }
 
     .compact-select {
+      width: 100%;
+      height: 40px;
       min-height: var(--control-height);
       padding: 6px 10px;
+      border-radius: 10px;
+      font-size: .95rem;
     }
     input, select, button { font: inherit; }
 
@@ -307,6 +340,7 @@
     .room-link-input,
     .search-input {
       width: 100%;
+      height: 40px;
       min-height: var(--control-height);
       border-radius: 10px;
       border: 1px solid var(--border-strong);
@@ -314,6 +348,24 @@
       color: var(--text-main);
       padding: 8px 12px;
       box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 1px 2px rgba(20,46,70,.05);
+    }
+
+    .compact-field label,
+    .field-group label {
+      font-size: .84rem;
+      line-height: 1.2;
+      margin-bottom: 0;
+    }
+
+    .room-select,
+    .count-select,
+    .compact-select {
+      width: 100%;
+      height: 40px;
+      min-height: 40px;
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: .95rem;
     }
     .room-select:focus,
     .count-select:focus,
@@ -342,12 +394,12 @@
 .btn-room,
 .btn-copy-link {
   width: fit-content;
-  min-width: 124px;
-  min-height: 46px;
+  min-width: 106px;
+  min-height: 40px;
   border-radius: 999px;
-  padding: 10px 22px;
-  margin-top: 10px;
-  font-size: .93rem;
+  padding: 7px 16px;
+  margin-top: 4px;
+  font-size: .88rem;
   font-weight: 900;
   letter-spacing: .2px;
   box-shadow: inset 0 2px 0 rgba(255,255,255,.35), inset 0 -9px 14px rgba(0,0,0,.2), 0 10px 18px rgba(17, 40, 63, 0.26);
@@ -361,10 +413,10 @@
 }
 
 .btn-copy-link {
-  background: linear-gradient(180deg, #5bbf8a 0%, #2f9b61 54%, #1f6f45 100%);
-  border-color: #1d623d;
-  color: #ffffff;
-  text-shadow: 0 1px 1px rgba(0,0,0,.22);
+  background: linear-gradient(180deg, #f7d76f 0%, #f0c13a 54%, #c99716 100%);
+  border-color: #a97c10;
+  color: #2f2410;
+  text-shadow: none;
 }
 
 .room-link-input {
@@ -372,38 +424,114 @@
   font-family: "Courier New", monospace;
   font-size: .82rem;
 }
-    .setup-box,
-    .link-box {
-      border: 1px dashed #c7d9e8;
-      border-radius: 10px;
-      background: linear-gradient(180deg, #f8fbff, #eef5fc);
-      min-height: 138px;
-      padding: 10px;
-      display: grid;
-      gap: 10px;
-      align-content: start;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
-    }
 
-    .panel-link .btn-copy-link,
-    .panel-setup .btn-room {
-      justify-self: center;
-      margin-top: 0;
-    }
+.link-status-box {
+  width: 100%;
+  min-height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+  color: var(--text-main);
+  padding: 8px 12px;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 1px 2px rgba(20,46,70,.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  font-size: .82rem;
+  font-weight: 700;
+}
 
+.link-status-text {
+  color: #5f7f99;
+}
+
+.link-loader {
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.link-loader span {
+  width: 7px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(34, 95, 159, 0.22);
+  box-shadow: 0 0 0 rgba(80, 180, 255, 0);
+  animation: linkPulse 1s infinite ease-in-out;
+}
+
+.link-loader span:nth-child(2) { animation-delay: .15s; }
+.link-loader span:nth-child(3) { animation-delay: .3s; }
+.link-loader span:nth-child(4) { animation-delay: .45s; }
+
+@keyframes linkPulse {
+  0%, 100% {
+    background: rgba(34, 95, 159, 0.22);
+    box-shadow: 0 0 0 rgba(80, 180, 255, 0);
+    transform: scaleY(.75);
+  }
+  50% {
+    background: #6bc7ff;
+    box-shadow: 0 0 10px rgba(107, 199, 255, 0.7);
+    transform: scaleY(1);
+  }
+}
+
+.link-status-box.loading .link-loader {
+  display: inline-flex;
+}
+
+.link-status-box.loading .link-status-text {
+  color: #225f9f;
+  font-weight: 800;
+}
+
+.link-status-box.ready .link-status-text {
+  color: #238d4b;
+  font-weight: 800;
+}
+
+.link-status-box.idle .link-status-text {
+  color: #6d8499;
+}
+
+.setup-box,
+.link-box {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  border: 1px dashed #c7d9e8;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #f8fbff, #eef5fc);
+  min-height: unset;
+  padding: 6px 8px;
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  align-content: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+}
+.panel-link .btn-copy-link,
+.panel-setup .btn-room {
+  justify-self: center;
+  margin-top: 6px;
+}
     .controls-section {
       display: grid;
-      gap: 8px;
+      gap: 4px;
       justify-items: center;
       align-content: start;
-      min-height: 100%;
+      min-height: auto;
     }
 
     .control-buttons {
       display: flex;
       justify-content: center;
-      gap: 14px;
-      margin-bottom: 14px;
+      gap: 10px;
+      margin-bottom: 22px;
       width: fit-content;
       margin-inline: auto;
     }
@@ -428,6 +556,14 @@
     }
     .btn-play {
       background: radial-gradient(circle at 30% 18%, #71f0a0 0%, #23a956 34%, #167540 68%, #0d4a28 100%);
+    }
+    .btn-play.active-glow {
+      box-shadow:
+        inset 0 10px 16px rgba(255,255,255,0.16),
+        inset 0 -22px 28px rgba(0,0,0,.36),
+        0 18px 28px rgba(0,0,0,.30),
+        0 10px 24px rgba(0, 255, 100, 0.40),
+        0 18px 36px rgba(80, 255, 140, 0.32);
     }
     .btn-reset {
       background: radial-gradient(circle at 30% 18%, #f07a7a 0%, #cf2f2f 34%, #971d1d 68%, #5e0f0f 100%);
@@ -455,15 +591,15 @@
     .control-stats {
       width: 100%;
       display: grid;
-      gap: 6px;
+      gap: 4px;
       justify-items: center;
     }
 
     .control-stat {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: .9rem;
+      gap: 5px;
+      font-size: .8rem;
       font-weight: 800;
       color: #335774;
     }
@@ -486,30 +622,26 @@
     }
 
     .action-msg {
-      min-height: 18px;
-      margin-top: 14px;
-      font-size: .84rem;
+      min-height: 12px;
+      margin-top: 4px;
+      font-size: .8rem;
       font-weight: 700;
-      line-height: 1.35;
+      line-height: 1.25;
     }
 
 
-    .setup-help-text {
-      margin-top: 2px;
-      font-size: .77rem;
-      color: #6d8499;
-      text-align: center;
-      font-weight: 700;
-      line-height: 1.35;
-    }
-
+    .setup-help-text,
     .copy-help-text {
-      margin-top: 2px;
-      font-size: .77rem;
+      margin-top: 8px;
+      min-height: 32px;
+      font-size: .74rem;
       color: #6d8499;
       text-align: center;
       font-weight: 700;
-      line-height: 1.35;
+      line-height: 1.25;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
     }
     .action-msg.success { color: var(--green); }
     .action-msg.error { color: var(--red); }
@@ -884,8 +1016,6 @@
     /* ── Tablet (701px – 1100px) ── */
     @media (max-width: 1100px) and (min-width: 701px) {
       #panel-outer {
-        --main-block-span: 1;
-        --main-block-cols: 1;
         grid-template-areas:
           "header"
           "status"
@@ -895,52 +1025,182 @@
       }
       #panel-content { grid-template-columns: 1fr 1fr 1fr; }
       .admin-header { padding-left: 12px; padding-right: 12px; }
-      .logout-sm { left: 12px; width: 96px; }
+      .logout-sm {
+        left: 12px;
+        width: 62px;
+        min-height: 24px;
+        padding: 2px 6px;
+        font-size: .64rem;
+      }
       .panel-db {
         margin-bottom: 14px;
       }
       /* שמירת margins העקביים בטאבלט */
     }
 
-    /* ── Mobile (≤700px) ── */
+    /* ── Mobile (≤700px) ──
+       המטרה היא לא לדחוס את גרסת הדסקטופ למובייל,
+       אלא לבנות פריסת מובייל נקייה, מאוזנת ונוחה לשימוש. */
     @media (max-width: 700px) {
       #panel-outer {
-        --main-block-span: 1;
-        --main-block-cols: 1;
         grid-template-areas:
           "header"
           "status"
           "content"
           "db";
         grid-template-columns: 1fr;
-        gap: 14px;
-        padding: 12px;
+        gap: 12px;
+        padding: 10px;
       }
 
       /* ביטול margins — הגריד מנהל ריווח */
       .panel-control { margin: 0; }
       .panel-db      { margin: 0; }
-      #panel-content { padding: 0; gap: 14px; grid-template-columns: 1fr 1fr; }
+      #panel-content {
+        padding: 0;
+        gap: 10px;
+        grid-template-columns: 1fr 1fr;
+        grid-auto-flow: row;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
 
-      .admin-header { padding: 12px; }
-      .logout-sm { left: 12px; width: 86px; font-size: .78rem; }
-      .header-title h1 { font-size: 1.3rem; }
-      .header-title p  { font-size: .85rem; }
+      .panel-control {
+        grid-column: 1 / -1;
+        grid-row: 1;
+        padding: 10px;
+      }
 
-      .status-strip { gap: 8px; padding: 8px 10px; }
-      .status-chip { font-size: .8rem; padding: 5px 8px; }
+      .panel-setup {
+        grid-column: 1;
+        grid-row: 2;
+        padding: 8px 7px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
+
+      .panel-link {
+        grid-column: 2;
+        grid-row: 2;
+        padding: 8px 7px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
+
+      .panel-db {
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .panel h2 {
+        font-size: .95rem;
+        margin-bottom: 8px;
+      }
+
+      .admin-header {
+        padding: 12px 58px 12px 58px;
+      }
+
+      .header-brand {
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .header-logo {
+        width: 34px;
+        height: 34px;
+      }
+
+      .header-title h1 {
+        font-size: 1.18rem;
+        line-height: 1.15;
+      }
+
+      .header-title p {
+        font-size: .82rem;
+      }
+
+      .logout-sm {
+        top: 10px;
+        left: 8px;
+        width: 58px;
+        min-height: 24px;
+        padding: 3px 6px;
+        font-size: .64rem;
+      }
+
+      .status-strip { gap: 8px; padding: 8px 8px; }
+      .status-chip { font-size: .79rem; padding: 5px 8px; }
 
       body { padding: 12px; }
 
-      /* כפתורי PLAY/RESET — מתאימים לעמודה צרה (~155px) */
-      .btn-play, .btn-reset { width: 76px; height: 76px; font-size: .86rem; }
-      .control-buttons { gap: 8px; }
+      .controls-section {
+        gap: 12px;
+        justify-items: stretch;
+      }
+
+      .control-buttons {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+      }
+
+      /* כפתורי PLAY/RESET קטנים ומאוזנים למובייל */
+      .btn-play, .btn-reset {
+        width: 62px;
+        height: 62px;
+        font-size: .74rem;
+        letter-spacing: .35px;
+      }
+
+      .control-stats {
+        width: 100%;
+        gap: 8px;
+        padding: 8px;
+        border-radius: 10px;
+        border: 1px solid #d4e2ef;
+        background: linear-gradient(180deg, #fbfdff, #eef5fc);
+      }
+
+      .control-stat {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        text-align: center;
+        line-height: 1.3;
+      }
 
       /* שמירת תיקוני טיפוגרפיה וכרטיסים */
       .compact-fields-row { gap: 8px; }
-      .compact-field-room { flex-basis: 150px; max-width: 150px; }
-      .compact-field-doors { flex-basis: 78px; max-width: 78px; }
-      .compact-select { min-height: 38px; padding: 6px 8px; }
+      .compact-field-room,
+      .compact-field-doors {
+        flex: 0 0 70px;
+        width: 70px;
+        max-width: 70px;
+      }
+      .setup-box,
+      .link-box {
+        gap: 7px;
+        padding: 6px;
+      }
+      .setup-help-text,
+      .copy-help-text {
+        margin-top: 4px;
+        font-size: .72rem;
+      }
+      .btn-room,
+      .btn-copy-link {
+        min-width: 92px;
+        padding: 7px 12px;
+        font-size: .82rem;
+      }
+      .compact-select { min-height: 40px; padding: 6px 10px; }
       .search-input { flex-basis: 65%; max-width: 100%; }
       .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 16px; }
       .step-badge { width: 52px; height: 52px; font-size: 1.05rem; border-width: 4px; }
@@ -954,9 +1214,60 @@
       .cell-value { font-size: .92rem; }
     }
 
+    @media (max-width: 420px) {
+      #panel-content {
+        grid-template-columns: 1fr;
+      }
+
+      .panel-setup,
+      .panel-link {
+        grid-column: 1;
+        width: 100%;
+      }
+
+      .panel-link {
+        grid-row: 3;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .admin-header {
+        padding: 12px 54px 12px 54px;
+      }
+
+      .header-brand {
+        gap: 6px;
+      }
+
+      .header-logo {
+        width: 30px;
+        height: 30px;
+      }
+
+      .header-title h1 {
+        font-size: 1.02rem;
+        letter-spacing: .4px;
+      }
+
+      .header-title p {
+        font-size: .76rem;
+      }
+
+      .status-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .logout-sm {
+        width: 56px;
+        min-height: 22px;
+        padding: 2px 5px;
+        font-size: .62rem;
+      }
+    }
+
     @media (max-width: 560px) {
       .control-buttons { gap: 8px; }
-      .btn-play, .btn-reset { width: 72px; height: 72px; font-size: .82rem; }
+      .btn-play, .btn-reset { width: 58px; height: 58px; font-size: .7rem; }
       .cards-grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -976,7 +1287,10 @@
   <div id="panel-outer" class="admin-shell">
     <header class="admin-header">
       <div class="header-title">
-        <h1>BIOPLAY ADMIN</h1>
+        <div class="header-brand">
+          <img src="images/logo.png" alt="" class="header-logo">
+          <h1>BIOPLAY ADMIN</h1>
+        </div>
         <p>לוח בקרה למדריך</p>
       </div>
       <button class="logout-sm" id="logout-btn">יציאה</button>
@@ -1025,8 +1339,13 @@
   <h2>גישת תלמידים</h2>
   <div class="link-box">
     <div class="field-group">
-      <label for="student-link-input">קישור מלא לתלמידים</label>
-      <input id="student-link-input" class="room-link-input" type="text" readonly value="טרם נוצר קישור תלמידים" />
+      <label for="student-link-status">קישור לתלמידים</label>
+      <div id="student-link-status" class="link-status-box idle" aria-live="polite">
+        <span class="link-status-text">קישור למשחק</span>
+        <span class="link-loader" aria-hidden="true">
+          <span></span><span></span><span></span><span></span>
+        </span>
+      </div>
     </div>
     <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק</button>
     <small class="copy-help-text">העתיקו את הקישור ושלחו אותו בצ'אט של Zoom</small>
@@ -1061,24 +1380,34 @@
 <script>
   const APPS_URL = "https://script.google.com/macros/s/AKfycbw4x7TZ3-V43ouJxMo4gMi7OL1BImY_IWcMzVEnoBk7lN3mRGniku6uFymFLDpqpx4CXA/exec";
   const POLL_MS = 4000;
+  const PLAY_GLOW_MS = 30 * 60 * 1000;
 
   const qp = new URLSearchParams(window.location.search);
-  let roomId = "";
+  let currentRoomId = "";
 
-  function scoped(base, rid = roomId) {
+  function scoped(base, rid = currentRoomId) {
     return `${base}_${rid || "NO_ROOM"}`;
   }
 
-  function getSessKey(rid = roomId) {
+  function getSessKey(rid = currentRoomId) {
     return scoped("bioplay_admin_token", rid);
   }
 
-  function getDoorsKey(rid = roomId) {
+  function getDoorsKey(rid = currentRoomId) {
     return scoped("bioplay_doors_count", rid);
   }
 
-  let teacherToken = "";
+  function getCreatedRoomNameKey(rid = currentRoomId) {
+    return scoped("bioplay_last_created_room_name", rid);
+  }
+
+  function getPlayGlowKey(rid = currentRoomId) {
+    return scoped("bioplay_play_glow_until", rid);
+  }
+
+  let currentTeacherToken = "";
   let pollTimer = null;
+  let playGlowTimer = null;
   let doorsData = [];
   let doorsCount = 5;
 
@@ -1103,35 +1432,102 @@
   const roomIdLabel = document.getElementById("room-id-label");
   const roomStatusLabel = document.getElementById("room-status-label");
   const roomNameSelect = document.getElementById("room-name-select");
-  const studentLinkInput = document.getElementById("student-link-input");
+  const studentLinkStatus = document.getElementById("student-link-status");
+  const studentLinkStatusText = studentLinkStatus.querySelector(".link-status-text");
   const copyLinkBtn = document.getElementById("copy-link-btn");
   const headerDoorsCount = document.getElementById("header-doors-count");
   const dbTitle = document.getElementById("db-title");
 
-  let activeRoomName = "";
+  let lastSuccessfulCreatedRoom = "";
+  let lastCreateSucceeded = false;
+  let isCreatingRoom = false;
+  let createRequestSeq = 0;
+  let playInFlight = false;
+  let resetInFlight = false;
 
   function studentUrlForRoom() {
-    if (!roomId) return "";
-    return `${window.location.origin}${window.location.pathname.replace(/admin(?:-dev)?\.html$/, "bioplay.html")}?room=${encodeURIComponent(roomId)}`;
+    if (!currentRoomId) return "";
+    return `${window.location.origin}${window.location.pathname.replace(/admin(?:-dev)?\.html$/, "bioplay.html")}?room=${encodeURIComponent(currentRoomId)}`;
+  }
+
+  function canPlayNow() {
+    if (isCreatingRoom || playInFlight || resetInFlight) return false;
+    return hasStrictActiveStateMatch();
+  }
+
+  function canResetNow() {
+    if (isCreatingRoom || playInFlight || resetInFlight) return false;
+    return hasStrictActiveStateMatch();
+  }
+
+  function hasStrictActiveStateMatch() {
+    const selectedRoomName = roomNameSelect.value.trim();
+    return Boolean(
+      currentRoomId &&
+      currentTeacherToken &&
+      lastCreateSucceeded &&
+      lastSuccessfulCreatedRoom &&
+      selectedRoomName &&
+      selectedRoomName === lastSuccessfulCreatedRoom
+    );
   }
 
   function syncDashboardMeta(statusText = "ממתין") {
-    const hasRoom = Boolean(roomId);
     headerDoorsCount.textContent = String(doorsCount || 0);
-    activateBtn.disabled = !hasRoom;
+    activateBtn.disabled = !canPlayNow();
+    resetBtn.disabled = !canResetNow();
+  }
+
+  function clearSessionRoomState() {
+    const roomStatePrefixes = ["bioplay_admin_token_", "bioplay_last_created_room_name_"];
+    for (let i = sessionStorage.length - 1; i >= 0; i--) {
+      const key = sessionStorage.key(i);
+      if (!key) continue;
+      if (roomStatePrefixes.some((prefix) => key.startsWith(prefix))) {
+        sessionStorage.removeItem(key);
+      }
+    }
+  }
+
+  function clearPlayGlowState() {
+    const glowPrefix = "bioplay_play_glow_until_";
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(glowPrefix)) {
+        localStorage.removeItem(key);
+      }
+    }
+  }
+
+  function clearActiveRoomState(options = {}) {
+    const { clearCurrentRoomId = false } = options;
+    currentTeacherToken = "";
+    currentRoomId = clearCurrentRoomId ? "" : currentRoomId;
+    lastSuccessfulCreatedRoom = "";
+    lastCreateSucceeded = false;
+    loginCodeEl.value = "";
+    clearSessionRoomState();
+    clearPlayGlowState();
+    if (clearCurrentRoomId) {
+      updateUrlWithRoom();
+    }
+    removePlayGlow();
+    syncDashboardMeta();
   }
 
   function updateRoomInfo(statusText = "ממתין") {
     const selectedFriendlyRoom = roomNameSelect.value.trim();
-    roomIdLabel.textContent = roomId ? (selectedFriendlyRoom || activeRoomName || "—") : "—";
-    roomStatusLabel.textContent = roomId ? statusText : "טרם נוצר";
+    roomIdLabel.textContent = currentRoomId ? (selectedFriendlyRoom || lastSuccessfulCreatedRoom || "—") : "—";
+    roomStatusLabel.textContent = currentRoomId ? statusText : "טרם נוצר";
 
     const studentUrl = studentUrlForRoom();
     if (studentUrl) {
-      studentLinkInput.value = studentUrl;
+      studentLinkStatusText.textContent = "הקישור מוכן לשליחה";
+      studentLinkStatus.className = "link-status-box ready";
       copyLinkBtn.disabled = false;
     } else {
-      studentLinkInput.value = "טרם נוצר קישור תלמידים";
+      studentLinkStatusText.textContent = "קישור למשחק";
+      studentLinkStatus.className = "link-status-box idle";
       copyLinkBtn.disabled = true;
     }
     syncDashboardMeta(statusText);
@@ -1139,24 +1535,61 @@
 
   function updateUrlWithRoom() {
     const next = new URL(window.location.href);
-    if (roomId) next.searchParams.set("room", roomId);
+    if (currentRoomId) next.searchParams.set("room", currentRoomId);
     else next.searchParams.delete("room");
     window.history.replaceState({}, "", next.toString());
   }
 
-  function refreshStorageScope(previousRoomId = "") {
-    if (previousRoomId && previousRoomId !== roomId) {
-      sessionStorage.removeItem(getSessKey(previousRoomId));
+  function clearPlayGlowTimer() {
+    if (playGlowTimer) {
+      clearTimeout(playGlowTimer);
+      playGlowTimer = null;
     }
-    const savedDoors = parseInt(localStorage.getItem(getDoorsKey(roomId)), 10);
+  }
+
+  function removePlayGlow() {
+    activateBtn.classList.remove("active-glow");
+    clearPlayGlowTimer();
+    if (currentRoomId) {
+      localStorage.removeItem(getPlayGlowKey(currentRoomId));
+    }
+  }
+
+  function applyPlayGlow(untilTs) {
+    const now = Date.now();
+    const remaining = untilTs - now;
+
+    if (remaining <= 0) {
+      removePlayGlow();
+      return;
+    }
+
+    activateBtn.classList.add("active-glow");
+    clearPlayGlowTimer();
+
+    playGlowTimer = setTimeout(() => {
+      removePlayGlow();
+    }, remaining);
+  }
+
+  function refreshStorageScope(previousRoomId = "") {
+    if (previousRoomId && previousRoomId !== currentRoomId) {
+      clearSessionRoomState();
+    }
+    const savedDoors = parseInt(localStorage.getItem(getDoorsKey(currentRoomId)), 10);
     doorsCount = Math.max(2, Number.isFinite(savedDoors) ? savedDoors : 5);
     doorsSelect.value = String(doorsCount);
-    if (teacherToken && roomId) {
-      sessionStorage.setItem(getSessKey(roomId), teacherToken);
+    if (currentTeacherToken && currentRoomId) {
+      sessionStorage.setItem(getSessKey(currentRoomId), currentTeacherToken);
+      sessionStorage.setItem(getCreatedRoomNameKey(currentRoomId), lastSuccessfulCreatedRoom);
     }
-    localStorage.setItem(getDoorsKey(roomId), doorsCount);
+    localStorage.setItem(getDoorsKey(currentRoomId), doorsCount);
     updateRoomInfo();
     updateUrlWithRoom();
+    const savedGlowUntil = parseInt(localStorage.getItem(getPlayGlowKey(currentRoomId)), 10);
+    if (Number.isFinite(savedGlowUntil)) {
+      applyPlayGlow(savedGlowUntil);
+    }
   }
 
   for (let n = 2; n <= 30; n++) {
@@ -1168,7 +1601,7 @@
 
   doorsSelect.addEventListener("change", () => {
     doorsCount = parseInt(doorsSelect.value, 10) || 5;
-    localStorage.setItem(getDoorsKey(roomId), doorsCount);
+    localStorage.setItem(getDoorsKey(currentRoomId), doorsCount);
     syncDashboardMeta(statusLabel.textContent.includes("פעיל") ? "פעיל" : "ממתין");
   });
 
@@ -1181,31 +1614,85 @@
     toastT = setTimeout(() => toastEl.classList.remove("show"), 3000);
   }
 
-  async function parse(res) {
+  async function parseResponse(res) {
     const raw = await res.text();
-    if (!raw) return {};
-    try { return JSON.parse(raw); } catch { return {}; }
+    let data = null;
+    if (raw) {
+      try { data = JSON.parse(raw); } catch { data = null; }
+    }
+    return { raw, data };
+  }
+
+  function resolveApiError(res, data, raw) {
+    if (data && typeof data === "object") {
+      if (data.errorCode) return String(data.errorCode);
+      if (data.message) return String(data.message);
+      if (data.error) return String(data.error);
+    }
+    if (raw) return String(raw);
+    return `HTTP ${res.status}`;
   }
 
   async function getStatus() {
-    const url = `${APPS_URL}?action=status&roomId=${encodeURIComponent(roomId)}`;
+    const url = `${APPS_URL}?action=status&roomId=${encodeURIComponent(currentRoomId)}`;
     const res = await fetch(url, { cache: "no-store" });
-    const d = await parse(res);
-    if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
+    const { data: d, raw } = await parseResponse(res);
+    if (!res.ok || d?.ok === false) throw new Error(resolveApiError(res, d, raw));
     return d?.status === "started" ? "started" : "waiting";
   }
 
   async function sendAction(action, token, extra = {}) {
-    const body = new URLSearchParams({ action, roomId, ...extra });
-    if (token) body.set("teacherToken", token);
+    const targetRoomId = String(extra.roomId || "").trim().toUpperCase();
+    const safeToken = String(token || "").trim();
+    if (!targetRoomId || !safeToken) {
+      throw new Error("MISSING_ACTION_STATE");
+    }
+    const payload = { ...extra };
+    delete payload.roomId;
+    const body = new URLSearchParams({ action, roomId: targetRoomId, ...payload });
+    body.set("teacherToken", safeToken);
     const res = await fetch(APPS_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: body.toString(),
     });
-    const d = await parse(res);
-    if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
+    const { data: d, raw } = await parseResponse(res);
+    if (!res.ok || d?.ok === false) throw new Error(resolveApiError(res, d, raw));
     return d;
+  }
+
+  function normalizeApiError(err) {
+    const text = String(err?.message || err || "").trim();
+    return text.toUpperCase();
+  }
+
+  function isInvalidTeacherTokenError(err) {
+    const normalized = normalizeApiError(err);
+    return normalized.includes("INVALID_TEACHER_TOKEN") || normalized.includes("INVALID TEACHER TOKEN");
+  }
+
+  function isRoomNotFoundError(err) {
+    const normalized = normalizeApiError(err);
+    return normalized.includes("ROOM_NOT_FOUND") || normalized.includes("ROOM NOT FOUND");
+  }
+
+  function handleInvalidServerState(err) {
+    const staleRoomId = currentRoomId;
+    if (isInvalidTeacherTokenError(err)) {
+      clearActiveRoomState({ clearCurrentRoomId: true });
+      actionMsg.textContent = "הגישה לחדר אינה תקפה או פגה. יש לבחור חדר וללחוץ שוב על 'צור חדר'.";
+      actionMsg.className = "action-msg error";
+      console.warn("[admin] invalid teacher access", { roomId: staleRoomId });
+      return true;
+    }
+    if (isRoomNotFoundError(err)) {
+      clearActiveRoomState({ clearCurrentRoomId: true });
+      actionMsg.textContent = "החדר שנבחר לא נמצא. יש לבחור חדר וליצור חדר מחדש.";
+      actionMsg.className = "action-msg error";
+      console.warn("[admin] room not found", { roomId: staleRoomId });
+      return true;
+    }
+    return false;
   }
 
   function normalizeRoomNames(rawNames) {
@@ -1222,8 +1709,8 @@
 
   async function fetchRoomNamesFromAction(actionName) {
     const res = await fetch(`${APPS_URL}?action=${encodeURIComponent(actionName)}`, { cache: "no-store" });
-    const d = await parse(res);
-    if (!res.ok || d?.ok === false) throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
+    const { data: d, raw } = await parseResponse(res);
+    if (!res.ok || d?.ok === false) throw new Error(resolveApiError(res, d, raw));
     return normalizeRoomNames(d?.roomNames || d?.rooms || d?.list || []);
   }
 
@@ -1251,15 +1738,53 @@
     }
   }
 
+
+  function parseCreateRoomPayload(payload) {
+    if (!payload || payload.ok !== true) return null;
+    const roomId = String(payload.roomId || "").trim().toUpperCase();
+    const teacherToken = String(payload.teacherToken || "").trim();
+    if (!roomId || !teacherToken) return null;
+    return { roomId, teacherToken, status: payload?.status === "started" ? "started" : "waiting" };
+  }
+
+  function buildCreateRoomFailureMessage(userMessage) {
+    const baseMessage = "יצירת החדר נכשלה. יש לבחור חדר תקין ולנסות שוב.";
+    const details = String(userMessage || "").trim();
+    if (!details) return baseMessage;
+    return `${baseMessage} (${details})`;
+  }
+
+  function createRoomValidationError(payload) {
+    if (!payload || typeof payload !== "object") {
+      return "השרת החזיר תגובה לא תקינה";
+    }
+    if (payload.ok !== true) {
+      return "השרת לא אישר את יצירת החדר";
+    }
+    if (!String(payload.roomId || "").trim()) {
+      return "התגובה חסרה מזהה חדר תקין";
+    }
+    if (!String(payload.teacherToken || "").trim()) {
+      return "התגובה חסרה טוקן מדריך תקין";
+    }
+    return "השרת החזיר תגובה חלקית";
+  }
+
   async function createRoom() {
+    if (isCreatingRoom) return;
+    isCreatingRoom = true;
+    const requestId = ++createRequestSeq;
     const selectedRoomName = roomNameSelect.value.trim();
+    clearActiveRoomState({ clearCurrentRoomId: true });
     if (!selectedRoomName) {
       actionMsg.textContent = "בחרו חדר";
       actionMsg.className = "action-msg info";
+      isCreatingRoom = false;
       return;
     }
 
     roomBtn.disabled = true;
+    syncDashboardMeta();
     actionMsg.textContent = "יוצר חדר...";
     actionMsg.className = "action-msg info";
     try {
@@ -1268,34 +1793,52 @@
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ action: "create_room", roomName: selectedRoomName, doorsCount }).toString(),
       });
-      const d = await parse(res);
-      if (!res.ok || d?.ok === false || !d?.roomId || !d?.teacherToken) {
-        throw new Error(d?.errorCode || d?.message || `HTTP ${res.status}`);
+      const { data: d, raw } = await parseResponse(res);
+      const validPayload = parseCreateRoomPayload(d);
+      if (!res.ok || !validPayload) {
+        const apiError = res.ok ? createRoomValidationError(d) : resolveApiError(res, d, raw);
+        throw new Error(apiError);
       }
 
-      const previousRoomId = roomId;
-      roomId = String(d.roomId).trim().toUpperCase();
-      activeRoomName = String(d.roomName || selectedRoomName).trim();
-      teacherToken = String(d.teacherToken).trim();
-      refreshStorageScope(previousRoomId);
+      if (requestId !== createRequestSeq) {
+        return;
+      }
+
+      currentRoomId = validPayload.roomId;
+      currentTeacherToken = validPayload.teacherToken;
+      lastSuccessfulCreatedRoom = selectedRoomName;
+      lastCreateSucceeded = true;
+      refreshStorageScope();
+      syncDashboardMeta();
 
       clearCards();
-      setStatus(d?.status === "started" ? "started" : "waiting");
+      setStatus(validPayload.status);
       if (pollTimer) startPolling();
 
       actionMsg.textContent = "החדר נוצר בהצלחה";
       actionMsg.className = "action-msg success";
+      console.info("[admin] create_room success", { roomId: currentRoomId, roomName: selectedRoomName });
       toast("✔ חדר חדש נוצר", "success");
     } catch (e) {
-      actionMsg.textContent = "שגיאה ביצירת חדר";
+      if (requestId !== createRequestSeq) {
+        return;
+      }
+      const friendlyMessage = buildCreateRoomFailureMessage(e.message || "");
+      clearActiveRoomState({ clearCurrentRoomId: true });
+      actionMsg.textContent = friendlyMessage;
       actionMsg.className = "action-msg error";
-      toast(String(e.message || "שגיאה ביצירת חדר"), "error");
+      toast(friendlyMessage, "error");
+      syncDashboardMeta();
+    } finally {
+      if (requestId === createRequestSeq) {
+        roomBtn.disabled = false;
+      }
+      isCreatingRoom = false;
     }
-    roomBtn.disabled = false;
   }
 
   function setStatus(s) {
-    const inactive = !roomId;
+    const inactive = !currentRoomId;
     const on = s === "started" && !inactive;
     statusDot.className = `status-dot ${inactive ? "off" : (on ? "started" : "waiting")}`;
     statusLabel.className = `status-label ${on ? "started" : ""}`;
@@ -1305,27 +1848,27 @@
 
   function startPolling() {
     clearInterval(pollTimer);
-    (async () => { try { setStatus(await getStatus()); } catch {} })();
+    (async () => {
+      try {
+        setStatus(await getStatus());
+      } catch (err) {
+        handleInvalidServerState(err);
+      }
+    })();
     pollTimer = setInterval(async () => {
-      try { setStatus(await getStatus()); } catch {}
+      try {
+        setStatus(await getStatus());
+      } catch (err) {
+        if (handleInvalidServerState(err)) {
+          clearInterval(pollTimer);
+        }
+      }
     }, POLL_MS);
   }
 
   async function doLogin() {
-    if (!roomId) {
-      loginMsg.textContent = "צרו חדר לפני ההתחברות.";
-      loginMsg.className = "login-msg error";
-      return;
-    }
-    const code = loginCodeEl.value.trim();
-    if (!code) { loginMsg.textContent = "יש להזין טוקן מדריך."; loginMsg.className = "login-msg error"; return; }
-    loginBtn.disabled = true;
-    teacherToken = code;
-    sessionStorage.setItem(getSessKey(roomId), code);
-    localStorage.setItem(getDoorsKey(roomId), doorsCount);
-    loginMsg.textContent = "";
-    loginBtn.disabled = false;
-    enterPanel();
+    loginMsg.textContent = "התחברות ידנית לא זמינה. יש לבחור חדר וללחוץ על 'צור חדר'.";
+    loginMsg.className = "login-msg error";
   }
 
   function enterPanel(initStatus) {
@@ -1341,58 +1884,112 @@
     const url = studentUrlForRoom();
     if (!url) return;
     const formattedText = `לכניסה למשחק לחצו (${url})`;
+    studentLinkStatusText.textContent = "מכין קישור...";
+    studentLinkStatus.className = "link-status-box loading";
     try {
       await navigator.clipboard.writeText(formattedText);
+      setTimeout(() => {
+        studentLinkStatusText.textContent = "הקישור הועתק בהצלחה";
+        studentLinkStatus.className = "link-status-box ready";
+      }, 1800);
       toast("הקישור הועתק", "success");
     } catch (_) {
-      studentLinkInput.value = formattedText;
-      studentLinkInput.select();
-      document.execCommand("copy");
-      studentLinkInput.value = url;
-      toast("הקישור הועתק", "success");
+      try {
+        const tempInput = document.createElement("textarea");
+        tempInput.value = formattedText;
+        tempInput.setAttribute("readonly", "");
+        tempInput.style.position = "absolute";
+        tempInput.style.opacity = "0";
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        const copied = document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        if (!copied) throw new Error("copy failed");
+        setTimeout(() => {
+          studentLinkStatusText.textContent = "הקישור הועתק בהצלחה";
+          studentLinkStatus.className = "link-status-box ready";
+        }, 1800);
+        toast("הקישור הועתק", "success");
+      } catch (copyErr) {
+        studentLinkStatusText.textContent = "הייתה שגיאה בהעתקה";
+        studentLinkStatus.className = "link-status-box idle";
+        toast("שגיאה בהעתקה", "error");
+      }
     }
   };
 
   loginBtn.onclick = doLogin;
   loginCodeEl.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+  roomNameSelect.addEventListener("change", () => {
+    clearActiveRoomState({ clearCurrentRoomId: true });
+    actionMsg.textContent = "בחרתם חדר חדש. לחצו שוב על \"צור חדר\" לפני PLAY.";
+    actionMsg.className = "action-msg info";
+    syncDashboardMeta();
+  });
 
   activateBtn.onclick = async () => {
-    if (!teacherToken || !roomId) { actionMsg.textContent = "צרו חדר פעיל לפני PLAY"; actionMsg.className = "action-msg info"; return; }
+    if (playInFlight) return;
+    if (!canPlayNow()) { actionMsg.textContent = "יש לבחור חדר וליצור אותו מחדש לפני הפעלה."; actionMsg.className = "action-msg info"; console.info("[admin] play blocked", { selectedRoom: roomNameSelect.value.trim(), hasRoomId: Boolean(currentRoomId), createSucceeded: lastCreateSucceeded }); return; }
+    const selectedRoomName = roomNameSelect.value.trim();
+    if (!selectedRoomName || selectedRoomName !== lastSuccessfulCreatedRoom) {
+      actionMsg.textContent = "יש ליצור מחדש את החדר שנבחר לפני PLAY";
+      actionMsg.className = "action-msg error";
+      return;
+    }
+    const activeRoomId = currentRoomId;
+    const activeTeacherToken = currentTeacherToken;
+    playInFlight = true;
     activateBtn.disabled = true;
     actionMsg.textContent = "מפעיל..."; actionMsg.className = "action-msg info";
     try {
-      const r = await sendAction("start", teacherToken, { doorsCount });
+      const r = await sendAction("start", activeTeacherToken, { doorsCount, roomId: activeRoomId });
       const resolvedCount = parseInt(r?.doorsCount, 10) || doorsCount;
-      localStorage.setItem(getDoorsKey(roomId), resolvedCount);
+      localStorage.setItem(getDoorsKey(activeRoomId), resolvedCount);
       actionMsg.textContent = `✔ הופעל – ${resolvedCount} דלתות`; actionMsg.className = "action-msg success";
       setStatus("started");
-      toast(`✔ המשחק הופעל! Room ${roomId}`, "success");
+      const glowUntil = Date.now() + PLAY_GLOW_MS;
+      localStorage.setItem(getPlayGlowKey(activeRoomId), String(glowUntil));
+      applyPlayGlow(glowUntil);
+      toast(`✔ המשחק הופעל! Room ${activeRoomId}`, "success");
     } catch (e) {
-      actionMsg.textContent = String(e.message || "שגיאת הפעלה"); actionMsg.className = "action-msg error";
+      if (!handleInvalidServerState(e)) {
+        actionMsg.textContent = String(e.message || "שגיאת הפעלה"); actionMsg.className = "action-msg error";
+      }
       toast("שגיאה בהפעלה", "error");
+    } finally {
+      playInFlight = false;
+      activateBtn.disabled = false;
     }
-    activateBtn.disabled = false;
   };
 
   resetBtn.onclick = async () => {
-    if (!teacherToken || !roomId) { actionMsg.textContent = "אין חדר פעיל לאיפוס"; actionMsg.className = "action-msg info"; return; }
+    if (resetInFlight) return;
+    if (!canResetNow()) { actionMsg.textContent = "האיפוס חסום עד ליצירת חדר תקין מחדש."; actionMsg.className = "action-msg info"; return; }
+    const activeRoomId = currentRoomId;
+    const activeTeacherToken = currentTeacherToken;
+    resetInFlight = true;
     resetBtn.disabled = true;
     actionMsg.textContent = "מאפס..."; actionMsg.className = "action-msg info";
     try {
-      await sendAction("reset", teacherToken);
+      await sendAction("reset", activeTeacherToken, { roomId: activeRoomId });
       setStatus("waiting");
+      removePlayGlow();
       actionMsg.textContent = "✔ אופס – המשחק חזר למצב המתנה"; actionMsg.className = "action-msg success";
       toast("✔ החדר אופס", "success");
     } catch (e) {
-      actionMsg.textContent = String(e.message || "שגיאת איפוס"); actionMsg.className = "action-msg error";
+      if (!handleInvalidServerState(e)) {
+        actionMsg.textContent = String(e.message || "שגיאת איפוס"); actionMsg.className = "action-msg error";
+      }
+    } finally {
+      resetInFlight = false;
+      resetBtn.disabled = false;
     }
-    resetBtn.disabled = false;
   };
 
   logoutBtn.onclick = () => {
-    teacherToken = "";
-    if (roomId) sessionStorage.removeItem(getSessKey(roomId));
+    clearActiveRoomState();
     clearInterval(pollTimer);
+    removePlayGlow();
     clearCards();
     loginOverlay.style.display = "none";
     loginCodeEl.value = "";
@@ -1563,12 +2160,18 @@
   });
 
   (async () => {
-    roomId = (qp.get("room") || "").trim().toUpperCase();
+    currentRoomId = (qp.get("room") || "").trim().toUpperCase();
     await loadRoomNames();
     await loadDoors();
     refreshStorageScope();
+    if (currentRoomId) {
+      const savedGlowUntil = parseInt(localStorage.getItem(getPlayGlowKey(currentRoomId)), 10);
+      if (Number.isFinite(savedGlowUntil)) {
+        applyPlayGlow(savedGlowUntil);
+      }
+    }
 
-if (!roomId) {
+if (!currentRoomId) {
   loginOverlay.style.display = "none";
   clearCards();
   setStatus("waiting");
@@ -1578,13 +2181,21 @@ if (!roomId) {
 
 }
 
-    const saved = sessionStorage.getItem(getSessKey(roomId));
-    if (saved) {
-      teacherToken = saved;
+    const saved = sessionStorage.getItem(getSessKey(currentRoomId));
+    const savedRoomName = sessionStorage.getItem(getCreatedRoomNameKey(currentRoomId)) || "";
+    const selectedRoomName = roomNameSelect.value.trim();
+    if (saved && savedRoomName && selectedRoomName && savedRoomName === selectedRoomName) {
+      currentTeacherToken = saved;
+      lastSuccessfulCreatedRoom = savedRoomName;
+      lastCreateSucceeded = true;
       loginCodeEl.value = saved;
       loginOverlay.style.display = "none";
+      syncDashboardMeta();
       enterPanel();
       return;
+    }
+    if (saved || savedRoomName) {
+      clearSessionRoomState();
     }
 
     loginOverlay.style.display = "none";

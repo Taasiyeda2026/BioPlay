@@ -1313,6 +1313,10 @@
 
   let lastSuccessfulCreatedRoom = "";
   let lastCreateSucceeded = false;
+  let isCreatingRoom = false;
+  let createRequestSeq = 0;
+  let playInFlight = false;
+  let resetInFlight = false;
 
   function studentUrlForRoom() {
     if (!currentRoomId) return "";
@@ -1563,12 +1567,32 @@
     return `${baseMessage} (${details})`;
   }
 
+  function createRoomValidationError(payload) {
+    if (!payload || typeof payload !== "object") {
+      return "השרת החזיר תגובה לא תקינה";
+    }
+    if (payload.ok !== true) {
+      return "השרת לא אישר את יצירת החדר";
+    }
+    if (!String(payload.roomId || "").trim()) {
+      return "התגובה חסרה מזהה חדר תקין";
+    }
+    if (!String(payload.teacherToken || "").trim()) {
+      return "התגובה חסרה טוקן מדריך תקין";
+    }
+    return "השרת החזיר תגובה חלקית";
+  }
+
   async function createRoom() {
+    if (isCreatingRoom) return;
+    isCreatingRoom = true;
+    const requestId = ++createRequestSeq;
     const selectedRoomName = roomNameSelect.value.trim();
     clearActiveRoomState({ clearCurrentRoomId: true });
     if (!selectedRoomName) {
       actionMsg.textContent = "בחרו חדר";
       actionMsg.className = "action-msg info";
+      isCreatingRoom = false;
       return;
     }
 
@@ -1584,7 +1608,12 @@
       const { data: d, raw } = await parseResponse(res);
       const validPayload = parseCreateRoomPayload(d);
       if (!res.ok || !validPayload) {
-        throw new Error(resolveApiError(res, d, raw));
+        const apiError = res.ok ? createRoomValidationError(d) : resolveApiError(res, d, raw);
+        throw new Error(apiError);
+      }
+
+      if (requestId !== createRequestSeq) {
+        return;
       }
 
       currentRoomId = validPayload.roomId;
@@ -1602,14 +1631,21 @@
       actionMsg.className = "action-msg success";
       toast("✔ חדר חדש נוצר", "success");
     } catch (e) {
+      if (requestId !== createRequestSeq) {
+        return;
+      }
       const friendlyMessage = buildCreateRoomFailureMessage(e.message || "");
       clearActiveRoomState({ clearCurrentRoomId: true });
       actionMsg.textContent = friendlyMessage;
       actionMsg.className = "action-msg error";
       toast(friendlyMessage, "error");
       syncDashboardMeta();
+    } finally {
+      if (requestId === createRequestSeq) {
+        roomBtn.disabled = false;
+      }
+      isCreatingRoom = false;
     }
-    roomBtn.disabled = false;
   }
 
   function setStatus(s) {
@@ -1706,6 +1742,7 @@
   });
 
   activateBtn.onclick = async () => {
+    if (playInFlight) return;
     if (!canPlayNow()) { actionMsg.textContent = "צרו חדר פעיל לפני PLAY"; actionMsg.className = "action-msg info"; return; }
     const selectedRoomName = roomNameSelect.value.trim();
     if (!selectedRoomName || selectedRoomName !== lastSuccessfulCreatedRoom) {
@@ -1715,6 +1752,7 @@
     }
     const activeRoomId = currentRoomId;
     const activeTeacherToken = currentTeacherToken;
+    playInFlight = true;
     activateBtn.disabled = true;
     actionMsg.textContent = "מפעיל..."; actionMsg.className = "action-msg info";
     try {
@@ -1731,14 +1769,18 @@
       console.error(e);
       actionMsg.textContent = String(e.message || "שגיאת הפעלה"); actionMsg.className = "action-msg error";
       toast("שגיאה בהפעלה", "error");
+    } finally {
+      playInFlight = false;
+      activateBtn.disabled = false;
     }
-    activateBtn.disabled = false;
   };
 
   resetBtn.onclick = async () => {
+    if (resetInFlight) return;
     if (!currentTeacherToken || !currentRoomId) { actionMsg.textContent = "אין חדר פעיל לאיפוס"; actionMsg.className = "action-msg info"; return; }
     const activeRoomId = currentRoomId;
     const activeTeacherToken = currentTeacherToken;
+    resetInFlight = true;
     resetBtn.disabled = true;
     actionMsg.textContent = "מאפס..."; actionMsg.className = "action-msg info";
     try {
@@ -1749,8 +1791,10 @@
       toast("✔ החדר אופס", "success");
     } catch (e) {
       actionMsg.textContent = String(e.message || "שגיאת איפוס"); actionMsg.className = "action-msg error";
+    } finally {
+      resetInFlight = false;
+      resetBtn.disabled = false;
     }
-    resetBtn.disabled = false;
   };
 
   logoutBtn.onclick = () => {

@@ -1414,6 +1414,16 @@
   }
 
   function canPlayNow() {
+    if (isCreatingRoom || playInFlight || resetInFlight) return false;
+    return hasStrictActiveStateMatch();
+  }
+
+  function canResetNow() {
+    if (isCreatingRoom || playInFlight || resetInFlight) return false;
+    return hasStrictActiveStateMatch();
+  }
+
+  function hasStrictActiveStateMatch() {
     const selectedRoomName = roomNameSelect.value.trim();
     return Boolean(
       currentRoomId &&
@@ -1428,6 +1438,7 @@
   function syncDashboardMeta(statusText = "ממתין") {
     headerDoorsCount.textContent = String(doorsCount || 0);
     activateBtn.disabled = !canPlayNow();
+    resetBtn.disabled = !canResetNow();
   }
 
   function clearSessionRoomState() {
@@ -1441,6 +1452,16 @@
     }
   }
 
+  function clearPlayGlowState() {
+    const glowPrefix = "bioplay_play_glow_until_";
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(glowPrefix)) {
+        localStorage.removeItem(key);
+      }
+    }
+  }
+
   function clearActiveRoomState(options = {}) {
     const { clearCurrentRoomId = false } = options;
     currentTeacherToken = "";
@@ -1449,6 +1470,7 @@
     lastCreateSucceeded = false;
     loginCodeEl.value = "";
     clearSessionRoomState();
+    clearPlayGlowState();
     if (clearCurrentRoomId) {
       updateUrlWithRoom();
     }
@@ -1583,11 +1605,15 @@
   }
 
   async function sendAction(action, token, extra = {}) {
-    const targetRoomId = String(extra.roomId || currentRoomId || "").trim().toUpperCase();
+    const targetRoomId = String(extra.roomId || "").trim().toUpperCase();
+    const safeToken = String(token || "").trim();
+    if (!targetRoomId || !safeToken) {
+      throw new Error("MISSING_ACTION_STATE");
+    }
     const payload = { ...extra };
     delete payload.roomId;
     const body = new URLSearchParams({ action, roomId: targetRoomId, ...payload });
-    if (token) body.set("teacherToken", token);
+    body.set("teacherToken", safeToken);
     const res = await fetch(APPS_URL, {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -1596,6 +1622,40 @@
     const { data: d, raw } = await parseResponse(res);
     if (!res.ok || d?.ok === false) throw new Error(resolveApiError(res, d, raw));
     return d;
+  }
+
+  function normalizeApiError(err) {
+    const text = String(err?.message || err || "").trim();
+    return text.toUpperCase();
+  }
+
+  function isInvalidTeacherTokenError(err) {
+    const normalized = normalizeApiError(err);
+    return normalized.includes("INVALID_TEACHER_TOKEN") || normalized.includes("INVALID TEACHER TOKEN");
+  }
+
+  function isRoomNotFoundError(err) {
+    const normalized = normalizeApiError(err);
+    return normalized.includes("ROOM_NOT_FOUND") || normalized.includes("ROOM NOT FOUND");
+  }
+
+  function handleInvalidServerState(err) {
+    const staleRoomId = currentRoomId;
+    if (isInvalidTeacherTokenError(err)) {
+      clearActiveRoomState({ clearCurrentRoomId: true });
+      actionMsg.textContent = "הגישה לחדר אינה תקפה או פגה. יש לבחור חדר וללחוץ שוב על 'צור חדר'.";
+      actionMsg.className = "action-msg error";
+      console.warn("[admin] invalid teacher access", { roomId: staleRoomId });
+      return true;
+    }
+    if (isRoomNotFoundError(err)) {
+      clearActiveRoomState({ clearCurrentRoomId: true });
+      actionMsg.textContent = "החדר שנבחר לא נמצא. יש לבחור חדר וליצור חדר מחדש.";
+      actionMsg.className = "action-msg error";
+      console.warn("[admin] room not found", { roomId: staleRoomId });
+      return true;
+    }
+    return false;
   }
 
   function normalizeRoomNames(rawNames) {
@@ -1687,6 +1747,7 @@
     }
 
     roomBtn.disabled = true;
+    syncDashboardMeta();
     actionMsg.textContent = "יוצר חדר...";
     actionMsg.className = "action-msg info";
     try {
@@ -1719,6 +1780,7 @@
 
       actionMsg.textContent = "החדר נוצר בהצלחה";
       actionMsg.className = "action-msg success";
+      console.info("[admin] create_room success", { roomId: currentRoomId, roomName: selectedRoomName });
       toast("✔ חדר חדש נוצר", "success");
     } catch (e) {
       if (requestId !== createRequestSeq) {
@@ -1749,30 +1811,27 @@
 
   function startPolling() {
     clearInterval(pollTimer);
-    (async () => { try { setStatus(await getStatus()); } catch {} })();
+    (async () => {
+      try {
+        setStatus(await getStatus());
+      } catch (err) {
+        handleInvalidServerState(err);
+      }
+    })();
     pollTimer = setInterval(async () => {
-      try { setStatus(await getStatus()); } catch {}
+      try {
+        setStatus(await getStatus());
+      } catch (err) {
+        if (handleInvalidServerState(err)) {
+          clearInterval(pollTimer);
+        }
+      }
     }, POLL_MS);
   }
 
   async function doLogin() {
-    if (!currentRoomId) {
-      loginMsg.textContent = "צרו חדר לפני ההתחברות.";
-      loginMsg.className = "login-msg error";
-      return;
-    }
-    const code = loginCodeEl.value.trim();
-    if (!code) { loginMsg.textContent = "יש להזין טוקן מדריך."; loginMsg.className = "login-msg error"; return; }
-    loginBtn.disabled = true;
-    currentTeacherToken = code;
-    lastSuccessfulCreatedRoom = roomNameSelect.value.trim();
-    sessionStorage.setItem(getSessKey(currentRoomId), code);
-    sessionStorage.setItem(getCreatedRoomNameKey(currentRoomId), lastSuccessfulCreatedRoom);
-    localStorage.setItem(getDoorsKey(currentRoomId), doorsCount);
-    loginMsg.textContent = "";
-    loginBtn.disabled = false;
-    syncDashboardMeta();
-    enterPanel();
+    loginMsg.textContent = "התחברות ידנית לא זמינה. יש לבחור חדר וללחוץ על 'צור חדר'.";
+    loginMsg.className = "login-msg error";
   }
 
   function enterPanel(initStatus) {
@@ -1833,7 +1892,7 @@
 
   activateBtn.onclick = async () => {
     if (playInFlight) return;
-    if (!canPlayNow()) { actionMsg.textContent = "צרו חדר פעיל לפני PLAY"; actionMsg.className = "action-msg info"; return; }
+    if (!canPlayNow()) { actionMsg.textContent = "יש לבחור חדר וליצור אותו מחדש לפני הפעלה."; actionMsg.className = "action-msg info"; console.info("[admin] play blocked", { selectedRoom: roomNameSelect.value.trim(), hasRoomId: Boolean(currentRoomId), createSucceeded: lastCreateSucceeded }); return; }
     const selectedRoomName = roomNameSelect.value.trim();
     if (!selectedRoomName || selectedRoomName !== lastSuccessfulCreatedRoom) {
       actionMsg.textContent = "יש ליצור מחדש את החדר שנבחר לפני PLAY";
@@ -1856,8 +1915,9 @@
       applyPlayGlow(glowUntil);
       toast(`✔ המשחק הופעל! Room ${activeRoomId}`, "success");
     } catch (e) {
-      console.error(e);
-      actionMsg.textContent = String(e.message || "שגיאת הפעלה"); actionMsg.className = "action-msg error";
+      if (!handleInvalidServerState(e)) {
+        actionMsg.textContent = String(e.message || "שגיאת הפעלה"); actionMsg.className = "action-msg error";
+      }
       toast("שגיאה בהפעלה", "error");
     } finally {
       playInFlight = false;
@@ -1867,7 +1927,7 @@
 
   resetBtn.onclick = async () => {
     if (resetInFlight) return;
-    if (!currentTeacherToken || !currentRoomId) { actionMsg.textContent = "אין חדר פעיל לאיפוס"; actionMsg.className = "action-msg info"; return; }
+    if (!canResetNow()) { actionMsg.textContent = "האיפוס חסום עד ליצירת חדר תקין מחדש."; actionMsg.className = "action-msg info"; return; }
     const activeRoomId = currentRoomId;
     const activeTeacherToken = currentTeacherToken;
     resetInFlight = true;
@@ -1880,7 +1940,9 @@
       actionMsg.textContent = "✔ אופס – המשחק חזר למצב המתנה"; actionMsg.className = "action-msg success";
       toast("✔ החדר אופס", "success");
     } catch (e) {
-      actionMsg.textContent = String(e.message || "שגיאת איפוס"); actionMsg.className = "action-msg error";
+      if (!handleInvalidServerState(e)) {
+        actionMsg.textContent = String(e.message || "שגיאת איפוס"); actionMsg.className = "action-msg error";
+      }
     } finally {
       resetInFlight = false;
       resetBtn.disabled = false;
@@ -2095,7 +2157,7 @@ if (!currentRoomId) {
       enterPanel();
       return;
     }
-    if (saved) {
+    if (saved || savedRoomName) {
       clearSessionRoomState();
     }
 

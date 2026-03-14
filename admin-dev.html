@@ -138,6 +138,26 @@
       font-weight: 700;
     }
 
+    .header-action-msg {
+      margin-top: 6px;
+      min-height: 34px;
+      padding: 6px 12px;
+      border-radius: 10px;
+      border: 1px solid #d6e2ee;
+      background: linear-gradient(180deg, #f8fbff 0%, #eef5fc 100%);
+      color: #6a8399;
+      font-size: .84rem;
+      font-weight: 700;
+      line-height: 1.3;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+      width: 100%;
+      max-width: 420px;
+    }
+
     .status-strip {
       grid-area: status;
       display: grid;
@@ -623,7 +643,6 @@
 
     .action-msg {
       min-height: 12px;
-      margin-top: 4px;
       font-size: .8rem;
       font-weight: 700;
       line-height: 1.25;
@@ -1123,6 +1142,13 @@
         font-size: .82rem;
       }
 
+      .header-action-msg {
+        max-width: 100%;
+        min-height: 32px;
+        font-size: .78rem;
+        padding: 6px 10px;
+      }
+
       .logout-sm {
         top: 10px;
         left: 8px;
@@ -1253,6 +1279,11 @@
         font-size: .76rem;
       }
 
+      .header-action-msg {
+        font-size: .74rem;
+        line-height: 1.25;
+      }
+
       .status-strip {
         grid-template-columns: 1fr;
       }
@@ -1292,6 +1323,7 @@
           <h1>BIOPLAY ADMIN</h1>
         </div>
         <p>לוח בקרה למדריך</p>
+        <div class="header-action-msg action-msg" id="action-msg"></div>
       </div>
       <button class="logout-sm" id="logout-btn">יציאה</button>
     </header>
@@ -1331,7 +1363,6 @@
     </div>
     <button class="btn btn-room" id="room-btn">צור חדר</button>
     <small class="setup-help-text">בחרו חדר ומספר דלתות ולחצו על "צור חדר"</small>
-    <div class="action-msg" id="action-msg"></div>
   </div>
 </section>
 
@@ -1349,7 +1380,7 @@
     </div>
     <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק</button>
     <small class="copy-help-text">העתיקו את הקישור ושלחו אותו בצ'אט של Zoom</small>
-    <div class="action-msg action-msg-placeholder" aria-hidden="true"></div>
+    <div class="action-msg-placeholder" aria-hidden="true"></div>
   </div>
 </section>
 
@@ -1680,14 +1711,14 @@
     const staleRoomId = currentRoomId;
     if (isInvalidTeacherTokenError(err)) {
       clearActiveRoomState({ clearCurrentRoomId: true });
-      actionMsg.textContent = "הגישה לחדר אינה תקפה או פגה. יש לבחור חדר וללחוץ שוב על 'צור חדר'.";
+      actionMsg.textContent = "הגישה לחדר אינה תקפה או פגה. השלב הבא: בחרו חדר ולחצו שוב על \"צור חדר\".";
       actionMsg.className = "action-msg error";
       console.warn("[admin] invalid teacher access", { roomId: staleRoomId });
       return true;
     }
     if (isRoomNotFoundError(err)) {
       clearActiveRoomState({ clearCurrentRoomId: true });
-      actionMsg.textContent = "החדר שנבחר לא נמצא. יש לבחור חדר וליצור חדר מחדש.";
+      actionMsg.textContent = "החדר שנבחר לא נמצא. השלב הבא: בחרו חדר תקין ולחצו שוב על \"צור חדר\".";
       actionMsg.className = "action-msg error";
       console.warn("[admin] room not found", { roomId: staleRoomId });
       return true;
@@ -1777,7 +1808,7 @@
     const selectedRoomName = roomNameSelect.value.trim();
     clearActiveRoomState({ clearCurrentRoomId: true });
     if (!selectedRoomName) {
-      actionMsg.textContent = "בחרו חדר";
+      actionMsg.textContent = "כדי להתחיל, בחרו חדר ולחצו על \"צור חדר\".";
       actionMsg.className = "action-msg info";
       isCreatingRoom = false;
       return;
@@ -1785,7 +1816,7 @@
 
     roomBtn.disabled = true;
     syncDashboardMeta();
-    actionMsg.textContent = "יוצר חדר...";
+    actionMsg.textContent = "יוצר חדר, נא להמתין...";
     actionMsg.className = "action-msg info";
     try {
       const res = await fetch(APPS_URL, {
@@ -1815,7 +1846,7 @@
       setStatus(validPayload.status);
       if (pollTimer) startPolling();
 
-      actionMsg.textContent = "החדר נוצר בהצלחה";
+      actionMsg.textContent = "החדר נוצר בהצלחה. השלב הבא: לחצו PLAY כדי להפעיל את המשחק.";
       actionMsg.className = "action-msg success";
       console.info("[admin] create_room success", { roomId: currentRoomId, roomName: selectedRoomName });
       toast("✔ חדר חדש נוצר", "success");
@@ -1922,17 +1953,17 @@
   loginCodeEl.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
   roomNameSelect.addEventListener("change", () => {
     clearActiveRoomState({ clearCurrentRoomId: true });
-    actionMsg.textContent = "בחרתם חדר חדש. לחצו שוב על \"צור חדר\" לפני PLAY.";
+    actionMsg.textContent = "נבחר חדר חדש. השלב הבא: לחצו שוב על \"צור חדר\" לפני PLAY.";
     actionMsg.className = "action-msg info";
     syncDashboardMeta();
   });
 
   activateBtn.onclick = async () => {
     if (playInFlight) return;
-    if (!canPlayNow()) { actionMsg.textContent = "יש לבחור חדר וליצור אותו מחדש לפני הפעלה."; actionMsg.className = "action-msg info"; console.info("[admin] play blocked", { selectedRoom: roomNameSelect.value.trim(), hasRoomId: Boolean(currentRoomId), createSucceeded: lastCreateSucceeded }); return; }
+    if (!canPlayNow()) { actionMsg.textContent = "לא ניתן להפעיל עדיין. השלב הבא: בחרו חדר ולחצו על \"צור חדר\" לפני PLAY."; actionMsg.className = "action-msg info"; console.info("[admin] play blocked", { selectedRoom: roomNameSelect.value.trim(), hasRoomId: Boolean(currentRoomId), createSucceeded: lastCreateSucceeded }); return; }
     const selectedRoomName = roomNameSelect.value.trim();
     if (!selectedRoomName || selectedRoomName !== lastSuccessfulCreatedRoom) {
-      actionMsg.textContent = "יש ליצור מחדש את החדר שנבחר לפני PLAY";
+      actionMsg.textContent = "יש ליצור מחדש את החדר שנבחר. השלב הבא: לחצו על \"צור חדר\" ואז על PLAY.";
       actionMsg.className = "action-msg error";
       return;
     }
@@ -1940,12 +1971,12 @@
     const activeTeacherToken = currentTeacherToken;
     playInFlight = true;
     activateBtn.disabled = true;
-    actionMsg.textContent = "מפעיל..."; actionMsg.className = "action-msg info";
+    actionMsg.textContent = "מפעיל את המשחק, נא להמתין..."; actionMsg.className = "action-msg info";
     try {
       const r = await sendAction("start", activeTeacherToken, { doorsCount, roomId: activeRoomId });
       const resolvedCount = parseInt(r?.doorsCount, 10) || doorsCount;
       localStorage.setItem(getDoorsKey(activeRoomId), resolvedCount);
-      actionMsg.textContent = `✔ הופעל – ${resolvedCount} דלתות`; actionMsg.className = "action-msg success";
+      actionMsg.textContent = `המשחק הופעל בהצלחה. התלמידים יכולים להתחיל.`; actionMsg.className = "action-msg success";
       setStatus("started");
       const glowUntil = Date.now() + PLAY_GLOW_MS;
       localStorage.setItem(getPlayGlowKey(activeRoomId), String(glowUntil));
@@ -1953,7 +1984,7 @@
       toast(`✔ המשחק הופעל! Room ${activeRoomId}`, "success");
     } catch (e) {
       if (!handleInvalidServerState(e)) {
-        actionMsg.textContent = String(e.message || "שגיאת הפעלה"); actionMsg.className = "action-msg error";
+        actionMsg.textContent = `הפעלת המשחק נכשלה. ${String(e.message || "יש לנסות שוב")}`.trim(); actionMsg.className = "action-msg error";
       }
       toast("שגיאה בהפעלה", "error");
     } finally {
@@ -1964,21 +1995,21 @@
 
   resetBtn.onclick = async () => {
     if (resetInFlight) return;
-    if (!canResetNow()) { actionMsg.textContent = "האיפוס חסום עד ליצירת חדר תקין מחדש."; actionMsg.className = "action-msg info"; return; }
+    if (!canResetNow()) { actionMsg.textContent = "לא ניתן לאפס כרגע. השלב הבא: צרו חדר תקין מחדש ואז לחצו RESET."; actionMsg.className = "action-msg info"; return; }
     const activeRoomId = currentRoomId;
     const activeTeacherToken = currentTeacherToken;
     resetInFlight = true;
     resetBtn.disabled = true;
-    actionMsg.textContent = "מאפס..."; actionMsg.className = "action-msg info";
+    actionMsg.textContent = "מאפס את המשחק, נא להמתין..."; actionMsg.className = "action-msg info";
     try {
       await sendAction("reset", activeTeacherToken, { roomId: activeRoomId });
       setStatus("waiting");
       removePlayGlow();
-      actionMsg.textContent = "✔ אופס – המשחק חזר למצב המתנה"; actionMsg.className = "action-msg success";
+      actionMsg.textContent = "המשחק אופס וחזר למצב המתנה. השלב הבא: ניתן ללחוץ שוב על PLAY."; actionMsg.className = "action-msg success";
       toast("✔ החדר אופס", "success");
     } catch (e) {
       if (!handleInvalidServerState(e)) {
-        actionMsg.textContent = String(e.message || "שגיאת איפוס"); actionMsg.className = "action-msg error";
+        actionMsg.textContent = `איפוס המשחק נכשל. ${String(e.message || "יש לנסות שוב")}`.trim(); actionMsg.className = "action-msg error";
       }
     } finally {
       resetInFlight = false;
@@ -1994,7 +2025,7 @@
     loginOverlay.style.display = "none";
     loginCodeEl.value = "";
     loginMsg.textContent = "";
-    actionMsg.textContent = "התנתקתם. בחרו חדר ולחצו \"צור חדר\".";
+    actionMsg.textContent = "התנתקתם. השלב הבא: בחרו חדר ולחצו \"צור חדר\".";
     actionMsg.className = "action-msg info";
   };
 

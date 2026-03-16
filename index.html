@@ -1338,6 +1338,7 @@
   </style>
 </head>
 <body>
+  <div id="score-badge" style="display:none;position:fixed;top:12px;left:16px;background:rgba(5,12,28,0.88);border:1px solid rgba(255,255,255,0.14);border-radius:50px;padding:6px 16px;font-size:0.88rem;z-index:9999;backdrop-filter:blur(8px);white-space:nowrap;direction:rtl;"></div>
   <main class="app" id="app">
     <div class="effects-layer" id="effects-layer"></div>
 
@@ -1392,7 +1393,24 @@
       cipherData:          null,
       roomId:              ROOM_ID,
       missingRoom:         !ROOM_ID,
+      playerName:          localStorage.getItem("bioplay-player-name") || "",
+      score:               0,
     };
+
+    function addScore(delta) {
+      state.score += delta;
+      updateScoreBadge();
+    }
+
+    function updateScoreBadge() {
+      const badge = document.getElementById("score-badge");
+      if (!badge) return;
+      if (!state.playerName) { badge.style.display = "none"; return; }
+      const s = state.score;
+      badge.style.display = "block";
+      badge.style.color = s >= 0 ? "var(--accent-2)" : "var(--danger)";
+      badge.innerHTML = `👤 ${state.playerName} &nbsp;|&nbsp; ניקוד: <strong>${s > 0 ? "+" : ""}${s}</strong>`;
+    }
 
     // ── DOM refs ────────────────────────────────────────────
     const app          = document.getElementById("app");
@@ -1750,6 +1768,12 @@
               <p class="lead" style="text-align:right; width:fit-content; margin:0 auto">• בחרו דלת,<br>• עברו שלבים מאתגרים<br>• וגלו איך הטבע הופך לרעיון חדש.</p>
 
               <div class="start-zone">
+                <div style="margin-bottom:12px;display:flex;flex-direction:column;align-items:center;gap:8px">
+                  <label for="player-name-home" style="font-size:0.95rem;color:var(--muted)">הכניסו את שמכם לפני ההתחלה:</label>
+                  <input id="player-name-home" type="text" placeholder="שם מלא" maxlength="40" dir="rtl"
+                    value="${state.playerName}"
+                    style="padding:8px 16px;border-radius:24px;border:1px solid var(--border);background:rgba(255,255,255,0.08);color:var(--text);font-size:1rem;text-align:center;width:240px;outline:none">
+                </div>
                 <p class="wait-message ${unlocked ? "hidden" : ""}" id="wait-message">${state.missingRoom ? "פנו למדריך לקבלת קישור" : "אנא המתינו, מיד מתחילים"}</p>
                 <button class="btn btn-primary btn-start ${unlocked && !state.missingRoom ? "" : "hidden"}" id="start-btn">התחלת המשחק</button>
               </div>
@@ -1844,6 +1868,20 @@
         updateHomeStatusUI();
         return;
       }
+      const nameInput = document.getElementById("player-name-home");
+      const enteredName = (nameInput?.value || "").trim();
+      if (!enteredName) {
+        if (nameInput) {
+          nameInput.style.borderColor = "var(--danger)";
+          nameInput.placeholder = "נא להכניס שם לפני ההתחלה";
+          nameInput.focus();
+        }
+        return;
+      }
+      state.playerName = enteredName;
+      localStorage.setItem("bioplay-player-name", enteredName);
+      state.score = 0;
+      updateScoreBadge();
       document.getElementById("instruction-layer").classList.add("hidden");
       const countdown = document.getElementById("countdown");
       const num       = document.getElementById("countdown-number");
@@ -1995,6 +2033,7 @@
         panel.classList.remove("success", "error");
 
         if (entered && entered === expected) {
+          addScore(10);
           state.flowProgress.cipherCompleted = true;
           panel.classList.add("success");
           feedback.textContent = "פיצחתם את כתב הסתרים!";
@@ -2006,6 +2045,7 @@
           return;
         }
 
+        addScore(-10);
         panel.classList.add("error");
         feedback.textContent = "פענוח שגוי. נסו שוב.";
         feedback.className = "feedback error";
@@ -2127,10 +2167,12 @@
           if (!door.hasCode) {
             const answerCorrect = String(chosen).trim() === String(step.answer || "").trim();
             if (answerCorrect) {
+              addScore(10);
               btn.classList.add("correct");
               renderConfirmation(doorId, stepIndex);
               setTimeout(() => setActiveScreen(`door-${doorId}-confirm-${stepIndex}`), 800);
             } else {
+              addScore(-10);
               btn.classList.add("wrong");
             }
           } else {
@@ -2199,6 +2241,7 @@
         panel.classList.remove("success", "error");
 
         if (answerCorrect && codeCorrect) {
+          addScore(10);
           panel.classList.add("success");
           fb.textContent = step.codeSuccessText || "הקוד נכון!";
           fb.className   = "feedback success";
@@ -2210,6 +2253,7 @@
           renderConfirmation(doorId, codeStage);
           setTimeout(() => setActiveScreen(`door-${doorId}-confirm-${codeStage}`), 1400);
         } else {
+          addScore(-10);
           panel.classList.add("error");
           fb.textContent = step.codeWrongText || "הקוד שגוי. נסו שוב.";
           fb.className   = "feedback error";
@@ -2307,6 +2351,7 @@
         panel.classList.remove("success", "error");
 
         if (entered === expected) {
+          addScore(10);
           panel.classList.add("success");
           fb.textContent = finalLock.successText || "הדלת נפתחת!";
           fb.className   = "feedback success";
@@ -2322,6 +2367,7 @@
             });
           }, 1200);
         } else {
+          addScore(-10);
           panel.classList.add("error");
           fb.textContent = finalLock.wrongText || "הקוד שגוי. נסו שוב.";
           fb.className   = "feedback error";
@@ -2385,10 +2431,13 @@
     // ── Final congratulations screen ─────────────────────────
     function renderFinal() {
       const el = document.getElementById("screen-final");
+      const scoreColor = state.score >= 0 ? "var(--accent-2)" : "var(--danger)";
+      const playerLine = state.playerName ? `<p class="question-text" style="font-size:1.1rem">שחקן: <strong>${state.playerName}</strong> &nbsp;|&nbsp; ניקוד סופי: <strong style="color:${scoreColor}">${state.score > 0 ? "+" : ""}${state.score}</strong></p>` : "";
       el.innerHTML = `
         ${topStrip("סיום", `דלתות שהושלמו: ${state.completedDoors.size}`)}
         <div class="card finish-card">
           <h2 class="finish-title">פיצחתם את קוד הטבע 🎉</h2>
+          ${playerLine}
           <p class="question-text">למדתם איך הטבע נותן השראה לרעיונות, לפתרונות ולהמצאות חדשות.</p>
           <div class="actions">
             <button class="btn btn-primary" id="final-back-btn">חזרה למסך הדלתות</button>
@@ -2408,6 +2457,7 @@
       } catch (e) {
         console.warn("Could not load final cipher data", e);
       }
+      updateScoreBadge();
       renderHome();
       if (state.missingRoom) {
         updateHomeStatusUI();

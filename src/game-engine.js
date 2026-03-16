@@ -5,7 +5,6 @@ function normalize(text) {
   return String(text ?? '').replace(/\s+/g, ' ').trim();
 }
 
-
 const STAGE8_QUESTION = {
   gateName: 'שער המעבר האחרון',
   question: 'איזה שלב מגיע מיד אחרי שלב שאלה מספר 8?',
@@ -31,8 +30,14 @@ export function createGameEngine(data) {
     return state;
   }
 
+  function addScore(delta) {
+    const current = typeof state.score === 'number' ? state.score : 0;
+    commit({ score: current + delta });
+  }
+
   function selectOrganism(organism) {
-    commit({ ...resetState(), selectedOrganism: organism, currentStage: STAGES.IDENTIFICATION });
+    const currentScore = typeof state.score === 'number' ? state.score : 0;
+    commit({ ...resetState(), selectedOrganism: organism, currentStage: STAGES.IDENTIFICATION, score: currentScore });
     saveState(state);
   }
 
@@ -61,7 +66,11 @@ export function createGameEngine(data) {
   function answerMcq(answer, answerIndex) {
     const step = getStep();
     if (!step) return { ok: false };
-    if (normalize(answer) !== normalize(step.correctAnswer)) return { ok: false };
+    if (normalize(answer) !== normalize(step.correctAnswer)) {
+      addScore(-10);
+      return { ok: false };
+    }
+    addScore(10);
     if (state.currentStage === STAGES.IDENTIFICATION) commit({ code_step_1: String(answerIndex) });
     if (state.currentStage === STAGES.SECRET) commit({ code_step_2: String(answerIndex) });
     if (state.currentStage === STAGES.HABITAT) commit({ code_step_3: String(answerIndex) });
@@ -74,7 +83,11 @@ export function createGameEngine(data) {
     if (state.currentStage !== STAGES.DOOR_1) return false;
     if (!(state.code_step_1 && state.code_step_2 && state.code_step_3)) return false;
     const expected = `${state.code_step_1}${state.code_step_2}${state.code_step_3}`;
-    if (normalize(entered) !== normalize(expected)) return false;
+    if (normalize(entered) !== normalize(expected)) {
+      addScore(-10);
+      return false;
+    }
+    addScore(10);
     commit({ door_1_unlocked: true });
     advance();
     return true;
@@ -88,11 +101,19 @@ export function createGameEngine(data) {
     return true;
   }
 
+  function completeBiomatchWrong() {
+    addScore(-10);
+  }
+
   function answerStep6(value) {
     if (state.currentStage !== STAGES.COUNT_ELEMENTS) return false;
     const step = getStep(STAGES.COUNT_ELEMENTS);
     if (!step) return false;
-    if (normalize(value) !== normalize(step.correctAnswer)) return false;
+    if (normalize(value) !== normalize(step.correctAnswer)) {
+      addScore(-10);
+      return false;
+    }
+    addScore(10);
     commit({ element_count_code: String(step.correctAnswer) });
     advance();
     return true;
@@ -102,7 +123,11 @@ export function createGameEngine(data) {
     if (state.currentStage !== STAGES.DOOR_2) return false;
     if (state.secret_digit_1 === null || state.secret_digit_2 === null || state.element_count_code === null) return false;
     const doorCode = `${state.secret_digit_1}${state.secret_digit_2}${state.element_count_code}`;
-    if (normalize(entered) !== normalize(doorCode)) return false;
+    if (normalize(entered) !== normalize(doorCode)) {
+      addScore(-10);
+      return false;
+    }
+    addScore(10);
     commit({ door_2_unlocked: true });
     advance();
     return true;
@@ -110,7 +135,11 @@ export function createGameEngine(data) {
 
   function solveCipher(answer) {
     if (state.currentStage !== STAGES.FINAL_SCREEN) return false;
-    if (normalize(answer) !== normalize(data.cipher.cipherSolution)) return false;
+    if (normalize(answer) !== normalize(data.cipher.cipherSolution)) {
+      addScore(-10);
+      return false;
+    }
+    addScore(10);
     commit({ cipher_solved: true, final_sentence_revealed: true });
     return true;
   }
@@ -124,6 +153,7 @@ export function createGameEngine(data) {
     answerMcq,
     unlockDoor1,
     completeBiomatch,
+    completeBiomatchWrong,
     answerStep6,
     unlockDoor2,
     solveCipher,

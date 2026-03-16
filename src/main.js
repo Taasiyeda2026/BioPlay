@@ -1,12 +1,14 @@
 import { loadGameData } from './data-loader.js';
 import { createGameEngine } from './game-engine.js';
 import { STAGES } from './flow-router.js';
+import { loadPlayerName, savePlayerName } from './game-state.js';
 
 const app = document.querySelector('#app');
 let data;
 let engine;
 let feedback = '';
 let hintShown = false;
+let playerName = '';
 
 const DOOR_ICONS = ['✦', '✧', '⬟', '◈', '✺'];
 
@@ -50,6 +52,13 @@ function getOrganismImage(organism) {
 
 function esc(v) {
   return String(v ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+}
+
+function renderScoreBadge() {
+  if (!playerName) return '';
+  const score = engine ? (engine.getState().score ?? 0) : 0;
+  const color = score >= 0 ? 'var(--accent-2)' : 'var(--danger)';
+  return `<div class="score-badge" style="color:${color}">👤 ${esc(playerName)} &nbsp;|&nbsp; ניקוד: <strong>${score > 0 ? '+' : ''}${score}</strong></div>`;
 }
 
 function renderSlideLayout({ eyebrow = '', title, content, imageSrc, imageAlt, imageCaption = '' }) {
@@ -127,10 +136,57 @@ function createStageMcq(stage, step, bundle) {
   return step;
 }
 
+function renderNameScreen() {
+  app.innerHTML = `
+    <main class="screen door-screen">
+      <section class="card" style="max-width:480px; margin:auto; text-align:center">
+        <h1 style="font-size:1.6rem; margin-bottom:0.4rem">ברוכים הבאים!</h1>
+        <p style="color:var(--muted); margin-bottom:1.4rem">הכניסו את שמכם כדי להתחיל את המשחק</p>
+        <input
+          id="player-name-input"
+          class="code-input"
+          placeholder="שם מלא"
+          style="font-size:1.1rem; text-align:center; width:100%; margin-bottom:1rem"
+          maxlength="40"
+          dir="rtl"
+          autofocus
+        />
+        <button class="primary-btn" data-action="set-name" style="width:100%">התחלה →</button>
+      </section>
+    </main>`;
+
+  document.querySelector('#player-name-input')?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submitName();
+  });
+}
+
+function submitName() {
+  const val = document.querySelector('#player-name-input')?.value?.trim() || '';
+  if (!val) {
+    const input = document.querySelector('#player-name-input');
+    if (input) {
+      input.style.borderColor = 'var(--danger)';
+      input.placeholder = 'נא להכניס שם';
+    }
+    return;
+  }
+  playerName = val;
+  savePlayerName(val);
+  render();
+}
+
 function render() {
+  if (!playerName) {
+    renderNameScreen();
+    return;
+  }
+
   const state = engine.getState();
+  const scoreBadge = renderScoreBadge();
+
   if (!state.selectedOrganism) {
     app.innerHTML = `
+      ${scoreBadge}
       <main class="screen door-screen">
         <section class="card">
           <h1>${esc(data.config.gameName)}</h1>
@@ -161,39 +217,45 @@ function render() {
       ${feedback ? `<p class="feedback">${esc(feedback)}</p>` : ''}
       ${hintShown ? `<p class="hint">💡 ${esc(mcqStep.hint)}</p>` : ''}`;
 
-    app.innerHTML = `<main class="screen stage-screen">${renderSlideLayout({ eyebrow: `${esc(stageLabel)} · ${mcqStep.gateName}`, title: mcqStep.question, content, imageSrc: getOrganismImage(state.selectedOrganism), imageAlt: state.selectedOrganism, imageCaption: `מסלול ${state.selectedOrganism}` })}</main>`;
+    app.innerHTML = `${scoreBadge}<main class="screen stage-screen">${renderSlideLayout({ eyebrow: `${esc(stageLabel)} · ${mcqStep.gateName}`, title: mcqStep.question, content, imageSrc: getOrganismImage(state.selectedOrganism), imageAlt: state.selectedOrganism, imageCaption: `מסלול ${state.selectedOrganism}` })}</main>`;
     return;
   }
 
   if (stage === STAGES.DOOR_1) {
     const content = `<p class="subtle">הזינו את שלוש הספרות מהשלבים הקודמים.</p><input id="door1" class="code-input" placeholder="___" /><div class="actions-row"><button class="primary-btn" data-action="door1">בדיקת קוד</button><button class="ghost-btn" data-action="restart">חזרה להתחלה</button></div>${feedback ? `<p class="feedback">${esc(feedback)}</p>` : ''}`;
-    app.innerHTML = `<main class="screen">${renderSlideLayout({ eyebrow: stageLabel, title: 'דלת הקוד הראשונה', content, imageSrc: 'images/door1.png', imageAlt: 'דלת 1' })}</main>`;
+    app.innerHTML = `${scoreBadge}<main class="screen">${renderSlideLayout({ eyebrow: stageLabel, title: 'דלת הקוד הראשונה', content, imageSrc: 'images/door1.png', imageAlt: 'דלת 1' })}</main>`;
     return;
   }
 
   if (stage === STAGES.DOOR_2) {
     const content = `<p class="subtle">הקוד מורכב מ-2 ספרות משלב 5 + תשובת שלב 6.</p><input id="door2" class="code-input" /><div class="actions-row"><button class="primary-btn" data-action="door2">בדיקת קוד</button></div>${feedback ? `<p class="feedback">${esc(feedback)}</p>` : ''}`;
-    app.innerHTML = `<main class="screen">${renderSlideLayout({ eyebrow: stageLabel, title: 'דלת הקוד השנייה', content, imageSrc: 'images/door2.png', imageAlt: 'דלת 2' })}</main>`;
+    app.innerHTML = `${scoreBadge}<main class="screen">${renderSlideLayout({ eyebrow: stageLabel, title: 'דלת הקוד השנייה', content, imageSrc: 'images/door2.png', imageAlt: 'דלת 2' })}</main>`;
     return;
   }
 
   if (stage === STAGES.FINAL_SCREEN) {
     if (state.cipher_solved) {
-      app.innerHTML = `<main class="screen end-screen"><section class="card glow"><p class="eyebrow">${esc(stageLabel)}</p><h2>${esc(data.cipher.finalScreenText)}</h2><button class="primary-btn" data-action="restart">${esc(data.cipher.continueButtonLabel)}</button></section></main>`;
+      app.innerHTML = `${scoreBadge}<main class="screen end-screen"><section class="card glow"><p class="eyebrow">${esc(stageLabel)}</p><h2>${esc(data.cipher.finalScreenText)}</h2><p style="font-size:1.3rem; margin:1rem 0">ניקוד סופי: <strong style="color:var(--accent-2)">${state.score ?? 0}</strong></p><button class="primary-btn" data-action="restart">${esc(data.cipher.continueButtonLabel)}</button></section></main>`;
       return;
     }
 
     const content = `<p>${esc(data.cipher.instruction)}</p><input id="cipher" /><div class="actions-row"><button class="primary-btn" data-action="cipher">פענוח</button></div>${feedback ? `<p class="feedback">${esc(feedback)}</p>` : ''}`;
-    app.innerHTML = `<main class="screen">${renderSlideLayout({ eyebrow: stageLabel, title: 'כתב סתרים', content, imageSrc: 'images/q.png', imageAlt: 'כתב סתרים' })}</main>`;
+    app.innerHTML = `${scoreBadge}<main class="screen">${renderSlideLayout({ eyebrow: stageLabel, title: 'כתב סתרים', content, imageSrc: 'images/q.png', imageAlt: 'כתב סתרים' })}</main>`;
     return;
   }
 
-  app.innerHTML = `<main class="screen end-screen"><section class="card glow"><p class="eyebrow">${esc(stageLabel)}</p><h2>${esc(data.cipher.finalScreenText)}</h2><button class="primary-btn" data-action="restart">${esc(data.cipher.continueButtonLabel)}</button></section></main>`;
+  app.innerHTML = `${scoreBadge}<main class="screen end-screen"><section class="card glow"><p class="eyebrow">${esc(stageLabel)}</p><h2>${esc(data.cipher.finalScreenText)}</h2><p style="font-size:1.3rem; margin:1rem 0">ניקוד סופי: <strong style="color:var(--accent-2)">${engine.getState().score ?? 0}</strong></p><button class="primary-btn" data-action="restart">${esc(data.cipher.continueButtonLabel)}</button></section></main>`;
 }
 
 app.addEventListener('click', (event) => {
   const btn = event.target.closest('button');
   if (!btn) return;
+
+  if (btn.dataset.action === 'set-name') {
+    submitName();
+    return;
+  }
+
   feedback = '';
 
   if (btn.dataset.organism) {
@@ -209,9 +271,14 @@ app.addEventListener('click', (event) => {
     if (stage === STAGES.BIOMATCH) {
       const matching = engine.getBundle()?.matching;
       const isCorrect = matching && btn.dataset.answer === matching.mainCorrectMatch;
-      const digits = matching?.secretDigits || [];
-      const ok = isCorrect ? engine.completeBiomatch(digits[0], digits[1]) : false;
-      result = { ok, didYouKnow: isCorrect ? `שתי ספרות הסוד: ${digits.join('')}` : '' };
+      if (!isCorrect) {
+        engine.completeBiomatchWrong();
+        result = { ok: false, didYouKnow: '' };
+      } else {
+        const digits = matching?.secretDigits || [];
+        const ok = engine.completeBiomatch(digits[0], digits[1]);
+        result = { ok, didYouKnow: isCorrect ? `שתי ספרות הסוד: ${digits.join('')}` : '' };
+      }
     } else if (stage === STAGES.COUNT_ELEMENTS) {
       const ok = engine.answerStep6(btn.dataset.answer);
       result = { ok, didYouKnow: '' };
@@ -219,7 +286,7 @@ app.addEventListener('click', (event) => {
       result = engine.answerMcq(btn.dataset.answer, btn.dataset.index);
     }
     hintShown = false;
-    feedback = result.ok ? (result.didYouKnow || 'תשובה נכונה! ממשיכים.') : 'תשובה שגויה';
+    feedback = result.ok ? (result.didYouKnow || 'תשובה נכונה! ממשיכים.') : 'תשובה שגויה (−10 נקודות)';
     render();
     return;
   }
@@ -232,21 +299,24 @@ app.addEventListener('click', (event) => {
 
   if (btn.dataset.action === 'door1') {
     hintShown = false;
-    feedback = engine.unlockDoor1(document.querySelector('#door1')?.value || '') ? 'הדלת נפתחה!' : 'קוד שגוי, נסו שוב';
+    const ok = engine.unlockDoor1(document.querySelector('#door1')?.value || '');
+    feedback = ok ? 'הדלת נפתחה!' : 'קוד שגוי, נסו שוב (−10 נקודות)';
     render();
     return;
   }
 
   if (btn.dataset.action === 'door2') {
     hintShown = false;
-    feedback = engine.unlockDoor2(document.querySelector('#door2')?.value || '') ? 'הדלת נפתחה!' : 'קוד שגוי, נסו שוב';
+    const ok = engine.unlockDoor2(document.querySelector('#door2')?.value || '');
+    feedback = ok ? 'הדלת נפתחה!' : 'קוד שגוי, נסו שוב (−10 נקודות)';
     render();
     return;
   }
 
   if (btn.dataset.action === 'cipher') {
     hintShown = false;
-    feedback = engine.solveCipher(document.querySelector('#cipher')?.value || '') ? '' : 'פענוח שגוי';
+    const ok = engine.solveCipher(document.querySelector('#cipher')?.value || '');
+    feedback = ok ? '' : 'פענוח שגוי (−10 נקודות)';
     render();
     return;
   }
@@ -262,5 +332,6 @@ app.addEventListener('click', (event) => {
 (async () => {
   data = await loadGameData();
   engine = createGameEngine(data);
+  playerName = loadPlayerName();
   render();
 })();

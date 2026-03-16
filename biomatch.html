@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>biomatch</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+</head>
+<body class="bg-slate-950 text-white min-h-screen p-4">
+  <main class="max-w-4xl mx-auto">
+    <h1 class="text-2xl font-bold mb-2">התאמה בין אורגניזם להמצאה</h1>
+    <p id="instruction" class="mb-4"></p>
+    <div class="grid md:grid-cols-2 gap-3" id="pairs"></div>
+    <p id="feedback" class="mt-3"></p>
+    <div id="numbers" class="mt-5 flex flex-wrap gap-2"></div>
+  </main>
+
+<script>
+const organism = new URLSearchParams(location.search).get('organism') || '';
+let task = null;
+let selectedLeft = null;
+let matched = 0;
+
+function esc(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
+
+function shuffled(arr){return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(i=>i[1]);}
+
+function render() {
+  const pairs = [task.pair1, task.pair2, task.pair3];
+  const inventions = shuffled(pairs.map((p) => p.invention));
+  const left = pairs.map((p, i) => `<button class="p-3 rounded bg-indigo-700 text-right" data-side="left" data-id="${i}">${esc(p.organism)}</button>`).join('');
+  const right = inventions
+    .map((inv) => {
+      const index = pairs.findIndex((p) => p.invention === inv);
+      return `<button class="p-3 rounded bg-cyan-700 text-right" data-side="right" data-id="${index}">${esc(inv)}</button>`;
+    })
+    .join('');
+
+  document.querySelector('#instruction').textContent = task.instruction;
+  document.querySelector('#pairs').innerHTML = `<div class="grid gap-2">${left}</div><div class="grid gap-2">${right}</div>`;
+
+  const digits = task.secretDigits?.length === 2 ? task.secretDigits : ['3', '4'];
+  const noise = ['0','1','2','5','6','7','8','9'];
+  const cloud = shuffled([...noise.slice(0,4), ...digits, ...noise.slice(4)]).map((n)=>`<span class="inline-flex w-9 h-9 items-center justify-center rounded-full border border-violet-300">${n}</span>`).join('');
+  document.querySelector('#numbers').innerHTML = cloud;
+}
+
+document.body.addEventListener('click', (event) => {
+  const btn = event.target.closest('button[data-side]');
+  if (!btn) return;
+  const side = btn.dataset.side;
+  if (side === 'left') {
+    selectedLeft = btn.dataset.id;
+    document.querySelector('#feedback').textContent = 'בחרו המצאה מתאימה';
+    return;
+  }
+
+  if (selectedLeft === null) return;
+  if (selectedLeft === btn.dataset.id) {
+    matched += 1;
+    btn.disabled = true;
+    document.querySelector(`button[data-side="left"][data-id="${selectedLeft}"]`).disabled = true;
+    document.querySelector('#feedback').textContent = 'התאמה נכונה';
+  } else {
+    document.querySelector('#feedback').textContent = 'התאמה שגויה';
+  }
+  selectedLeft = null;
+
+  if (matched === 3) {
+    const digits = task.secretDigits?.length === 2 ? task.secretDigits : ['3', '4'];
+    window.parent.postMessage({ type: 'BIOMATCH_COMPLETED', secret_digit_1: digits[0], secret_digit_2: digits[1], organism }, '*');
+    document.querySelector('#feedback').textContent = 'הושלם בהצלחה';
+  }
+});
+
+(async () => {
+  const data = await fetch('data/matching-tasks.json').then((r) => r.json());
+  task = data.find((row) => row.organismId === organism) || data[0];
+  render();
+})();
+</script>
+</body>
+</html>

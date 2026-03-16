@@ -1,5 +1,4 @@
 const STORAGE_KEY = 'bioplay-state-v1';
-const NAME_KEY = 'bioplay-player-name';
 
 export const INITIAL_STATE = {
   selectedOrganism: null,
@@ -11,11 +10,11 @@ export const INITIAL_STATE = {
   secret_digit_1: null,
   secret_digit_2: null,
   element_count_code: null,
+  door_2_code: null,
   door_2_unlocked: false,
-  stage8_completed: false,
+  cipher_unlocked: false,
   cipher_solved: false,
-  final_sentence_revealed: false,
-  score: 0
+  final_sentence_revealed: false
 };
 
 export function loadState() {
@@ -35,16 +34,4 @@ export function saveState(state) {
 export function resetState() {
   localStorage.removeItem(STORAGE_KEY);
   return { ...INITIAL_STATE };
-}
-
-export function loadPlayerName() {
-  return localStorage.getItem(NAME_KEY) || '';
-}
-
-export function savePlayerName(name) {
-  localStorage.setItem(NAME_KEY, name.trim());
-}
-
-export function clearPlayerName() {
-  localStorage.removeItem(NAME_KEY);
 }

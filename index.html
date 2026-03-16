@@ -2428,8 +2428,29 @@
       };
     }
 
+    // ── Submit score to server ───────────────────────────────
+    async function submitScoreToServer() {
+      if (!state.roomId || !state.playerName) return;
+      try {
+        const body = new URLSearchParams({
+          action: 'submit_result',
+          roomId: state.roomId,
+          playerName: state.playerName,
+          score: String(state.score)
+        });
+        await fetch(APPS_SCRIPT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: body.toString()
+        });
+      } catch (e) {
+        console.warn('Score submission failed:', e);
+      }
+    }
+
     // ── Final congratulations screen ─────────────────────────
     function renderFinal() {
+      submitScoreToServer();
       const el = document.getElementById("screen-final");
       const scoreColor = state.score >= 0 ? "var(--accent-2)" : "var(--danger)";
       const playerLine = state.playerName ? `<p class="question-text" style="font-size:1.1rem">שחקן: <strong>${state.playerName}</strong> &nbsp;|&nbsp; ניקוד סופי: <strong style="color:${scoreColor}">${state.score > 0 ? "+" : ""}${state.score}</strong></p>` : "";

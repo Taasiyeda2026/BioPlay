@@ -49,7 +49,7 @@ function submitResult_(p) {
 
 function getResults_(p) {
   const roomId = clean_(p.roomId || p.game_id);
-  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_RESULTS);
+  const sh = getSpreadsheet_().getSheetByName(SHEET_RESULTS);
   if (!sh || sh.getLastRow() < 2) return ok_({ results: [] });
 
   const rows = sh.getRange(2, 1, sh.getLastRow() - 1, 4).getValues();
@@ -217,15 +217,21 @@ function ensureRoomsSheet_() {
   if (mismatch) sh.getRange(1, 1, 1, HEADER.length).setValues([HEADER]);
 }
 
+function getSpreadsheet_() {
+  const id = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
+  if (id) return SpreadsheetApp.openById(id);
+  return SpreadsheetApp.getActiveSpreadsheet();
+}
+
 function sheet_() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   let sh = ss.getSheetByName(SHEET_ROOMS);
   if (!sh) sh = ss.insertSheet(SHEET_ROOMS);
   return sh;
 }
 
 function roomNamesSheet_() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   let sh = ss.getSheetByName(SHEET_ROOM_NAMES);
   if (!sh) {
     sh = ss.insertSheet(SHEET_ROOM_NAMES);
@@ -237,7 +243,7 @@ function roomNamesSheet_() {
 }
 
 function resultsSheet_() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = getSpreadsheet_();
   let sh = ss.getSheetByName(SHEET_RESULTS);
   if (!sh) {
     sh = ss.insertSheet(SHEET_RESULTS);

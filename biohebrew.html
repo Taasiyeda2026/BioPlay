@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🕵️ משימת חילוץ סודית – שיעור בחקר מקרה וביומימיקרי</title>
+<style>
+:root{
+  --dark:#0b1c2d;
+  --accent:#1f6f8b;
+  --accent-2:#ff8a00;
+  --accent-3:#7c3aed;
+  --light:#f4f7fa;
+  --border:#dbe7f3;
+  --success:#10b981;
+  --danger:#ef4444;
+}
+
+/* Stage Colors */
+.stage[data-step="0"] { --stage-color: #ef4444; --stage-light: #fee2e2; }
+.stage[data-step="1"] { --stage-color: #10b981; --stage-light: #d1fae5; }
+.stage[data-step="2"] { --stage-color: #3b82f6; --stage-light: #dbeafe; }
+.stage[data-step="3"] { --stage-color: #8b5cf6; --stage-light: #f3e8ff; }
+.stage[data-step="4"] { --stage-color: #ec4899; --stage-light: #fce7f3; }
+.stage[data-step="5"] { --stage-color: #f59e0b; --stage-light: #fef3c7; }
+.stage[data-step="6"] { --stage-color: #06b6d4; --stage-light: #cffafe; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:Heebo,system-ui,sans-serif;
+  background:linear-gradient(180deg,#f8fbff 0%,#f3f7fc 50%,#edf3f9 100%);
+  line-height:1.6;
+  color:#0f172a;
+  overflow:hidden;
+}
+.hidden{display:none !important}
+h1,h2,h3{line-height:1.3}
+h1{font-size:clamp(2.1rem,6vw,4rem);text-shadow:0 6px 22px rgba(0,0,0,.25)}
+h2{font-size:clamp(.95rem,2.2vw,1.4rem);color:var(--stage-color,var(--dark));border-right:5px solid var(--stage-color,var(--accent-2));padding-right:.6rem;margin-bottom:.3rem}
+p,li{font-size:.88rem}
+button{border:none;border-radius:12px;background:var(--accent);color:#fff;cursor:pointer}
+
+/* ─ Coach text ─ */
+[data-coach="he"]{
+  display:none;
+  font-size:.78rem;
+  color:#475569;
+  padding:.45rem .65rem;
+  border-right:3px solid #e2e8f0;
+  background:#f8fafc;
+  border-radius:8px;
+  line-height:1.55;
+  white-space:pre-line;
+  flex-shrink:0;
+}
+
+/* ─ Hero ─ */
+.hero{
+  height:100vh;
+  background:
+    radial-gradient(circle at 20% 20%,rgba(255,138,0,.2),transparent 35%),
+    radial-gradient(circle at 80% 30%,rgba(124,58,237,.18),transparent 32%),
+    linear-gradient(135deg,#0b1c2d,#12324a);
+  color:white;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  text-align:center;
+  padding:2rem;
+}
+.hero h1{margin-bottom:.75rem}
+.hero button{margin-top:1rem;padding:.8rem 1.8rem;font-size:1rem;border-radius:30px}
+
+/* ─ Stage container ─ */
+main{position:relative;height:100vh}
+.main-shell{max-width:1100px;margin:0 auto}
+
+/* ─ Stage: full-height flex column, no overflow ─ */
+.stage{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  transform:translateX(40px);
+  transition:opacity .6s ease,transform .6s ease;
+  pointer-events:none;
+  display:flex;
+  flex-direction:column;
+  padding:.5rem 4% 72px;   /* 72px = space for nav bar */
+  gap:.5rem;
+  overflow:hidden;
+}
+.stage.active{
+  opacity:1;
+  transform:translateX(0);
+  pointer-events:auto;
+  z-index:2;
+}
+.stage.exit-left{
+  opacity:0;
+  transform:translateX(-40px);
+}
+.overlay-ar{display:inline-block}
+.stage.active .overlay-ar{animation:fadeInUp .9s ease forwards}
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(10px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ─ Card: fills remaining height with color ─ */
+.card{
+  background: linear-gradient(165deg, #ffffff, var(--stage-light, #f9fcff));
+  border-radius: 18px;
+  padding: .75rem 1rem;
+  flex: 1;
+  min-height: 0;
+  box-shadow: 0 12px 24px rgba(10,32,58,.1),
+              0 0 20px rgba(var(--stage-color, 31), var(--stage-color, 111), var(--stage-color, 139), 0.08);
+  border: 1px solid rgba(var(--stage-color, 219), var(--stage-color, 231), var(--stage-color, 243), 0.5);
+  border-left: 5px solid var(--stage-color, #1f6f8b);
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+  overflow: hidden;
+  margin-right: 23%;
+}
+
+/* ─ Side-by-side: image + text column ─ */
+.stage-row{
+  display:flex;
+  gap:.75rem;
+  flex:1;
+  min-height:0;
+  overflow:hidden;
+  align-items:flex-start;
+}
+.stage-row img{
+  width:40%;
+  max-height:100%;
+  object-fit:cover;
+  border-radius:12px;
+  border:2px solid var(--stage-color, var(--border));
+  flex-shrink:0;
+  box-shadow:0 6px 16px rgba(var(--stage-color, 31), var(--stage-color, 111), var(--stage-color, 139), 0.2);
+}
+
+/* ─ Content column (inside row, or direct card child) ─ */
+.stage-col{
+  flex:1;
+  min-width:0;
+  display:flex;
+  flex-direction:column;
+  gap:.4rem;
+  overflow:hidden;
+}
+
+/* ─ Info boxes ─ */
+.stage-box{
+  background: linear-gradient(135deg, var(--stage-light, #ecf8ff), #ffffff);
+  padding: .45rem .7rem;
+  border-radius: 10px;
+  border-left: 4px solid var(--stage-color, var(--accent));
+  font-weight: 600;
+  font-size: .87rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.stage-box:hover{
+  transform: translateX(-4px);
+  box-shadow: 0 6px 16px rgba(var(--stage-color, 31), var(--stage-color, 111), var(--stage-color, 139), 0.25);
+}
+.zoom-box{
+  background: #f8fafc;
+  border-left: 2px solid var(--stage-color, #cbd5e1);
+  border-radius: 10px;
+  padding: .45rem .7rem;
+  font-size: .87rem;
+}
+.reveal-content{
+  display: none;
+  padding: .6rem .9rem;
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(var(--stage-color, 59), var(--stage-color, 130), var(--stage-color, 246), 0.1), rgba(var(--stage-color, 59), var(--stage-color, 130), var(--stage-color, 246), 0.05));
+  border-left: 3px solid var(--stage-color, #fed7aa);
+  font-size: .87rem;
+  cursor: pointer;
+  margin-top: .4rem;
+  transition: all 0.4s ease;
+  animation: slideDown 0.3s ease;
+}
+.reveal-content.visible{
+  display: block;
+  padding: 1rem 1.2rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(var(--stage-color, 59), var(--stage-color, 130), var(--stage-color, 246), 0.3);
+}
+@keyframes slideDown{
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.reveal-content:hover{
+  background: linear-gradient(135deg, rgba(var(--stage-color, 59), var(--stage-color, 130), var(--stage-color, 246), 0.15), rgba(var(--stage-color, 59), var(--stage-color, 130), var(--stage-color, 246), 0.08));
+}
+.question-box{
+  background: #eff6ff;
+  border-left: 3px solid var(--stage-color, #3b82f6);
+  padding: .45rem .7rem;
+  border-radius: 10px;
+  font-weight: 600;
+}
+.lang-ar{direction:rtl;font-family:Tajawal,"Noto Sans Arabic",sans-serif}
+
+/* Organism Cards Layout (Stages 2-4) */
+.organism .stage-row {
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.organism .stage-row img {
+  width: 70%;
+  max-width: 420px;
+  height: auto;
+}
+
+.organism .stage-col {
+  width: 100%;
+  text-align: center;
+  align-items: center;
+}
+
+.organism .stage-box {
+  text-align: center;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.organism .zoom-box {
+  display: none;
+}
+
+/* Stage 0 - Opening with Giant Image and Text Overlay */
+[data-step="0"] .stage-row {
+  position: relative;
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+}
+
+[data-step="0"] .stage-row img {
+  width: 55%;
+  max-height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+[data-step="0"] .stage-col {
+  width: 45%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, var(--stage-light), #ffffff);
+}
+
+[data-step="0"] .stage-col p {
+  margin: 0.3rem 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* Stage 1 - Centered Layout */
+[data-step="1"] .stage-row {
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+[data-step="1"] .stage-row img {
+  width: 80%;
+  max-width: 480px;
+  height: auto;
+}
+
+[data-step="1"] .stage-col {
+  width: 100%;
+  text-align: center;
+}
+
+[data-step="1"] .zoom-box {
+  display: block;
+}
+
+.organism .reveal-button {
+  background: linear-gradient(135deg, var(--stage-color, #3b82f6), rgba(var(--stage-color, 59), var(--stage-color, 130), var(--stage-color, 246), 0.8));
+  color: white;
+  border: 2px solid var(--stage-color, #3b82f6);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.5rem auto;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.organism .reveal-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 16px rgba(var(--stage-color, 59), var(--stage-color, 130), var(--stage-color, 246), 0.3);
+}
+
+.organism .reveal-button.showing .icon-hidden {
+  display: none;
+}
+
+.organism .reveal-button.showing .icon-showing {
+  display: inline;
+}
+
+.organism .reveal-button .icon-hidden {
+  display: inline;
+}
+
+.organism .reveal-button .icon-showing {
+  display: none;
+}
+
+/* Solution Options (Stage 5) */
+.solution-options{
+  display: flex;
+  flex-direction: column;
+  gap: .5rem;
+  margin-top: .5rem;
+}
+
+.solution-option{
+  background: linear-gradient(135deg, var(--stage-light, #fef3c7), #ffffff);
+  border: 2px solid var(--stage-color, #f59e0b);
+  border-radius: 10px;
+  padding: .8rem 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: .9rem;
+}
+
+.solution-option:hover{
+  background: linear-gradient(135deg, #ffffff, var(--stage-light, #fef3c7));
+  box-shadow: 0 4px 12px rgba(var(--stage-color, 245), var(--stage-color, 158), var(--stage-color, 11), 0.2);
+  transform: translateX(-4px);
+}
+
+.solution-option.selected{
+  background: linear-gradient(135deg, var(--stage-color, #f59e0b), rgba(var(--stage-color, 245), var(--stage-color, 158), var(--stage-color, 11), 0.8));
+  color: white;
+  box-shadow: 0 6px 16px rgba(var(--stage-color, 245), var(--stage-color, 158), var(--stage-color, 11), 0.3);
+  border-color: var(--stage-color, #f59e0b);
+}
+
+.solution-option.selected::before{
+  content: "✓ ";
+  font-weight: 700;
+  margin-right: 0.3rem;
+}
+
+/* Solution Option Boxes (Stage 5) */
+.solution-options-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  margin: 0.5rem 0;
+}
+
+.solution-option-box {
+  background: linear-gradient(135deg, var(--stage-light, #fef3c7), #ffffff);
+  border: 2px solid var(--stage-color, #f59e0b);
+  border-radius: 12px;
+  padding: 0.65rem 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.82rem;
+  min-height: 52px;
+}
+
+.solution-option-box:hover {
+  box-shadow: 0 4px 14px rgba(245,158,11,0.25);
+  transform: translateY(-2px);
+}
+
+.solution-option-title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  line-height: 1.3;
+}
+.card-arrow {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  transition: transform 0.3s ease;
+}
+.solution-option-box.open .card-arrow {
+  transform: rotate(180deg);
+  opacity: 1;
+}
+.solution-option-box.open {
+  background: linear-gradient(135deg, var(--stage-light, #fef3c7), #fffbeb);
+  box-shadow: 0 4px 16px rgba(245,158,11,0.22);
+  border-color: var(--stage-color, #f59e0b);
+}
+
+.solution-option-box .reveal-content {
+  display: none;
+  margin-top: 0.55rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.75);
+  border-right: 4px solid var(--stage-color, #f59e0b);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.solution-option-box .reveal-content.visible {
+  display: block;
+  animation: slideDown 0.25s ease;
+}
+.rc-source {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--stage-color, #f59e0b);
+  margin-bottom: 0.4rem;
+}
+.rc-row {
+  margin-bottom: 0.25rem;
+}
+.rc-row:last-child {
+  margin-bottom: 0;
+}
+.rc-label {
+  font-weight: 700;
+}
+.rc-why {
+  margin-top: 0.35rem;
+  padding-top: 0.35rem;
+  border-top: 1px dashed rgba(0,0,0,0.12);
+}
+
+/* ─ Sidebar ─ */
+.coach-sidebar {
+  position: fixed;
+  right: 0;
+  top: 0;
+  width: 22%;
+  height: 100vh;
+  background: linear-gradient(180deg, #0b1c2d 0%, #1a2d42 100%);
+  border-left: 4px solid var(--stage-color, #1f6f8b);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem 0.8rem 100px;
+  z-index: 150;
+  color: #e0e7ff;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  box-shadow: -8px 0 24px rgba(10,32,58,0.3);
+}
+
+.coach-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.coach-sidebar::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.1);
+}
+
+.coach-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.3);
+  border-radius: 3px;
+}
+
+.coach-section {
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 1px solid rgba(255,255,255,0.15);
+  display: none;
+}
+
+.coach-section.active {
+  display: block;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.coach-header {
+  font-weight: 700;
+  color: #60a5fa;
+  margin-bottom: 0.8rem;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.coach-content {
+  white-space: pre-line;
+  color: #d1d5db;
+}
+
+.sidebar-toggle {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
+  border: 2px solid #475569;
+  border-radius: 10px;
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.sidebar-toggle:hover {
+  background: #0f172a;
+  transform: scale(1.08);
+}
+
+.coach-sidebar.hidden {
+  display: none !important;
+  visibility: hidden;
+}
+
+/* ─ Fixed UI ─ */
+.student-status{
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:14px;
+  background:rgba(11,28,45,.93);
+  color:#fff;
+  padding:.5rem .85rem;
+  border-radius:999px;
+  z-index:800;
+  font-size:.87rem;
+}
+.nav-bar{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  gap:10px;
+  z-index:1000;
+}
+.nav-bar button{background:#334155;font-size:.85rem;padding:.4rem .8rem}
+.timer-box{
+  position:fixed;
+  top:16px;
+  left:16px;
+  padding:.6rem;
+  border:1px solid #dbeafe;
+  border-radius:12px;
+  background:#f8fbff;
+  z-index:1000;
+  min-width:185px;
+  box-shadow:0 10px 24px rgba(15,23,42,.15);
+  cursor:pointer;
+}
+.timer-display{font-size:1.4rem;font-weight:800;margin:.1rem 0;text-align:center}
+.timer-display.warning{color:var(--danger);animation:pulse 1s infinite}
+.timer-note{font-size:.8rem;color:#334155;min-height:1rem}
+.timer-row{display:flex;gap:.4rem;margin-top:.4rem}
+.timer-row button{flex:1;padding:.38rem .4rem;font-size:.78rem;background:#0f172a}
+.timer-box.collapsed .timer-note,
+.timer-box.collapsed .timer-row{display:none}
+
+@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.04)}100%{transform:scale(1)}}
+
+@media(max-width:768px){
+  .stage{padding:.4rem 3% 72px}
+  .stage-row img{width:42%}
+  h2{font-size:clamp(.85rem,2vw,1.15rem)}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════  HERO  ════════════════ -->
+<section class="hero" id="heroSection">
+  <h1 data-coach="he">🕵️‍♂️ משימת חילוץ סודית</h1>
+  <p data-student="ar" class="lang-ar overlay-ar">مهمة إنقاذ سرّية – درس محاكاة حيوية</p>
+  <button onclick="startLesson()" class="lang-ar overlay-ar">ابدأوا المهمة</button>
+</section>
+
+<!-- ════════════════  LESSON  ════════════════ -->
+<div id="lessonApp" class="hidden">
+  <!-- Sidebar for Coach Notes -->
+  <aside class="coach-sidebar" id="coachSidebar"></aside>
+
+  <!-- Toggle button for sidebar -->
+
+  <main class="main-shell" id="mainContent">
+
+    <!-- ─────────  שלב 0 / المرحلة 0 – הפתיחה הדרמטית  ───────── -->
+    <section class="stage active" data-step="0">
+      <div class="card">
+        <h2 class="lang-ar overlay-ar">🕵️ פתיחה</h2>
+        <div class="stage-row">
+          <img src="images/mud-with-bag.png" alt="Bag in muddy puddle">
+          <div class="stage-col lang-ar overlay-ar">
+            <p>תדמיינו שקבוצת חברים יצאה לטיול בטבע.</p>
+            <p>במהלך ההליכה, אחד החברים – ילד בשם עידו – איבד את התיק שלו.</p>
+            <p>התיק התגלגל ונפל לתוך שלולית בוץ עמוקה.</p>
+            <p>אי אפשר להיכנס פנימה – כי שוקעים בבוץ.</p>
+            <p>אי אפשר להגיע עם היד – זה רחוק מדי.</p>
+            <p style="font-weight: 600; margin-top: 0.6rem;">ועכשיו נשאלת השאלה:</p>
+            <div class="question-box">❓ איך מחלצים את התיק בלי לשקוע?</div>
+            <div class="zoom-box">⏳ כתבו בצ'אט פתרונות חופשיים — 3 דקות.</div>
+          </div>
+        </div>
+        <div data-coach="he">תדמיינו שקבוצת חברים יצאה לטיול בטבע.
+במהלך ההליכה, אחד החברים – ילד בשם עידו – איבד את התיק שלו.
+התיק התגלגל ונפל לתוך שלולית בוץ עמוקה.
+אי אפשר להיכנס פנימה – כי שוקעים בבוץ.
+אי אפשר להגיע עם היד – זה רחוק מדי.
+ועכשיו נשאלת השאלה: איך מחלצים את התיק בלי לשקוע?
+שלוש דקות — כתבו בצ'אט פתרונות חופשיים (בלי טבע עדיין).</div>
+      </div>
+    </section>
+
+    <!-- ─────────  שלב 1 – עכשיו מתחיל החקר  ───────── -->
+    <section class="stage" data-step="1">
+      <div class="card">
+        <h2>🌿 עכשיו מתחיל החקר</h2>
+        <div class="stage-row">
+          <img src="images/eye.png" alt="Search and observation">
+          <div class="stage-col lang-ar overlay-ar">
+            <div class="zoom-box">אנחנו הולכים לבדוק איך הטבע פותר בעיות דומות.</div>
+          </div>
+        </div>
+        <div data-coach="he">עכשיו אנחנו הולכים לבדוק איך הטבע פותר בעיות דומות.
+נחקור שלושה אורגניזמים ונראה את התכונות שלהם.</div>
+      </div>
+    </section>
+
+    <!-- ─────────  שלב 2 / اورجانيزم 1 – ברווז / البطة  ───────── -->
+    <section class="stage organism" data-step="2">
+      <div class="card">
+        <h2>🦆 אורגניזם 1 – ברווז</h2>
+        <div class="stage-row">
+          <img src="images/duck-real.png" alt="Duck webbed feet on soft ground">
+          <div class="stage-col">
+            <div class="stage-box">❓ מה מיוחד בכפות הרגליים שלו?</div>
+            <button class="reveal-button" data-step="2" onclick="toggleOrganismAnswer(event, 'duck')">
+              <span class="icon-hidden">👁️</span>
+              <span class="icon-showing">✓</span>
+            </button>
+            <div class="reveal-content" style="margin: 0.4rem auto; max-width: 90%;">קרומי שחייה שמפזרים משקל.<br><strong>מסקנה:</strong> פיזור משקל עוזר לא לשקוע.</div>
+          </div>
+        </div>
+        <div data-coach="he">בואו נסתכל על הברווז.
+למה הוא לא שוקע בבוץ כשהוא הולך?
+לברווז קרומי שחייה — קרום עור המחבר בין האצבעות בכפות הרגליים.
+מבנה זה מגדיל את שטח המגע בין כף הרגל לבין הקרקע.
+
+כאשר שטח המגע גדל, אותו משקל גוף מתפזר על פני שטח רחב יותר.
+כתוצאה מכך הלחץ המופעל על הקרקע קטן.
+בשטח רחב — המשקל מתפזר.
+וכשהמשקל מתפזר — פחות שוקעים.
+מסקנה: פיזור משקל עוזר לא לשקוע.</div>
+      </div>
+    </section>
+
+    <!-- ─────────  שלב 3 / اورجانيزم 2 – עכביש מים / سكان الماء  ───────── -->
+    <section class="stage organism" data-step="3">
+      <div class="card">
+        <h2>🕷️ אורגניזם 2 – עכביש מים</h2>
+        <div class="stage-row">
+          <img src="images/water-strider-real.png" alt="Water strider on water surface">
+          <div class="stage-col">
+            <div class="stage-box">❓ איך הוא הולך על מים ולא שוקע?</div>
+            <button class="reveal-button" data-step="3" onclick="toggleOrganismAnswer(event, 'strider')">
+              <span class="icon-hidden">👁️</span>
+              <span class="icon-showing">✓</span>
+            </button>
+            <div class="reveal-content" style="margin: 0.4rem auto; max-width: 90%;">רגליים ארוכות ודקות שמפזרות משקל.<br><strong>מסקנה:</strong> מבנה נכון מונע שקיעה.</div>
+          </div>
+        </div>
+        <div data-coach="he">עכשיו בואו נראה עכביש מים.
+הוא הולך על פני המים בלי לשקוע.
+איך?
+יש לו רגליים ארוכות ודקות מאוד.
+הרגליים מפזרות את המשקל שלו.
+
+בנוסף, לרגליים יש מבנה מיוחד שעוזר להן לא לשבור את פני המים.
+
+לפני המים יש כמו שכבה דקה ומתוחה.
+כל עוד לא שוברים אותה — לא שוקעים.
+מסקנה: המבנה המיוחד של הרגליים מאפשר לו להישאר על פני המים בלי לשקוע.</div>
+      </div>
+    </section>
+
+    <!-- ─────────  שלב 4 / اورجانيزم 3 – פיל / الفيل  ───────── -->
+    <section class="stage organism" data-step="4">
+      <div class="card">
+        <h2>🐘 אורגניזם 3 – פיל</h2>
+        <div class="stage-row">
+          <img src="images/elephant-foot-real.png" alt="Elephant foot on soft ground">
+          <div class="stage-col">
+            <div class="stage-box">❓ למה פיל לא שוקע למרות שהוא כבד?</div>
+            <button class="reveal-button" data-step="4" onclick="toggleOrganismAnswer(event, 'elephant')">
+              <span class="icon-hidden">👁️</span>
+              <span class="icon-showing">✓</span>
+            </button>
+            <div class="reveal-content" style="margin: 0.4rem auto; max-width: 90%;">כף רגל רחבה שמפזרת משקל.<br><strong>מסקנה:</strong> שטח מגע גדול = פחות שקיעה.</div>
+          </div>
+        </div>
+        <div data-coach="he">בואו נחשוב על פיל.
+הוא אחד החיות הכבדות בעולם.
+והוא הולך על אדמה רכה ולא שוקע בקלות.
+איך זה ייתכן?
+הוא יש לו כף רגל רחבה מאוד.
+הכף הרחבה מפזרת את כל המשקל על שטח ענק.
+בגלל זה הלחץ על הקרקע קטן — ולכן הוא לא שוקע.
+מסקנה: שטח מגע גדול = פחות שקיעה.</div>
+      </div>
+    </section>
+
+    <!-- ─────────  שלב 5 – שלב ההמצאה  ───────── -->
+    <section class="stage" data-step="5">
+      <div class="card">
+        <h2>🔧 שלב ההמצאה</h2>
+        <div class="stage-col">
+          <p>תכננו כלי שיחלץ את התיק מהבוץ בהשראת הטבע.</p>
+          <div class="zoom-box">⏳ 10 דקות — בחדרים קטנים או בצ'אט.</div>
+          <div style="font-weight: 600; font-size: .9rem; margin-bottom: .3rem;">👇 בחרו אפשרות:</div>
+          <div class="solution-options-container">
+            <div class="solution-option-box">
+              <div class="solution-option-title"><span>👟 נעליים מיוחדות</span><span class="card-arrow">▼</span></div>
+              <div class="reveal-content">
+                <div class="rc-source">🦆 בהשראת ברווז</div>
+                <div class="rc-row"><span class="rc-label">הבעיה:</span> אי אפשר ללכת על הבוץ מבלי לשקוע.</div>
+                <div class="rc-row"><span class="rc-label">הרעיון:</span> נעליים עם סוליות רחבות הנפתחות בזמן דריכה ומגדילות את שטח המגע עם הקרקע.</div>
+                <div class="rc-row"><span class="rc-label">העיקרון:</span> פיזור משקל על שטח גדול יותר.</div>
+                <div class="rc-row rc-why"><span class="rc-label">למה זה עובד:</span> כאשר המשקל מתפזר — הלחץ קטן — והבוץ אינו קורס מתחת לרגל.</div>
+              </div>
+            </div>
+            <div class="solution-option-box">
+              <div class="solution-option-title"><span>📋 לוח רחב לעמידה</span><span class="card-arrow">▼</span></div>
+              <div class="reveal-content">
+                <div class="rc-source">🐘 בהשראת פיל</div>
+                <div class="rc-row"><span class="rc-label">הבעיה:</span> דריכה ישירה גורמת לשקיעה עמוקה.</div>
+                <div class="rc-row"><span class="rc-label">הרעיון:</span> לוח קל ורחב המונח על הבוץ ומפזר את משקל הגוף.</div>
+                <div class="rc-row"><span class="rc-label">העיקרון:</span> כף רגל רחבה המפזרת עומס.</div>
+                <div class="rc-row rc-why"><span class="rc-label">למה זה עובד:</span> המשקל מתחלק על פני שטח גדול — ולכן הלוח נשאר יציב מעל הבוץ.</div>
+              </div>
+            </div>
+            <div class="solution-option-box">
+              <div class="solution-option-title"><span>🎣 מוט עם מבנה מיוחד</span><span class="card-arrow">▼</span></div>
+              <div class="reveal-content">
+                <div class="rc-source">🕷 בהשראת עכביש מים</div>
+                <div class="rc-row"><span class="rc-label">הבעיה:</span> לא ניתן להגיע לתיק מבלי לדרוך בבוץ.</div>
+                <div class="rc-row"><span class="rc-label">הרעיון:</span> מוט שבקצהו רגליים נפרשות או משטח רחב התומך בהרמה.</div>
+                <div class="rc-row"><span class="rc-label">העיקרון:</span> פיזור עומס על מספר נקודות מגע.</div>
+                <div class="rc-row rc-why"><span class="rc-label">למה זה עובד:</span> הלחץ אינו מתרכז בנקודה אחת — ולכן אין שקיעה.</div>
+              </div>
+            </div>
+            <div class="solution-option-box">
+              <div class="solution-option-title"><span>🤖 רובוט קטן</span><span class="card-arrow">▼</span></div>
+              <div class="reveal-content">
+                <div class="rc-source">🔬 בהשראת הטבע וההנדסה</div>
+                <div class="rc-row"><span class="rc-label">הבעיה:</span> הגישה לתיק מסוכנת ודורשת יציבות על קרקע רכה.</div>
+                <div class="rc-row"><span class="rc-label">הרעיון:</span> רובוט עם רגליים רחבות או זחלים המפזרים משקל.</div>
+                <div class="rc-row"><span class="rc-label">העיקרון:</span> פיזור עומס רציף + התאמה לקרקע.</div>
+                <div class="rc-row rc-why"><span class="rc-label">למה זה עובד:</span> המשקל מתפרס על שטח רחב — והרובוט אינו שוקע.</div>
+              </div>
+            </div>
+          </div>
+          <div style="margin-top: .8rem; padding-top: .6rem; border-top: 1px solid var(--stage-light);">
+            <div class="stage-box" style="cursor: default; margin-bottom: .3rem;">💡 שאלות לחשיבה:</div>
+            <ul style="font-size: .85rem; padding-right: 1.2rem; margin: .3rem 0;">
+              <li>איזה עיקרון לקחתם מהטבע?</li>
+              <li>כיצד הוא עוזר לפתור את הבעיה?</li>
+            </ul>
+          </div>
+        </div>
+        <div data-coach="he">עכשיו אנחנו עוברים לשלב ההמצאה.
+אני מחלקת אתכם לחדרים קטנים בזום (או תעבדו בצ'אט).
+המשימה שלכם:
+תכננו כלי שיחלץ את התיק מהבוץ בהשראת אחד מהיצורים שראינו.
+אתם יכולים לבחור:
+• נעליים מיוחדות
+• לוח רחב לעמידה
+• מוט ארוך עם מבנה מיוחד
+• רובוט קטן
+או כל רעיון אחר בהשראת פיזור משקל.
+שאלות לחשיבה:
+1. איזה עיקרון לקחתם מהטבע?
+2. איך הוא עוזר לפתור את הבעיה?
+עשר דקות עבודה. בואו נתחיל!</div>
+      </div>
+    </section>
+
+    <!-- ─────────  שלב 6 – הסיכום: תהליך החקר  ───────── -->
+    <section class="stage" data-step="6">
+      <div class="card">
+        <h2>✅ סיכום: תהליך החקר</h2>
+        <div class="stage-col">
+          <div class="stage-box" style="font-weight:400; font-size:0.95rem; line-height:1.8; padding:1rem 1.2rem;">
+            <div style="margin-bottom:0.6rem;">1️⃣ זיהינו בעיה</div>
+            <div style="margin-bottom:0.6rem;">2️⃣ שאלנו: מי בטבע מתמודד עם בעיה דומה?</div>
+            <div style="margin-bottom:0.6rem;">3️⃣ בדקנו תכונות של האורגניזם</div>
+            <div style="margin-bottom:0.6rem;">4️⃣ לקחנו עיקרון</div>
+            <div>5️⃣ המצאנו פתרון חדש</div>
+          </div>
+          <div class="zoom-box">וזה בדיוק תהליך חקר מקרה!</div>
+        </div>
+        <div data-coach="he">בואו נסכם את התהליך שעשינו היום.
+
+זה נקרא "חקר מקרה" וזה עובד ככה:
+
+1️⃣ זיהינו בעיה אמיתית — התיק בבוץ
+2️⃣ שאלנו: מי בטבע מתמודד עם בעיה דומה?
+3️⃣ בדקנו תכונות של האורגניזם — כף רגל, קרומים, רגליים
+4️⃣ לקחנו עיקרון — פיזור משקל
+5️⃣ והמצאנו פתרון חדש — כלי חילוץ בהשראת הטבע
+
+זה ביומימיקרי — למידה מהטבע כדי לפתח פתרונות חכמים.</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ─ Status bar ─ -->
+<div id="studentStatus" class="student-status" style="display: none;">⏳ انتظروا تعليمات المعلمة</div>
+
+<!-- ─ Timer ─ -->
+<div class="timer-box hidden" id="timerBox">
+  <div class="timer-display" id="timerDisplay">03:00</div>
+  <div class="timer-note" id="timerNote"></div>
+  <div class="timer-row">
+    <button onclick="selectStepTime(event)">בחירת זמן</button>
+    <button onclick="startTimer(event)">הפעלה</button>
+    <button onclick="resetStepTimer(event)">איפוס</button>
+    <button onclick="pauseTimer(event)">עצור</button>
+  </div>
+</div>
+
+<!-- ─ Navigation ─ -->
+<div class="nav-bar hidden" id="navBar">
+  <button onclick="goToStep(currentStep-1)" aria-label="Previous step">➡️</button>
+  <button class="sidebar-toggle" id="sidebarToggle" title="הצג/הסתר הערות המדריכה" onclick="toggleSidebar(event)">👁️</button>
+  <button onclick="goToStep(currentStep+1)" aria-label="Next step">⬅️</button>
+</div>
+
+<script>
+const stages = Array.from(document.querySelectorAll('.stage'));
+const STEP_TIMES = { 0:180, 1:60, 2:180, 3:180, 4:180, 5:600, 6:120 };
+
+let currentStep = 0;
+let countdown;
+let remainingTime = STEP_TIMES[0];
+
+function goToStep(newStep){
+  if(newStep < 0 || newStep >= stages.length) return;
+  const current = stages[currentStep];
+  const next    = stages[newStep];
+  clearInterval(countdown);
+  current.classList.remove('active');
+  current.classList.add('exit-left');
+  setTimeout(()=>{ current.classList.remove('exit-left'); }, 600);
+  next.classList.add('active');
+  currentStep   = newStep;
+  remainingTime = STEP_TIMES[currentStep] || 120;
+  updateDisplay();
+  setTimerNote(`זמן מומלץ לשלב: ${fmt(remainingTime)}`);
+  if(typeof updateCoachSidebar === 'function') updateCoachSidebar(newStep);
+}
+
+function fmt(s){ return `${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`; }
+
+function updateDisplay(){
+  const el = document.getElementById('timerDisplay');
+  el.textContent = fmt(remainingTime);
+  el.classList.toggle('warning', remainingTime <= 30 && remainingTime > 0);
+}
+
+function startStepTimer(){ remainingTime = STEP_TIMES[currentStep] || 120; startTimer(); }
+
+function startTimer(event){
+  if(event) event.stopPropagation();
+  clearInterval(countdown);
+  updateDisplay();
+  setTimerNote('הטיימר רץ...');
+  countdown = setInterval(()=>{
+    if(remainingTime > 0){ remainingTime--; updateDisplay(); }
+    else { clearInterval(countdown); setTimerNote('הזמן הסתיים'); }
+  }, 1000);
+}
+
+function pauseTimer(event){
+  if(event) event.stopPropagation();
+  clearInterval(countdown);
+  setTimerNote('הטיימר מושהה');
+}
+
+function resetStepTimer(event){
+  if(event) event.stopPropagation();
+  clearInterval(countdown);
+  remainingTime = STEP_TIMES[currentStep] || 120;
+  updateDisplay();
+  setTimerNote('איפוס לטיימר של השלב הנוכחי');
+}
+
+function selectStepTime(event){
+  if(event) event.stopPropagation();
+  clearInterval(countdown);
+  remainingTime = STEP_TIMES[currentStep] || 120;
+  updateDisplay();
+  setTimerNote(`זמן לשלב ${currentStep}: ${fmt(remainingTime)}`);
+}
+
+function setTimerNote(msg){ document.getElementById('timerNote').textContent = msg; }
+
+function startLesson(){
+  document.getElementById('heroSection').classList.add('hidden');
+  document.getElementById('lessonApp').classList.remove('hidden');
+  document.getElementById('navBar').classList.remove('hidden');
+  document.getElementById('timerBox').classList.remove('hidden');
+  document.getElementById('timerBox').classList.add('collapsed');
+  setupCoachSidebar();
+  setupRevealContent();
+  setupSolutionOptions();
+  setupSidebarToggle();
+  goToStep(0);
+}
+
+/* ──── Sidebar Setup ──── */
+function setupCoachSidebar() {
+  const sidebar = document.getElementById('coachSidebar');
+  const stages = document.querySelectorAll('.stage');
+
+  stages.forEach((stage, idx) => {
+    const coachText = stage.querySelector('[data-coach="he"]');
+    if (coachText) {
+      const section = document.createElement('div');
+      section.className = 'coach-section';
+      section.dataset.step = idx;
+      section.innerHTML = `
+        <div class="coach-header">👨‍🏫 ${idx === 0 ? 'פתיחה' : 'שלב ' + idx}</div>
+        <div class="coach-content">${coachText.textContent}</div>
+      `;
+      sidebar.appendChild(section);
+    }
+  });
+
+  // Show first section
+  document.querySelector('[data-step="0"]').classList.add('active');
+}
+
+/* ──── Reveal-on-Click Answers ──── */
+function setupRevealContent() {
+  // Stage 5 solution option reveal-on-click
+  document.querySelectorAll('[data-step="5"] .solution-option-box').forEach(box => {
+    box.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const content = box.querySelector('.reveal-content');
+      const isOpen = content.classList.contains('visible');
+      content.classList.toggle('visible', !isOpen);
+      box.classList.toggle('open', !isOpen);
+    });
+  });
+}
+
+/* ──── Solution Options (Stage 5) ──── */
+function setupSolutionOptions() {
+  const stageEl = document.querySelector('[data-step="5"]');
+  if (!stageEl) return;
+
+  const stageBoxEl = stageEl.querySelector('.stage-box');
+  const options = ['נעליים מיוחדות', 'לוח רחב לעמידה', 'מוט ארוך עם מבנה מיוחד', 'רובוט קטן'];
+
+  const container = document.createElement('div');
+  container.className = 'solution-options';
+
+  options.forEach(opt => {
+    const btn = document.createElement('div');
+    btn.className = 'solution-option';
+    btn.textContent = '🎯 ' + opt;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      document.querySelectorAll('.solution-option').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+    });
+    container.appendChild(btn);
+  });
+
+  stageEl.querySelector('.stage-col').insertBefore(container, stageBoxEl.nextSibling);
+}
+
+/* ──── Organism Answer Toggle ──── */
+function toggleOrganismAnswer(event, organism) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  const button = event.currentTarget;
+  const card = button.closest('.card');
+  const revealContent = card.querySelector('.reveal-content');
+
+  if (!revealContent) return;
+
+  button.classList.toggle('showing');
+  revealContent.classList.toggle('visible');
+}
+
+/* ──── Toggle Sidebar Function ──── */
+function toggleSidebar(event) {
+  event.preventDefault();
+  event.stopPropagation();
+  const sidebar = document.getElementById('coachSidebar');
+  const toggle = document.getElementById('sidebarToggle');
+
+  if (!sidebar || !toggle) return;
+
+  const isHidden = sidebar.classList.contains('hidden');
+  if (isHidden) {
+    sidebar.classList.remove('hidden');
+    toggle.textContent = '👁️';
+  } else {
+    sidebar.classList.add('hidden');
+    toggle.textContent = '📖';
+  }
+}
+
+/* ──── Sidebar Toggle ──── */
+function setupSidebarToggle() {
+  const toggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('coachSidebar');
+
+  if (!toggle || !sidebar) {
+    console.error('Sidebar toggle setup failed');
+    return;
+  }
+
+  // Use a direct click handler
+  toggle.onclick = function(e) {
+    if (e) e.preventDefault();
+    sidebar.classList.toggle('hidden');
+    toggle.textContent = sidebar.classList.contains('hidden') ? '📖' : '👁️';
+    return false;
+  };
+
+  // Also add event listener for redundancy
+  toggle.addEventListener('click', function(e) {
+    if (e) e.preventDefault();
+    sidebar.classList.toggle('hidden');
+    toggle.textContent = sidebar.classList.contains('hidden') ? '📖' : '👁️';
+  }, false);
+
+  // Make sure it's clickable
+  toggle.style.cursor = 'pointer';
+  toggle.style.pointerEvents = 'auto';
+}
+
+/* ──── Update Coach Sidebar on Stage Change ──── */
+function updateCoachSidebar(step) {
+  const sections = document.querySelectorAll('.coach-section');
+  sections.forEach(el => {
+    el.classList.remove('active');
+  });
+  const activeSection = document.querySelector(`.coach-section[data-step="${step}"]`);
+  if (activeSection) {
+    activeSection.classList.add('active');
+  }
+}
+
+document.getElementById('timerBox').addEventListener('click',()=>{
+  document.getElementById('timerBox').classList.toggle('collapsed');
+});
+
+document.addEventListener('keydown', e=>{
+  if(e.ctrlKey && e.key==='ArrowRight'){ e.preventDefault(); goToStep(currentStep+1); }
+  if(e.ctrlKey && e.key==='ArrowLeft'){  e.preventDefault(); goToStep(currentStep-1); }
+});
+
+updateDisplay();
+</script>
+</body>
+</html>

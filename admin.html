@@ -1546,6 +1546,17 @@
 
     </main>
 
+    <section class="panel panel-results">
+      <h2>תוצאות תלמידים <button id="refresh-results-btn" class="btn btn-room" style="float:left">רענן</button></h2>
+      <div id="results-table-wrap">
+        <p id="results-empty">אין תוצאות עדיין</p>
+        <table id="results-table" style="display:none; width:100%; border-collapse:collapse">
+          <thead><tr><th>שם</th><th>ניקוד</th><th>עודכן</th></tr></thead>
+          <tbody id="results-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
     <section class="panel panel-db">
       <h2 id="db-title">מאגר אורגניזמים (0)</h2>
       <div class="search-section">
@@ -1639,6 +1650,10 @@
   const copyLinkBtn = document.getElementById("copy-link-btn");
   const headerDoorsCount = document.getElementById("header-doors-count");
   const dbTitle = document.getElementById("db-title");
+  const refreshResultsBtn = document.getElementById("refresh-results-btn");
+  const resultsEmpty = document.getElementById("results-empty");
+  const resultsTable = document.getElementById("results-table");
+  const resultsTbody = document.getElementById("results-tbody");
 <<<<<<< HEAD
   const qaToolsEl = document.getElementById("qa-tools");
   const qaResetBtn = document.getElementById("qa-reset-btn");
@@ -2018,6 +2033,41 @@
     return d?.status === "started" ? "started" : "waiting";
   }
 
+  async function fetchResults() {
+    if (!currentRoomId) return;
+    try {
+      const res = await fetch(`${APPS_URL}?action=get_results&roomId=${encodeURIComponent(currentRoomId)}`, { cache: "no-store" });
+      const { data, raw } = await parseResponse(res);
+      if (!res.ok || data?.ok === false) throw new Error(resolveApiError(res, data, raw));
+      const results = Array.isArray(data?.results) ? data.results : [];
+
+      const latestByName = new Map();
+      results.forEach((row) => {
+        const name = String(row?.name || "אנונימי").trim() || "אנונימי";
+        const score = parseInt(row?.score, 10) || 0;
+        const ts = String(row?.ts || "");
+        const existing = latestByName.get(name);
+        if (!existing || ts > existing.ts) {
+          latestByName.set(name, { name, score, ts });
+        }
+      });
+
+      const deduped = [...latestByName.values()].sort((a, b) => (b.score - a.score));
+      resultsTbody.innerHTML = deduped.map((row) => `
+        <tr>
+          <td>${row.name}</td>
+          <td>${row.score}</td>
+          <td>${row.ts ? new Date(row.ts).toLocaleString("he-IL") : "-"}</td>
+        </tr>`).join("");
+
+      const hasRows = deduped.length > 0;
+      resultsEmpty.style.display = hasRows ? "none" : "block";
+      resultsTable.style.display = hasRows ? "table" : "none";
+    } catch (err) {
+      console.warn("[admin] fetchResults failed", err);
+    }
+  }
+
   async function sendAction(action, token, extra = {}) {
 <<<<<<< HEAD
     const targetRoomId = String(extra.roomId || "").trim();
@@ -2311,6 +2361,7 @@
     (async () => {
       try {
         setStatus(await getStatus());
+        await fetchResults();
       } catch (err) {
         handleInvalidServerState(err);
       }
@@ -2318,6 +2369,7 @@
     pollTimer = setInterval(async () => {
       try {
         setStatus(await getStatus());
+        await fetchResults();
       } catch (err) {
         if (handleInvalidServerState(err)) {
           clearInterval(pollTimer);
@@ -2339,6 +2391,7 @@
   }
 
   roomBtn.onclick = createRoom;
+  refreshResultsBtn.onclick = fetchResults;
 
   copyLinkBtn.onclick = async () => {
     const url = studentUrlForRoom();

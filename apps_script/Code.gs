@@ -5,6 +5,7 @@ const HEADER = ['roomId', 'teacherTokenHash', 'status', 'doorsCount', 'selectedD
 const MIN_DOORS = 2;
 const MAX_DOORS = 30;
 const DEFAULT_DOORS = 5;
+const SHEET_RESULTS = 'Results';
 
 function doGet(e) {
   return route_(e, 'GET');
@@ -27,11 +28,36 @@ function route_(e, method) {
     if (action === 'create_room' && method === 'POST') return createRoom_(p);
     if (action === 'start' && method === 'POST') return startRoom_(p);
     if (action === 'reset' && method === 'POST') return resetRoom_(p);
+    if (action === 'submit_result') return submitResult_(p);
+    if (action === 'get_results' && method === 'GET') return getResults_(p);
 
     return err_('INVALID_ACTION', 'Unsupported action/method');
   } catch (error) {
     return err_('INTERNAL_ERROR', String(error && error.message || error));
   }
+}
+
+function submitResult_(p) {
+  const roomId = clean_(p.roomId || p.game_id);
+  const playerName = clean_(p.playerName) || 'אנונימי';
+  const score = parseInt(p.score, 10) || 0;
+
+  const sh = resultsSheet_();
+  sh.appendRow([roomId, playerName, score, nowIso_()]);
+  return ok_({ roomId, playerName, score });
+}
+
+function getResults_(p) {
+  const roomId = clean_(p.roomId || p.game_id);
+  const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_RESULTS);
+  if (!sh || sh.getLastRow() < 2) return ok_({ results: [] });
+
+  const rows = sh.getRange(2, 1, sh.getLastRow() - 1, 4).getValues();
+  const results = rows
+    .filter((r) => String(r[0]) === roomId)
+    .map((r) => ({ name: r[1], score: r[2], ts: r[3] }));
+
+  return ok_({ results });
 }
 
 function createRoom_(p) {
@@ -207,6 +233,26 @@ function roomNamesSheet_() {
   }
   const firstHeader = clean_(sh.getRange(1, 1).getValue());
   if (!firstHeader) sh.getRange(1, 1).setValue(ROOM_NAME_COLUMN);
+  return sh;
+}
+
+function resultsSheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(SHEET_RESULTS);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_RESULTS);
+    sh.appendRow(['roomId', 'playerName', 'score', 'timestamp']);
+    return sh;
+  }
+
+  if (sh.getLastRow() === 0) {
+    sh.appendRow(['roomId', 'playerName', 'score', 'timestamp']);
+  } else {
+    const first = sh.getRange(1, 1, 1, 4).getValues()[0];
+    const expected = ['roomId', 'playerName', 'score', 'timestamp'];
+    const mismatch = expected.some((h, i) => String(first[i] || '') !== h);
+    if (mismatch) sh.getRange(1, 1, 1, 4).setValues([expected]);
+  }
   return sh;
 }
 

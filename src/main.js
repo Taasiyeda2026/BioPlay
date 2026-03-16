@@ -431,6 +431,31 @@ function goToNextStep() {
   setTimeout(showCurrentStep, 450);
 }
 
+function playFinalDoorVideoAndContinue() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal';
+  overlay.innerHTML = `
+    <div class="modal-card" style="width:min(960px,96vw);padding:0.8rem;display:grid;place-items:center;background:#050814;border-color:rgba(255,255,255,.35)">
+      <video id="final-door-video" src="images/opendoor.mp4" playsinline muted autoplay preload="auto" style="width:min(900px,92vw);max-height:82vh;border-radius:16px;background:#000"></video>
+    </div>
+  `;
+  app.appendChild(overlay);
+
+  const video = overlay.querySelector('#final-door-video');
+  let finished = false;
+  const continueFlow = () => {
+    if (finished) return;
+    finished = true;
+    overlay.remove();
+    goToNextStep();
+  };
+
+  video.addEventListener('ended', continueFlow);
+  video.addEventListener('error', continueFlow);
+  video.play().catch(continueFlow);
+  setTimeout(continueFlow, 12000);
+}
+
 function restartToHome() {
   state.selectedOrganism = null;
   state.stepIndex = 0;
@@ -533,6 +558,9 @@ function onAppClick(event) {
     if (normalizeText(input.value) === correct) {
       state.lockOpened = true;
       state.feedback = '';
+      showCurrentStep();
+      playFinalDoorVideoAndContinue();
+      return;
     } else {
       state.feedback = 'הקוד שגוי. נסו שוב לפי המספרים שאספתם בכל שער.';
     }

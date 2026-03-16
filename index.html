@@ -1725,6 +1725,9 @@
       cipherData:          null,
       roomId:              ROOM_ID,
       missingRoom:         !ROOM_ID,
+      playerName:          "",
+      score:               0,
+      resultSubmitted:     false,
     };
 
     // ── DOM refs ────────────────────────────────────────────
@@ -1801,6 +1804,16 @@
         door1Id: sorted[0]?.id,
         door2Id: sorted[1]?.id,
       };
+    }
+
+    function submitPlayerResult() {
+      if (!state.roomId || state.resultSubmitted) return;
+      const playerName = (state.playerName || "אנונימי").trim() || "אנונימי";
+      const url = `${APPS_SCRIPT_URL}?action=submit_result&roomId=${encodeURIComponent(state.roomId)}&playerName=${encodeURIComponent(playerName)}&score=${encodeURIComponent(state.score)}`;
+      state.resultSubmitted = true;
+      fetch(url, { method: "GET", cache: "no-store" }).catch(() => {
+        state.resultSubmitted = false;
+      });
     }
 
     // ── Screen transition ────────────────────────────────────
@@ -2111,6 +2124,16 @@
               </form>
             </div>
           </div>
+
+          <div class="admin-modal" id="name-modal">
+            <div class="modal-card">
+              <p class="modal-text">מה שמך?</p>
+              <input id="name-input" type="text" placeholder="הזינו את שמכם"
+                style="width:100%;padding:10px 14px;font-size:1.1rem;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.08);color:var(--text);text-align:center;margin-bottom:10px;">
+              <p id="name-error" style="color:var(--danger);font-size:.9rem;min-height:1.2em;text-align:center;margin:0 0 10px;"></p>
+              <button class="btn btn-primary" id="name-submit">בואו נשחק!</button>
+            </div>
+          </div>
         </div>
       `;
 
@@ -2121,7 +2144,42 @@
         this.classList.add("logo-error"); this.alt = "שגיאת לוגו";
       };
 
-      document.getElementById("start-btn")?.addEventListener("click", startMainCountdown);
+      document.getElementById("start-btn")?.addEventListener("click", () => {
+        const nameModal = document.getElementById("name-modal");
+        const nameInput = document.getElementById("name-input");
+        const nameError = document.getElementById("name-error");
+        nameError.textContent = "";
+        nameInput.value = state.playerName;
+        nameModal.classList.add("active");
+        setTimeout(() => nameInput.focus(), 50);
+      });
+
+      const submitName = () => {
+        const nameInput = document.getElementById("name-input");
+        const nameError = document.getElementById("name-error");
+        const name = nameInput.value.trim();
+        if (!name) {
+          nameError.textContent = "יש להזין שם כדי להתחיל";
+          return;
+        }
+        state.playerName = name;
+        document.getElementById("name-modal").classList.remove("active");
+        startMainCountdown();
+      };
+
+      document.getElementById("name-submit")?.addEventListener("click", submitName);
+      document.getElementById("name-input")?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          submitName();
+        }
+      });
+
+      document.getElementById("name-modal")?.addEventListener("click", (e) => {
+        if (e.target === document.getElementById("name-modal")) {
+          document.getElementById("name-modal").classList.remove("active");
+        }
+      });
 
       // Triple-tap logo → admin nav modal
       document.getElementById("logo-trigger").addEventListener("click", () => {
@@ -2444,6 +2502,7 @@
                   `<button class="answer" data-opt="${opt}">${opt}</button>`
                 ).join("")}
               </div>
+              <p class="feedback" id="sfb-${doorId}-${stepIndex}"></p>
               <div class="actions">
                 <button class="btn btn-secondary" id="sback-${doorId}-${stepIndex}">חזרה לדלתות</button>
               </div>
@@ -2457,10 +2516,18 @@
           if (!state.selectedAnswers[doorId]) state.selectedAnswers[doorId] = {};
           state.selectedAnswers[doorId][stepIndex] = chosen;
 
-          if (!door.hasCode) {
-            // No code screen – go directly to confirmation
-            renderConfirmation(doorId, stepIndex);
-            setTimeout(() => setActiveScreen(`door-${doorId}-confirm-${stepIndex}`), 800);
+          if (door.hasCode === false) {
+            const correct = chosen === step.answer;
+            const feedback = document.getElementById(`sfb-${doorId}-${stepIndex}`);
+            if (correct) {
+              state.score += 10;
+              renderConfirmation(doorId, stepIndex);
+              setTimeout(() => setActiveScreen(`door-${doorId}-confirm-${stepIndex}`), 800);
+            } else {
+              state.score -= 10;
+              feedback.textContent = "תשובה שגויה, -10 ניקוד";
+              feedback.className = "feedback error";
+            }
           } else {
             // 800ms delay before moving to code screen (section 15)
             setTimeout(() => {
@@ -2527,6 +2594,7 @@
         panel.classList.remove("success", "error");
 
         if (answerCorrect && codeCorrect) {
+          state.score += 10;
           panel.classList.add("success");
           fb.textContent = step.codeSuccessText || "הקוד נכון!";
           fb.className   = "feedback success";
@@ -2538,6 +2606,7 @@
           renderConfirmation(doorId, codeStage);
           setTimeout(() => setActiveScreen(`door-${doorId}-confirm-${codeStage}`), 1400);
         } else {
+          state.score -= 10;
           panel.classList.add("error");
           fb.textContent = step.codeWrongText || "הקוד שגוי. נסו שוב.";
           fb.className   = "feedback error";
@@ -2569,6 +2638,7 @@
           <div class="confirm-box">
             <div class="confirm-icon">🎉</div>
             <h2 class="section-title" style="color:var(--accent-2);margin:0">כל הכבוד!</h2>
+            <p class="question-text" style="color:var(--accent);font-weight:bold">+10 ניקוד | סה"כ: ${state.score}</p>
             <p class="question-text" style="margin:0">${nl(step.confirmText || "כל הכבוד! התשובה נכונה.")}</p>
             <button class="btn btn-next" id="cnext-${doorId}-${stepIndex}">
               ${isLast ? "לפתיחת הדלת" : "לשלב הבא"}
@@ -2702,6 +2772,7 @@
       `;
 
       document.getElementById(`sback-${doorId}`).onclick = () => {
+        submitPlayerResult();
         const { door1Id, door2Id } = getPrimaryDoorIds();
         if (doorId === door1Id) state.flowProgress.door1Completed = true;
         if (doorId === door2Id) state.flowProgress.door2Completed = true;
@@ -2716,12 +2787,14 @@
       el.innerHTML = `
         ${topStrip("סיום", `דלתות שהושלמו: ${state.completedDoors.size}`)}
         <div class="card finish-card">
-          <h2 class="finish-title">פיצחתם את קוד הטבע 🎉</h2>
+          <h2 class="finish-title">שלום ${state.playerName || "אנונימי"}! 🎉</h2>
+          <p class="finish-title">הניקוד שלך: <strong>${state.score}</strong></p>
           <p class="question-text">למדתם איך הטבע נותן השראה לרעיונות, לפתרונות ולהמצאות חדשות.</p>
           <div class="actions">
             <button class="btn btn-primary" id="final-back-btn">חזרה למסך הדלתות</button>
           </div>
         </div>`;
+      submitPlayerResult();
       document.getElementById("final-back-btn").onclick = () => {
         renderDoors();
         setActiveScreen("screen-doors");

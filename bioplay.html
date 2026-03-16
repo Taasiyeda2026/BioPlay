@@ -239,7 +239,7 @@
       display: none;
       place-items: center;
       z-index: 10;
-      background: var(--bg) url('images/game-intro.png') center / cover no-repeat;
+      background: var(--bg) url('images/game-intro.svg') center / cover no-repeat;
     }
 
     .countdown.active {
@@ -1338,10 +1338,6 @@
   </style>
 </head>
 <body>
-<<<<<<< HEAD
-=======
-  <div id="score-badge" style="display:none;position:fixed;top:12px;left:16px;background:rgba(5,12,28,0.88);border:1px solid rgba(255,255,255,0.14);border-radius:50px;padding:6px 16px;font-size:0.88rem;z-index:9999;backdrop-filter:blur(8px);white-space:nowrap;direction:rtl;"></div>
->>>>>>> b6647038ea6951cf025879585069041ee1d147df
   <main class="app" id="app">
     <div class="effects-layer" id="effects-layer"></div>
 
@@ -1353,7 +1349,7 @@
   <div class="video-overlay" id="video-overlay" aria-hidden="true">
     <div>
       <div class="video-frame">
-        <video id="door-video" playsinline muted preload="auto"></video>
+        <video id="door-video" src="images/opendoor.mp4" playsinline muted preload="auto"></video>
       </div>
       <div class="video-caption">השער נפתח... נכנסים לעולם חדש ✨</div>
     </div>
@@ -1363,12 +1359,12 @@
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwS8axCtZLzcTP1L5gldW9tp-8JXgGeqXwD-mexanXuekU4XN2PHC-cShYCeoIdUyp-/exec";
     const POLL_INTERVAL_MS = 3000;
     const qp = new URLSearchParams(window.location.search);
-    const ROOM_ID = (qp.get("room") || "").trim();
+    const ROOM_ID = (qp.get("room") || "").trim().toUpperCase();
 
     const ASSETS = {
-      logo:        "images/logo.png",
-      intro:       "images/game-intro.png",
-      doorFallback:"images/door1.png",
+      logo:        "images/logo.svg",
+      intro:       "images/game-intro.svg",
+      doorFallback:"images/door-active.svg",
     };
 
     const ADMIN_NAV_CODE = "BIO2026";
@@ -1377,7 +1373,6 @@
       gameStatus:          "waiting",
       statusPollTimer:     null,
       statusRequestInFlight: false,
-      statusErrorMessage:  "",
       logoTapCount:        0,
       logoTapResetTimer:   null,
       completedDoors:      new Set(),
@@ -1386,34 +1381,9 @@
       doorsCount:          5,    // default when no prior selection
       stepCodesEntered:    {},   // { doorId: [code1, code2, code3] }
       selectedAnswers:     {},   // { doorId: { stepIndex: selectedOption } }
-      flowProgress: {
-        door1Completed: false,
-        biomatchCompleted: false,
-        door2Completed: false,
-        cipherCompleted: false,
-      },
-      biomatchResult:      null,
-      cipherData:          null,
       roomId:              ROOM_ID,
       missingRoom:         !ROOM_ID,
-      playerName:          localStorage.getItem("bioplay-player-name") || "",
-      score:               0,
     };
-
-    function addScore(delta) {
-      state.score += delta;
-      updateScoreBadge();
-    }
-
-    function updateScoreBadge() {
-      const badge = document.getElementById("score-badge");
-      if (!badge) return;
-      if (!state.playerName) { badge.style.display = "none"; return; }
-      const s = state.score;
-      badge.style.display = "block";
-      badge.style.color = s >= 0 ? "var(--accent-2)" : "var(--danger)";
-      badge.innerHTML = `👤 ${state.playerName} &nbsp;|&nbsp; ניקוד: <strong>${s > 0 ? "+" : ""}${s}</strong>`;
-    }
 
     // ── DOM refs ────────────────────────────────────────────
     const app          = document.getElementById("app");
@@ -1434,7 +1404,7 @@
 
     function getDoorImage(doorId) {
       const n = ((doorId - 1) % 10) + 1;
-      return `images/door${n}.png`;
+      return `images/door${n}.svg`;
     }
 
     function getCreatureImage(door) {
@@ -1481,14 +1451,6 @@
 
     function getDoorDisplayNumber(doorId) {
       return getSelectedDoor(doorId)?.displayNumber ?? doorId;
-    }
-
-    function getPrimaryDoorIds() {
-      const sorted = [...state.selectedDoors].sort((a, b) => (a.displayNumber || a.id) - (b.displayNumber || b.id));
-      return {
-        door1Id: sorted[0]?.id,
-        door2Id: sorted[1]?.id,
-      };
     }
 
     // ── Screen transition ────────────────────────────────────
@@ -1558,35 +1520,12 @@
       try { return JSON.parse(raw); } catch { return { raw }; }
     }
 
-    function extractStatusPayload(data) {
-      if (!data || typeof data !== "object") return {};
-      if (data.status || data.doorsCount || Array.isArray(data.selectedDoors)) return data;
-      if (data.data && typeof data.data === "object") return data.data;
-      if (data.result && typeof data.result === "object") return data.result;
-      return data;
-    }
-
-    function payloadHasStatusInfo(payload) {
-      if (!payload || typeof payload !== "object") return false;
-      return Boolean(payload.status || payload.doorsCount || Array.isArray(payload.selectedDoors));
-    }
-
-    function resolveStatusError(res, data) {
-      if (data && typeof data === "object") {
-        if (data.errorCode) return String(data.errorCode);
-        if (data.message) return String(data.message);
-        if (data.error) return String(data.error);
-      }
-      return `HTTP ${res.status}`;
-    }
-
     function normalizeStatus(s) {
       return s === "started" ? "started" : "waiting";
     }
 
     function applyGameStatus(payload) {
       state.gameStatus = normalizeStatus(payload?.status || payload);
-      state.statusErrorMessage = "";
       const status = payload || {};
       if (status?.doorsCount) {
         const dc = parseInt(status.doorsCount, 10);
@@ -1603,17 +1542,11 @@
       document.getElementById("wait-message")?.classList.toggle("hidden", unlocked);
       document.getElementById("start-btn")?.classList.toggle("hidden", !unlocked);
       const t = document.getElementById("home-status-text");
-      const waitMessage = document.getElementById("wait-message");
       if (!t) return;
       if (state.missingRoom) {
         t.textContent = "חסר roomId";
-      } else if (state.statusErrorMessage) {
-        t.textContent = "שגיאה בעדכון מצב המשחק";
       } else {
         t.textContent = unlocked ? "המשחק הופעל" : "ממתינים להפעלת מדריך";
-      }
-      if (waitMessage && state.statusErrorMessage && !unlocked) {
-        waitMessage.textContent = state.statusErrorMessage;
       }
     }
 
@@ -1622,30 +1555,19 @@
       const url = `${APPS_SCRIPT_URL}?action=status&roomId=${encodeURIComponent(state.roomId)}`;
       const res  = await fetch(url, { method: "GET", cache: "no-store" });
       const data = await parseScriptResponse(res);
-      const payload = extractStatusPayload(data);
-      const hasStatusInfo = payloadHasStatusInfo(payload);
-      const explicitError = data?.ok === false || Boolean(data?.errorCode || data?.message || data?.error);
-      if (!res.ok || (explicitError && !hasStatusInfo)) {
-        throw new Error(resolveStatusError(res, data));
-      }
+      if (!res.ok || data?.ok === false) throw new Error(data?.errorCode || data?.message || `HTTP ${res.status}`);
       return {
-        status: normalizeStatus(payload?.status),
-        doorsCount: payload?.doorsCount,
-        selectedDoors: Array.isArray(payload?.selectedDoors) ? payload.selectedDoors : [],
+        status: normalizeStatus(data?.status),
+        doorsCount: data?.doorsCount,
+        selectedDoors: Array.isArray(data?.selectedDoors) ? data.selectedDoors : [],
       };
     }
 
     async function pollGameStatus() {
       if (state.statusRequestInFlight) return;
       state.statusRequestInFlight = true;
-      try {
-        applyGameStatus(await fetchGameStatus());
-      }
-      catch (e) {
-        state.statusErrorMessage = "לא הצלחנו לעדכן את מצב המשחק כרגע. ננסה שוב אוטומטית.";
-        updateHomeStatusUI();
-        console.warn("Status poll failed:", e);
-      }
+      try { applyGameStatus(await fetchGameStatus()); }
+      catch (e) { console.warn("Status poll failed:", e); }
       finally   { state.statusRequestInFlight = false; }
     }
 
@@ -1657,95 +1579,14 @@
 
     // ── Load doors.json ──────────────────────────────────────
     async function loadDoorsData() {
-      async function fetchJsonOrThrow(path) {
-        const res = await fetch(path, { cache: "no-store" });
-        if (!res.ok) throw new Error(`${path} HTTP ${res.status}`);
-        return res.json();
-      }
-
-      function normalizeOptions(step) {
-        return [step.optionA, step.optionB, step.optionC, step.optionD].filter(Boolean);
-      }
-
-      function normalizeCode(step) {
-        const options = normalizeOptions(step);
-        const idx = options.findIndex((opt) => String(opt).trim() === String(step.correctAnswer || "").trim());
-        return String(idx >= 0 ? idx + 1 : 1);
-      }
-
-      function buildFallbackDoors(mcq, matching) {
-        const gateMapByOrganism = new Map();
-        const requiredGates = ["שער הגילוי הנסתר", "שער הסוד הקדום", "שער הרמזים הנעלמים", "שער ההשראה החכמה"];
-
-        mcq.forEach((row) => {
-          const organism = String(row?.organism || "").trim();
-          const gate = String(row?.gate || "").trim();
-          if (!organism || !gate) return;
-          if (!gateMapByOrganism.has(organism)) gateMapByOrganism.set(organism, new Map());
-          gateMapByOrganism.get(organism).set(gate, row);
-        });
-
-        const matchingByOrganism = new Map(
-          (matching || []).map((row) => [String(row?.organism || "").trim(), row])
-        );
-
-        const organisms = [...gateMapByOrganism.keys()].sort((a, b) => a.localeCompare(b, "he"));
-
-        return organisms
-          .map((organism, index) => {
-            const gates = gateMapByOrganism.get(organism);
-            if (!requiredGates.every((gate) => gates.has(gate))) return null;
-
-            const discovery = gates.get("שער הגילוי הנסתר");
-            const stepsSource = [
-              gates.get("שער הסוד הקדום"),
-              gates.get("שער הרמזים הנעלמים"),
-              gates.get("שער ההשראה החכמה"),
-            ];
-            const steps = stepsSource.map((step, stepIndex) => ({
-              title: step.gate || `שלב ${stepIndex + 1}`,
-              question: step.question || "",
-              options: normalizeOptions(step),
-              answer: step.correctAnswer || "",
-              code: normalizeCode(step),
-            }));
-            const finalLockCode = steps.map((step) => step.code).join("");
-            const inspiration = matchingByOrganism.get(organism);
-
-            return {
-              id: index + 1,
-              creature: organism,
-              intro: discovery?.question || `המסלול של ${organism}`,
-              steps,
-              finalLockCode,
-              summary: {
-                organism,
-                trait: gates.get("שער הסוד הקדום")?.correctAnswer || "",
-                innovation: inspiration?.mainInvention || gates.get("שער ההשראה החכמה")?.correctAnswer || "",
-              },
-            };
-          })
-          .filter(Boolean);
-      }
-
       try {
-        const data = await fetchJsonOrThrow("doors.json");
-        if (!Array.isArray(data) || !data.length) {
-          throw new Error("doors.json is empty or invalid");
-        }
-        state.doorsData = data;
+        const res = await fetch("doors.json", { cache: "no-store" });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        state.doorsData = Array.isArray(data) ? data : [];
       } catch (e) {
-        console.warn("Could not load doors.json, trying fallback data/*.json:", e);
-        try {
-          const [mcq, matching] = await Promise.all([
-            fetchJsonOrThrow("data/mcq-stages.json"),
-            fetchJsonOrThrow("data/matching-tasks.json"),
-          ]);
-          state.doorsData = buildFallbackDoors(mcq, matching);
-        } catch (fallbackError) {
-          console.warn("Fallback data loading failed:", fallbackError);
-          state.doorsData = [];
-        }
+        console.warn("Could not load doors.json:", e);
+        state.doorsData = [];
       }
     }
 
@@ -1768,16 +1609,10 @@
               <h1 class="title">העולם הסודי של הביומימיקרי</h1>
               <p class="lead">ברוכים הבאים לעולם הסודי של הביומימיקרי.</p>
               <p class="lead">מאחורי כל דלת מסתתר יצור מהטבע,<br>עם יכולת מיוחדת שהעניקה השראה להמצאה אמיתית.</p>
-              <p class="lead" style="text-align:right; width:fit-content; margin:0 auto">• בחרו דלת,<br>• עברו שלבים מאתגרים<br>• וגלו איך הטבע הופך לרעיון חדש.</p>
+              <p class="lead" style="text-align:right; width:fit-content; margin:0 auto">• בחרו דלת,<br>• עברו שלבים מאתגרים,<br>• וגלו איך הטבע הופך לרעיון חדש.</p>
 
               <div class="start-zone">
-                <div style="margin-bottom:12px;display:flex;flex-direction:column;align-items:center;gap:8px">
-                  <label for="player-name-home" style="font-size:0.95rem;color:var(--muted)">הכניסו את שמכם לפני ההתחלה:</label>
-                  <input id="player-name-home" type="text" placeholder="שם מלא" maxlength="40" dir="rtl"
-                    value="${state.playerName}"
-                    style="padding:8px 16px;border-radius:24px;border:1px solid var(--border);background:rgba(255,255,255,0.08);color:var(--text);font-size:1rem;text-align:center;width:240px;outline:none">
-                </div>
-                <p class="wait-message ${unlocked ? "hidden" : ""}" id="wait-message">${state.missingRoom ? "פנו למדריך לקבלת קישור" : "אנא המתינו, מיד מתחילים"}</p>
+                <p class="wait-message ${unlocked ? "hidden" : ""}" id="wait-message">${state.missingRoom ? "בקישור. פנו למדריך לקבלת קישור תלמידים תקין." : "אנא המתינו, מיד מתחילים"}</p>
                 <button class="btn btn-primary btn-start ${unlocked && !state.missingRoom ? "" : "hidden"}" id="start-btn">התחלת המשחק</button>
               </div>
               <p class="soft-note">⭐</p>
@@ -1793,16 +1628,14 @@
 
           <div class="admin-modal" id="admin-nav-modal">
             <div class="modal-card">
-              <form id="admin-nav-form">
-                <p class="modal-text">הזינו קוד גישה</p>
-                <input id="admin-nav-input" type="password" placeholder="קוד גישה"
-                  style="width:100%;padding:10px 14px;font-size:1.1rem;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.08);color:var(--text);text-align:center;margin-bottom:10px;">
-                <p id="admin-nav-error" style="color:var(--danger);font-size:.9rem;min-height:1.2em;text-align:center;margin:0 0 10px;"></p>
-                <div style="display:flex;gap:10px;justify-content:center;">
-                  <button type="submit" class="btn btn-primary" id="admin-nav-submit">כניסה</button>
-                  <button type="button" class="btn" id="admin-nav-cancel" style="background:rgba(255,255,255,.1)">ביטול</button>
-                </div>
-              </form>
+              <p class="modal-text">הזינו קוד גישה</p>
+              <input id="admin-nav-input" type="password" placeholder="קוד גישה"
+                style="width:100%;padding:10px 14px;font-size:1.1rem;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.08);color:var(--text);text-align:center;margin-bottom:10px;">
+              <p id="admin-nav-error" style="color:var(--danger);font-size:.9rem;min-height:1.2em;text-align:center;margin:0 0 10px;"></p>
+              <div style="display:flex;gap:10px;justify-content:center;">
+                <button class="btn btn-primary" id="admin-nav-submit">כניסה</button>
+                <button class="btn" id="admin-nav-cancel" style="background:rgba(255,255,255,.1)">ביטול</button>
+              </div>
             </div>
           </div>
         </div>
@@ -1832,25 +1665,17 @@
         }
       });
 
-      const submitAdminNavigation = () => {
+      document.getElementById("admin-nav-submit").addEventListener("click", () => {
         const val = document.getElementById("admin-nav-input").value.trim().toUpperCase();
         if (val === ADMIN_NAV_CODE) {
           window.location.href = state.roomId ? `admin.html?room=${encodeURIComponent(state.roomId)}` : "admin.html";
         } else {
           document.getElementById("admin-nav-error").textContent = "קוד שגוי";
         }
-      };
-
-      document.getElementById("admin-nav-form").addEventListener("submit", (e) => {
-        e.preventDefault();
-        submitAdminNavigation();
       });
 
       document.getElementById("admin-nav-input").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          submitAdminNavigation();
-        }
+        if (e.key === "Enter") document.getElementById("admin-nav-submit").click();
       });
 
       document.getElementById("admin-nav-cancel").addEventListener("click", () => {
@@ -1871,20 +1696,6 @@
         updateHomeStatusUI();
         return;
       }
-      const nameInput = document.getElementById("player-name-home");
-      const enteredName = (nameInput?.value || "").trim();
-      if (!enteredName) {
-        if (nameInput) {
-          nameInput.style.borderColor = "var(--danger)";
-          nameInput.placeholder = "נא להכניס שם לפני ההתחלה";
-          nameInput.focus();
-        }
-        return;
-      }
-      state.playerName = enteredName;
-      localStorage.setItem("bioplay-player-name", enteredName);
-      state.score = 0;
-      updateScoreBadge();
       document.getElementById("instruction-layer").classList.add("hidden");
       const countdown = document.getElementById("countdown");
       const num       = document.getElementById("countdown-number");
@@ -1907,7 +1718,6 @@
       const doorsScreen = document.getElementById("screen-doors");
 
       const visible = state.selectedDoors.length ? state.selectedDoors : [];
-      const { door1Id, door2Id } = getPrimaryDoorIds();
 
       if (!visible.length) {
         doorsScreen.innerHTML = `
@@ -1919,13 +1729,7 @@
         return;
       }
 
-      const cards = visible.map(door => {
-        const lockedByFlow =
-          (!state.flowProgress.door1Completed && door.id !== door1Id) ||
-          (state.flowProgress.door1Completed && !state.flowProgress.biomatchCompleted) ||
-          (state.flowProgress.biomatchCompleted && !state.flowProgress.door2Completed && door.id !== door2Id);
-
-        return `
+      const cards = visible.map(door => `
         <article class="door-card">
           <div class="door-title">דלת ${door.displayNumber}</div>
           <div class="door-image-wrap">
@@ -1934,19 +1738,10 @@
               alt="דלת ${door.displayNumber}"
               onerror="this.onerror=null;this.src='${ASSETS.doorFallback}'">
             <div class="door-footer">
-              <button class="btn btn-primary" data-door="${door.id}" ${lockedByFlow ? "disabled" : ""}>${lockedByFlow ? "ייפתח בהמשך" : "התחל"}</button>
+              <button class="btn btn-primary" data-door="${door.id}">התחל</button>
             </div>
           </div>
-        </article>`;
-      }).join("");
-
-      const flowActions = [];
-      if (state.flowProgress.door1Completed && !state.flowProgress.biomatchCompleted) {
-        flowActions.push('<button class="btn btn-primary" id="open-biomatch">שלב 5 – מעבר ל-biomatch</button>');
-      }
-      if (state.flowProgress.door2Completed && !state.flowProgress.cipherCompleted) {
-        flowActions.push('<button class="btn btn-primary" id="open-cipher">פתיחת כתב סתרים</button>');
-      }
+        </article>`).join("");
 
       doorsScreen.innerHTML = `
         ${topStrip("מסך הדלתות", "בחרו דלת למשימה")}
@@ -1954,116 +1749,17 @@
           <h2 class="doors-title">בחרו דלת</h2>
           <p class="question-text">לכל דלת מחכה משימה. לחצו על "התחל" כדי לפתוח את המעבר.</p>
           <div class="door-grid">${cards}</div>
-          ${flowActions.length ? `<div class="actions">${flowActions.join("")}</div>` : ""}
         </div>`;
 
       doorsScreen.querySelectorAll("[data-door]").forEach(btn => {
         btn.onclick = () => startDoorFlow(Number(btn.dataset.door));
       });
-      document.getElementById("open-biomatch")?.addEventListener("click", renderBiomatchStage);
-      document.getElementById("open-cipher")?.addEventListener("click", renderCipherStage);
     }
 
     // ── Door flow helpers ────────────────────────────────────
     function startDoorFlow(doorId) {
       renderDoorIntro(doorId);
       setActiveScreen(`door-${doorId}-intro`);
-    }
-
-    function renderBiomatchStage() {
-      let screen = document.getElementById("screen-biomatch");
-      if (!screen) {
-        screen = document.createElement("section");
-        screen.className = "screen";
-        screen.id = "screen-biomatch";
-        app.appendChild(screen);
-      }
-
-      const { door1Id } = getPrimaryDoorIds();
-      const door = getDoor(door1Id) || state.selectedDoors[0];
-      const organism = door?.creature || "";
-
-      screen.innerHTML = `
-        ${topStrip("שלב 5", "biomatch")}
-        <div class="card question-card">
-          <h2 class="question-title">שער ההמצאות</h2>
-          <p class="question-text">השלימו את כל ההתאמות. בסיום תחזרו אוטומטית למשחק לשלב 6.</p>
-          <iframe class="biomatch-frame" src="biomatch.html?organism=${encodeURIComponent(organism)}" style="width:100%;height:620px;border:0;border-radius:12px;background:#0f172a" title="biomatch"></iframe>
-          <p class="feedback" id="biomatch-feedback"></p>
-          <div class="actions">
-            <button class="btn btn-secondary" id="biomatch-back">חזרה לדלתות</button>
-          </div>
-        </div>`;
-
-      document.getElementById("biomatch-back").onclick = () => {
-        renderDoors();
-        setActiveScreen("screen-doors");
-      };
-      setActiveScreen("screen-biomatch");
-    }
-
-    function renderCipherStage() {
-      let screen = document.getElementById("screen-cipher");
-      if (!screen) {
-        screen = document.createElement("section");
-        screen.className = "screen";
-        screen.id = "screen-cipher";
-        app.appendChild(screen);
-      }
-
-      const cipher = state.cipherData || {};
-      screen.innerHTML = `
-        ${topStrip("שלב 7", "כתב סתרים")}
-        <div class="card question-card">
-          <h2 class="question-title">${cipher.gateName || "כתב סתרים"}</h2>
-          <p class="question-text">${nl(cipher.instruction || "פענחו את המשפט הסודי כדי להגיע לסיום.")}</p>
-          <div class="code-panel" id="cipher-panel">
-            <div class="code-row">
-              <input class="input" id="cipher-input" type="text" placeholder="הזינו את הפתרון" autocomplete="off">
-              <button class="btn btn-primary" id="cipher-submit">פענוח</button>
-            </div>
-          </div>
-          <p class="feedback" id="cipher-feedback"></p>
-          <div class="actions">
-            <button class="btn btn-secondary" id="cipher-back">חזרה לדלתות</button>
-          </div>
-        </div>`;
-
-      const submitCipher = () => {
-        const entered = String(document.getElementById("cipher-input").value || "").trim();
-        const expected = String(cipher.cipherSolution || "").trim();
-        const panel = document.getElementById("cipher-panel");
-        const feedback = document.getElementById("cipher-feedback");
-        panel.classList.remove("success", "error");
-
-        if (entered && entered === expected) {
-          addScore(10);
-          state.flowProgress.cipherCompleted = true;
-          panel.classList.add("success");
-          feedback.textContent = "פיצחתם את כתב הסתרים!";
-          feedback.className = "feedback success";
-          setTimeout(() => {
-            renderFinal();
-            setActiveScreen("screen-final");
-          }, 700);
-          return;
-        }
-
-        addScore(-10);
-        panel.classList.add("error");
-        feedback.textContent = "פענוח שגוי. נסו שוב.";
-        feedback.className = "feedback error";
-      };
-
-      document.getElementById("cipher-submit").onclick = submitCipher;
-      document.getElementById("cipher-input").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") submitCipher();
-      });
-      document.getElementById("cipher-back").onclick = () => {
-        renderDoors();
-        setActiveScreen("screen-doors");
-      };
-      setActiveScreen("screen-cipher");
     }
 
     function playDoorVideo(onDone) {
@@ -2168,32 +1864,11 @@
           if (!state.selectedAnswers[doorId]) state.selectedAnswers[doorId] = {};
           state.selectedAnswers[doorId][stepIndex] = chosen;
 
-<<<<<<< HEAD
           // 800ms delay before moving to code screen (section 15)
           setTimeout(() => {
             renderCodeScreen(doorId, stepIndex);
             setActiveScreen(`door-${doorId}-code-${stepIndex}`);
           }, 800);
-=======
-          if (!door.hasCode) {
-            const answerCorrect = String(chosen).trim() === String(step.answer || "").trim();
-            if (answerCorrect) {
-              addScore(10);
-              btn.classList.add("correct");
-              renderConfirmation(doorId, stepIndex);
-              setTimeout(() => setActiveScreen(`door-${doorId}-confirm-${stepIndex}`), 800);
-            } else {
-              addScore(-10);
-              btn.classList.add("wrong");
-            }
-          } else {
-            // 800ms delay before moving to code screen (section 15)
-            setTimeout(() => {
-              renderCodeScreen(doorId, stepIndex);
-              setActiveScreen(`door-${doorId}-code-${stepIndex}`);
-            }, 800);
-          }
->>>>>>> b6647038ea6951cf025879585069041ee1d147df
         };
       });
 
@@ -2253,7 +1928,6 @@
         panel.classList.remove("success", "error");
 
         if (answerCorrect && codeCorrect) {
-          addScore(10);
           panel.classList.add("success");
           fb.textContent = step.codeSuccessText || "הקוד נכון!";
           fb.className   = "feedback success";
@@ -2265,7 +1939,6 @@
           renderConfirmation(doorId, codeStage);
           setTimeout(() => setActiveScreen(`door-${doorId}-confirm-${codeStage}`), 1400);
         } else {
-          addScore(-10);
           panel.classList.add("error");
           fb.textContent = step.codeWrongText || "הקוד שגוי. נסו שוב.";
           fb.className   = "feedback error";
@@ -2353,7 +2026,6 @@
         panel.classList.remove("success", "error");
 
         if (entered === expected) {
-          addScore(10);
           panel.classList.add("success");
           fb.textContent = finalLock.successText || "הדלת נפתחת!";
           fb.className   = "feedback success";
@@ -2369,7 +2041,6 @@
             });
           }, 1200);
         } else {
-          addScore(-10);
           panel.classList.add("error");
           fb.textContent = finalLock.wrongText || "הקוד שגוי. נסו שוב.";
           fb.className   = "feedback error";
@@ -2422,45 +2093,18 @@
       `;
 
       document.getElementById(`sback-${doorId}`).onclick = () => {
-        const { door1Id, door2Id } = getPrimaryDoorIds();
-        if (doorId === door1Id) state.flowProgress.door1Completed = true;
-        if (doorId === door2Id) state.flowProgress.door2Completed = true;
         renderDoors();
         setActiveScreen("screen-doors");
       };
     }
 
-    // ── Submit score to server ───────────────────────────────
-    async function submitScoreToServer() {
-      if (!state.roomId || !state.playerName) return;
-      try {
-        const body = new URLSearchParams({
-          action: 'submit_result',
-          roomId: state.roomId,
-          playerName: state.playerName,
-          score: String(state.score)
-        });
-        await fetch(APPS_SCRIPT_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: body.toString()
-        });
-      } catch (e) {
-        console.warn('Score submission failed:', e);
-      }
-    }
-
     // ── Final congratulations screen ─────────────────────────
     function renderFinal() {
-      submitScoreToServer();
       const el = document.getElementById("screen-final");
-      const scoreColor = state.score >= 0 ? "var(--accent-2)" : "var(--danger)";
-      const playerLine = state.playerName ? `<p class="question-text" style="font-size:1.1rem">שחקן: <strong>${state.playerName}</strong> &nbsp;|&nbsp; ניקוד סופי: <strong style="color:${scoreColor}">${state.score > 0 ? "+" : ""}${state.score}</strong></p>` : "";
       el.innerHTML = `
         ${topStrip("סיום", `דלתות שהושלמו: ${state.completedDoors.size}`)}
         <div class="card finish-card">
           <h2 class="finish-title">פיצחתם את קוד הטבע 🎉</h2>
-          ${playerLine}
           <p class="question-text">למדתם איך הטבע נותן השראה לרעיונות, לפתרונות ולהמצאות חדשות.</p>
           <div class="actions">
             <button class="btn btn-primary" id="final-back-btn">חזרה למסך הדלתות</button>
@@ -2475,12 +2119,6 @@
     // ── Bootstrap ────────────────────────────────────────────
     (async () => {
       await loadDoorsData();
-      try {
-        state.cipherData = await fetchJsonOrThrow("data/final-cipher.json");
-      } catch (e) {
-        console.warn("Could not load final cipher data", e);
-      }
-      updateScoreBadge();
       renderHome();
       if (state.missingRoom) {
         updateHomeStatusUI();
@@ -2488,32 +2126,6 @@
       }
       startStatusPolling();
     })();
-
-    window.addEventListener("message", (event) => {
-      if (event.data?.type !== "BIOMATCH_COMPLETED") return;
-      const frameWindow = document.querySelector(".biomatch-frame")?.contentWindow;
-      if (!frameWindow || event.source !== frameWindow) return;
-
-      state.flowProgress.biomatchCompleted = true;
-      state.biomatchResult = {
-        digit1: event.data.secret_digit_1,
-        digit2: event.data.secret_digit_2,
-        organism: event.data.organism,
-      };
-
-      const { door2Id } = getPrimaryDoorIds();
-      const feedback = document.getElementById("biomatch-feedback");
-      if (feedback) {
-        feedback.textContent = "שלב 5 הושלם! חוזרים למשחק לשלב 6.";
-        feedback.className = "feedback success";
-      }
-
-      setTimeout(() => {
-        renderDoors();
-        setActiveScreen("screen-doors");
-        if (door2Id) startDoorFlow(door2Id);
-      }, 900);
-    });
   </script>
 </body>
 </html>

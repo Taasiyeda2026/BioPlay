@@ -1382,14 +1382,6 @@
       doorsCount:          5,    // default when no prior selection
       stepCodesEntered:    {},   // { doorId: [code1, code2, code3] }
       selectedAnswers:     {},   // { doorId: { stepIndex: selectedOption } }
-      flowProgress: {
-        door1Completed: false,
-        biomatchCompleted: false,
-        door2Completed: false,
-        cipherCompleted: false,
-      },
-      biomatchResult:      null,
-      cipherData:          null,
       roomId:              ROOM_ID,
       missingRoom:         !ROOM_ID,
     };
@@ -1426,14 +1418,8 @@
       return s[Math.floor(s.length / 2)];
     }
 
-    function normalizeDoorId(value) {
-      const n = Number(value);
-      return Number.isFinite(n) ? n : null;
-    }
-
     function getDoor(doorId) {
-      const targetId = normalizeDoorId(doorId);
-      return state.doorsData.find(d => normalizeDoorId(d.id) === targetId);
+      return state.doorsData.find(d => d.id === doorId);
     }
 
     function shuffleArray(array) {
@@ -1455,26 +1441,17 @@
     }
 
     function applySelectedDoors(doorIds) {
-      const idSet = new Set((doorIds || []).map(normalizeDoorId).filter((id) => id !== null));
-      const selected = state.doorsData.filter(d => idSet.has(normalizeDoorId(d.id)));
+      const idSet = new Set((doorIds || []).map(Number));
+      const selected = state.doorsData.filter(d => idSet.has(Number(d.id)));
       state.selectedDoors = selected.map((door, index) => ({ ...door, displayNumber: index + 1 }));
     }
 
     function getSelectedDoor(doorId) {
-      const targetId = normalizeDoorId(doorId);
-      return state.selectedDoors.find(d => normalizeDoorId(d.id) === targetId);
+      return state.selectedDoors.find(d => d.id === doorId);
     }
 
     function getDoorDisplayNumber(doorId) {
       return getSelectedDoor(doorId)?.displayNumber ?? doorId;
-    }
-
-    function getPrimaryDoorIds() {
-      const sorted = [...state.selectedDoors].sort((a, b) => (a.displayNumber || a.id) - (b.displayNumber || b.id));
-      return {
-        door1Id: sorted[0]?.id,
-        door2Id: sorted[1]?.id,
-      };
     }
 
     // ── Screen transition ────────────────────────────────────
@@ -1580,8 +1557,6 @@
       }
       if (Array.isArray(status?.selectedDoors) && status.selectedDoors.length) {
         applySelectedDoors(status.selectedDoors);
-      } else if (!state.selectedDoors.length && state.doorsData.length) {
-        buildSelectedDoors();
       }
       updateHomeStatusUI();
     }
@@ -1875,7 +1850,6 @@
       const doorsScreen = document.getElementById("screen-doors");
 
       const visible = state.selectedDoors.length ? state.selectedDoors : [];
-      const { door1Id, door2Id } = getPrimaryDoorIds();
 
       if (!visible.length) {
         doorsScreen.innerHTML = `
@@ -1887,17 +1861,7 @@
         return;
       }
 
-      const cards = visible.map(door => {
-        const currentDoorId = normalizeDoorId(door.id);
-        const firstDoorId = normalizeDoorId(door1Id);
-        const secondDoorId = normalizeDoorId(door2Id);
-
-        const lockedByFlow =
-          (!state.flowProgress.door1Completed && firstDoorId !== null && currentDoorId !== firstDoorId) ||
-          (state.flowProgress.door1Completed && !state.flowProgress.biomatchCompleted) ||
-          (state.flowProgress.biomatchCompleted && !state.flowProgress.door2Completed && secondDoorId !== null && currentDoorId !== secondDoorId);
-
-        return `
+      const cards = visible.map(door => `
         <article class="door-card">
           <div class="door-title">דלת ${door.displayNumber}</div>
           <div class="door-image-wrap">
@@ -1906,19 +1870,10 @@
               alt="דלת ${door.displayNumber}"
               onerror="this.onerror=null;this.src='${ASSETS.doorFallback}'">
             <div class="door-footer">
-              <button class="btn btn-primary" data-door="${door.id}" ${lockedByFlow ? "disabled" : ""}>${lockedByFlow ? "ייפתח בהמשך" : "התחל"}</button>
+              <button class="btn btn-primary" data-door="${door.id}">התחל</button>
             </div>
           </div>
-        </article>`;
-      }).join("");
-
-      const flowActions = [];
-      if (state.flowProgress.door1Completed && !state.flowProgress.biomatchCompleted) {
-        flowActions.push('<button class="btn btn-primary" id="open-biomatch">שלב 5 – מעבר ל-biomatch</button>');
-      }
-      if (state.flowProgress.door2Completed && !state.flowProgress.cipherCompleted) {
-        flowActions.push('<button class="btn btn-primary" id="open-cipher">פתיחת כתב סתרים</button>');
-      }
+        </article>`).join("");
 
       doorsScreen.innerHTML = `
         ${topStrip("מסך הדלתות", "בחרו דלת למשימה")}
@@ -1926,114 +1881,17 @@
           <h2 class="doors-title">בחרו דלת</h2>
           <p class="question-text">לכל דלת מחכה משימה. לחצו על "התחל" כדי לפתוח את המעבר.</p>
           <div class="door-grid">${cards}</div>
-          ${flowActions.length ? `<div class="actions">${flowActions.join("")}</div>` : ""}
         </div>`;
 
       doorsScreen.querySelectorAll("[data-door]").forEach(btn => {
         btn.onclick = () => startDoorFlow(Number(btn.dataset.door));
       });
-      document.getElementById("open-biomatch")?.addEventListener("click", renderBiomatchStage);
-      document.getElementById("open-cipher")?.addEventListener("click", renderCipherStage);
     }
 
     // ── Door flow helpers ────────────────────────────────────
     function startDoorFlow(doorId) {
       renderDoorIntro(doorId);
       setActiveScreen(`door-${doorId}-intro`);
-    }
-
-    function renderBiomatchStage() {
-      let screen = document.getElementById("screen-biomatch");
-      if (!screen) {
-        screen = document.createElement("section");
-        screen.className = "screen";
-        screen.id = "screen-biomatch";
-        app.appendChild(screen);
-      }
-
-      const { door1Id } = getPrimaryDoorIds();
-      const door = getDoor(door1Id) || state.selectedDoors[0];
-      const organism = door?.creature || "";
-
-      screen.innerHTML = `
-        ${topStrip("שלב 5", "biomatch")}
-        <div class="card question-card">
-          <h2 class="question-title">שער ההמצאות</h2>
-          <p class="question-text">השלימו את כל ההתאמות. בסיום תחזרו אוטומטית למשחק לשלב 6.</p>
-          <iframe class="biomatch-frame" src="biomatch.html?organism=${encodeURIComponent(organism)}" style="width:100%;height:620px;border:0;border-radius:12px;background:#0f172a" title="biomatch"></iframe>
-          <p class="feedback" id="biomatch-feedback"></p>
-          <div class="actions">
-            <button class="btn btn-secondary" id="biomatch-back">חזרה לדלתות</button>
-          </div>
-        </div>`;
-
-      document.getElementById("biomatch-back").onclick = () => {
-        renderDoors();
-        setActiveScreen("screen-doors");
-      };
-      setActiveScreen("screen-biomatch");
-    }
-
-    function renderCipherStage() {
-      let screen = document.getElementById("screen-cipher");
-      if (!screen) {
-        screen = document.createElement("section");
-        screen.className = "screen";
-        screen.id = "screen-cipher";
-        app.appendChild(screen);
-      }
-
-      const cipher = state.cipherData || {};
-      screen.innerHTML = `
-        ${topStrip("שלב 7", "כתב סתרים")}
-        <div class="card question-card">
-          <h2 class="question-title">${cipher.gateName || "כתב סתרים"}</h2>
-          <p class="question-text">${nl(cipher.instruction || "פענחו את המשפט הסודי כדי להגיע לסיום.")}</p>
-          <div class="code-panel" id="cipher-panel">
-            <div class="code-row">
-              <input class="input" id="cipher-input" type="text" placeholder="הזינו את הפתרון" autocomplete="off">
-              <button class="btn btn-primary" id="cipher-submit">פענוח</button>
-            </div>
-          </div>
-          <p class="feedback" id="cipher-feedback"></p>
-          <div class="actions">
-            <button class="btn btn-secondary" id="cipher-back">חזרה לדלתות</button>
-          </div>
-        </div>`;
-
-      const submitCipher = () => {
-        const entered = String(document.getElementById("cipher-input").value || "").trim();
-        const expected = String(cipher.cipherSolution || "").trim();
-        const panel = document.getElementById("cipher-panel");
-        const feedback = document.getElementById("cipher-feedback");
-        panel.classList.remove("success", "error");
-
-        if (entered && entered === expected) {
-          state.flowProgress.cipherCompleted = true;
-          panel.classList.add("success");
-          feedback.textContent = "פיצחתם את כתב הסתרים!";
-          feedback.className = "feedback success";
-          setTimeout(() => {
-            renderFinal();
-            setActiveScreen("screen-final");
-          }, 700);
-          return;
-        }
-
-        panel.classList.add("error");
-        feedback.textContent = "פענוח שגוי. נסו שוב.";
-        feedback.className = "feedback error";
-      };
-
-      document.getElementById("cipher-submit").onclick = submitCipher;
-      document.getElementById("cipher-input").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") submitCipher();
-      });
-      document.getElementById("cipher-back").onclick = () => {
-        renderDoors();
-        setActiveScreen("screen-doors");
-      };
-      setActiveScreen("screen-cipher");
     }
 
     function playDoorVideo(onDone) {
@@ -2367,9 +2225,6 @@
       `;
 
       document.getElementById(`sback-${doorId}`).onclick = () => {
-        const { door1Id, door2Id } = getPrimaryDoorIds();
-        if (doorId === door1Id) state.flowProgress.door1Completed = true;
-        if (doorId === door2Id) state.flowProgress.door2Completed = true;
         renderDoors();
         setActiveScreen("screen-doors");
       };
@@ -2396,11 +2251,6 @@
     // ── Bootstrap ────────────────────────────────────────────
     (async () => {
       await loadDoorsData();
-      try {
-        state.cipherData = await fetchJsonOrThrow("data/final-cipher.json");
-      } catch (e) {
-        console.warn("Could not load final cipher data", e);
-      }
       renderHome();
       if (state.missingRoom) {
         updateHomeStatusUI();
@@ -2408,32 +2258,6 @@
       }
       startStatusPolling();
     })();
-
-    window.addEventListener("message", (event) => {
-      if (event.data?.type !== "BIOMATCH_COMPLETED") return;
-      const frameWindow = document.querySelector(".biomatch-frame")?.contentWindow;
-      if (!frameWindow || event.source !== frameWindow) return;
-
-      state.flowProgress.biomatchCompleted = true;
-      state.biomatchResult = {
-        digit1: event.data.secret_digit_1,
-        digit2: event.data.secret_digit_2,
-        organism: event.data.organism,
-      };
-
-      const { door2Id } = getPrimaryDoorIds();
-      const feedback = document.getElementById("biomatch-feedback");
-      if (feedback) {
-        feedback.textContent = "שלב 5 הושלם! חוזרים למשחק לשלב 6.";
-        feedback.className = "feedback success";
-      }
-
-      setTimeout(() => {
-        renderDoors();
-        setActiveScreen("screen-doors");
-        if (door2Id) startDoorFlow(door2Id);
-      }, 900);
-    });
   </script>
 </body>
 </html>

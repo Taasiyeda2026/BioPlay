@@ -1,31 +1,33 @@
-const FILES = {
+const DATA_FILES = {
   config: 'data/game-config.json',
   mcq: 'data/mcq-stages.json',
+  imageTasks: 'data/image-tasks.json',
   matching: 'data/matching-tasks.json',
-  image: 'data/image-tasks.json',
   cipher: 'data/final-cipher.json'
 };
 
 export async function loadGameData() {
-  const loaded = await Promise.all(
-    Object.entries(FILES).map(async ([key, file]) => {
-      const response = await fetch(file);
-      if (!response.ok) throw new Error(`Failed to load ${file}`);
+  const entries = await Promise.all(
+    Object.entries(DATA_FILES).map(async ([key, path]) => {
+      const response = await fetch(path);
+      if (!response.ok) {
+        throw new Error(`Failed to load ${path}`);
+      }
       return [key, await response.json()];
     })
   );
 
-  const data = Object.fromEntries(loaded);
-  const byOrganism = new Map(data.mcq.map((item) => [item.organismId, item]));
-  const matchingMap = new Map(data.matching.map((item) => [item.organismId, item]));
+  const raw = Object.fromEntries(entries);
+  const organisms = [...new Set(raw.mcq.map((item) => item.organism))];
 
   return {
-    ...data,
-    organisms: data.mcq.map((item) => item.organismName),
-    getOrganismBundle(organismId) {
+    ...raw,
+    organisms,
+    getTrack(organism) {
       return {
-        stages: byOrganism.get(organismId) || null,
-        matching: matchingMap.get(organismId) || null
+        mcq: raw.mcq.filter((item) => item.organism === organism),
+        imageTask: raw.imageTasks.find((item) => item.organism === organism),
+        matchingTask: raw.matching.find((item) => item.organism === organism)
       };
     }
   };

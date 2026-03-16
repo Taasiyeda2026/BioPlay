@@ -127,7 +127,6 @@ def main():
         "I": "otherOrganism2",
         "J": "otherInvention2",
         "K": "solution",
-        "L": "secretDigits",
     }
     matching_rows = [row_to_record(row, matching_headers) for row in sheets["Matching_Tasks"][1:] if row.get("A")]
     write_json("matching-tasks.json", matching_rows)

@@ -4,7 +4,7 @@
   "private": true,
   "description": "Bio-mimicry escape room game",
   "scripts": {
-    "build:data": "node scripts/build-game-data.js",
-    "check:data": "node scripts/build-game-data.js && python scripts/validate_data.py"
+    "build:data": "python scripts/extract_xlsx.py",
+    "check:data": "python scripts/extract_xlsx.py && python scripts/validate_data.py"
   }
 }

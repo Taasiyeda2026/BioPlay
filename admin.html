@@ -1417,15 +1417,6 @@
     </div>
     <button class="btn btn-room" id="room-btn">צור חדר</button>
     <small class="setup-help-text">בחרו חדר ומספר דלתות ולחצו על "צור חדר"</small>
-    <div id="qa-tools" class="field-group" style="display:none; margin-top:10px;">
-      <label>כלי QA פנימיים</label>
-      <div class="control-buttons" style="justify-content:flex-start; gap:8px; flex-wrap:wrap;">
-        <button class="btn btn-room" id="qa-reset-btn" type="button">איפוס לבדיקה</button>
-        <button class="btn btn-room" id="qa-stage-waiting-btn" type="button">מעבר מהיר: המתנה</button>
-        <button class="btn btn-room" id="qa-stage-started-btn" type="button">מעבר מהיר: פעיל</button>
-      </div>
-      <small class="setup-help-text">כלים אלו זמינים רק כאשר פותחים את המערכת עם <code>?test=1</code>.</small>
-    </div>
   </div>
 </section>
 
@@ -1475,15 +1466,9 @@
   const APPS_URL = "https://script.google.com/macros/s/AKfycbzyZUKSrxJCCkM70ZtQbuZdj-LIHLPZzo6z9S-DQHwLIcGikJRG4k_qkxWpi4o2eB9uLg/exec";
   const POLL_MS = 4000;
   const PLAY_GLOW_MS = 30 * 60 * 1000;
-  const QA_MODE_KEY = "bioplay_qa_mode";
-  const QA_SESSION_KEY = "bioplay_qa_session_v1";
   const INITIAL_ACTION_MESSAGE = `להתחלת המשחק בחרו את שם החדר ואת מספר הדלתות`;
 
   const qp = new URLSearchParams(window.location.search);
-  const explicitQaParam = qp.get("test") === "1";
-  const persistedQaMode = localStorage.getItem(QA_MODE_KEY) === "1";
-  const isQaMode = explicitQaParam || persistedQaMode;
-  if (explicitQaParam) localStorage.setItem(QA_MODE_KEY, "1");
   let currentRoomId = "";
 
   function scoped(base, rid = currentRoomId) {
@@ -1538,10 +1523,6 @@
   const copyLinkBtn = document.getElementById("copy-link-btn");
   const headerDoorsCount = document.getElementById("header-doors-count");
   const dbTitle = document.getElementById("db-title");
-  const qaToolsEl = document.getElementById("qa-tools");
-  const qaResetBtn = document.getElementById("qa-reset-btn");
-  const qaStageWaitingBtn = document.getElementById("qa-stage-waiting-btn");
-  const qaStageStartedBtn = document.getElementById("qa-stage-started-btn");
 
   let lastSuccessfulCreatedRoom = "";
   let lastCreateSucceeded = false;
@@ -1550,41 +1531,6 @@
   let playInFlight = false;
   let resetInFlight = false;
   let buttonStabilityTimer = null;
-
-  function readQaSession() {
-    if (!isQaMode) return null;
-    try {
-      const parsed = JSON.parse(localStorage.getItem(QA_SESSION_KEY) || "null");
-      if (!parsed || typeof parsed !== "object") return null;
-      const roomId = String(parsed.roomId || "").trim();
-      const roomName = String(parsed.roomName || "").trim();
-      const teacherToken = String(parsed.teacherToken || "").trim();
-      if (!roomId || !roomName || !teacherToken) return null;
-      return { roomId, roomName, teacherToken };
-    } catch {
-      return null;
-    }
-  }
-
-  function saveQaSession() {
-    if (!isQaMode || !currentRoomId || !currentTeacherToken || !lastSuccessfulCreatedRoom) return;
-    localStorage.setItem(QA_SESSION_KEY, JSON.stringify({
-      roomId: currentRoomId,
-      roomName: lastSuccessfulCreatedRoom,
-      teacherToken: currentTeacherToken,
-      savedAt: Date.now(),
-    }));
-  }
-
-  function clearQaSession(roomId = "") {
-    if (!isQaMode) return;
-    const session = readQaSession();
-    if (!session) return;
-    const targetRoomId = String(roomId || "").trim();
-    if (!targetRoomId || session.roomId === targetRoomId) {
-      localStorage.removeItem(QA_SESSION_KEY);
-    }
-  }
 
   function setStudentLinkState(state = "idle", customText = "") {
     const hasReadyLink = Boolean(currentRoomId && studentUrlForRoom());
@@ -1645,11 +1591,6 @@
   function getStoredTeacherTokenForRoom(roomId = currentRoomId) {
     const rid = String(roomId || "").trim();
     if (!rid) return "";
-    if (isQaMode) {
-      const qaSession = readQaSession();
-      if (qaSession && qaSession.roomId === rid) return qaSession.teacherToken;
-      return localStorage.getItem(getSessKey(rid)) || sessionStorage.getItem(getSessKey(rid)) || "";
-    }
     return sessionStorage.getItem(getSessKey(rid)) || "";
   }
 
@@ -1677,20 +1618,13 @@
   function clearSessionRoomState(roomId = "") {
     const roomStatePrefixes = ["bioplay_admin_token_", "bioplay_last_created_room_name_"];
     const targetRoomId = String(roomId || "").trim();
-    const wipeStorage = (storage) => {
-      for (let i = storage.length - 1; i >= 0; i--) {
-        const key = storage.key(i);
-        if (!key) continue;
-        if (targetRoomId && !key.endsWith(`_${targetRoomId}`)) continue;
-        if (roomStatePrefixes.some((prefix) => key.startsWith(prefix))) {
-          storage.removeItem(key);
-        }
+    for (let i = sessionStorage.length - 1; i >= 0; i--) {
+      const key = sessionStorage.key(i);
+      if (!key) continue;
+      if (targetRoomId && !key.endsWith(`_${targetRoomId}`)) continue;
+      if (roomStatePrefixes.some((prefix) => key.startsWith(prefix))) {
+        sessionStorage.removeItem(key);
       }
-    };
-    wipeStorage(sessionStorage);
-    if (isQaMode) {
-      wipeStorage(localStorage);
-      clearQaSession(targetRoomId);
     }
   }
 
@@ -1781,12 +1715,10 @@
     doorsCount = Math.max(2, Number.isFinite(savedDoors) ? savedDoors : 5);
     doorsSelect.value = String(doorsCount);
     if (currentTeacherToken && currentRoomId) {
-      const activeStorage = isQaMode ? localStorage : sessionStorage;
-      activeStorage.setItem(getSessKey(currentRoomId), currentTeacherToken);
-      activeStorage.setItem(getCreatedRoomNameKey(currentRoomId), lastSuccessfulCreatedRoom);
-      saveQaSession();
-      const savedToken = activeStorage.getItem(getSessKey(currentRoomId));
-      const savedRoomName = activeStorage.getItem(getCreatedRoomNameKey(currentRoomId));
+      sessionStorage.setItem(getSessKey(currentRoomId), currentTeacherToken);
+      sessionStorage.setItem(getCreatedRoomNameKey(currentRoomId), lastSuccessfulCreatedRoom);
+      const savedToken = sessionStorage.getItem(getSessKey(currentRoomId));
+      const savedRoomName = sessionStorage.getItem(getCreatedRoomNameKey(currentRoomId));
       console.info("[admin][trace] persistence", {
         currentRoomId,
         currentTeacherToken,
@@ -2240,38 +2172,6 @@
     }
   };
 
-  async function runQaTransition(mode = "waiting") {
-    if (!isQaMode) return;
-    if (resetInFlight || playInFlight) return;
-    if (!canResetNow()) {
-      setActionMessage("מצב QA דורש חדר בדיקה שמור. בחרו חדר ולחצו על \"צור חדר\" פעם אחת.", "info");
-      return;
-    }
-    const activeRoomId = currentRoomId;
-    const activeTeacherToken = currentTeacherToken;
-    try {
-      if (mode === "started") {
-        await sendAction("start", activeTeacherToken, { roomId: activeRoomId });
-        setStatus("started");
-        setActionMessage("מצב QA: בוצע מעבר מהיר לשלב פעיל.", "success");
-      } else {
-        await sendAction("reset", activeTeacherToken, { roomId: activeRoomId });
-        setStatus("waiting");
-        removePlayGlow();
-        setActionMessage("מצב QA: בוצע איפוס לבדיקה ללא יצירת חדר חדש.", "success");
-      }
-      toast("✔ מעבר מהיר בוצע", "success");
-    } catch (e) {
-      if (!handleInvalidServerState(e)) {
-        setActionMessage(`פעולת QA נכשלה: ${String(e.message || "נסו שוב")}`.trim(), "error");
-      }
-    }
-  }
-
-  qaResetBtn.onclick = () => runQaTransition("waiting");
-  qaStageWaitingBtn.onclick = () => runQaTransition("waiting");
-  qaStageStartedBtn.onclick = () => runQaTransition("started");
-
   logoutBtn.onclick = () => {
     clearActiveRoomState();
     clearInterval(pollTimer);
@@ -2446,30 +2346,8 @@
   });
 
   (async () => {
-    if (isQaMode && qaToolsEl) {
-      qaToolsEl.style.display = "block";
-    }
-
-    const qaSession = readQaSession();
     currentRoomId = (qp.get("room") || "").trim();
-    if (!currentRoomId && qaSession) {
-      currentRoomId = qaSession.roomId;
-    }
     await loadRoomNames();
-
-    if (qaSession?.roomName) {
-      const existingOption = Array.from(roomNameSelect.options).find((option) => option.value === qaSession.roomName);
-      if (!existingOption) {
-        const option = document.createElement("option");
-        option.value = qaSession.roomName;
-        option.textContent = qaSession.roomName;
-        roomNameSelect.appendChild(option);
-      }
-      if (!roomNameSelect.value) {
-        roomNameSelect.value = qaSession.roomName;
-      }
-    }
-
     await loadDoors();
     refreshStorageScope();
     if (currentRoomId) {
@@ -2489,9 +2367,8 @@ if (!currentRoomId) {
 
 }
 
-    const activeStorage = isQaMode ? localStorage : sessionStorage;
-    const saved = activeStorage.getItem(getSessKey(currentRoomId)) || (qaSession?.roomId === currentRoomId ? qaSession.teacherToken : "");
-    const savedRoomName = activeStorage.getItem(getCreatedRoomNameKey(currentRoomId)) || (qaSession?.roomId === currentRoomId ? qaSession.roomName : "");
+    const saved = sessionStorage.getItem(getSessKey(currentRoomId));
+    const savedRoomName = sessionStorage.getItem(getCreatedRoomNameKey(currentRoomId)) || "";
     if (savedRoomName) {
       const existingOption = Array.from(roomNameSelect.options).find((option) => option.value === savedRoomName);
       if (!existingOption) {
@@ -2529,17 +2406,11 @@ if (!currentRoomId) {
       lastSuccessfulCreatedRoom = savedRoomName || selectedRoomName;
       lastCreateSucceeded = Boolean(lastSuccessfulCreatedRoom);
       loginCodeEl.value = saved;
-      try {
-        const status = await getStatus();
-        loginOverlay.style.display = "none";
-        setActionMessage(isQaMode ? "מצב QA שוחזר אוטומטית. ניתן להמשיך לבדוק מיד." : "חדר קיים זוהה עם טוקן שמור. ניתן ללחוץ PLAY.", "success");
-        syncDashboardMeta();
-        enterPanel(status);
-        return;
-      } catch (e) {
-        clearActiveRoomState({ clearCurrentRoomId: true });
-        setActionMessage("סשן הבדיקה השמור אינו תקין יותר. צרו חדר בדיקה מחדש.", "error");
-      }
+      loginOverlay.style.display = "none";
+      setActionMessage("חדר קיים זוהה עם טוקן שמור. ניתן ללחוץ PLAY.", "success");
+      syncDashboardMeta();
+      enterPanel();
+      return;
     }
     if (saved || savedRoomName) {
       const hasHardMismatch = Boolean(savedRoomName && selectedRoomName && savedRoomName !== selectedRoomName);

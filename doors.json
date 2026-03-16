@@ -1,10 +1,6 @@
 [
   {
     "id": 1,
-<<<<<<< HEAD
-    "hasCode": false,
-=======
->>>>>>> 81a1bbcf3c3122f7a22519510a1cc312be039eab
     "title": "דלת 1",
     "creature": "שממית",
     "image": "gecko.png",
@@ -87,10 +83,6 @@
   },
   {
     "id": 2,
-<<<<<<< HEAD
-    "hasCode": false,
-=======
->>>>>>> 81a1bbcf3c3122f7a22519510a1cc312be039eab
     "title": "דלת 2",
     "creature": "פרח הלוטוס",
     "image": "lotus.png",

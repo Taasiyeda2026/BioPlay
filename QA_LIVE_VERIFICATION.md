@@ -1,37 +1,2462 @@
-# Live Verification Report (2026-03-15)
-
-Scope: Focused deep-dive for `teacherToken` / `roomId` pairing, PLAY enablement, and RESET routing.
-
-## Code-level root causes found
-1. `roomId` was forcibly upper-cased in multiple places (`create_room` response parsing, action dispatch, and query-param bootstrap).
-   - This could break strict `roomId + teacherToken` matching on backend flows when IDs are case-sensitive.
-2. PLAY remained disabled after successful room creation because `syncDashboardMeta()` ran while `isCreatingRoom` was still `true` in the `createRoom()` `finally` block.
-   - Result: UI got a success message but button state stayed stale/disabled.
-
-## Fixes applied
-- Removed forced `.toUpperCase()` normalization from:
-  - create-room payload parsing,
-  - action POST dispatch (`sendAction`),
-  - initial `room` query-param bootstrap.
-- Moved `isCreatingRoom = false` earlier in `createRoom()` `finally` so the subsequent dashboard sync enables PLAY/RESET correctly.
-
-## Live browser verification attempts
-- Started local static host (`python3 -m http.server 4173`) and opened `admin.html` via Playwright.
-- Attempted full live flow against the production Apps Script endpoint.
-- Environment network blocked calls to `script.google.com` with proxy tunnel `403` (`CONNECT tunnel failed`), so live backend verification of PLAY/RESET could not be completed in this runtime.
-
-## What was still validated
-- Frontend state transition logic now sets PLAY enabled after successful create completion path (post-`isCreatingRoom=false` sync).
-- Storage/token code paths now preserve backend-returned `roomId` casing to avoid token mismatch caused by client-side mutation.
-
-## Remaining required external validation (once backend is reachable)
-1. create room
-2. verify `roomId` + `teacherToken` returned
-3. verify session/local storage values
-4. PLAY enabled immediately
-5. PLAY action succeeds
-6. student sees started state
-7. RESET succeeds
-8. refresh
-9. create second room
-10. verify no token leakage across rooms
+[
+  {
+    "id": 1,
+    "title": "דלת 1",
+    "creature": "שממית",
+    "image": "gecko.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא מטפס על קירות ואפילו הולך על התקרה. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "224",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "224",
+    "summary": {
+      "title": "דלת 1 נפתחה",
+      "organism": "שממית",
+      "trait": "שערות זעירות",
+      "innovation": "כפפות ספיידרמן"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא מטפס על קירות ואפילו הולך על התקרה. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "צפרדע",
+          "שממית",
+          "עכביש"
+        ],
+        "answer": "שממית",
+        "code": "122",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה עוזר לשממית להיצמד למשטחים חלקים?",
+        "options": [
+          "שערות זעירות",
+          "עור חלק",
+          "רגליים חזקות"
+        ],
+        "answer": "שערות זעירות",
+        "code": "625",
+        "confirmText": "כל הכבוד, תשובה נכונה. לשממית יש מבנה מיוחד בכפות הרגליים.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה פיתוח נוצר בהשראת היכולת של השממית להיצמד למשטחים?",
+        "options": [
+          "משטח נצמד",
+          "פנס חכם",
+          "בקבוק תרמי"
+        ],
+        "answer": "כפפות ספיידרמן",
+        "code": "742",
+        "confirmText": "כל הכבוד, תשובה נכונה. מדענים חקרו את כפות הרגליים של השממית, ולמדו מהן איך לפתח משטחים שיכולים להיצמד בלי להשתמש בדבק רגיל.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "title": "דלת 2",
+    "creature": "פרח הלוטוס",
+    "image": "lotus.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. המים מחליקים מעליו, והוא נשאר נקי כמעט תמיד. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "462",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "462",
+    "summary": {
+      "title": "דלת 2 נפתחה",
+      "organism": "פרח הלוטוס",
+      "trait": "מרקם זעיר מחוספס",
+      "innovation": "חולצה דוחה כתמים"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. המים מחליקים מעליו, והוא נשאר נקי כמעט תמיד. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "פרח החרצית",
+          "פרח הלוטוס",
+          "פרח הצבעוני"
+        ],
+        "answer": "פרח הלוטוס",
+        "code": "348",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה עוזר לעלה של הלוטוס לדחות מים ולכלוך ולשמור על עצמו נקי?",
+        "options": [
+          "מרקם זעיר מחוספס",
+          "צבע ירוק מבריק",
+          "ריח חזק מיוחד"
+        ],
+        "answer": "מרקם זעיר מחוספס",
+        "code": "561",
+        "confirmText": "כל הכבוד, תשובה נכונה. לעלה של הלוטוס יש מבנה מיוחד בפני השטח.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה פיתוח נוצר בהשראת היכולת של הלוטוס לדחות מים ולכלוך?",
+        "options": [
+          "חולצה דוחה כתמים",
+          "מעיל סערה",
+          "בקבוק תרמי"
+        ],
+        "answer": "חולצה דוחה כתמים",
+        "code": "724",
+        "confirmText": "כל הכבוד, תשובה נכונה. מדענים חקרו את מבנה העלה של הלוטוס, ולמדו ממנו איך לפתח משטחים שדוחים מים ועוזרים לשמור על ניקיון.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "title": "דלת 3",
+    "creature": "כריש",
+    "image": "shark.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא נע במהירות במים וכמעט לא מרגישים את ההתנגדות סביבו. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "324",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "324",
+    "summary": {
+      "title": "דלת 3 נפתחה",
+      "organism": "כריש",
+      "trait": "עור מחורץ מיוחד",
+      "innovation": "בגד ים לתחרויות"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא נע במהירות במים וכמעט לא מרגישים את ההתנגדות סביבו. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "דולפין",
+          "כריש",
+          "תמנון"
+        ],
+        "answer": "כריש",
+        "code": "135",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה במבנה הגוף של הכריש עוזר לו לשחות ביעילות ולהפחית חיכוך במים?",
+        "options": [
+          "עור מחורץ מיוחד",
+          "שיניים חדות גדולות",
+          "סנפיר גב רחב"
+        ],
+        "answer": "עור מחורץ מיוחד",
+        "code": "628",
+        "confirmText": "כל הכבוד, תשובה נכונה. לעור של הכריש יש מבנה שעוזר לזרימה יעילה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה פיתוח נוצר בהשראת המבנה המיוחד של עור הכריש?",
+        "options": [
+          "חליפת צלילה",
+          "בגד ים תחרותי",
+          "כפפות שחייה"
+        ],
+        "answer": "בגד ים תחרותי",
+        "code": "741",
+        "confirmText": "כל הכבוד, תשובה נכונה. מדענים חקרו את מבנה העור של הכריש, ולמדו ממנו איך לפתח חומרים וציפויים שעוזרים להפחית חיכוך ולשפר תנועה במים.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "title": "דלת 4",
+    "creature": "דבורה",
+    "image": "honeybee.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא בונה מבנה חכם, מסודר, חזק וחסכוני במקום. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "584",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "584",
+    "summary": {
+      "title": "דלת 4 נפתחה",
+      "organism": "דבורה",
+      "trait": "מבנה משושים חזק וחסכוני במקום",
+      "innovation": "קרטון ביצים"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא בונה מבנה חכם, מסודר, חזק וחסכוני במקום. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "נמלה",
+          "חיפושית",
+          "דבורה"
+        ],
+        "answer": "דבורה",
+        "code": "253",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה מיוחד במבנה שדבורה בונה בכוורת ושומר על סדר ויעילות?",
+        "options": [
+          "תאים בצורת משושה",
+          "פתחים עגולים קטנים",
+          "שכבות בקווים ישרים"
+        ],
+        "answer": "תאים בצורת משושה",
+        "code": "681",
+        "confirmText": "כל הכבוד, תשובה נכונה. המבנה המשושה עוזר לנצל מקום בצורה חכמה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת המבנה המשושי של כוורת הדבורים?",
+        "options": [
+          "קופסת אוכל",
+          "קרטון ביצים",
+          "קלמר קשיח"
+        ],
+        "answer": "קרטון ביצים",
+        "code": "742",
+        "confirmText": "כל הכבוד, תשובה נכונה. מהנדסים חקרו את המבנה של כוורת הדבורים, ולמדו ממנו איך ליצור חלוקה חכמה וחזקה של תאים – כמו בקרטון ביצים.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "title": "דלת 5",
+    "creature": "פינגווין",
+    "image": "penguin.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. גם במקום קפוא מאוד הוא מצליח לשמור על חום הגוף שלו. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "424",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "424",
+    "summary": {
+      "title": "דלת 5 נפתחה",
+      "organism": "פינגווין",
+      "trait": "שכבת בידוד צפופה",
+      "innovation": "שק שינה"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. גם במקום קפוא מאוד הוא מצליח לשמור על חום הגוף שלו. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "פינגווין",
+          "שקנאי",
+          "יונה"
+        ],
+        "answer": "פינגווין",
+        "code": "146",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה עוזר לפינגווין לשמור על חום הגוף שלו גם בקור קיצוני?",
+        "options": [
+          "שכבת בידוד צפופה",
+          "כנפיים רחבות מאוד",
+          "מקור קצר וחזק"
+        ],
+        "answer": "שכבת בידוד צפופה",
+        "code": "628",
+        "confirmText": "כל הכבוד, תשובה נכונה. לפינגווין יש שכבות שעוזרות לו לשמור על חום.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת היכולת של הפינגווין לשמור על חום הגוף?",
+        "options": [
+          "שמיכת פליז",
+          "אוהל טיולים",
+          "שק שינה מחמם"
+        ],
+        "answer": "שק שינה מחמם",
+        "code": "741",
+        "confirmText": "כל הכבוד, תשובה נכונה. מדענים חקרו את מבנה הגוף של הפינגווין, ולמדו ממנו איך לפתח ביגוד וחומרים שעוזרים לשמור על חום גם בתנאים קרים.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 6,
+    "title": "דלת 6",
+    "creature": "נשר",
+    "image": "eagle.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא נע באוויר זמן רב וכמעט לא מבזבז אנרגיה. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "584",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "584",
+    "summary": {
+      "title": "דלת 6 נפתחה",
+      "organism": "נשר",
+      "trait": "כנפיים רחבות לדאייה בזרמי אוויר",
+      "innovation": "דאון"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא נע באוויר זמן רב וכמעט לא מבזבז אנרגיה. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "עורב",
+          "דרור",
+          "נשר"
+        ],
+        "answer": "נשר",
+        "code": "257",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה עוזר לנשר לנוע זמן רב באוויר בלי לבזבז הרבה אנרגיה?",
+        "options": [
+          "ניצול זרמי אוויר",
+          "כנפיים קצרות מאוד",
+          "זנב כבד וארוך"
+        ],
+        "answer": "ניצול זרמי אוויר",
+        "code": "681",
+        "confirmText": "כל הכבוד, תשובה נכונה. הנשר יודע לנצל את האוויר בצורה יעילה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה כלי קיבל השראה מהדרך של הנשר לדאות באוויר?",
+        "options": [
+          "דאון",
+          "מסוק",
+          "רחפן"
+        ],
+        "answer": "דאון",
+        "code": "742",
+        "confirmText": "כל הכבוד, תשובה נכונה. מהנדסים חקרו את הדרך שבה עופות דואים באוויר, ולמדו ממנה איך לשפר כלי טיס חסכוניים כמו דאון.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "title": "דלת 7",
+    "creature": "ברקן",
+    "image": "burdock.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא נצמד בקלות לבד, לפרווה ולחפצים סביבו. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "684",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "684",
+    "summary": {
+      "title": "דלת 7 נפתחה",
+      "organism": "ברקן",
+      "trait": "ווים זעירים קטנים",
+      "innovation": "סקוץ' לנעליים"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא נצמד בקלות לבד, לפרווה ולחפצים סביבו. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "כלנית",
+          "ברקן",
+          "סביון"
+        ],
+        "answer": "ברקן",
+        "code": "263",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה עוזר לזרעים של הברקן להיתפס לבגד או לפרווה ולעבור למקום חדש?",
+        "options": [
+          "ווים זעירים קטנים",
+          "ריח חזק מיוחד",
+          "צבע בולט מאוד"
+        ],
+        "answer": "ווים זעירים קטנים",
+        "code": "581",
+        "confirmText": "כל הכבוד, תשובה נכונה. לברקן יש מבנה קטן שיודע להיתפס היטב.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת הדרך של הברקן להיצמד לבד ולפרווה?",
+        "options": [
+          "רוכסן",
+          "סקוץ' לנעליים",
+          "שרוכים"
+        ],
+        "answer": "סקוץ' לנעליים",
+        "code": "742",
+        "confirmText": "כל הכבוד, תשובה נכונה. ממציאים חקרו את המבנה של זרעי הברקן, ולמדו ממנו איך לפתח סגירה שנפתחת ונסגרת פעמים רבות בעזרת תפיסה פשוטה וחכמה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 8,
+    "title": "דלת 8",
+    "creature": "שפירית",
+    "image": "dragonfly.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא עף במהירות, משנה כיוון בפתאומיות, וכמעט עוצר באוויר. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "524",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "524",
+    "summary": {
+      "title": "דלת 8 נפתחה",
+      "organism": "שפירית",
+      "trait": "שליטה נפרדת בכנפיים",
+      "innovation": "רחפן"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא עף במהירות, משנה כיוון בפתאומיות, וכמעט עוצר באוויר. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "פרפר",
+          "שפירית",
+          "זבוב"
+        ],
+        "answer": "שפירית",
+        "code": "154",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה עוזר לשפירית לעוף בדיוק רב ולשנות כיוון במהירות?",
+        "options": [
+          "שליטה נפרדת בכנפיים",
+          "גוף כבד וקשיח",
+          "עיניים קטנות מאוד"
+        ],
+        "answer": "שליטה נפרדת בכנפיים",
+        "code": "627",
+        "confirmText": "כל הכבוד, תשובה נכונה. לשפירית יש יכולת תעופה מדויקת במיוחד.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת התעופה המדויקת של השפירית?",
+        "options": [
+          "מטוס נייר",
+          "מצלמה",
+          "רחפן"
+        ],
+        "answer": "רחפן",
+        "code": "741",
+        "confirmText": "כל הכבוד, תשובה נכונה. מהנדסים חקרו את דרך התעופה של השפירית, ולמדו ממנה איך לפתח כלי תעופה קטנים שמסוגלים לנוע בדיוק ובמהירות.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "title": "דלת 9",
+    "creature": "ברדלס (צ'יטה)",
+    "image": "cheetah.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא פורץ קדימה במהירות עצומה וכמעט אי אפשר להשיג אותו. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "724",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "724",
+    "summary": {
+      "title": "דלת 9 נפתחה",
+      "organism": "ברדלס (צ'יטה)",
+      "trait": "מהירות ריצה ואחיזה בקרקע",
+      "innovation": "נעלי פקקים"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא פורץ קדימה במהירות עצומה וכמעט אי אפשר להשיג אותו. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "זברה",
+          "ברדלס (צ'יטה)",
+          "אריה"
+        ],
+        "answer": "ברדלס (צ'יטה)",
+        "code": "173",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה עוזר לברדלס לרוץ במהירות גבוהה ולשמור על יציבות בתנועה?",
+        "options": [
+          "גוף גמיש וקל",
+          "זנב קצר ועבה",
+          "פרווה כהה וצפופה"
+        ],
+        "answer": "גוף גמיש וקל",
+        "code": "628",
+        "confirmText": "כל הכבוד, תשובה נכונה. לברדלס יש מבנה גוף שמותאם למהירות גבוהה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת היכולת של הברדלס לרוץ במהירות ולתפוס אחיזה טובה בקרקע?",
+        "options": [
+          "נעלי כדורסל",
+          "נעלי פקקים",
+          "נעלי הליכה"
+        ],
+        "answer": "נעלי פקקים",
+        "code": "741",
+        "confirmText": "כל הכבוד, תשובה נכונה. מהנדסים ומעצבים חקרו את תנועת הברדלס, ולמדו ממנה איך לפתח נעליים שנותנות אחיזה טובה ומהירות גבוהה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "title": "דלת 10",
+    "creature": "עכביש",
+    "image": "spider.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא יוצר סיבים דקים מאוד, אבל חזקים הרבה יותר ממה שנדמה. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "896",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "896",
+    "summary": {
+      "title": "דלת 10 נפתחה",
+      "organism": "עכביש",
+      "trait": "קורים חזקים וגמישים",
+      "innovation": "חבל טיפוס חזק"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא יוצר סיבים דקים מאוד, אבל חזקים הרבה יותר ממה שנדמה. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "תולעת",
+          "צרעה",
+          "עכביש"
+        ],
+        "answer": "עכביש",
+        "code": "284",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה מיוחד בחומר שהעכביש יוצר?",
+        "options": [
+          "קורים חזקים וגמישים",
+          "רגליים ארוכות ודקות",
+          "צבע כהה מבריק"
+        ],
+        "answer": "קורים חזקים וגמישים",
+        "code": "593",
+        "confirmText": "כל הכבוד, תשובה נכונה. קורי העכביש חזקים וגמישים מאוד.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת החומר החזק והגמיש של העכביש?",
+        "options": [
+          "חוט תפירה",
+          "חבל טיפוס חזק",
+          "חבל כביסה"
+        ],
+        "answer": "חבל טיפוס חזק",
+        "code": "761",
+        "confirmText": "כל הכבוד, תשובה נכונה. חוקרים חקרו את קורי העכביש, ולמדו מהם איך לפתח סיבים וחבלים קלים אבל חזקים במיוחד.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "title": "דלת 11",
+    "creature": "טרמיטים",
+    "image": "termites.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא בונה מבנה חכם ששומר על טמפרטורה נעימה גם כשבחוץ חם מאוד. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "148",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "148",
+    "summary": {
+      "title": "דלת 11 נפתחה",
+      "organism": "טרמיטים",
+      "trait": "תעלות אוורור חכמות",
+      "innovation": "בניין עם קירור טבעי"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא בונה מבנה חכם ששומר על טמפרטורה נעימה גם כשבחוץ חם מאוד. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "טרמיטים",
+          "נמלים",
+          "דבורים"
+        ],
+        "answer": "טרמיטים",
+        "code": "319",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה עוזר למבנה של הטרמיטים להישאר נעים ומאוורר?",
+        "options": [
+          "תעלות אוורור חכמות",
+          "קירות רכים ונמוכים",
+          "אדמה רטובה וקרה"
+        ],
+        "answer": "תעלות אוורור חכמות",
+        "code": "547",
+        "confirmText": "כל הכבוד, תשובה נכונה. בתוך קן הטרמיטים האוויר זורם בחכמה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה פיתוח נוצר בהשראת המבנה החכם של הטרמיטים?",
+        "options": [
+          "מאוורר",
+          "מזגן",
+          "בניין עם קירור טבעי"
+        ],
+        "answer": "בניין עם קירור טבעי",
+        "code": "783",
+        "confirmText": "כל הכבוד, תשובה נכונה. אדריכלים חקרו את קני הטרמיטים, ולמדו מהם איך לבנות מבנים שנשארים קרירים יותר בעזרת אוורור טבעי.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "title": "דלת 12",
+    "creature": "לווייתן",
+    "image": "whale.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא נע בעוצמה וביעילות בעזרת תנועה גדולה וחזקה של גופו. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "638",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "638",
+    "summary": {
+      "title": "דלת 12 נפתחה",
+      "organism": "לווייתן",
+      "trait": "סנפירים עם מבנה חכם",
+      "innovation": "שבשבת רוח"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא נע בעוצמה וביעילות בעזרת תנועה גדולה וחזקה של גופו. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "דולפין",
+          "כריש",
+          "לווייתן"
+        ],
+        "answer": "לווייתן",
+        "code": "264",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה מיוחד במבנה הסנפירים של הלווייתן שעוזר לו לנוע ביעילות?",
+        "options": [
+          "סנפירים עם מבנה חכם",
+          "שיניים חדות וצפופות",
+          "עור עבה ומקומט"
+        ],
+        "answer": "סנפירים עם מבנה חכם",
+        "code": "538",
+        "confirmText": "כל הכבוד, תשובה נכונה. לסנפירים של הלווייתן יש מבנה שעוזר לזרימה טובה יותר.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת המבנה המיוחד של סנפירי הלווייתן?",
+        "options": [
+          "מאוורר",
+          "טורבינת רוח",
+          "גלגל מים"
+        ],
+        "answer": "טורבינת רוח",
+        "code": "781",
+        "confirmText": "כל הכבוד, תשובה נכונה. מהנדסים חקרו את צורת הסנפירים של הלווייתן, ולמדו ממנה איך לשפר טורבינות ושבשבות רוח.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "title": "דלת 13",
+    "creature": "יתוש",
+    "image": "mosquito.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא מצליח לחדור כמעט בלי שמרגישים מיד שהוא היה שם. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "728",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "728",
+    "summary": {
+      "title": "דלת 13 נפתחה",
+      "organism": "יתוש",
+      "trait": "חדירה עדינה לעור",
+      "innovation": "מזרק שלא כואב"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא מצליח לחדור כמעט בלי שמרגישים מיד שהוא היה שם. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "דבורה",
+          "זבוב",
+          "יתוש"
+        ],
+        "answer": "יתוש",
+        "code": "471",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה מיוחד בדרך שבה היתוש חודר לעור?",
+        "options": [
+          "חדירה עדינה לעור",
+          "כנפיים שקופות מאוד",
+          "גוף קטן ומבריק"
+        ],
+        "answer": "חדירה עדינה לעור",
+        "code": "526",
+        "confirmText": "כל הכבוד, תשובה נכונה. היתוש חודר לעור בדרך עדינה מאוד.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת הדרך העדינה של היתוש לחדור לעור?",
+        "options": [
+          "מזרק עדין",
+          "תחבושת",
+          "כדור תרופה"
+        ],
+        "answer": "מזרק עדין",
+        "code": "784",
+        "confirmText": "כל הכבוד, תשובה נכונה. חוקרים חקרו את מבנה הפה של היתוש, ולמדו ממנו איך לפתח מזרקים עדינים שכואבים פחות.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "title": "דלת 14",
+    "creature": "זבוב",
+    "image": "fly.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא רואה את העולם בדרך אחרת, דרך המון חלקים קטנים שפועלים יחד. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "819",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "819",
+    "summary": {
+      "title": "דלת 14 נפתחה",
+      "organism": "זבוב",
+      "trait": "המון יחידות ראייה",
+      "innovation": "מצלמה מרובת עדשות"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא רואה את העולם בדרך אחרת, דרך המון חלקים קטנים שפועלים יחד. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "עכביש",
+          "זבוב",
+          "יתוש"
+        ],
+        "answer": "זבוב",
+        "code": "382",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה מיוחד בדרך שבה הזבוב רואה?",
+        "options": [
+          "המון יחידות ראייה",
+          "כנפיים שקופות ודקות",
+          "רגליים ארוכות מאוד"
+        ],
+        "answer": "המון יחידות ראייה",
+        "code": "617",
+        "confirmText": "כל הכבוד, תשובה נכונה. עין הזבוב מורכבת מהמון יחידות קטנות.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת מבנה העין של הזבוב?",
+        "options": [
+          "מסך מחשב",
+          "מצלמה מרובת עדשות",
+          "מקרן"
+        ],
+        "answer": "מצלמה מרובת עדשות",
+        "code": "795",
+        "confirmText": "כל הכבוד, תשובה נכונה. מדענים חקרו את מבנה העין של הזבוב, ולמדו ממנו איך לפתח מצלמות שיכולות לקלוט מידע מהרבה כיוונים.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "title": "דלת 15",
+    "creature": "גחלילית",
+    "image": "firefly.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא מאיר בחושך, אבל כמעט לא מתחמם בזמן שהוא זוהר. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "649",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "649",
+    "summary": {
+      "title": "דלת 17 נפתחה",
+      "organism": "גחלילית",
+      "trait": "אור בלי הרבה חום",
+      "innovation": "נורת LED"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא מאיר בחושך, אבל כמעט לא מתחמם בזמן שהוא זוהר. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "זבוב",
+          "גחלילית",
+          "יתוש"
+        ],
+        "answer": "גחלילית",
+        "code": "361",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה מיוחד באופן שבו הגחלילית מפיקה אור?",
+        "options": [
+          "אור בלי הרבה חום",
+          "כנפיים שקופות ודקות",
+          "גוף קטן וקל"
+        ],
+        "answer": "אור בלי הרבה חום",
+        "code": "648",
+        "confirmText": "כל הכבוד, תשובה נכונה. הגחלילית מפיקה אור ביעילות רבה מאוד.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת האור היעיל של הגחלילית?",
+        "options": [
+          "פנס",
+          "נורת LED",
+          "נורת פלורסנט"
+        ],
+        "answer": "נורת LED",
+        "code": "792",
+        "confirmText": "כל הכבוד, תשובה נכונה. חוקרים חקרו את האור של הגחלילית, ולמדו ממנו איך לפתח תאורה חסכונית יותר עם פחות חום.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "title": "דלת 16",
+    "creature": "שלדג",
+    "image": "kingfisher.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא נכנס למים במהירות ובדיוק, כמעט בלי להפריע למה שסביבו. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "819",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "819",
+    "summary": {
+      "title": "דלת 18 נפתחה",
+      "organism": "שלדג",
+      "trait": "מבנה חד ואווירודינמי",
+      "innovation": "רכבת מהירה"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא נכנס למים במהירות ובדיוק, כמעט בלי להפריע למה שסביבו. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "נשר",
+          "יונה",
+          "שלדג"
+        ],
+        "answer": "שלדג",
+        "code": "482",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה במבנה הגוף של השלדג עוזר לו להיכנס למים בצורה כל כך מדויקת?",
+        "options": [
+          "מבנה חד ואווירודינמי",
+          "כנפיים רחבות מאוד",
+          "רגליים ארוכות ודקות"
+        ],
+        "answer": "מבנה חד ואווירודינמי",
+        "code": "615",
+        "confirmText": "כל הכבוד, תשובה נכונה. למבנה של השלדג יש צורה חדה שמפחיתה הפרעה לסביבה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה כלי מהיר קיבל השראה ממבנה הראש והמקור של השלדג?",
+        "options": [
+          "אוטובוס",
+          "רכבת מהירה",
+          "מטוס"
+        ],
+        "answer": "רכבת מהירה",
+        "code": "793",
+        "confirmText": "כל הכבוד, תשובה נכונה. מהנדסים חקרו את צורת המקור של השלדג, ולמדו ממנה איך לשפר רכבות מהירות כדי לנוע בשקט וביעילות.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "title": "דלת 17",
+    "creature": "דיונון",
+    "image": "squid.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא משנה את המראה שלו במהירות וכמעט נעלם בתוך הסביבה. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "728",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "728",
+    "summary": {
+      "title": "דלת 19 נפתחה",
+      "organism": "דיונון",
+      "trait": "שינוי צבע מהיר",
+      "innovation": "בגדי הסוואה"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא משנה את המראה שלו במהירות וכמעט נעלם בתוך הסביבה. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "כוכב ים",
+          "דיונון",
+          "דג זהב"
+        ],
+        "answer": "דיונון",
+        "code": "573",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה היכולת המיוחדת של הדיונון?",
+        "options": [
+          "שינוי צבע מהיר",
+          "עיניים גדולות מאוד",
+          "זרועות ארוכות וחזקות"
+        ],
+        "answer": "שינוי צבע מהיר",
+        "code": "624",
+        "confirmText": "כל הכבוד, תשובה נכונה. הדיונון יכול לשנות את המראה שלו במהירות רבה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת היכולת של הדיונון לשנות מראה במהירות?",
+        "options": [
+          "מעיל",
+          "בגדי הסוואה חכמים",
+          "בגד ים"
+        ],
+        "answer": "בגדי הסוואה",
+        "code": "781",
+        "confirmText": "כל הכבוד, תשובה נכונה. מדענים חקרו את מנגנון שינוי הצבע של הדיונון, ולמדו ממנו איך לפתח חומרים ובגדים שמגיבים לסביבה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "title": "דלת 18",
+    "creature": "פרפר מורפו",
+    "image": "morpho.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא בולט בצבע מרהיב במיוחד, אבל הסוד שלו אינו צבע רגיל. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "518",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "518",
+    "summary": {
+      "title": "דלת 20 נפתחה",
+      "organism": "פרפר מורפו",
+      "trait": "צבע מבני שאינו דוהה",
+      "innovation": "לק מחליף צבע"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא בולט בצבע מרהיב במיוחד, אבל הסוד שלו אינו צבע רגיל. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "זבוב",
+          "דבורה",
+          "פרפר מורפו"
+        ],
+        "answer": "פרפר מורפו",
+        "code": "354",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה מיוחד בצבע של פרפר מורפו?",
+        "options": [
+          "צבע מבני שאינו דוהה",
+          "כנפיים שקופות מאוד",
+          "גוף קטן וקל"
+        ],
+        "answer": "צבע מבני שאינו דוהה",
+        "code": "617",
+        "confirmText": "כל הכבוד, תשובה נכונה. הצבע של מורפו נוצר ממבנה ולא רק מפיגמנט.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת הצבע המיוחד של פרפר מורפו?",
+        "options": [
+          "לק מחליף צבע",
+          "צללית לעיניים",
+          "שפתון מבריק"
+        ],
+        "answer": "לק מחליף צבע",
+        "code": "782",
+        "confirmText": "כל הכבוד, תשובה נכונה. חוקרים חקרו את כנפי פרפר מורפו, ולמדו מהן איך ליצור צבעים מבריקים ועמידים שנראים אחרת בזוויות שונות.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "title": "דלת 19",
+    "creature": "עטלף",
+    "image": "bat.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. גם בחושך הוא מצליח לדעת מה נמצא סביבו ולמצוא את דרכו. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "689",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "689",
+    "summary": {
+      "title": "דלת 21 נפתחה",
+      "organism": "עטלף",
+      "trait": "ניווט בעזרת הד",
+      "innovation": "מקל נחייה חכם"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. גם בחושך הוא מצליח לדעת מה נמצא סביבו ולמצוא את דרכו. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "ינשוף",
+          "חתול",
+          "עטלף"
+        ],
+        "answer": "עטלף",
+        "code": "463",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "איך העטלף מוצא את דרכו גם בחושך?",
+        "options": [
+          "ניווט בעזרת הד",
+          "עיניים גדולות מאוד",
+          "כנפיים צרות וקלות"
+        ],
+        "answer": "ניווט בעזרת הד",
+        "code": "582",
+        "confirmText": "כל הכבוד, תשובה נכונה. העטלף משתמש בקול חוזר כדי להבין את הסביבה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת הדרך שבה העטלף מתמצא בסביבה?",
+        "options": [
+          "פנס",
+          "מקל נחייה חכם",
+          "מקל הליכה"
+        ],
+        "answer": "מקל נחייה חכם",
+        "code": "794",
+        "confirmText": "כל הכבוד, תשובה נכונה. מפתחים חקרו את הדרך שבה עטלפים משתמשים בהד, ולמדו ממנה איך לפתח עזרים חכמים להתמצאות בטוחה יותר.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "title": "דלת 20",
+    "creature": "היפופוטם",
+    "image": "hippo.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הגוף שלו מגן על עצמו מפני שמש חזקה בדרך מיוחדת מאוד. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "918",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "918",
+    "summary": {
+      "title": "דלת 22 נפתחה",
+      "organism": "היפופוטם",
+      "trait": "חומר שמגן מהשמש",
+      "innovation": "קרם הגנה מהשמש"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הגוף שלו מגן על עצמו מפני שמש חזקה בדרך מיוחדת מאוד. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "קרנף",
+          "היפופוטם",
+          "פיל"
+        ],
+        "answer": "היפופוטם",
+        "code": "294",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה עוזר להיפופוטם להגן על העור שלו בשמש חזקה?",
+        "options": [
+          "חומר שמגן מהשמש",
+          "עור עבה במיוחד",
+          "רגליים קצרות וחזקות"
+        ],
+        "answer": "חומר שמגן מהשמש",
+        "code": "615",
+        "confirmText": "כל הכבוד, תשובה נכונה. הגוף של ההיפופוטם מפריש חומר שעוזר להגן על העור.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת הדרך שבה ההיפופוטם מגן על עורו?",
+        "options": [
+          "קרם גוף",
+          "קרם ידיים",
+          "קרם הגנה מהשמש"
+        ],
+        "answer": "קרם הגנה מהשמש",
+        "code": "783",
+        "confirmText": "כל הכבוד, תשובה נכונה. חוקרים חקרו את החומר שההיפופוטם מפריש, ולמדו ממנו איך לשפר הגנה על העור מפני השמש.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 21,
+    "title": "דלת 21",
+    "creature": "פיל",
+    "image": "elephant.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. יש לו איבר אחד שיכול גם להרים בכוח וגם לגעת בעדינות רבה. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "859",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "859",
+    "summary": {
+      "title": "דלת 23 נפתחה",
+      "organism": "פיל",
+      "trait": "חדק חזק וגמיש",
+      "innovation": "זרוע רובוטית"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. יש לו איבר אחד שיכול גם להרים בכוח וגם לגעת בעדינות רבה. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "ג'ירפה",
+          "פיל",
+          "קרנף"
+        ],
+        "answer": "פיל",
+        "code": "381",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה מיוחד באיבר שבו הפיל משתמש כדי להרים ולתפוס דברים?",
+        "options": [
+          "חדק חזק וגמיש",
+          "אוזניים גדולות מאוד",
+          "רגליים עבות וקצרות"
+        ],
+        "answer": "חדק חזק וגמיש",
+        "code": "654",
+        "confirmText": "כל הכבוד, תשובה נכונה. החדק של הפיל גם חזק וגם מדויק מאוד.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת החדק החזק והגמיש של הפיל?",
+        "options": [
+          "מנוף",
+          "זרוע רובוטית",
+          "מקדחה"
+        ],
+        "answer": "זרוע רובוטית",
+        "code": "792",
+        "confirmText": "כל הכבוד, תשובה נכונה. מהנדסים חקרו את יכולות החדק של הפיל, ולמדו ממנו איך לפתח זרועות רובוטיות שמסוגלות גם לכוח וגם לעדינות.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "title": "דלת 22",
+    "creature": "ינשוף",
+    "image": "owl.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא נע בשקט כמעט מוחלט, כך שכמעט אי אפשר לשמוע אותו מתקרב. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "789",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "789",
+    "summary": {
+      "title": "דלת 24 נפתחה",
+      "organism": "ינשוף",
+      "trait": "תעופה שקטה מאוד",
+      "innovation": "מאוורר שקט"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא נע בשקט כמעט מוחלט, כך שכמעט אי אפשר לשמוע אותו מתקרב. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "שלדג",
+          "ינשוף",
+          "נשר"
+        ],
+        "answer": "ינשוף",
+        "code": "472",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה מיוחד בדרך שבה הינשוף נע באוויר?",
+        "options": [
+          "תעופה שקטה מאוד",
+          "עיניים גדולות ועגולות",
+          "טפרים חדים וארוכים"
+        ],
+        "answer": "תעופה שקטה מאוד",
+        "code": "583",
+        "confirmText": "כל הכבוד, תשובה נכונה. הכנפיים של הינשוף עוזרות לו לעוף בשקט רב.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת התעופה השקטה של הינשוף?",
+        "options": [
+          "מזגן",
+          "רדיאטור",
+          "מאוורר שקט"
+        ],
+        "answer": "מאוורר שקט",
+        "code": "791",
+        "confirmText": "כל הכבוד, תשובה נכונה. מהנדסים חקרו את מבנה כנפי הינשוף, ולמדו ממנו איך לפתח מאווררים וכלים שעובדים בשקט יותר.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "title": "דלת 23",
+    "creature": "דג קופסה",
+    "image": "boxfish.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. יש לו מבנה קשיח ומיוחד, שעוזר גם להגן עליו וגם לשמור על יציבות בתנועה. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "628",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "628",
+    "summary": {
+      "title": "דלת 25 נפתחה",
+      "organism": "דג קופסה",
+      "trait": "גוף קשיח ויציב",
+      "innovation": "מכונית בטיחותית"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. יש לו מבנה קשיח ומיוחד, שעוזר גם להגן עליו וגם לשמור על יציבות בתנועה. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "כריש",
+          "דג זהב",
+          "דג קופסה"
+        ],
+        "answer": "דג קופסה",
+        "code": "364",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה מיוחד במבנה הגוף של דג הקופסה?",
+        "options": [
+          "גוף קשיח ויציב",
+          "סנפיר חד ומהיר",
+          "זנב ארוך וגמיש"
+        ],
+        "answer": "גוף קשיח ויציב",
+        "code": "527",
+        "confirmText": "כל הכבוד, תשובה נכונה. המבנה של דג הקופסה גם מגן עליו וגם עוזר ליציבות.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת המבנה הקשיח והיציב של דג הקופסה?",
+        "options": [
+          "אופניים",
+          "מכונית בטיחותית",
+          "קורקינט"
+        ],
+        "answer": "מכונית בטיחותית",
+        "code": "789",
+        "confirmText": "כל הכבוד, תשובה נכונה. מהנדסים חקרו את צורת הגוף של דג הקופסה, ולמדו ממנה איך לתכנן כלי רכב יציבים ובטיחותיים יותר.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "title": "דלת 24",
+    "creature": "ג'ירפה",
+    "image": "giraffe.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הגוף שלו מצליח להתמודד עם גובה גדול ועם לחץ בצורה יוצאת דופן. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "139",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "139",
+    "summary": {
+      "title": "דלת 26 נפתחה",
+      "organism": "ג'ירפה",
+      "trait": "התמודדות עם לחץ",
+      "innovation": "חליפת אסטרונאוט"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הגוף שלו מצליח להתמודד עם גובה גדול ועם לחץ בצורה יוצאת דופן. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "פיל",
+          "גמל",
+          "ג'ירפה"
+        ],
+        "answer": "ג'ירפה",
+        "code": "415",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה מיוחד בגוף של הג'ירפה שעוזר לה להתמודד עם לחץ וזרימת דם?",
+        "options": [
+          "התמודדות עם לחץ",
+          "צוואר ארוך מאוד",
+          "רגליים ארוכות ודקות"
+        ],
+        "answer": "התמודדות עם לחץ",
+        "code": "638",
+        "confirmText": "כל הכבוד, תשובה נכונה. הגוף של הג'ירפה יודע לווסת לחץ בצורה מיוחדת.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת הדרך שבה הג'ירפה מתמודדת עם לחץ בגוף?",
+        "options": [
+          "חליפת צלילה",
+          "חליפת לחץ",
+          "חליפת סקי"
+        ],
+        "answer": "חליפת אסטרונאוט",
+        "code": "792",
+        "confirmText": "כל הכבוד, תשובה נכונה. חוקרים חקרו את מערכת הדם של הג'ירפה, ולמדו ממנה איך לפתח חליפות מיוחדות להתמודדות עם לחץ.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "title": "דלת 25",
+    "creature": "נחש",
+    "image": "snake.png",
+    "intro": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא נע בגמישות רבה, עובר במקומות צרים, וכל זה בלי להשתמש ברגליים. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "289",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "289",
+    "summary": {
+      "title": "דלת 27 נפתחה",
+      "organism": "נחש",
+      "trait": "תנועה גמישה מאוד",
+      "innovation": "רובוט חילוץ גמיש"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא נע בגמישות רבה, עובר במקומות צרים, וכל זה בלי להשתמש ברגליים. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "לטאה",
+          "תולעת",
+          "נחש"
+        ],
+        "answer": "נחש",
+        "code": "526",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה עוזר לנחש לנוע במקומות צרים ולהתפתל בקלות?",
+        "options": [
+          "תנועה גמישה מאוד",
+          "גוף קצר ועבה",
+          "עור חלק ומבריק"
+        ],
+        "answer": "תנועה גמישה מאוד",
+        "code": "681",
+        "confirmText": "כל הכבוד, תשובה נכונה. לנחש יש דרך תנועה גמישה מאוד.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה מוצר נוצר בהשראת התנועה הגמישה של הנחש?",
+        "options": [
+          "רכב שטח",
+          "רחפן",
+          "רובוט חילוץ גמיש"
+        ],
+        "answer": "רובוט חילוץ גמיש",
+        "code": "794",
+        "confirmText": "כל הכבוד, תשובה נכונה. מהנדסים חקרו את הדרך שבה נחש נע, ולמדו ממנה איך לפתח רובוטים שיכולים לעבור במקומות צרים ולעזור בחילוץ.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "title": "דלת 26",
+    "creature": "דוריאן",
+    "image": "durian.png",
+    "intro": "מאחורי הדלת מסתתר פרי מיוחד עם קליפה חזקה וקוצנית. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "186",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "186",
+    "summary": {
+      "title": "דלת 28 נפתחה",
+      "organism": "דוריאן",
+      "trait": "קליפה חזקה וקוצנית",
+      "innovation": "מבנה ששומר על פחות חום"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר פרי עם קליפה חזקה וקוצנית שעוזרת להגן על מה שבפנים. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "אננס",
+          "דוריאן",
+          "קוקוס"
+        ],
+        "answer": "דוריאן",
+        "code": "318",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה עוזר לדוריאן להגן על החלק הרך שבתוכו?",
+        "options": [
+          "קליפה חזקה וקוצנית",
+          "צבע צהוב",
+          "ריח חזק"
+        ],
+        "answer": "קליפה חזקה וקוצנית",
+        "code": "864",
+        "confirmText": "כל הכבוד, תשובה נכונה. הקליפה החזקה של הדוריאן עוזרת להגן על הפרי שבפנים.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה רעיון אפשר לפתח בהשראת הקליפה של הדוריאן?",
+        "options": [
+          "מבנה ששומר על קור",
+          "פנס חכם",
+          "מחברת דיגיטלית"
+        ],
+        "answer": "מבנה ששומר על קור",
+        "code": "621",
+        "confirmText": "כל הכבוד, תשובה נכונה. מהטבע אפשר ללמוד איך מעטפת חיצונית עוזרת להגן, ליצור צל ולהפחית חום.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "title": "דלת 27",
+    "creature": "בז",
+    "image": "falcon.png",
+    "intro": "מאחורי הדלת מסתתר עוף מהיר במיוחד, שטס במהירות רבה ומשנה כיוון בזריזות. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "241",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "241",
+    "summary": {
+      "title": "דלת 33 נפתחה",
+      "organism": "בז",
+      "trait": "תעופה מהירה וזריזה",
+      "innovation": "מטוס מהיר"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר עוף מהיר וחד, שידוע בתעופה מהירה מאוד. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "נשר",
+          "בז",
+          "חסידה"
+        ],
+        "answer": "בז",
+        "code": "427",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה עוזר לבז לעוף מהר ולשנות כיוון בקלות?",
+        "options": [
+          "כנפיים חדות וגוף אווירודינמי",
+          "צוואר ארוך",
+          "מקור רחב"
+        ],
+        "answer": "כנפיים חדות וגוף אווירודינמי",
+        "code": "214",
+        "confirmText": "כל הכבוד, תשובה נכונה. לבז יש מבנה גוף שעוזר לו לחתוך את האוויר ולעוף במהירות רבה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה פיתוח אפשר לקשר לדרך שבה הבז עף במהירות ובזריזות?",
+        "options": [
+          "מטוס מהיר",
+          "כדור משחק",
+          "שעון יד"
+        ],
+        "answer": "מטוס מהיר",
+        "code": "169",
+        "confirmText": "כל הכבוד, תשובה נכונה. מהנדסים לומדים מהבז איך לעצב כלי טיס מהירים, חדים ואווירודינמיים.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "title": "דלת 28",
+    "creature": "סנאי דואה",
+    "image": "flying_squirrel.png",
+    "intro": "מאחורי הדלת מסתתר יצור שיודע לרחף בין עצים. הוא לא ממש עף כמו ציפור, אבל יש לו דרך חכמה להישאר זמן רב באוויר. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "353",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "353",
+    "summary": {
+      "title": "דלת 30 נפתחה",
+      "organism": "סנאי דואה",
+      "trait": "קרום רחב בין הרגליים",
+      "innovation": "חליפת דאייה"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר יצור שיודע לרחף בין עצים. הוא לא ממש עף כמו ציפור, אבל יש לו דרך חכמה להישאר זמן רב באוויר. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "קיפוד",
+          "סנאי דואה",
+          "ארנבת"
+        ],
+        "answer": "סנאי דואה",
+        "code": "536",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה עוזר לסנאי הדואה לרחף באוויר?",
+        "options": [
+          "אוזניים גדולות",
+          "קרום בין הרגליים והידיים",
+          "זנב קצר"
+        ],
+        "answer": "קרום בין הרגליים והידיים",
+        "code": "357",
+        "confirmText": "כל הכבוד, תשובה נכונה. לסנאי הדואה יש קרום מיוחד שמגדיל את שטח הגוף ועוזר לו לרחף בין העצים.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה פיתוח נוצר בהשראת הדרך שבה סנאי דואה מרחף באוויר?",
+        "options": [
+          "חליפת גלישה",
+          "מחברת חכמה",
+          "פנס ראש"
+        ],
+        "answer": "חליפת דאייה",
+        "code": "934",
+        "confirmText": "כל הכבוד, תשובה נכונה. מהנדסים ומעצבים לומדים מהדרך שבה סנאי דואה מגדיל את שטח הגוף שלו כדי לפתח ציוד שעוזר לרחף ולשלוט טוב יותר בתנועה באוויר.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "title": "דלת 29",
+    "creature": "נקר",
+    "image": "woodpecker.png",
+    "intro": "מאחורי הדלת מסתתר בעל חיים מיוחד שמכה בעץ שוב ושוב בלי להיפגע. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "636",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "636",
+    "summary": {
+      "title": "דלת 31 נפתחה",
+      "organism": "נקר",
+      "trait": "ראש חזק שמגן מפגיעות",
+      "innovation": "קסדה"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר בעל חיים שמנקר בעצים בעזרת מקור חזק ומהיר. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "ינשוף",
+          "נקר",
+          "ברווז"
+        ],
+        "answer": "נקר",
+        "code": "463",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה עוזר לנקר להתמודד עם המכות החזקות?",
+        "options": [
+          "ראש חזק שמגן מפגיעות",
+          "כנפיים ארוכות",
+          "רגליים קצרות"
+        ],
+        "answer": "ראש חזק שמגן מפגיעות",
+        "code": "635",
+        "confirmText": "כל הכבוד, תשובה נכונה. לנקר יש מבנה מיוחד שעוזר להגן עליו בזמן הנקישות.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה פיתוח נוצר בהשראת היכולת של הנקר להגן על הראש?",
+        "options": [
+          "קסדה",
+          "מדחום",
+          "בקבוק"
+        ],
+        "answer": "קסדה",
+        "code": "638",
+        "confirmText": "כל הכבוד, תשובה נכונה. מדענים לומדים ממבנה הראש של הנקר איך לפתח מוצרים שמגנים טוב יותר על הראש.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "title": "דלת 30",
+    "creature": "קרנף",
+    "image": "rhino.png",
+    "intro": "מאחורי הדלת מסתתר בעל חיים גדול וחזק עם עור עבה במיוחד. האם תצליחו לגלות מי הוא?",
+    "finalLock": {
+      "title": "המנעול האחרון",
+      "text": "אספתם את שלושת קודי המעבר. כדי לפתוח את הדלת, קחו את הספרה האמצעית מכל קוד והזינו אותן לפי סדר השלבים.",
+      "code": "747",
+      "inputPlaceholder": "הזינו את קוד היציאה",
+      "buttonText": "פתיחת הדלת",
+      "wrongText": "הקוד אינו מתאים. נסו שוב לפי הסדר הנכון.",
+      "successText": "המנעול נפתח. הדלת נפתחה בהצלחה."
+    },
+    "finalLockCode": "747",
+    "summary": {
+      "title": "דלת 32 נפתחה",
+      "organism": "קרנף",
+      "trait": "עור עבה וחזק",
+      "innovation": "מגן גוף"
+    },
+    "steps": [
+      {
+        "title": "שלב 1 – מי מסתתר כאן?",
+        "question": "מאחורי הדלת מסתתר בעל חיים גדול עם קרן בולטת ועור חזק ועבה. האם תצליחו לגלות מי הוא?",
+        "options": [
+          "היפופוטם",
+          "קרנף",
+          "פיל"
+        ],
+        "answer": "קרנף",
+        "code": "572",
+        "confirmText": "כל הכבוד, תשובה נכונה.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 1",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 1.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 2 – מה סוד היכולת?",
+        "question": "מה עוזר לקרנף להגן על הגוף שלו?",
+        "options": [
+          "זנב קצר",
+          "עור עבה וחזק",
+          "אוזניים גדולות"
+        ],
+        "answer": "עור עבה וחזק",
+        "code": "746",
+        "confirmText": "כל הכבוד, תשובה נכונה. העור העבה של הקרנף עוזר להגן עליו מפגיעות.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 2",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 2.",
+        "codeSuccessText": "מעבר למסך אישור."
+      },
+      {
+        "title": "שלב 3 – מה פותח בהשראה?",
+        "question": "איזה פיתוח נוצר בהשראת ההגנה הטבעית של הקרנף?",
+        "options": [
+          "מגן גוף",
+          "פנס ראש",
+          "שעון חכם"
+        ],
+        "answer": "מגן גוף",
+        "code": "749",
+        "confirmText": "כל הכבוד, תשובה נכונה. מהטבע אפשר ללמוד איך ליצור מוצרים שעוזרים להגן על הגוף מפגיעות.",
+        "transitionText": "בלחיצה על תשובה עוברים מיד למסך הקוד.",
+        "codeScreenTitle": "שער מעבר 3",
+        "codeScreenText": "הזינו את קוד המעבר.",
+        "codeInputPlaceholder": "הזינו קוד",
+        "codeButtonText": "בדיקת קוד",
+        "codeWrongText": "הקוד שגוי. חזרה אוטומטית לשלב 3.",
+        "codeSuccessText": "מעבר למסך אישור."
+      }
+    ]
+  }
+]

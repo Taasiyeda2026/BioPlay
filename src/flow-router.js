@@ -32,7 +32,7 @@ export function canEnterStage(stage, state) {
   if (stage === STAGES.COUNT_ELEMENTS) return g.secret_digit_1 !== null && g.secret_digit_2 !== null;
   if (stage === STAGES.DOOR_2) return g.secret_digit_1 !== null && g.secret_digit_2 !== null && g.element_count_code !== null;
   if (stage === STAGES.CIPHER) return g.door_2_unlocked === true;
-  if (stage === STAGES.FINAL_SCREEN) return g.cipher_solved === true && g.final_sentence_revealed === true;
+  if (stage === STAGES.FINAL_SCREEN) return g.stage8_completed === true;
   return false;
 }
 

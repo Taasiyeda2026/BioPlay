@@ -10,9 +10,8 @@ export const INITIAL_STATE = {
   secret_digit_1: null,
   secret_digit_2: null,
   element_count_code: null,
-  door_2_code: null,
   door_2_unlocked: false,
-  cipher_unlocked: false,
+  stage8_completed: false,
   cipher_solved: false,
   final_sentence_revealed: false
 };

@@ -505,6 +505,162 @@
     .habitat-mcq .option-btn { width: 100%; margin-bottom: 10px; }
 
     /* ---- Immersive Door Screen ---- */
+    /* ===== VAULT DOOR IMMERSIVE SCREENS ===== */
+    .vault-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      padding: 36px 20px 28px;
+      background:
+        radial-gradient(ellipse 80% 60% at 50% 30%, rgba(98,217,255,.10) 0%, transparent 65%),
+        radial-gradient(ellipse 60% 80% at 50% 90%, rgba(136,243,185,.07) 0%, transparent 60%);
+      border-radius: 24px;
+      border: 1.5px solid rgba(98,217,255,.14);
+      position: relative;
+      overflow: hidden;
+    }
+    .vault-screen::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 38px,
+        rgba(98,217,255,.025) 38px,
+        rgba(98,217,255,.025) 40px
+      );
+      pointer-events: none;
+    }
+    .vault-eyebrow {
+      font-size: .72rem;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      opacity: .75;
+    }
+    .vault-lock {
+      font-size: 6rem;
+      animation: doorPulse 2.4s ease-in-out infinite;
+      filter: drop-shadow(0 0 28px rgba(98,217,255,.65)) drop-shadow(0 0 8px rgba(136,243,185,.4));
+      line-height: 1;
+    }
+    .vault-lock.vault-open {
+      animation: bounceIn .55s ease forwards;
+      filter: drop-shadow(0 0 36px rgba(136,243,185,.85));
+    }
+    .vault-title {
+      font-size: 1.22rem;
+      font-weight: 800;
+      color: var(--text);
+      text-align: center;
+      letter-spacing: .02em;
+    }
+    .vault-subtitle {
+      font-size: .83rem;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: -8px;
+    }
+    /* Clue cards row */
+    .vault-clues {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .vault-clue {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: rgba(255,255,255,.05);
+      border: 1.5px solid rgba(98,217,255,.22);
+      border-radius: 14px;
+      padding: 8px 14px;
+      min-width: 66px;
+    }
+    .vault-clue-label {
+      font-size: .65rem;
+      letter-spacing: .1em;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .vault-clue-val {
+      font-size: 1.55rem;
+      font-weight: 900;
+      color: var(--accent);
+      line-height: 1.1;
+    }
+    .vault-clue.missing .vault-clue-val { color: var(--danger); font-size: 1.1rem; }
+    /* Digit inputs */
+    .vault-digits {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      direction: ltr;
+    }
+    .vault-digit {
+      width: 62px;
+      height: 72px;
+      background: rgba(98,217,255,.06);
+      border: 2.5px solid rgba(98,217,255,.3);
+      border-radius: 16px;
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: var(--accent);
+      text-align: center;
+      caret-color: var(--accent);
+      font-family: inherit;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .vault-digit:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(98,217,255,.2), 0 0 18px rgba(98,217,255,.3);
+    }
+    .vault-digit-sep {
+      font-size: 2rem;
+      color: rgba(98,217,255,.4);
+      font-weight: 200;
+      line-height: 1;
+    }
+    /* Unlock button */
+    .vault-btn {
+      margin-top: 4px;
+      padding: 15px 50px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      font-family: inherit;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #0a1520;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      letter-spacing: .04em;
+      transition: transform .15s, box-shadow .15s;
+      box-shadow: 0 4px 20px rgba(98,217,255,.3);
+    }
+    .vault-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(98,217,255,.5); }
+    .vault-btn:active { transform: scale(.97); }
+    /* Shake on wrong */
+    .vault-shake { animation: wrongShake .5s ease; }
+    /* Already-open state */
+    .vault-open-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      animation: fadeIn .5s ease;
+    }
+    .vault-open-icon { font-size: 5.5rem; animation: bounceIn .6s ease; }
+    .vault-warning {
+      color: var(--danger);
+      font-weight: 700;
+      text-align: center;
+      font-size: .9rem;
+    }
+    /* Backward compat kept for step 3 / other screens */
     .door-immersive {
       display: flex;
       flex-direction: column;
@@ -513,42 +669,6 @@
       padding: 32px 24px;
       background: radial-gradient(ellipse at center, rgba(98,217,255,.07) 0%, transparent 70%);
       border-radius: 22px;
-    }
-    .door-big-lock {
-      font-size: 5.5rem;
-      animation: doorPulse 2s ease-in-out infinite;
-      filter: drop-shadow(0 0 18px rgba(98,217,255,.5));
-    }
-    .door-code-row {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      align-items: center;
-      direction: ltr;
-    }
-    .door-digit-box {
-      width: 54px;
-      height: 62px;
-      background: rgba(255,255,255,.04);
-      border: 2.5px solid var(--border);
-      border-radius: 14px;
-      font-size: 1.9rem;
-      font-weight: 800;
-      color: var(--text);
-      text-align: center;
-      caret-color: var(--accent);
-      transition: border-color .2s, box-shadow .2s;
-      font-family: inherit;
-    }
-    .door-digit-box:focus {
-      outline: none;
-      border-color: var(--accent);
-      box-shadow: 0 0 0 3px rgba(98,217,255,.25);
-    }
-    .door-digit-sep {
-      font-size: 1.5rem;
-      color: var(--text-muted);
-      font-weight: 300;
     }
     .door-submit-btn {
       margin-top: 8px;
@@ -564,12 +684,6 @@
       font-family: inherit;
     }
     .door-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(98,217,255,.35); }
-    .door-codes-hint {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      justify-content: center;
-    }
     .door-unlock-success {
       display: flex;
       flex-direction: column;
@@ -1264,7 +1378,6 @@ const gameData = {
   step1: {
     question: "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא מטפס על קירות ואפילו הולך על התקרה. האם תצליחו לגלות מי הוא?",
     options: ["צפרדע", "שממית", "עכביש", "נחש"],
-    optionImages: ["images/frog.svg", "images/gecko.png", "images/spider.png", "images/snake.png"],
     correctAnswer: STEP_1_CORRECT_ANSWER,
     code: STEP_1_CODE,
     hint: "היצור הזה יכול להיצמד לקירות ולתקרות בלי ליפול.",
@@ -1330,7 +1443,7 @@ const gameData = {
     eyebrow: "הידעת?",
     title: "ההמצאה בהשראת הטבע",
     text: "בהשראת שערות הדבקות של השממית, פיתחו מדענים חומרים מיוחדים שנצמדים למשטחים בלי דבק כלל! הטכנולוגיה הזו מיושמת היום בכפפות טיפוס, פלסטרים רפואיים חדשניים – ואפילו בחלל החיצון.",
-    image: "images/q.png"
+    image: "images/prd1.png"
   }
 };
 
@@ -1956,6 +2069,9 @@ function _revealNameForm() {
    קריינות + ספירה לאחור
    ============================================================ */
 function startCountdownWithNarration() {
+  /* מניעת קריאה כפולה */
+  if (document.getElementById('narration-overlay')) return;
+
   const overlay = document.createElement('div');
   overlay.id        = 'narration-overlay';
   overlay.className = 'narration-overlay';
@@ -1971,66 +2087,66 @@ function startCountdownWithNarration() {
   `;
   document.body.appendChild(overlay);
 
-  const audio      = new Audio('audio/narration.m4a');
-  let scheduleId   = null;
-  let intervalId   = null;
-  let started      = false;
+  const audio    = new Audio('audio/narration.m4a');
+  let intervalId = null;
+  let started    = false;
+
+  function stopAudio() {
+    try { audio.pause(); audio.src = ''; } catch(e) {}
+  }
+
+  function finishAndStart() {
+    clearInterval(intervalId);
+    stopAudio();
+    overlay.remove();
+    goToScreen('step_1_identification');
+  }
 
   function runCountdown() {
     if (started) return;
     started = true;
-    clearTimeout(scheduleId);
 
     const numEl   = document.getElementById('narration-cnum');
     const labelEl = document.getElementById('narration-label');
     const waveEl  = overlay.querySelector('.narration-wave');
     if (labelEl) labelEl.textContent = 'המשחק מתחיל בעוד...';
-    if (numEl)   numEl.style.display = 'block';
+    if (numEl)   { numEl.style.display = 'block'; numEl.textContent = 10; }
     if (waveEl)  waveEl.style.display = 'none';
 
     let sec = 10;
-    if (numEl) numEl.textContent = sec;
-
     intervalId = setInterval(() => {
       sec--;
       if (numEl) numEl.textContent = sec;
-      if (sec <= 0) {
-        clearInterval(intervalId);
-        audio.pause();
-        overlay.remove();
-        goToScreen('step_1_identification');
-      }
+      if (sec <= 0) finishAndStart();
     }, 1000);
   }
 
-  function scheduleCountdown() {
+  /* canplaythrough בלבד — מופעל רק פעם אחת אחרי שהאודיו טעון */
+  audio.addEventListener('canplaythrough', function onReady() {
+    audio.removeEventListener('canplaythrough', onReady);
     if (started) return;
     const dur   = audio.duration;
     const delay = (Number.isFinite(dur) && dur > 10) ? (dur - 10) * 1000 : 0;
-    scheduleId  = setTimeout(runCountdown, delay);
-  }
+    setTimeout(runCountdown, delay);
+  });
 
-  audio.addEventListener('loadedmetadata', scheduleCountdown);
-  audio.addEventListener('canplaythrough', scheduleCountdown);
   audio.onerror = () => { if (!started) runCountdown(); };
   audio.onended = () => { if (!started) runCountdown(); };
 
   document.getElementById('narration-skip').addEventListener('click', () => {
-    clearTimeout(scheduleId);
-    clearInterval(intervalId);
     started = true;
-    audio.pause();
-    overlay.remove();
-    goToScreen('step_1_identification');
+    finishAndStart();
   });
 
   audio.play().catch(() => { if (!started) runCountdown(); });
 }
 
 window.submitPlayerName = async function() {
+  const btn   = document.querySelector('#name-form-state .door-submit-btn');
   const input = document.getElementById('player-name-input');
   const name  = (input?.value || '').trim();
   if (!name) { showError('נא להכניס שם לפני הכניסה.'); return; }
+  if (btn) btn.disabled = true;
   gameState.player.name  = name;
   gameState.player.score = 0;
   saveGameState();
@@ -2086,7 +2202,7 @@ function renderMCQ({ eyebrow, title, question, options, optionImages, image, hin
     </div>
   ` : "";
 
-  const imgHTML = (image && !optionImages) ? `<img class="org-image" src="${escapeHTML(image)}" alt="יצור" onerror="this.style.display='none'" />` : "";
+  const imgHTML = image ? `<img class="org-image" src="${escapeHTML(image)}" alt="יצור" onerror="this.style.display='none'" />` : "";
 
   setScreen(`
     <div class="card">
@@ -2228,48 +2344,51 @@ function renderDoor1() {
   if (gameState.progress.door1Unlocked) {
     setScreen(`
       <div class="card">
-        <div class="door-immersive">
-          <div class="door-unlock-success">
-            <div class="door-unlock-icon">🔓</div>
-            <h2 class="screen-title" style="margin:0">הדלת כבר פתוחה!</h2>
-            <button class="door-submit-btn" onclick="goToScreen('step_5_nature_invention_match')">המשיכו →</button>
+        <div class="vault-screen">
+          <div class="vault-open-state">
+            <div class="vault-open-icon">🔓</div>
+            <div class="vault-title">המחסום נפתח!</div>
+            <button class="vault-btn" onclick="goToScreen('step_5_nature_invention_match')">המשיכו לשלב הבא ←</button>
           </div>
         </div>
       </div>`);
     return;
   }
 
-  const codesHint = [
-    { label: "קוד שלב 1", val: gameState.codes.codeStep1 },
-    { label: "קוד שלב 2", val: gameState.codes.codeStep2 },
-    { label: "קוד שלב 3", val: gameState.codes.codeStep3 }
-  ].map(c => `<span class="badge badge-code">${c.label}: ${c.val ? escapeHTML(c.val) : '❌'}</span>`).join('');
+  const clues = [
+    { label: "שלב 1", val: gameState.codes.codeStep1 },
+    { label: "שלב 2", val: gameState.codes.codeStep2 },
+    { label: "שלב 3", val: gameState.codes.codeStep3 }
+  ];
+  const cluesHTML = clues.map(c => `
+    <div class="vault-clue${c.val ? '' : ' missing'}">
+      <span class="vault-clue-label">${escapeHTML(c.label)}</span>
+      <span class="vault-clue-val">${c.val ? escapeHTML(c.val) : '?'}</span>
+    </div>`).join('');
 
   const canOpen = canUnlockDoor1();
 
   setScreen(`
     <div class="card">
-      <div class="screen-eyebrow">דלת 1 – מחסום ראשון</div>
-      <h2 class="screen-title" style="text-align:center">🚪 שער מחסום 1</h2>
-      <div class="door-immersive">
-        <div class="door-big-lock" id="d1-lock">🔐</div>
-        <p class="screen-body" style="text-align:center;margin:0">
-          בנו את הקוד הסודי בסדר: ספרה 1 → ספרה 2 → ספרה 3
-        </p>
-        <div class="door-codes-hint">${codesHint}</div>
+      <div class="vault-screen">
+        <div class="vault-eyebrow">מחסום ראשון</div>
+        <div class="vault-lock" id="d1-lock">🔐</div>
+        <div class="vault-title">הכניסו את הקוד הסודי</div>
+        <div class="vault-subtitle">שרשרו את שלושת הקודים שאספתם — בסדר הנכון</div>
+        <div class="vault-clues">${cluesHTML}</div>
         ${canOpen ? `
-          <div class="door-code-row" id="d1-row">
-            <input type="text" inputmode="numeric" maxlength="1" class="door-digit-box" id="d1-0"
+          <div class="vault-digits" id="d1-row">
+            <input type="text" inputmode="numeric" maxlength="1" class="vault-digit" id="d1-0"
                    oninput="window.d1Advance(0)" />
-            <span class="door-digit-sep">–</span>
-            <input type="text" inputmode="numeric" maxlength="1" class="door-digit-box" id="d1-1"
+            <span class="vault-digit-sep">·</span>
+            <input type="text" inputmode="numeric" maxlength="1" class="vault-digit" id="d1-1"
                    oninput="window.d1Advance(1)" />
-            <span class="door-digit-sep">–</span>
-            <input type="text" inputmode="numeric" maxlength="1" class="door-digit-box" id="d1-2"
+            <span class="vault-digit-sep">·</span>
+            <input type="text" inputmode="numeric" maxlength="1" class="vault-digit" id="d1-2"
                    oninput="window.d1Advance(2)" />
           </div>
-          <button class="door-submit-btn" onclick="window.submitDoor1()">פתחו את הדלת 🔓</button>
-        ` : `<p style="color:var(--danger);font-weight:700;text-align:center">⚠️ לא נאספו כל הקודים הדרושים לפתיחת הדלת.</p>`}
+          <button class="vault-btn" onclick="window.submitDoor1()">פיצחו את הקוד 🔓</button>
+        ` : `<p class="vault-warning">⚠️ לא נאספו עדיין כל הקודים הדרושים לפתיחת המחסום</p>`}
       </div>
     </div>`);
 
@@ -2285,8 +2404,8 @@ window.submitDoor1 = function() {
   const entered = [0,1,2].map(i => document.getElementById(`d1-${i}`)?.value.trim()).join('');
   if (entered.length < 3) { showError("הזינו את כל 3 הספרות."); return; }
   if (entered !== DOOR_1_CODE) {
-    document.getElementById('d1-row')?.classList.add('door-shake');
-    setTimeout(() => document.getElementById('d1-row')?.classList.remove('door-shake'), 600);
+    document.getElementById('d1-row')?.classList.add('vault-shake');
+    setTimeout(() => document.getElementById('d1-row')?.classList.remove('vault-shake'), 600);
     showError("קוד שגוי – בדקו שוב את הסדר.");
     return;
   }
@@ -2462,11 +2581,11 @@ function renderDoor2() {
   if (gameState.progress.door2Unlocked) {
     setScreen(`
       <div class="card">
-        <div class="door-immersive">
-          <div class="door-unlock-success">
-            <div class="door-unlock-icon">🔓</div>
-            <h2 class="screen-title" style="margin:0">הדלת כבר פתוחה!</h2>
-            <button class="door-submit-btn" onclick="goToScreen('door_2_dyk')">המשיכו →</button>
+        <div class="vault-screen">
+          <div class="vault-open-state">
+            <div class="vault-open-icon">🔓</div>
+            <div class="vault-title">המחסום נפתח!</div>
+            <button class="vault-btn" onclick="goToScreen('door_2_dyk')">המשיכו →</button>
           </div>
         </div>
       </div>`);
@@ -2479,35 +2598,38 @@ function renderDoor2() {
     gameState.codes.step6ElementCount !== null
   );
 
-  const codesHint = [
-    { label: "ספרה 1 (שלב 5)", val: gameState.codes.step5Digit1 },
-    { label: "ספרה 2 (שלב 5)", val: gameState.codes.step5Digit2 },
-    { label: "ספירת אלמנטים (שלב 6)", val: gameState.codes.step6ElementCount }
-  ].map(c => `<span class="badge badge-code">${c.label}: ${c.val !== null ? escapeHTML(String(c.val)) : '❌'}</span>`).join('');
+  const clues = [
+    { label: "שלב 5 — ספרה א", val: gameState.codes.step5Digit1 },
+    { label: "שלב 5 — ספרה ב", val: gameState.codes.step5Digit2 },
+    { label: "שלב 6 — ספירה",  val: gameState.codes.step6ElementCount }
+  ];
+  const cluesHTML = clues.map(c => `
+    <div class="vault-clue${c.val !== null ? '' : ' missing'}">
+      <span class="vault-clue-label">${escapeHTML(c.label)}</span>
+      <span class="vault-clue-val">${c.val !== null ? escapeHTML(String(c.val)) : '?'}</span>
+    </div>`).join('');
 
   setScreen(`
     <div class="card">
-      <div class="screen-eyebrow">דלת 2 – מחסום שני</div>
-      <h2 class="screen-title" style="text-align:center">🚪 שער מחסום 2</h2>
-      <div class="door-immersive">
-        <div class="door-big-lock" id="d2-lock">🔐</div>
-        <p class="screen-body" style="text-align:center;margin:0">
-          בנו את הקוד הסודי: ספרה 1 → ספרה 2 → מספר האלמנטים
-        </p>
-        <div class="door-codes-hint">${codesHint}</div>
+      <div class="vault-screen">
+        <div class="vault-eyebrow">מחסום שני</div>
+        <div class="vault-lock" id="d2-lock">🔐</div>
+        <div class="vault-title">הכניסו את הקוד הסופי</div>
+        <div class="vault-subtitle">שרשרו את שלוש הספרות שגיליתם — בסדר הנכון</div>
+        <div class="vault-clues">${cluesHTML}</div>
         ${canOpen ? `
-          <div class="door-code-row" id="d2-row">
-            <input type="text" inputmode="numeric" maxlength="1" class="door-digit-box" id="d2-0"
+          <div class="vault-digits" id="d2-row">
+            <input type="text" inputmode="numeric" maxlength="1" class="vault-digit" id="d2-0"
                    oninput="window.d2Advance(0)" />
-            <span class="door-digit-sep">–</span>
-            <input type="text" inputmode="numeric" maxlength="1" class="door-digit-box" id="d2-1"
+            <span class="vault-digit-sep">·</span>
+            <input type="text" inputmode="numeric" maxlength="1" class="vault-digit" id="d2-1"
                    oninput="window.d2Advance(1)" />
-            <span class="door-digit-sep">–</span>
-            <input type="text" inputmode="numeric" maxlength="1" class="door-digit-box" id="d2-2"
+            <span class="vault-digit-sep">·</span>
+            <input type="text" inputmode="numeric" maxlength="1" class="vault-digit" id="d2-2"
                    oninput="window.d2Advance(2)" />
           </div>
-          <button class="door-submit-btn" onclick="window.submitDoor2()">פתחו את הדלת 🔓</button>
-        ` : `<p style="color:var(--danger);font-weight:700;text-align:center">⚠️ לא נאספו כל הנתונים הדרושים לפתיחת הדלת.</p>`}
+          <button class="vault-btn" onclick="window.submitDoor2()">פיצחו את הקוד 🔓</button>
+        ` : `<p class="vault-warning">⚠️ לא נאספו עדיין כל הנתונים הדרושים לפתיחת המחסום</p>`}
       </div>
     </div>`);
 

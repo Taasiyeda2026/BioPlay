@@ -2912,7 +2912,7 @@ window.restartGame = function() {
 document.addEventListener("DOMContentLoaded", function() {
   const loaded = loadGameState();
   if (!loaded) {
-    gameState.currentScreen = "step_1_identification";
+    gameState.currentScreen = "name_entry";
   }
   updateHeader();
   renderCurrentScreen();

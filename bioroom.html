@@ -2166,9 +2166,12 @@ function renderMCQ({ eyebrow, title, question, options, optionImages, image, hin
   const letters = ["א", "ב", "ג", "ד"];
 
   let optionsHTML, optionsWrapper;
+  /* סיומת בטוחה לשימוש ב-onclick — גרש בודד כדי לא לשבור את ה-attribute */
+  const safeVal = (s) => s.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
   if (optionImages && optionImages.length === options.length) {
     optionsHTML = options.map((opt, i) => `
-      <button class="option-img-card" onclick="${onAnswer}(${JSON.stringify(opt)})">
+      <button class="option-img-card" onclick="${onAnswer}('${safeVal(opt)}')">
         <img src="${escapeHTML(optionImages[i])}" alt="${escapeHTML(opt)}" onerror="this.style.display='none'" />
         <span class="opt-letter">${letters[i]}</span>
         ${escapeHTML(opt)}
@@ -2177,7 +2180,7 @@ function renderMCQ({ eyebrow, title, question, options, optionImages, image, hin
     optionsWrapper = `<div class="option-img-grid">${optionsHTML}</div>`;
   } else {
     optionsHTML = options.map((opt, i) => `
-      <button class="option-btn" onclick="${onAnswer}(${JSON.stringify(opt)})">
+      <button class="option-btn" onclick="${onAnswer}('${safeVal(opt)}')">
         <span class="opt-letter">${letters[i]}</span>
         ${escapeHTML(opt)}
       </button>
@@ -2286,10 +2289,13 @@ function renderStep3() {
   }).join('');
 
   const letters = ["א", "ב", "ג", "ד"];
-  const optionsHTML = d.options.map((opt, i) => `
-    <button class="option-btn" onclick="window.answerStep3(${JSON.stringify(opt)})">
+  const optionsHTML = d.options.map((opt, i) => {
+    const safe = opt.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    return `
+    <button class="option-btn" onclick="window.answerStep3('${safe}')">
       <span class="opt-letter">${letters[i]}</span>${escapeHTML(opt)}
-    </button>`).join('');
+    </button>`;
+  }).join('');
 
   const codesBar = [
     gameState.codes.codeStep1 ? `קוד 1: ${gameState.codes.codeStep1}` : null,

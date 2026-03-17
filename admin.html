@@ -2044,7 +2044,7 @@
 
   function studentUrlForRoom() {
     if (!currentRoomId) return "";
-    const studentPath = window.location.pathname.replace(/admin(?:-dev)?\.html$/, "index.html");
+    const studentPath = window.location.pathname.replace(/admin(?:-dev)?\.html$/, "bioroom.html");
     return `${window.location.origin}${studentPath}?room=${encodeURIComponent(currentRoomId)}`;
   }
 

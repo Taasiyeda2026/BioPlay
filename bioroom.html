@@ -1162,7 +1162,7 @@
 <div id="magic-burst"></div>
 <div id="app">
   <div id="game-header">
-    <span class="logo">🔬 ביומימיקרי – חדר הבריחה</span>
+    <span class="logo" id="secret-logo" style="cursor:default;user-select:none">🔬 ביומימיקרי – חדר הבריחה</span>
     <div id="progress-bar-outer"><div id="progress-bar-fill"></div></div>
     <span id="header-step-label">שלב 1 מתוך 9</span>
   </div>
@@ -1758,7 +1758,7 @@ function solveStep8() {
   gameState.progress.gameCompleted       = true;
   saveGameState();
   const { pts: p8 } = scoreStep('step8', STEP_SCORES.step8);
-  apiPost('gameScore', {
+  apiPost('gamescore', {
     name:      gameState.player.name,
     score:     String(gameState.player.score),
     step:      'completed',
@@ -1829,7 +1829,7 @@ function scoreStep(stepKey, maxPts) {
   const multiplier = wrong === 0 ? 1.0 : wrong === 1 ? 0.5 : 0.0;
   const pts        = Math.round(maxPts * multiplier);
   gameState.player.score += pts;
-  apiPost('gameScore', {
+  apiPost('gamescore', {
     name:  gameState.player.name,
     score: String(gameState.player.score),
     step:  stepKey,
@@ -1935,7 +1935,7 @@ function renderNameEntry() {
 
 async function _pollNameEntryStatus() {
   if (gameState.currentScreen !== 'name_entry') { clearInterval(_namePoll); return; }
-  const data = await apiGet('gameStatus');
+  const data = await apiGet('gamestatus');
   if (data?.status === 'active') {
     clearInterval(_namePoll);
     _revealNameForm();
@@ -2034,7 +2034,7 @@ window.submitPlayerName = async function() {
   gameState.player.name  = name;
   gameState.player.score = 0;
   saveGameState();
-  await apiPost('gameJoin', { name });
+  await apiPost('gamejoin', { name });
   startCountdownWithNarration();
 };
 
@@ -3049,6 +3049,26 @@ document.addEventListener("DOMContentLoaded", function() {
     });
     sparks.appendChild(p);
     setTimeout(() => p.remove(), 1600);
+  });
+})();
+</script>
+
+<script>
+/* ── מעבר סתרים: 3 לחיצות על הלוגו → admin.html ── */
+(function() {
+  let clicks = 0, timer = null;
+  const logo = document.getElementById('secret-logo');
+  if (!logo) return;
+  logo.addEventListener('click', function() {
+    clicks++;
+    clearTimeout(timer);
+    if (clicks >= 3) {
+      clicks = 0;
+      const adminPath = location.pathname.replace(/bioroom\.html$/, 'admin.html');
+      location.href = adminPath;
+      return;
+    }
+    timer = setTimeout(() => { clicks = 0; }, 2000);
   });
 })();
 </script>

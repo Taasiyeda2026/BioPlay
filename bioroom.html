@@ -1792,11 +1792,12 @@ function renderCurrentScreen() {
 /* ============================================================
    API HELPERS  – כל הקריאות עוברות דרך Google Apps Script
    ============================================================ */
-const APPS_URL = "https://script.google.com/macros/s/AKfycbzyZUKSrxJCCkM70ZtQbuZdj-LIHLPZzo6z9S-DQHwLIcGikJRG4k_qkxWpi4o2eB9uLg/exec";
+const APPS_URL = "https://script.google.com/macros/s/AKfycbyGaP_Tl-zzMn1o62Tf0WjM-43Rn3b8zLJxOsTWTBifmKkTJZSwoEqab3TRA6tGp7FpZg/exec";
+const ROOM_ID  = new URLSearchParams(location.search).get('room') || '';
 
 async function apiPost(action, data) {
   try {
-    const params = new URLSearchParams({ action, ...data });
+    const params = new URLSearchParams({ action, roomId: ROOM_ID, ...data });
     await fetch(APPS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -1807,7 +1808,7 @@ async function apiPost(action, data) {
 
 async function apiGet(action, extra = {}) {
   try {
-    const qs = new URLSearchParams({ action, ...extra });
+    const qs = new URLSearchParams({ action, roomId: ROOM_ID, ...extra });
     const r  = await fetch(`${APPS_URL}?${qs}`, { cache: 'no-store' });
     return r.json();
   } catch { return null; }

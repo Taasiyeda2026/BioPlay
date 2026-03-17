@@ -1,0 +1,2263 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>דלתות הטבע: עולם הביומימיקרי הקסום</title>
+
+  <style>
+    :root {
+      --bg: #07111f;
+      --bg-2: #13284a;
+      --panel: rgba(9, 19, 42, 0.84);
+      --panel-strong: rgba(5, 12, 28, 0.82);
+      --text: #eef5ff;
+      --muted: #c4d4ef;
+      --accent: #62d9ff;
+      --accent-2: #88f3b9;
+      --title: #7cf6ff;
+      --heading-strong: #ffe79b;
+      --danger: #ff91a8;
+      --warning: #ffd985;
+      --border: rgba(255,255,255,.16);
+      --shadow: 0 18px 40px rgba(0,0,0,.34);
+      --radius: 22px;
+      --ease: 700ms cubic-bezier(.22,.61,.36,1);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Assistant", "Rubik", Arial, sans-serif;
+    }
+
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(98,217,255,.2), transparent 26%),
+        radial-gradient(circle at 82% 12%, rgba(136,243,185,.14), transparent 24%),
+        linear-gradient(160deg, var(--bg-2), var(--bg));
+      color: var(--text);
+    }
+
+    body {
+      padding: 16px;
+      zoom: 75%;
+    }
+
+    .app {
+      width: min(1320px, 100%);
+      margin-inline: auto;
+      background: rgba(8, 14, 31, 0.42);
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      position: relative;
+      min-height: calc(100vh - 32px);
+    }
+
+    .screen {
+      display: none;
+      min-height: calc(100vh - 32px);
+      padding: clamp(16px, 2.6vw, 34px);
+      position: relative;
+    }
+
+    .screen.active {
+      display: block;
+      animation: fadeInUp .9s ease;
+    }
+
+    .top-strip {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 1.06rem;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+    }
+
+    .hero {
+      min-height: calc(100vh - 140px);
+      position: relative;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(.72) saturate(1.02);
+      transform: scale(1.03);
+      z-index: -3;
+    }
+
+    .hero-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        radial-gradient(circle at 50% 28%, rgba(136,243,185,.08), transparent 25%),
+        linear-gradient(180deg, rgba(4,9,20,.05), rgba(4,9,20,.28));
+    }
+
+    .hero-particles {
+      position: absolute;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,.95), rgba(98,217,255,.18));
+      opacity: .65;
+      animation: floatParticle linear infinite;
+    }
+
+    .hero-box {
+      width: min(920px, 94%);
+      padding: clamp(10px, 1.5vw, 16px) clamp(14px, 2vw, 22px);
+      background: rgba(5, 11, 24, .14);
+      border: 1px solid rgba(255,255,255,.07);
+      border-radius: 16px;
+      backdrop-filter: blur(2px);
+      text-align: center;
+      display: grid;
+      gap: 10px;
+      justify-items: center;
+    }
+
+    .logo-wrap {
+      min-height: 110px;
+      display: grid;
+      place-items: center;
+    }
+
+    .logo {
+      width: min(280px, 58vw);
+      max-height: 100px;
+      object-fit: contain;
+      cursor: pointer;
+      user-select: none;
+      transition: transform .25s ease, filter .25s ease;
+      animation: logoFloat 3.2s ease-in-out infinite;
+    }
+
+    .logo:hover {
+      filter: drop-shadow(0 0 14px rgba(136,243,185,.34));
+    }
+
+    .logo:active {
+      transform: scale(.96);
+    }
+
+    .logo.logo-error {
+      padding: 10px 16px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,145,168,.9);
+      background: rgba(255,145,168,.14);
+      animation: shake .6s ease;
+    }
+
+    .title {
+      margin: 0;
+      font-size: clamp(2.4rem, 6vw, 4.3rem);
+      color: var(--heading-strong);
+      text-shadow: 0 0 18px rgba(255,231,155,.4);
+      line-height: 1.1;
+    }
+
+    .lead,
+    .question-text,
+    .summary-list,
+    .finish-list {
+      font-size: clamp(1.26rem, 2.8vw, 1.75rem);
+      line-height: 1.85;
+      color: var(--text);
+    }
+
+    .lead {
+      max-width: 30em;
+      margin: 0;
+    }
+
+    .instruction-layer.hidden {
+      display: none;
+    }
+
+    .start-zone {
+      width: 100%;
+      min-height: 88px;
+      display: grid;
+      place-items: center;
+      margin-top: 6px;
+    }
+
+    .wait-message {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 20px;
+      border-radius: 14px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      color: var(--text);
+      font-size: clamp(1.12rem, 2.5vw, 1.42rem);
+      text-align: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .countdown {
+      position: absolute;
+      inset: 0;
+      display: none;
+      place-items: center;
+      z-index: 10;
+      background: var(--bg) url('images/game-intro.png') center / cover no-repeat;
+    }
+
+    .countdown.active {
+      display: grid;
+    }
+
+    .countdown-box {
+      background: transparent;
+      border: none;
+      padding: 20px 34px;
+      text-align: center;
+      animation: pulseGlow 1s ease-in-out infinite;
+    }
+
+    .countdown-number {
+      font-size: clamp(4.8rem, 18vw, 12rem);
+      font-weight: 800;
+      line-height: 1;
+      text-shadow: 0 0 30px rgba(98,217,255,.86);
+    }
+
+    .countdown-label {
+      margin-top: 10px;
+      font-size: clamp(1.2rem, 2.7vw, 1.6rem);
+      color: var(--text);
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      min-height: 48px;
+      padding: 12px 18px;
+      font-size: 1.04rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .22s ease, filter .22s ease, box-shadow .22s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.05);
+      box-shadow: 0 10px 24px rgba(0,0,0,.28);
+    }
+
+    .btn:active {
+      transform: scale(.98);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #29baff);
+      color: #03111d;
+    }
+
+    .btn-secondary {
+      background: #26345e;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,.16);
+    }
+
+    .btn-next {
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      color: #05111f;
+      min-width: 138px;
+    }
+
+    .btn-start {
+      animation: popIn .45s ease;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .admin-modal {
+      position: absolute;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: rgba(4, 8, 18, .54);
+      z-index: 30;
+      animation: fadeIn .25s ease;
+    }
+
+    .admin-modal.active {
+      display: grid;
+    }
+
+    .modal-card {
+      width: min(430px, 92%);
+      padding: 22px;
+      border-radius: 18px;
+      background: rgba(9, 16, 36, .96);
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow: 0 18px 40px rgba(0,0,0,.4);
+    }
+
+    .modal-title {
+      margin: 0 0 10px;
+      font-size: 1.5rem;
+    }
+
+    .modal-text {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 1.05rem;
+    }
+
+    .code-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .input {
+      flex: 0 1 220px;
+      width: 100%;
+      max-width: 220px;
+      min-height: 44px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.24);
+      background: #0d1732;
+      color: var(--text);
+      padding: 8px 12px;
+      font-size: 1rem;
+      text-transform: uppercase;
+    }
+
+    .feedback {
+      min-height: 32px;
+      margin-top: 12px;
+      font-size: 1.14rem;
+      font-weight: 700;
+    }
+
+    .feedback.success {
+      color: var(--accent-2);
+      text-shadow: 0 0 12px rgba(136,243,185,.52);
+    }
+
+    .feedback.error {
+      color: var(--danger);
+    }
+
+    .doors-card {
+      padding: clamp(18px, 2.7vw, 30px);
+    }
+
+    .doors-title,
+    .section-title,
+    .question-title,
+    .finish-title,
+    .modal-title {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4.6vw, 2.9rem);
+      line-height: 1.2;
+      color: var(--heading-strong);
+      text-shadow: 0 0 12px rgba(255,231,155,.25);
+    }
+
+    .door-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    .door-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 20px;
+      border: 1px solid rgba(98,217,255,.4);
+      background: linear-gradient(165deg, rgba(35,56,107,.7), rgba(10,18,41,.92));
+      transition: transform var(--ease), box-shadow var(--ease), border-color var(--ease);
+    }
+
+    .door-card:hover {
+      transform: translateY(-7px) scale(1.015);
+      border-color: var(--accent);
+      box-shadow: 0 0 36px rgba(98,217,255,.24);
+    }
+
+    .door-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(115deg, transparent 0%, rgba(255,255,255,.18) 48%, transparent 100%);
+      transform: translateX(130%);
+      transition: transform 1s ease;
+      pointer-events: none;
+    }
+
+    .door-card:hover::after {
+      transform: translateX(-120%);
+    }
+
+    .door-title {
+      padding: 12px 10px;
+      text-align: center;
+      font-weight: 800;
+      font-size: 1.32rem;
+    }
+
+    .door-image-wrap {
+      position: relative;
+      aspect-ratio: 4 / 5;
+    }
+
+    .door-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .door-footer {
+      position: absolute;
+      inset-inline: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      padding: 12px;
+      background: linear-gradient(to top, rgba(5,11,25,.92), rgba(5,11,25,.1));
+    }
+
+    .question-card,
+    .finish-card {
+      padding: clamp(18px, 2.8vw, 30px);
+    }
+
+    .question-layout {
+      display: grid;
+      grid-template-columns: minmax(260px, 34%) 1fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .question-visual {
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.04);
+      min-height: 280px;
+      overflow: hidden;
+    }
+
+    .question-visual img {
+      width: 100%;
+      max-width: 340px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .answers {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .answer {
+      width: 100%;
+      text-align: right;
+      border: 1px solid rgba(255,255,255,.18);
+      background: linear-gradient(145deg, #2b3d7a, #1a2855);
+      color: var(--text);
+      border-radius: 16px;
+      padding: 16px 18px;
+      font-size: clamp(1.12rem, 2.3vw, 1.36rem);
+      cursor: pointer;
+      transition: transform .22s ease, border-color .22s ease, box-shadow .22s ease;
+      min-height: 60px;
+    }
+
+    .answer:hover {
+      transform: translateX(-3px);
+      border-color: var(--accent);
+      box-shadow: 0 0 18px rgba(98,217,255,.18);
+    }
+
+    .answer.correct {
+      background: rgba(136,243,185,.2);
+      border-color: var(--accent-2);
+      box-shadow: 0 0 20px rgba(136,243,185,.26);
+      animation: popIn .35s ease;
+    }
+
+    .answer.wrong {
+      background: rgba(255,145,168,.16);
+      border-color: var(--danger);
+      animation: shake .45s ease;
+    }
+
+    .code-panel {
+      border: 1px solid rgba(98,217,255,.35);
+      border-radius: 18px;
+      padding: 18px;
+      background: linear-gradient(145deg, rgba(30,44,87,.84), rgba(9,18,42,.94));
+      transition: box-shadow .25s ease, transform .25s ease, filter .25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .code-panel::before {
+      content: "";
+      position: absolute;
+      inset: -40% auto auto -10%;
+      width: 120%;
+      height: 80%;
+      background: radial-gradient(circle, rgba(136,243,185,.24), transparent 60%);
+      pointer-events: none;
+    }
+
+    .code-title {
+      margin: 0 0 12px;
+      color: var(--heading-strong);
+      font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+      text-shadow: 0 0 10px rgba(255,231,155,.25);
+    }
+
+    .code-panel.success {
+      box-shadow: 0 0 0 3px rgba(136,243,185,.22), 0 0 24px rgba(136,243,185,.22);
+      transform: scale(1.01);
+    }
+
+    .code-panel.error {
+      animation: shake .45s ease;
+    }
+
+    .summary-list,
+    .finish-list {
+      margin: 8px 0 0;
+      padding-right: 1.2em;
+    }
+
+    .finish-list li {
+      margin-bottom: 8px;
+    }
+
+    .video-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      place-items: center;
+      background: radial-gradient(circle at center, rgba(136,243,185,.08), rgba(0,0,0,.86));
+      z-index: 50;
+      animation: fadeIn .25s ease;
+    }
+
+    .video-overlay.active {
+      display: grid;
+    }
+
+    .video-frame {
+      width: min(1080px, 96vw);
+      max-height: 88vh;
+      border-radius: 24px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.2);
+      box-shadow: 0 0 40px rgba(98,217,255,.18);
+      background: #02060f;
+    }
+
+    .video-frame video {
+      width: 100%;
+      height: auto;
+      display: block;
+      max-height: 88vh;
+      object-fit: cover;
+    }
+
+    .video-caption {
+      margin-top: 12px;
+      text-align: center;
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem);
+      color: #dbfff1;
+      text-shadow: 0 0 14px rgba(136,243,185,.7);
+      animation: pulseGlow 1.8s ease-in-out infinite;
+    }
+
+    .effects-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 25;
+    }
+
+    .burst {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(136,243,185,.95), rgba(98,217,255,.18));
+      animation: burstMove 1s ease forwards;
+    }
+
+    .soft-note {
+      font-size: .92rem;
+      color: rgba(255,255,255,.62);
+      margin: 0;
+      min-height: 18px;
+    }
+
+    /* ── Confirmation screen ── */
+    .confirm-box {
+      text-align: center;
+      padding: clamp(40px, 6vw, 80px) clamp(20px, 4vw, 40px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .confirm-icon {
+      font-size: clamp(3rem, 8vw, 5rem);
+      animation: popIn .4s ease;
+      line-height: 1;
+    }
+
+    /* ── Final lock ── */
+    .codes-reminder {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 20px 0;
+      padding: 18px;
+      background: rgba(255,255,255,.04);
+      border-radius: 16px;
+      border: 1px solid rgba(98,217,255,.18);
+    }
+
+    .code-display-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: clamp(1rem, 2.2vw, 1.3rem);
+      color: var(--muted);
+    }
+
+    .code-text {
+      font-family: "Courier New", monospace;
+      font-size: 1.35em;
+      letter-spacing: 0.12em;
+      color: var(--text);
+      background: rgba(98,217,255,.08);
+      padding: 4px 12px;
+      border-radius: 8px;
+    }
+
+    .code-middle {
+      color: var(--accent);
+      font-weight: 900;
+      text-shadow: 0 0 14px rgba(98,217,255,.7);
+      font-size: 1.25em;
+      background: rgba(98,217,255,.14);
+      border-radius: 4px;
+      padding: 0 2px;
+    }
+
+    /* ── Summary screen layout ── */
+    .summary-stage {
+      position: relative;
+      isolation: isolate;
+      padding: 26px;
+      border-radius: 30px;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(136,243,185,.08), transparent 38%),
+        radial-gradient(circle at 84% 78%, rgba(98,217,255,.10), transparent 42%);
+      border: 1px solid rgba(255,255,255,.08);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.05),
+        0 20px 44px rgba(0,0,0,.25);
+      overflow: hidden;
+    }
+
+    .summary-stage::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 12% 24%, rgba(255,231,155,.34) 0 1.5px, transparent 3px),
+        radial-gradient(circle at 84% 18%, rgba(136,243,185,.35) 0 1.4px, transparent 3px),
+        radial-gradient(circle at 70% 72%, rgba(98,217,255,.32) 0 1.3px, transparent 3px),
+        radial-gradient(circle at 28% 78%, rgba(255,255,255,.34) 0 1.2px, transparent 2.8px),
+        radial-gradient(circle at 46% 30%, rgba(255,231,155,.3) 0 1px, transparent 2.5px);
+      opacity: .58;
+      animation: fairyDustDrift 9s ease-in-out infinite;
+      z-index: -1;
+    }
+
+    .summary-layout {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      gap: 26px;
+      align-items: center;
+    }
+
+    .summary-image-panel {
+      position: relative;
+      isolation: isolate;
+      background: linear-gradient(165deg, rgba(5,14,38,.84), rgba(8,20,44,.72));
+      border-radius: 28px;
+      padding: 22px;
+      display: grid;
+      place-items: center;
+      min-height: 420px;
+      border: 1px solid rgba(98,217,255,.24);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.06),
+        0 0 0 1px rgba(255,231,155,.08),
+        0 0 36px rgba(98,217,255,.18);
+      animation: summaryAura 5.4s ease-in-out infinite;
+      overflow: hidden;
+    }
+
+    .summary-image-panel::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: conic-gradient(
+        from 210deg,
+        rgba(136,243,185,.38),
+        rgba(98,217,255,.28),
+        rgba(255,231,155,.36),
+        rgba(136,243,185,.38)
+      );
+      opacity: .26;
+      filter: blur(16px);
+      z-index: -2;
+      animation: summaryHaloRotate 10s linear infinite;
+    }
+
+    .summary-image-panel::after {
+      content: "✦  ✧  ✦";
+      position: absolute;
+      top: 12px;
+      inset-inline-end: 14px;
+      font-size: .72rem;
+      letter-spacing: .22em;
+      color: rgba(255,231,155,.58);
+      text-shadow: 0 0 12px rgba(255,231,155,.44);
+      opacity: .78;
+      animation: sparkleFloat 4.2s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .summary-image-panel img {
+      width: 100%;
+      max-width: 420px;
+      max-height: 420px;
+      object-fit: contain;
+      border-radius: 28px;
+      border: 1px solid rgba(255,255,255,.18);
+      background: radial-gradient(circle at 50% 38%, rgba(255,255,255,.16), rgba(255,255,255,.02));
+      box-shadow:
+        0 0 26px rgba(98,217,255,.28),
+        0 0 64px rgba(136,243,185,.16),
+        0 10px 28px rgba(0,0,0,.28);
+      filter: saturate(1.06) contrast(1.05);
+      transition: transform .35s ease, box-shadow .35s ease;
+    }
+
+    .summary-image-panel:hover img {
+      transform: translateY(-2px) scale(1.015);
+      box-shadow:
+        0 0 32px rgba(98,217,255,.34),
+        0 0 68px rgba(136,243,185,.20),
+        0 14px 32px rgba(0,0,0,.34);
+    }
+
+    .summary-info-panel {
+      position: relative;
+      background: linear-gradient(165deg, rgba(7, 18, 48, 0.95), rgba(5, 13, 34, 0.92));
+      border: 1px solid rgba(255,255,255,.13);
+      border-radius: 28px;
+      padding: 28px 30px;
+      box-shadow:
+        0 18px 40px rgba(0,0,0,.26),
+        0 0 28px rgba(98,217,255,.11);
+      overflow: hidden;
+    }
+
+    .summary-info-panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      background: radial-gradient(circle at 84% 18%, rgba(255,231,155,.10), transparent 40%);
+    }
+
+    .summary-info-panel::after {
+      content: "✦  ✧  ✦";
+      position: absolute;
+      bottom: 12px;
+      inset-inline-start: 16px;
+      font-size: .68rem;
+      letter-spacing: .2em;
+      color: rgba(136,243,185,.48);
+      text-shadow: 0 0 10px rgba(98,217,255,.38);
+      animation: sparkleFloat 4.8s ease-in-out infinite;
+      pointer-events: none;
+      opacity: .72;
+    }
+
+    .summary-lines {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+      margin-bottom: 26px;
+    }
+
+    .summary-lines p {
+      margin: 0;
+      font-size: clamp(1.15rem, 2vw, 1.6rem);
+      line-height: 1.8;
+    }
+
+    .summary-info-panel .actions {
+      justify-content: center;
+    }
+
+    /* ── Guide door count row ── */
+    .doors-count-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .doors-count-label {
+      color: var(--muted);
+      font-size: .95rem;
+      white-space: nowrap;
+    }
+
+    .doors-count-select {
+      flex: 0 0 86px;
+      width: 86px;
+      min-height: 36px;
+      max-width: 86px;
+      border-radius: 10px;
+      font-size: .92rem;
+      padding: 4px 28px 4px 8px;
+      line-height: 1.2;
+      text-transform: none;
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+        linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+      background-position:
+        calc(100% - 14px) calc(50% - 2px),
+        calc(100% - 9px) calc(50% - 2px);
+      background-size: 5px 5px, 5px 5px;
+      background-repeat: no-repeat;
+    }
+
+    .doors-count-select option {
+      font-size: .92rem;
+    }
+
+    .doors-count-value {
+      color: var(--accent);
+      font-weight: 800;
+      min-width: 2.2em;
+      text-align: center;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    /* ── Loading state ── */
+    .loading-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 60vh;
+      gap: 18px;
+    }
+
+    .loading-spinner {
+      width: 52px;
+      height: 52px;
+      border: 4px solid rgba(98,217,255,.25);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+    }
+
+    .screen.transition-in {
+      animation: screenFadeIn .8s ease both;
+    }
+
+    .light-flash {
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,.95), rgba(98,217,255,.15));
+      box-shadow: 0 0 24px rgba(136,243,185,.45);
+      animation: lightMove 900ms ease forwards;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    @keyframes pulseGlow {
+      50% { transform: scale(1.04); }
+    }
+
+    @keyframes logoFloat {
+      50% { transform: translateY(-6px); }
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(.92); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes shake {
+      25% { transform: translateX(5px); }
+      70% { transform: translateX(-5px); }
+    }
+
+    @keyframes floatParticle {
+      from { transform: translateY(40px) scale(.8); opacity: 0; }
+      20%  { opacity: .7; }
+      to   { transform: translateY(-140px) scale(1.1); opacity: 0; }
+    }
+
+    @keyframes burstMove {
+      to { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+
+    @keyframes screenFadeIn {
+      from { opacity: 0; transform: translateY(16px) scale(.985); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes lightMove {
+      to { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── Magic image effects ── */
+    .question-visual {
+      position: relative;
+      background: radial-gradient(ellipse at 50% 60%, rgba(136,243,185,.07), rgba(98,217,255,.04), transparent 70%);
+      border: 1.5px solid rgba(98,217,255,.28);
+      animation: sparkleBorder 4.5s ease-in-out infinite;
+      overflow: hidden;
+    }
+
+    /* Asymmetric transparent ombre at edges */
+    .question-visual::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background:
+        linear-gradient(to bottom, transparent 42%, rgba(7,17,31,.58) 100%),
+        linear-gradient(to left,   transparent 55%, rgba(7,17,31,.22) 100%),
+        linear-gradient(to top,    transparent 72%, rgba(7,17,31,.12) 100%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .question-visual img {
+      position: relative;
+      z-index: 1;
+      filter: drop-shadow(0 4px 18px rgba(98,217,255,.22)) drop-shadow(0 0 8px rgba(136,243,185,.14));
+      transition: filter .4s ease, transform .4s ease;
+    }
+
+    .question-visual:hover img {
+      filter: drop-shadow(0 6px 26px rgba(98,217,255,.34)) drop-shadow(0 0 14px rgba(136,243,185,.22));
+      transform: scale(1.02);
+    }
+
+    /* Subtle cosmic sparkle overlay on images */
+    .question-visual::after {
+      content: "✦ ✧ ✦";
+      position: absolute;
+      top: 6px;
+      inset-inline-end: 8px;
+      font-size: .55rem;
+      color: rgba(136,243,185,.38);
+      pointer-events: none;
+      letter-spacing: .18em;
+      animation: sparkleFloat 4s ease-in-out infinite;
+      z-index: 3;
+    }
+
+    @keyframes sparkleFloat {
+      0%, 100% { opacity: .28; transform: translateY(0); }
+      50%       { opacity: .65; transform: translateY(-3px); }
+    }
+
+
+    @keyframes summaryAura {
+      0%, 100% {
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,.06),
+          0 0 0 1px rgba(255,231,155,.08),
+          0 0 34px rgba(98,217,255,.16);
+      }
+      50% {
+        box-shadow:
+          inset 0 1px 0 rgba(255,255,255,.07),
+          0 0 0 1px rgba(255,231,155,.14),
+          0 0 46px rgba(136,243,185,.20);
+      }
+    }
+
+    @keyframes summaryHaloRotate {
+      to { transform: rotate(1turn); }
+    }
+
+    @keyframes fairyDustDrift {
+      0%, 100% {
+        transform: translate3d(0, 0, 0);
+        opacity: .45;
+      }
+      50% {
+        transform: translate3d(0, -8px, 0);
+        opacity: .72;
+      }
+    }
+
+
+    /* Sparkle border animation for question images */
+    @keyframes sparkleBorder {
+      0%, 100% {
+        box-shadow:
+          0 0 0 2px rgba(136,243,185,.35),
+          0 0 18px rgba(98,217,255,.28),
+          0 0 42px rgba(136,243,185,.10);
+        border-color: rgba(98,217,255,.30);
+      }
+      38% {
+        box-shadow:
+          0 0 0 2px rgba(255,231,155,.42),
+          0 0 22px rgba(255,231,155,.22),
+          0 0 48px rgba(98,217,255,.12);
+        border-color: rgba(255,231,155,.38);
+      }
+      70% {
+        box-shadow:
+          0 0 0 2px rgba(98,217,255,.40),
+          0 0 18px rgba(136,243,185,.30),
+          0 0 42px rgba(255,231,155,.10);
+        border-color: rgba(136,243,185,.32);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .question-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .top-strip {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .code-row {
+        flex-direction: column;
+      }
+
+      .summary-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-image-panel {
+        min-height: 300px;
+      }
+
+      .summary-image-panel img {
+        max-width: 280px;
+        max-height: 280px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      html, body {
+        overflow-x: hidden;
+      }
+
+      body {
+        padding: 8px;
+        zoom: 100%;
+      }
+
+      .app,
+      .screen {
+        min-height: calc(100vh - 16px);
+      }
+
+      .screen {
+        padding: 12px;
+      }
+
+      .top-strip {
+        padding: 10px 12px;
+        gap: 6px;
+        font-size: .95rem;
+      }
+
+      .hero {
+        min-height: calc(100vh - 94px);
+      }
+
+      .hero-box {
+        width: 100%;
+        padding: 12px;
+      }
+
+      .logo-wrap {
+        min-height: 84px;
+      }
+
+      .logo {
+        width: min(220px, 72vw);
+        max-height: 80px;
+      }
+
+      .lead,
+      .question-text,
+      .summary-list,
+      .finish-list {
+        line-height: 1.6;
+      }
+
+      .instruction-layer .lead {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+      }
+
+      .wait-message {
+        width: 100%;
+        padding: 10px 12px;
+      }
+
+      .btn,
+      .btn-next {
+        width: 100%;
+        min-width: 0;
+      }
+
+      .actions {
+        gap: 8px;
+      }
+
+      .modal-card {
+        width: 100%;
+        padding: 16px;
+      }
+
+      .input {
+        flex-basis: 100%;
+        max-width: 100%;
+      }
+
+      .doors-card,
+      .question-card,
+      .finish-card,
+      .summary-stage,
+      .code-panel,
+      .codes-reminder {
+        padding: 14px;
+      }
+
+      .door-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      .door-title {
+        font-size: 1.15rem;
+      }
+
+      .question-layout {
+        gap: 14px;
+      }
+
+      .question-visual {
+        min-height: 210px;
+      }
+
+      .question-visual img {
+        max-width: min(240px, 90%);
+      }
+
+      .answer {
+        padding: 12px 14px;
+        min-height: 54px;
+      }
+
+      .code-display-item {
+        flex-wrap: wrap;
+        row-gap: 4px;
+      }
+
+      .code-text {
+        max-width: 100%;
+        overflow-wrap: anywhere;
+      }
+
+      .video-frame {
+        width: 100%;
+        border-radius: 16px;
+      }
+
+      .video-caption {
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 430px) {
+      .screen {
+        padding: 10px;
+      }
+
+      .doors-count-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+      }
+
+      .doors-count-select {
+        width: 100%;
+        max-width: 100%;
+        flex: 1 1 auto;
+      }
+
+      .countdown-box {
+        padding: 14px;
+      }
+
+      .countdown-label {
+        font-size: 1rem;
+      }
+
+      .answers {
+        gap: 10px;
+      }
+
+      .code-middle {
+        letter-spacing: .01em;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .doors-title,
+      .section-title,
+      .question-title,
+      .finish-title,
+      .modal-title {
+        font-size: 1.62rem;
+      }
+
+      .title {
+        font-size: clamp(1.7rem, 10vw, 2.1rem);
+      }
+
+      .code-text {
+        font-size: 1.1em;
+        letter-spacing: .06em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app" id="app">
+    <div class="effects-layer" id="effects-layer"></div>
+
+    <section class="screen active" id="screen-home"></section>
+    <section class="screen" id="screen-doors"></section>
+    <section class="screen" id="screen-final"></section>
+  </main>
+
+  <div class="video-overlay" id="video-overlay" aria-hidden="true">
+    <div>
+      <div class="video-frame">
+        <video id="door-video" playsinline muted preload="auto"></video>
+      </div>
+      <div class="video-caption">השער נפתח... נכנסים לעולם חדש ✨</div>
+    </div>
+  </div>
+
+  <script>
+    const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzyZUKSrxJCCkM70ZtQbuZdj-LIHLPZzo6z9S-DQHwLIcGikJRG4k_qkxWpi4o2eB9uLg/exec";
+    const POLL_INTERVAL_MS = 3000;
+    const qp = new URLSearchParams(window.location.search);
+    const ROOM_ID = (qp.get("room") || "").trim();
+
+    const ASSETS = {
+      logo:        "images/logo.png",
+      intro:       "images/game-intro.png",
+      doorFallback:"images/door1.png",
+    };
+
+    const ADMIN_NAV_CODE = "BIO2026";
+
+    const state = {
+      gameStatus:          "waiting",
+      statusPollTimer:     null,
+      statusRequestInFlight: false,
+      statusErrorMessage:  "",
+      logoTapCount:        0,
+      logoTapResetTimer:   null,
+      completedDoors:      new Set(),
+      doorsData:           [],   // loaded from doors.json
+      selectedDoors:       [],   // doors selected for the current round
+      doorsCount:          5,    // default when no prior selection
+      stepCodesEntered:    {},   // { doorId: [code1, code2, code3] }
+      selectedAnswers:     {},   // { doorId: { stepIndex: selectedOption } }
+      roomId:              ROOM_ID,
+      missingRoom:         !ROOM_ID,
+    };
+
+    // ── DOM refs ────────────────────────────────────────────
+    const app          = document.getElementById("app");
+    const effectsLayer = document.getElementById("effects-layer");
+    const videoOverlay = document.getElementById("video-overlay");
+    const doorVideo    = document.getElementById("door-video");
+
+    // ── Helpers ─────────────────────────────────────────────
+    const isUnlocked = () => state.gameStatus === "started";
+
+    function topStrip(title, status) {
+      return `<div class="top-strip"><div><strong>${title}</strong></div><div>${status}</div></div>`;
+    }
+
+    function nl(text) {
+      return String(text || "").replace(/\n/g, "<br>");
+    }
+
+    function getDoorImage(doorId) {
+      const n = ((doorId - 1) % 10) + 1;
+      return `images/door${n}.png`;
+    }
+
+    function getCreatureImage(door) {
+      return door && door.image ? `images/${door.image}` : ASSETS.doorFallback;
+    }
+
+    function middleChar(str) {
+      const s = String(str || "");
+      if (!s.length) return "";
+      return s[Math.floor(s.length / 2)];
+    }
+
+    function getDoor(doorId) {
+      return state.doorsData.find(d => d.id === doorId);
+    }
+
+    function shuffleArray(array) {
+      const result = [...array];
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    function buildSelectedDoors() {
+      const max = Math.min(state.doorsCount, state.doorsData.length);
+      const shuffled = shuffleArray(state.doorsData);
+      state.selectedDoors = shuffled.slice(0, max).map((door, index) => ({
+        ...door,
+        displayNumber: index + 1,
+      }));
+    }
+
+    function applySelectedDoors(doorIds) {
+      const idSet = new Set((doorIds || []).map(Number));
+      const selected = state.doorsData.filter(d => idSet.has(Number(d.id)));
+      state.selectedDoors = selected.map((door, index) => ({ ...door, displayNumber: index + 1 }));
+    }
+
+    function getSelectedDoor(doorId) {
+      return state.selectedDoors.find(d => d.id === doorId);
+    }
+
+    function getDoorDisplayNumber(doorId) {
+      return getSelectedDoor(doorId)?.displayNumber ?? doorId;
+    }
+
+    // ── Screen transition ────────────────────────────────────
+    function setActiveScreen(id) {
+      document.querySelectorAll(".screen").forEach(sc => {
+        const hit = sc.id === id;
+        sc.classList.toggle("active", hit);
+        if (hit) {
+          sc.classList.remove("transition-in");
+          void sc.offsetWidth;
+          sc.classList.add("transition-in");
+        }
+      });
+      const grand = id.includes("summary") || id === "screen-final";
+      transitionEffect(grand ? "grand" : "normal");
+    }
+
+    // ── Effects ──────────────────────────────────────────────
+    function spawnParticles() {
+      const c = document.getElementById("hero-particles");
+      if (!c) return;
+      c.innerHTML = "";
+      for (let i = 0; i < 20; i++) {
+        const p = document.createElement("div");
+        p.className = "particle";
+        p.style.left            = `${Math.random() * 100}%`;
+        p.style.bottom          = `${-20 - Math.random() * 60}px`;
+        p.style.animationDuration = `${5 + Math.random() * 7}s`;
+        p.style.animationDelay  = `${Math.random() * 4}s`;
+        p.style.opacity         = (0.28 + Math.random() * 0.48).toFixed(2);
+        c.appendChild(p);
+      }
+    }
+
+    function burstEffect() {
+      for (let i = 0; i < 22; i++) {
+        const el = document.createElement("div");
+        el.className = "burst";
+        el.style.left = `${46 + Math.random() * 8}%`;
+        el.style.top  = `${38 + Math.random() * 20}%`;
+        el.style.setProperty("--tx", `${(Math.random() - 0.5) * 260}px`);
+        el.style.setProperty("--ty", `${(Math.random() - 0.5) * 260}px`);
+        effectsLayer.appendChild(el);
+        setTimeout(() => el.remove(), 1000);
+      }
+    }
+
+    function transitionEffect(level = "normal") {
+      const n = level === "grand" ? 36 : 16;
+      for (let i = 0; i < n; i++) {
+        const fx = document.createElement("div");
+        fx.className = "light-flash";
+        fx.style.left = `${8 + Math.random() * 84}%`;
+        fx.style.top  = `${8 + Math.random() * 80}%`;
+        const sp = level === "grand" ? 360 : 220;
+        fx.style.setProperty("--tx", `${(Math.random() - 0.5) * sp}px`);
+        fx.style.setProperty("--ty", `${(Math.random() - 0.5) * sp}px`);
+        effectsLayer.appendChild(fx);
+        setTimeout(() => fx.remove(), 900);
+      }
+    }
+
+    // ── Server / status ──────────────────────────────────────
+    async function parseScriptResponse(response) {
+      const raw = await response.text();
+      if (!raw) return {};
+      try { return JSON.parse(raw); } catch { return { raw }; }
+    }
+
+    function extractStatusPayload(data) {
+      if (!data || typeof data !== "object") return {};
+      if (data.status || data.doorsCount || Array.isArray(data.selectedDoors)) return data;
+      if (data.data && typeof data.data === "object") return data.data;
+      if (data.result && typeof data.result === "object") return data.result;
+      return data;
+    }
+
+    function payloadHasStatusInfo(payload) {
+      if (!payload || typeof payload !== "object") return false;
+      return Boolean(payload.status || payload.doorsCount || Array.isArray(payload.selectedDoors));
+    }
+
+    function resolveStatusError(res, data) {
+      if (data && typeof data === "object") {
+        if (data.errorCode) return String(data.errorCode);
+        if (data.message) return String(data.message);
+        if (data.error) return String(data.error);
+      }
+      return `HTTP ${res.status}`;
+    }
+
+    function normalizeStatus(s) {
+      return s === "started" ? "started" : "waiting";
+    }
+
+    function applyGameStatus(payload) {
+      state.gameStatus = normalizeStatus(payload?.status || payload);
+      state.statusErrorMessage = "";
+      const status = payload || {};
+      if (status?.doorsCount) {
+        const dc = parseInt(status.doorsCount, 10);
+        if (dc >= 2) state.doorsCount = Math.min(30, dc);
+      }
+      if (Array.isArray(status?.selectedDoors) && status.selectedDoors.length) {
+        applySelectedDoors(status.selectedDoors);
+      }
+      updateHomeStatusUI();
+    }
+
+    function updateHomeStatusUI() {
+      const unlocked = isUnlocked() && !state.missingRoom;
+      document.getElementById("wait-message")?.classList.toggle("hidden", unlocked);
+      document.getElementById("start-btn")?.classList.toggle("hidden", !unlocked);
+      const t = document.getElementById("home-status-text");
+      const waitMessage = document.getElementById("wait-message");
+      if (!t) return;
+      if (state.missingRoom) {
+        t.textContent = "חסר roomId";
+      } else if (state.statusErrorMessage) {
+        t.textContent = "שגיאה בעדכון מצב המשחק";
+      } else {
+        t.textContent = unlocked ? "המשחק הופעל" : "ממתינים להפעלת מדריך";
+      }
+      if (waitMessage && state.statusErrorMessage && !unlocked) {
+        waitMessage.textContent = state.statusErrorMessage;
+      }
+    }
+
+    async function fetchGameStatus() {
+      if (!state.roomId) throw new Error("MISSING_ROOM_ID");
+      const url = `${APPS_SCRIPT_URL}?action=status&roomId=${encodeURIComponent(state.roomId)}`;
+      const res  = await fetch(url, { method: "GET", cache: "no-store" });
+      const data = await parseScriptResponse(res);
+      const payload = extractStatusPayload(data);
+      const hasStatusInfo = payloadHasStatusInfo(payload);
+      const explicitError = data?.ok === false || Boolean(data?.errorCode || data?.message || data?.error);
+      if (!res.ok || (explicitError && !hasStatusInfo)) {
+        throw new Error(resolveStatusError(res, data));
+      }
+      return {
+        status: normalizeStatus(payload?.status),
+        doorsCount: payload?.doorsCount,
+        selectedDoors: Array.isArray(payload?.selectedDoors) ? payload.selectedDoors : [],
+      };
+    }
+
+    async function pollGameStatus() {
+      if (state.statusRequestInFlight) return;
+      state.statusRequestInFlight = true;
+      try {
+        applyGameStatus(await fetchGameStatus());
+      }
+      catch (e) {
+        state.statusErrorMessage = "לא הצלחנו לעדכן את מצב המשחק כרגע. ננסה שוב אוטומטית.";
+        updateHomeStatusUI();
+        console.warn("Status poll failed:", e);
+      }
+      finally   { state.statusRequestInFlight = false; }
+    }
+
+    function startStatusPolling() {
+      clearInterval(state.statusPollTimer);
+      pollGameStatus();
+      state.statusPollTimer = setInterval(pollGameStatus, POLL_INTERVAL_MS);
+    }
+
+    // ── Load doors.json ──────────────────────────────────────
+    async function loadDoorsData() {
+      async function fetchJsonOrThrow(path) {
+        const res = await fetch(path, { cache: "no-store" });
+        if (!res.ok) throw new Error(`${path} HTTP ${res.status}`);
+        return res.json();
+      }
+
+      function normalizeOptions(step) {
+        return [step.optionA, step.optionB, step.optionC, step.optionD].filter(Boolean);
+      }
+
+      function normalizeCode(step) {
+        const options = normalizeOptions(step);
+        const idx = options.findIndex((opt) => String(opt).trim() === String(step.correctAnswer || "").trim());
+        return String(idx >= 0 ? idx + 1 : 1);
+      }
+
+      function buildFallbackDoors(mcq, matching) {
+        const gateMapByOrganism = new Map();
+        const requiredGates = ["שער הגילוי הנסתר", "שער הסוד הקדום", "שער הרמזים הנעלמים", "שער ההשראה החכמה"];
+
+        mcq.forEach((row) => {
+          const organism = String(row?.organism || "").trim();
+          const gate = String(row?.gate || "").trim();
+          if (!organism || !gate) return;
+          if (!gateMapByOrganism.has(organism)) gateMapByOrganism.set(organism, new Map());
+          gateMapByOrganism.get(organism).set(gate, row);
+        });
+
+        const matchingByOrganism = new Map(
+          (matching || []).map((row) => [String(row?.organism || "").trim(), row])
+        );
+
+        const organisms = [...gateMapByOrganism.keys()].sort((a, b) => a.localeCompare(b, "he"));
+
+        return organisms
+          .map((organism, index) => {
+            const gates = gateMapByOrganism.get(organism);
+            if (!requiredGates.every((gate) => gates.has(gate))) return null;
+
+            const discovery = gates.get("שער הגילוי הנסתר");
+            const stepsSource = [
+              gates.get("שער הסוד הקדום"),
+              gates.get("שער הרמזים הנעלמים"),
+              gates.get("שער ההשראה החכמה"),
+            ];
+            const steps = stepsSource.map((step, stepIndex) => ({
+              title: step.gate || `שלב ${stepIndex + 1}`,
+              question: step.question || "",
+              options: normalizeOptions(step),
+              answer: step.correctAnswer || "",
+              code: normalizeCode(step),
+            }));
+            const finalLockCode = steps.map((step) => step.code).join("");
+            const inspiration = matchingByOrganism.get(organism);
+
+            return {
+              id: index + 1,
+              creature: organism,
+              intro: discovery?.question || `המסלול של ${organism}`,
+              steps,
+              finalLockCode,
+              summary: {
+                organism,
+                trait: gates.get("שער הסוד הקדום")?.correctAnswer || "",
+                innovation: inspiration?.mainInvention || gates.get("שער ההשראה החכמה")?.correctAnswer || "",
+              },
+            };
+          })
+          .filter(Boolean);
+      }
+
+      try {
+        const data = await fetchJsonOrThrow("doors.json");
+        if (!Array.isArray(data) || !data.length) {
+          throw new Error("doors.json is empty or invalid");
+        }
+        state.doorsData = data;
+      } catch (e) {
+        console.warn("Could not load doors.json, trying fallback data/*.json:", e);
+        try {
+          const [mcq, matching] = await Promise.all([
+            fetchJsonOrThrow("data/mcq-stages.json"),
+            fetchJsonOrThrow("data/matching-tasks.json"),
+          ]);
+          state.doorsData = buildFallbackDoors(mcq, matching);
+        } catch (fallbackError) {
+          console.warn("Fallback data loading failed:", fallbackError);
+          state.doorsData = [];
+        }
+      }
+    }
+
+    // ── Screen 1: Home ───────────────────────────────────────
+    function renderHome() {
+      const unlocked = isUnlocked();
+      document.getElementById("screen-home").innerHTML = `
+        ${topStrip("דלתות הטבע", `<span id="home-status-text">${unlocked ? "המשחק הופעל" : "ממתינים להפעלת מדריך"}</span>`)}
+        <div class="card hero">
+          <img src="${ASSETS.intro}" alt="רקע חדר בריחה" class="hero-bg" id="hero-bg">
+          <div class="hero-overlay"></div>
+          <div class="hero-particles" id="hero-particles"></div>
+
+          <div class="hero-box">
+            <div class="logo-wrap">
+              <img src="${ASSETS.logo}" alt="לוגו" class="logo" id="logo-trigger">
+            </div>
+
+            <div class="instruction-layer" id="instruction-layer">
+              <h1 class="title">העולם הסודי של הביומימיקרי</h1>
+              <p class="lead">ברוכים הבאים לעולם הסודי של הביומימיקרי.</p>
+              <p class="lead">מאחורי כל דלת מסתתר יצור מהטבע,<br>עם יכולת מיוחדת שהעניקה השראה להמצאה אמיתית.</p>
+              <p class="lead" style="text-align:right; width:fit-content; margin:0 auto">• בחרו דלת,<br>• עברו שלושה שלבים<br>• וגלו איך הטבע הופך לרעיון חדש.</p>
+
+              <div class="start-zone">
+                <p class="wait-message ${unlocked ? "hidden" : ""}" id="wait-message">${state.missingRoom ? "פנו למדריך לקבלת קישור" : "אנא המתינו, מיד מתחילים"}</p>
+                <button class="btn btn-primary btn-start ${unlocked && !state.missingRoom ? "" : "hidden"}" id="start-btn">התחלת המשחק</button>
+              </div>
+              <p class="soft-note">⭐</p>
+            </div>
+          </div>
+
+          <div class="countdown" id="countdown">
+            <div class="countdown-box">
+              <div class="countdown-number" id="countdown-number">10</div>
+              <div class="countdown-label">המשימה מתחילה עכשיו</div>
+            </div>
+          </div>
+
+          <div class="admin-modal" id="admin-nav-modal">
+            <div class="modal-card">
+              <form id="admin-nav-form">
+                <p class="modal-text">הזינו קוד גישה</p>
+                <input id="admin-nav-input" type="password" placeholder="קוד גישה"
+                  style="width:100%;padding:10px 14px;font-size:1.1rem;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.08);color:var(--text);text-align:center;margin-bottom:10px;">
+                <p id="admin-nav-error" style="color:var(--danger);font-size:.9rem;min-height:1.2em;text-align:center;margin:0 0 10px;"></p>
+                <div style="display:flex;gap:10px;justify-content:center;">
+                  <button type="submit" class="btn btn-primary" id="admin-nav-submit">כניסה</button>
+                  <button type="button" class="btn" id="admin-nav-cancel" style="background:rgba(255,255,255,.1)">ביטול</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      `;
+
+      spawnParticles();
+
+      document.getElementById("hero-bg").onerror = function () { this.style.display = "none"; };
+      document.getElementById("logo-trigger").onerror = function () {
+        this.classList.add("logo-error"); this.alt = "שגיאת לוגו";
+      };
+
+      document.getElementById("start-btn")?.addEventListener("click", startMainCountdown);
+
+      // Triple-tap logo → admin nav modal
+      document.getElementById("logo-trigger").addEventListener("click", () => {
+        state.logoTapCount++;
+        clearTimeout(state.logoTapResetTimer);
+        if (state.logoTapCount >= 3) {
+          state.logoTapCount = 0;
+          document.getElementById("admin-nav-modal").classList.add("active");
+          document.getElementById("admin-nav-input").value = "";
+          document.getElementById("admin-nav-error").textContent = "";
+          setTimeout(() => document.getElementById("admin-nav-input")?.focus(), 50);
+        } else {
+          state.logoTapResetTimer = setTimeout(() => { state.logoTapCount = 0; }, 1200);
+        }
+      });
+
+      const submitAdminNavigation = () => {
+        const val = document.getElementById("admin-nav-input").value.trim().toUpperCase();
+        if (val === ADMIN_NAV_CODE) {
+          window.location.href = state.roomId ? `admin.html?room=${encodeURIComponent(state.roomId)}` : "admin.html";
+        } else {
+          document.getElementById("admin-nav-error").textContent = "קוד שגוי";
+        }
+      };
+
+      document.getElementById("admin-nav-form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        submitAdminNavigation();
+      });
+
+      document.getElementById("admin-nav-input").addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          submitAdminNavigation();
+        }
+      });
+
+      document.getElementById("admin-nav-cancel").addEventListener("click", () => {
+        document.getElementById("admin-nav-modal").classList.remove("active");
+      });
+
+      document.getElementById("admin-nav-modal").addEventListener("click", (e) => {
+        if (e.target === document.getElementById("admin-nav-modal"))
+          document.getElementById("admin-nav-modal").classList.remove("active");
+      });
+
+      updateHomeStatusUI();
+    }
+
+    function startMainCountdown() {
+      if (!isUnlocked()) return;
+      if (state.gameStatus !== "started") {
+        updateHomeStatusUI();
+        return;
+      }
+      document.getElementById("instruction-layer").classList.add("hidden");
+      const countdown = document.getElementById("countdown");
+      const num       = document.getElementById("countdown-number");
+      countdown.classList.add("active");
+      let sec = 10;
+      num.textContent = sec;
+      const iv = setInterval(() => {
+        sec--;
+        num.textContent = sec;
+        if (sec <= 0) {
+          clearInterval(iv);
+          renderDoors();
+          setActiveScreen("screen-doors");
+        }
+      }, 1000);
+    }
+
+    // ── Screen 2: Door selection ─────────────────────────────
+    function renderDoors() {
+      const doorsScreen = document.getElementById("screen-doors");
+
+      const visible = state.selectedDoors.length ? state.selectedDoors : [];
+
+      if (!visible.length) {
+        doorsScreen.innerHTML = `
+          ${topStrip("מסך הדלתות", "טוען...")}
+          <div class="card doors-card">
+            <h2 class="doors-title">בחרו דלת</h2>
+            <p class="question-text">לא נמצאו דלתות לחדר זה. המתינו להפעלת מדריך או בדקו את קישור ה-room.</p>
+          </div>`;
+        return;
+      }
+
+      const cards = visible.map(door => `
+        <article class="door-card">
+          <div class="door-title">דלת ${door.displayNumber}</div>
+          <div class="door-image-wrap">
+            <img class="door-image"
+              src="${getDoorImage(door.id)}"
+              alt="דלת ${door.displayNumber}"
+              onerror="this.onerror=null;this.src='${ASSETS.doorFallback}'">
+            <div class="door-footer">
+              <button class="btn btn-primary" data-door="${door.id}">התחל</button>
+            </div>
+          </div>
+        </article>`).join("");
+
+      doorsScreen.innerHTML = `
+        ${topStrip("מסך הדלתות", "בחרו דלת למשימה")}
+        <div class="card doors-card">
+          <h2 class="doors-title">בחרו דלת</h2>
+          <p class="question-text">לכל דלת מחכה משימה. לחצו על "התחל" כדי לפתוח את המעבר.</p>
+          <div class="door-grid">${cards}</div>
+        </div>`;
+
+      doorsScreen.querySelectorAll("[data-door]").forEach(btn => {
+        btn.onclick = () => startDoorFlow(Number(btn.dataset.door));
+      });
+    }
+
+    // ── Door flow helpers ────────────────────────────────────
+    function startDoorFlow(doorId) {
+      renderDoorIntro(doorId);
+      setActiveScreen(`door-${doorId}-intro`);
+    }
+
+    function playDoorVideo(onDone) {
+      videoOverlay.classList.add("active");
+      doorVideo.currentTime = 0;
+      const finish = () => {
+        videoOverlay.classList.remove("active");
+        doorVideo.onended = null;
+        onDone();
+      };
+      doorVideo.onended = finish;
+      doorVideo.play().catch(() => setTimeout(finish, 2200));
+    }
+
+    function ensureDoorSections(doorId) {
+      const ids = [
+        `door-${doorId}-intro`,
+        `door-${doorId}-step-1`, `door-${doorId}-step-2`, `door-${doorId}-step-3`,
+        `door-${doorId}-code-1`, `door-${doorId}-code-2`, `door-${doorId}-code-3`,
+        `door-${doorId}-confirm-1`, `door-${doorId}-confirm-2`, `door-${doorId}-confirm-3`,
+        `door-${doorId}-final-lock`,
+        `door-${doorId}-summary`,
+      ];
+      ids.forEach(id => {
+        if (!document.getElementById(id)) {
+          const s = document.createElement("section");
+          s.className = "screen";
+          s.id = id;
+          app.appendChild(s);
+        }
+      });
+    }
+
+    // ── Screen 3: Door intro ─────────────────────────────────
+    function renderDoorIntro(doorId) {
+      ensureDoorSections(doorId);
+      const door = getDoor(doorId);
+      if (!door) return;
+      const displayNumber = getDoorDisplayNumber(doorId);
+      const el = document.getElementById(`door-${doorId}-intro`);
+
+      el.innerHTML = `
+        ${topStrip(`דלת ${displayNumber}`, "שלב הכנה")}
+        <div class="card question-card">
+          <div class="question-layout">
+            <div class="question-visual">
+              <img src="images/q.png" alt="נחשו מי?" onerror="this.style.display='none'">
+            </div>
+            <div>
+              <h2 class="question-title">מתכוננים לדלת ${displayNumber}</h2>
+              <p class="question-text">${nl(door.intro)}</p>
+              <div class="actions">
+                <button class="btn btn-primary" id="intro-go-${doorId}">התחל שלב 1</button>
+                <button class="btn btn-secondary" id="intro-back-${doorId}">חזרה לדלתות</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+      document.getElementById(`intro-go-${doorId}`).onclick   = () => renderStep(doorId, 1);
+      document.getElementById(`intro-back-${doorId}`).onclick = () => setActiveScreen("screen-doors");
+    }
+
+    // ── Screen 4: Question step ──────────────────────────────
+    function renderStep(doorId, stepIndex) {
+      ensureDoorSections(doorId);
+      const door = getDoor(doorId);
+      if (!door) return;
+      const displayNumber = getDoorDisplayNumber(doorId);
+      const step = door.steps[stepIndex - 1];
+      if (!step) return;
+      const el = document.getElementById(`door-${doorId}-step-${stepIndex}`);
+
+      const questionImage = stepIndex === 1 ? "images/q.png" : getCreatureImage(door);
+
+      el.innerHTML = `
+        ${topStrip(`דלת ${displayNumber}`, `שלב ${stepIndex} מתוך 3`)}
+        <div class="card question-card">
+          <div class="question-layout">
+            <div class="question-visual">
+              <img src="${questionImage}" alt="${door.creature || ''}"
+                onerror="this.onerror=null;this.src='${getDoorImage(doorId)}'">
+            </div>
+            <div>
+              <h2 class="question-title">${step.title}</h2>
+              <p class="question-text">${nl(step.question)}</p>
+              <div class="answers">
+                ${step.options.map(opt =>
+                  `<button class="answer" data-opt="${opt}">${opt}</button>`
+                ).join("")}
+              </div>
+              <div class="actions">
+                <button class="btn btn-secondary" id="sback-${doorId}-${stepIndex}">חזרה לדלתות</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+      el.querySelectorAll(".answer").forEach(btn => {
+        btn.onclick = () => {
+          const chosen = btn.dataset.opt;
+          if (!state.selectedAnswers[doorId]) state.selectedAnswers[doorId] = {};
+          state.selectedAnswers[doorId][stepIndex] = chosen;
+
+          // 800ms delay before moving to code screen (section 15)
+          setTimeout(() => {
+            renderCodeScreen(doorId, stepIndex);
+            setActiveScreen(`door-${doorId}-code-${stepIndex}`);
+          }, 800);
+        };
+      });
+
+      document.getElementById(`sback-${doorId}-${stepIndex}`).onclick = () => setActiveScreen("screen-doors");
+      setActiveScreen(`door-${doorId}-step-${stepIndex}`);
+    }
+
+    // ── Screen 5: Code input ─────────────────────────────────
+    function renderCodeScreen(doorId, codeStage) {
+      ensureDoorSections(doorId);
+      const door = getDoor(doorId);
+      if (!door) return;
+      const displayNumber = getDoorDisplayNumber(doorId);
+      const step         = door.steps[codeStage - 1];
+      const expectedCode = String((step && step.code) || "");
+      const el           = document.getElementById(`door-${doorId}-code-${codeStage}`);
+
+      el.innerHTML = `
+        ${topStrip(`דלת ${displayNumber}`, `שער קוד ${codeStage} מתוך 3`)}
+        <div class="card question-card">
+          <div class="question-layout">
+            <div class="question-visual">
+              <img src="${getCreatureImage(door)}" alt="${door.creature || ''}"
+                onerror="this.onerror=null;this.src='${getDoorImage(doorId)}'">
+            </div>
+            <div>
+              <h2 class="question-title">${step.codeScreenTitle || "שער מעבר"}</h2>
+              <p class="question-text">${nl(step.codeScreenText || "קיבלתם קוד מהמדריך. הזינו אותו כדי להמשיך.")}</p>
+
+              <div class="code-panel" id="cpanel-${doorId}-${codeStage}">
+                <h3 class="code-title">שלב ${codeStage} – קוד מעבר</h3>
+                <div class="code-row">
+                  <input class="input" id="cinput-${doorId}-${codeStage}"
+                    type="password" placeholder="${step.codeInputPlaceholder || "הזינו קוד"}" autocomplete="off">
+                  <button class="btn btn-primary" id="csubmit-${doorId}-${codeStage}">${step.codeButtonText || "בדיקת קוד"}</button>
+                </div>
+              </div>
+              <p class="feedback" id="cfb-${doorId}-${codeStage}"></p>
+              <div class="actions">
+                <button class="btn btn-secondary" id="cback-${doorId}-${codeStage}">חזרה לדלתות</button>
+              </div>
+            </div>
+          </div>
+        </div>`;
+
+      const panel  = document.getElementById(`cpanel-${doorId}-${codeStage}`);
+      const input  = document.getElementById(`cinput-${doorId}-${codeStage}`);
+      const fb     = document.getElementById(`cfb-${doorId}-${codeStage}`);
+
+      const submit = () => {
+        const selectedAnswer = state.selectedAnswers[doorId]?.[codeStage];
+        const answerCorrect  = String(selectedAnswer || "").trim() === String(step.answer || "").trim();
+
+        const entered        = input.value.trim().toUpperCase();
+        const expected       = String(step.code || "").trim().toUpperCase();
+        const codeCorrect    = entered === expected;
+        panel.classList.remove("success", "error");
+
+        if (answerCorrect && codeCorrect) {
+          panel.classList.add("success");
+          fb.textContent = step.codeSuccessText || "הקוד נכון!";
+          fb.className   = "feedback success";
+          burstEffect();
+          // Save code for final lock
+          if (!state.stepCodesEntered[doorId]) state.stepCodesEntered[doorId] = [];
+          state.stepCodesEntered[doorId][codeStage - 1] = expectedCode;
+          // Navigate to confirmation after delay (section 15: 1400ms)
+          renderConfirmation(doorId, codeStage);
+          setTimeout(() => setActiveScreen(`door-${doorId}-confirm-${codeStage}`), 1400);
+        } else {
+          panel.classList.add("error");
+          fb.textContent = step.codeWrongText || "הקוד שגוי. נסו שוב.";
+          fb.className   = "feedback error";
+          // 1600ms before returning to question (section 15)
+          setTimeout(() => {
+            renderStep(doorId, codeStage);
+          }, 1600);
+        }
+      };
+
+      input.addEventListener("keydown", e => { if (e.key === "Enter") submit(); });
+      document.getElementById(`csubmit-${doorId}-${codeStage}`).onclick = submit;
+      document.getElementById(`cback-${doorId}-${codeStage}`).onclick   = () => setActiveScreen("screen-doors");
+    }
+
+    // ── Screen 6: Confirmation ───────────────────────────────
+    function renderConfirmation(doorId, stepIndex) {
+      ensureDoorSections(doorId);
+      const door      = getDoor(doorId);
+      if (!door) return;
+      const displayNumber = getDoorDisplayNumber(doorId);
+      const step      = door.steps[stepIndex - 1] || {};
+      const isLast    = stepIndex === 3;
+      const el        = document.getElementById(`door-${doorId}-confirm-${stepIndex}`);
+
+      el.innerHTML = `
+        ${topStrip(`דלת ${displayNumber}`, `שלב ${stepIndex} הושלם`)}
+        <div class="card question-card">
+          <div class="confirm-box">
+            <div class="confirm-icon">🎉</div>
+            <h2 class="section-title" style="color:var(--accent-2);margin:0">כל הכבוד!</h2>
+            <p class="question-text" style="margin:0">${nl(step.confirmText || "כל הכבוד! התשובה נכונה.")}</p>
+            <button class="btn btn-next" id="cnext-${doorId}-${stepIndex}">
+              ${isLast ? "לפתיחת הדלת" : "לשלב הבא"}
+            </button>
+          </div>
+        </div>`;
+
+      document.getElementById(`cnext-${doorId}-${stepIndex}`).onclick = () => {
+        if (isLast) {
+          renderFinalLock(doorId);
+          setActiveScreen(`door-${doorId}-final-lock`);
+        } else {
+          renderStep(doorId, stepIndex + 1);
+        }
+      };
+    }
+
+    // ── Screen 7: Final lock ─────────────────────────────────
+    function renderFinalLock(doorId) {
+      ensureDoorSections(doorId);
+      const door  = getDoor(doorId);
+      if (!door) return;
+      const displayNumber = getDoorDisplayNumber(doorId);
+      const finalLock = door.finalLock || {};
+      const codes = state.stepCodesEntered[doorId] || [];
+      const el    = document.getElementById(`door-${doorId}-final-lock`);
+
+      el.innerHTML = `
+        ${topStrip(`דלת ${displayNumber}`, "מנעול אחרון")}
+        <div class="card question-card">
+          <h2 class="question-title">${finalLock.title || "המנעול האחרון 🔐"}</h2>
+          <p class="question-text">${nl(finalLock.text || "אספתם שלושה קודי מעבר...")}</p>
+
+          <div class="code-panel" id="fpanel-${doorId}">
+            <h3 class="code-title">קוד פתיחה</h3>
+            <div class="code-row">
+              <input class="input" id="finput-${doorId}" type="password" placeholder="${finalLock.inputPlaceholder || "קוד פתיחה"}" autocomplete="off">
+              <button class="btn btn-primary" id="fsubmit-${doorId}">${finalLock.buttonText || "פתיחת הדלת"}</button>
+            </div>
+          </div>
+          <p class="feedback" id="ffb-${doorId}"></p>
+          <div class="actions" style="margin-top:12px">
+            <button class="btn btn-secondary" id="fback-${doorId}">חזרה לדלתות</button>
+          </div>
+        </div>`;
+
+      const panel  = document.getElementById(`fpanel-${doorId}`);
+      const input  = document.getElementById(`finput-${doorId}`);
+      const fb     = document.getElementById(`ffb-${doorId}`);
+
+      const check = () => {
+        const entered   = input.value.trim().toUpperCase();
+        const expected  = String(door.finalLockCode || "").toUpperCase();
+        panel.classList.remove("success", "error");
+
+        if (entered === expected) {
+          panel.classList.add("success");
+          fb.textContent = finalLock.successText || "הדלת נפתחת!";
+          fb.className   = "feedback success";
+          burstEffect();
+          // 1200ms before starting video (section 15)
+          setTimeout(() => {
+            playDoorVideo(() => {
+              // 500ms after video ends before summary (section 15)
+              setTimeout(() => {
+                renderDoorSummary(doorId);
+                setActiveScreen(`door-${doorId}-summary`);
+              }, 500);
+            });
+          }, 1200);
+        } else {
+          panel.classList.add("error");
+          fb.textContent = finalLock.wrongText || "הקוד שגוי. נסו שוב.";
+          fb.className   = "feedback error";
+        }
+      };
+
+      input.addEventListener("keydown", e => { if (e.key === "Enter") check(); });
+      document.getElementById(`fsubmit-${doorId}`).onclick = check;
+      document.getElementById(`fback-${doorId}`).onclick   = () => setActiveScreen("screen-doors");
+    }
+
+    // ── Screen 9: Summary ────────────────────────────────────
+    function renderDoorSummary(doorId) {
+      ensureDoorSections(doorId);
+      state.completedDoors.add(doorId);
+
+      const door = getDoor(doorId);
+      if (!door) return;
+      const displayNumber = getDoorDisplayNumber(doorId);
+
+      const summary = door.summary || {};
+      const el = document.getElementById(`door-${doorId}-summary`);
+
+      el.innerHTML = `
+        ${topStrip(`דלת ${displayNumber} נפתחה`, "")}
+        <div class="card finish-card summary-stage">
+          <div class="summary-layout">
+            <div class="summary-image-panel">
+              <img
+                src="${getCreatureImage(door)}"
+                alt="${summary.organism || door.creature || ''}"
+                onerror="this.style.display='none'">
+            </div>
+
+            <div class="summary-info-panel">
+              <h2 class="finish-title">${summary.title || `דלת ${displayNumber} נפתחה`}</h2>
+
+              <div class="summary-lines">
+                <p><strong>האורגניזם:</strong> ${summary.organism || door.creature || ""}</p>
+                <p><strong>היכולת בטבע:</strong> ${summary.trait || ""}</p>
+                <p><strong>ההשראה להמצאה:</strong> ${summary.innovation || ""}</p>
+              </div>
+
+              <div class="actions">
+                <button class="btn btn-primary" id="sback-${doorId}">חזרה לחדר הדלתות</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      document.getElementById(`sback-${doorId}`).onclick = () => {
+        renderDoors();
+        setActiveScreen("screen-doors");
+      };
+    }
+
+    // ── Final congratulations screen ─────────────────────────
+    function renderFinal() {
+      const el = document.getElementById("screen-final");
+      el.innerHTML = `
+        ${topStrip("סיום", `דלתות שהושלמו: ${state.completedDoors.size}`)}
+        <div class="card finish-card">
+          <h2 class="finish-title">פיצחתם את קוד הטבע 🎉</h2>
+          <p class="question-text">למדתם איך הטבע נותן השראה לרעיונות, לפתרונות ולהמצאות חדשות.</p>
+          <div class="actions">
+            <button class="btn btn-primary" id="final-back-btn">חזרה למסך הדלתות</button>
+          </div>
+        </div>`;
+      document.getElementById("final-back-btn").onclick = () => {
+        renderDoors();
+        setActiveScreen("screen-doors");
+      };
+    }
+
+    // ── Bootstrap ────────────────────────────────────────────
+    (async () => {
+      await loadDoorsData();
+      renderHome();
+      if (state.missingRoom) {
+        updateHomeStatusUI();
+        return;
+      }
+      startStatusPolling();
+    })();
+  </script>
+</body>
+</html>

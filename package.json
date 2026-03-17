@@ -1,0 +1,11 @@
+{
+  "name": "bio-magic",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bio-mimicry escape room game",
+  "scripts": {
+    "dev": "node server.js",
+    "build:data": "python scripts/extract_xlsx.py",
+    "check:data": "python scripts/extract_xlsx.py && python scripts/validate_data.py"
+  }
+}

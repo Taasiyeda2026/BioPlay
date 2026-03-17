@@ -1,0 +1,3048 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>חדר הבריחה – עולם הביומימיקרי</title>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg:            #07111f;
+      --bg-2:          #13284a;
+      --panel:         rgba(9, 19, 42, 0.88);
+      --panel-light:   rgba(255,255,255,0.06);
+      --text:          #eef5ff;
+      --muted:         #c4d4ef;
+      --accent:        #62d9ff;
+      --accent-2:      #88f3b9;
+      --title:         #7cf6ff;
+      --heading:       #ffe79b;
+      --danger:        #ff91a8;
+      --warning:       #ffd985;
+      --success:       #7effc1;
+      --border:        rgba(255,255,255,.14);
+      --shadow:        0 18px 40px rgba(0,0,0,.4);
+      --radius:        20px;
+      --ease:          600ms cubic-bezier(.22,.61,.36,1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      background:
+        radial-gradient(circle at 18% 8%,  rgba(98,217,255,.18), transparent 28%),
+        radial-gradient(circle at 82% 12%, rgba(136,243,185,.12), transparent 26%),
+        linear-gradient(160deg, var(--bg-2), var(--bg));
+      color: var(--text);
+      font-family: "Assistant", "Rubik", Arial, sans-serif;
+    }
+
+    body { padding: 12px; }
+
+    #app {
+      width: min(900px, 100%);
+      margin-inline: auto;
+      background: rgba(8,14,31,0.44);
+      border: 1px solid var(--border);
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      min-height: calc(100vh - 24px);
+    }
+
+    /* ---- Header ---- */
+    #game-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: rgba(255,255,255,.05);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      color: var(--muted);
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    #game-header .logo {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--title);
+    }
+    #progress-bar-outer {
+      flex: 1;
+      max-width: 260px;
+      height: 6px;
+      background: rgba(255,255,255,.1);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    #progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      border-radius: 99px;
+      transition: width var(--ease);
+      width: 0%;
+    }
+
+    /* ---- Status bar ---- */
+    #status-bar {
+      min-height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      border-radius: 0;
+      transition: background .3s;
+    }
+    #status-bar.error   { background: rgba(255,100,120,.15); color: var(--danger); }
+    #status-bar.success { background: rgba(120,255,180,.12); color: var(--success); }
+    #status-bar.idle    { background: transparent; color: transparent; }
+
+    /* ---- Main screen ---- */
+    #game-screen {
+      padding: clamp(16px, 2.8vw, 36px);
+      min-height: calc(100vh - 130px);
+    }
+
+    /* ---- Cards ---- */
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: clamp(16px, 2.4vw, 30px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+      animation: fadeInUp .5s ease both;
+    }
+    .card + .card { margin-top: 18px; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ---- Typography ---- */
+    .screen-eyebrow {
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .screen-title {
+      font-size: clamp(1.3rem, 3vw, 2rem);
+      font-weight: 800;
+      color: var(--title);
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+    .screen-body {
+      font-size: 1.05rem;
+      line-height: 1.7;
+      color: var(--muted);
+      margin-bottom: 18px;
+    }
+    .hint-box {
+      background: rgba(255,215,130,.08);
+      border: 1px solid rgba(255,215,130,.2);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      color: var(--warning);
+      margin-top: 12px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 99px;
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+    .badge-code {
+      background: rgba(98,217,255,.15);
+      border: 1px solid rgba(98,217,255,.3);
+      color: var(--accent);
+    }
+    .code-reveal {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--heading);
+      letter-spacing: .1em;
+      background: rgba(255,231,155,.1);
+      border: 1px solid rgba(255,231,155,.25);
+      border-radius: 10px;
+      padding: 10px 20px;
+      display: inline-block;
+      margin: 8px 0;
+    }
+
+    /* ---- Buttons ---- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: transform .15s, opacity .15s, box-shadow .2s;
+      font-family: inherit;
+    }
+    .btn:active { transform: scale(.97); }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #3db8df);
+      color: #07111f;
+      box-shadow: 0 4px 18px rgba(98,217,255,.25);
+    }
+    .btn-primary:hover { box-shadow: 0 6px 24px rgba(98,217,255,.38); }
+    .btn-secondary {
+      background: var(--panel-light);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover { background: rgba(255,255,255,.1); }
+    .btn-success {
+      background: linear-gradient(135deg, #5ef5a0, #2ecc71);
+      color: #07111f;
+      box-shadow: 0 4px 18px rgba(90,240,150,.22);
+    }
+    .btn-lg { padding: 14px 32px; font-size: 1.1rem; border-radius: 14px; }
+    .btn-sm { padding: 8px 16px; font-size: 0.88rem; border-radius: 10px; }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none !important; }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    /* ---- MCQ Options ---- */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    @media (max-width: 500px) { .options-grid { grid-template-columns: 1fr; } }
+    .option-img-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .option-img-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 10px 14px;
+      background: var(--panel-light);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      color: var(--text);
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: border-color .2s, background .2s, transform .12s;
+    }
+    .option-img-card:hover { border-color: var(--accent); background: rgba(98,217,255,.08); transform: translateY(-3px); }
+    .option-img-card img {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+    .option-img-card .opt-letter {
+      min-width: 28px;
+      height: 28px;
+      background: rgba(98,217,255,.15);
+      border-radius: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .82rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    /* ── קריינות + ספירה לאחור ── */
+    .narration-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(2, 8, 20, 0.82);
+      backdrop-filter: blur(6px);
+      animation: fadeIn .4s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .narration-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+      padding: 28px 32px;
+    }
+
+    .narration-wave {
+      display: flex;
+      align-items: flex-end;
+      gap: 7px;
+      height: 52px;
+    }
+    .narration-wave span {
+      display: block;
+      width: 8px;
+      border-radius: 4px;
+      background: var(--accent);
+      box-shadow: 0 0 12px rgba(98,217,255,.55);
+      animation: narrationBar 1.1s ease-in-out infinite;
+    }
+    .narration-wave span:nth-child(1) { height: 22px; animation-delay: 0s;    }
+    .narration-wave span:nth-child(2) { height: 40px; animation-delay: .15s;  }
+    .narration-wave span:nth-child(3) { height: 52px; animation-delay: .3s;   }
+    .narration-wave span:nth-child(4) { height: 40px; animation-delay: .45s;  }
+    .narration-wave span:nth-child(5) { height: 22px; animation-delay: .6s;   }
+    @keyframes narrationBar {
+      0%, 100% { transform: scaleY(1);    opacity: .7; }
+      50%       { transform: scaleY(1.8); opacity: 1;  }
+    }
+
+    .narration-text {
+      font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+      color: var(--text);
+      letter-spacing: .06em;
+      text-align: center;
+    }
+
+    .narration-skip-btn {
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.18);
+      color: var(--muted);
+      font-size: .92rem;
+      padding: 9px 22px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background .2s, color .2s;
+    }
+    .narration-skip-btn:hover {
+      background: rgba(255,255,255,.18);
+      color: var(--text);
+    }
+
+    .narration-cnum {
+      font-size: clamp(3.5rem, 12vw, 8rem);
+      font-weight: 800;
+      line-height: 1;
+      color: var(--accent);
+      text-shadow: 0 0 30px rgba(98,217,255,.86);
+    }
+
+    .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      background: var(--panel-light);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      color: var(--text);
+      font-size: 0.97rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      text-align: right;
+      transition: border-color .2s, background .2s, transform .12s;
+    }
+    .option-btn:hover { border-color: var(--accent); background: rgba(98,217,255,.08); transform: translateY(-2px); }
+    .option-btn .opt-letter {
+      min-width: 30px;
+      height: 30px;
+      background: rgba(98,217,255,.15);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: var(--accent);
+    }
+
+    /* ---- Door Screen ---- */
+    .door-visual {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 24px;
+    }
+    .door-icon {
+      font-size: 5rem;
+      animation: doorPulse 2s ease-in-out infinite;
+    }
+    @keyframes doorPulse {
+      0%,100% { filter: drop-shadow(0 0 8px rgba(98,217,255,.4)); }
+      50%      { filter: drop-shadow(0 0 22px rgba(98,217,255,.8)); }
+    }
+    .door-codes-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin: 10px 0;
+    }
+
+    /* ---- Code Input ---- */
+    .code-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    .code-input {
+      flex: 1;
+      padding: 12px 16px;
+      background: rgba(255,255,255,.06);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 1.2rem;
+      font-weight: 700;
+      font-family: inherit;
+      text-align: center;
+      letter-spacing: .12em;
+      transition: border-color .2s;
+      max-width: 200px;
+    }
+    .code-input:focus { outline: none; border-color: var(--accent); }
+    .code-input::placeholder { color: rgba(255,255,255,.25); font-size: 0.9rem; letter-spacing: normal; }
+
+    /* ---- Habitat Flip Cards (Step 3) ---- */
+    .habitat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 14px;
+      margin-top: 18px;
+    }
+    .habitat-card-wrap {
+      perspective: 900px;
+      cursor: pointer;
+      height: 170px;
+    }
+    .habitat-card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.55s cubic-bezier(.4,0,.2,1);
+    }
+    .habitat-card.flipped { transform: rotateY(180deg); }
+    .habitat-card-front, .habitat-card-back {
+      position: absolute;
+      inset: 0;
+      backface-visibility: hidden;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      border: 2px solid var(--border);
+    }
+    .habitat-card-front {
+      background: var(--card-bg);
+      gap: 6px;
+    }
+    .habitat-card-front img {
+      width: 100%;
+      height: 110px;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+    .habitat-card-front .hcard-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      text-align: center;
+    }
+    .habitat-card-back {
+      background: linear-gradient(135deg, rgba(98,217,255,.15), rgba(136,243,185,.15));
+      border-color: var(--accent);
+      transform: rotateY(180deg);
+      text-align: center;
+      padding: 14px 10px;
+      gap: 8px;
+    }
+    .habitat-card-back strong { font-size: 13px; color: var(--accent); }
+    .habitat-card-back p { font-size: 11.5px; color: var(--text-muted); margin: 0; line-height: 1.5; }
+    .habitat-card-wrap.must-flip { animation: cardPulse 1s ease 3; }
+    @keyframes cardPulse {
+      0%,100% { filter: drop-shadow(0 0 4px rgba(255,160,90,.0)); }
+      50%      { filter: drop-shadow(0 0 12px rgba(255,160,90,.9)); }
+    }
+    .habitat-hint {
+      text-align: center;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-top: 16px;
+      animation: fadeIn .5s ease;
+    }
+    .habitat-mcq { margin-top: 22px; }
+    .habitat-mcq .option-btn { width: 100%; margin-bottom: 10px; }
+
+    /* ---- Immersive Door Screen ---- */
+    .door-immersive {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding: 32px 24px;
+      background: radial-gradient(ellipse at center, rgba(98,217,255,.07) 0%, transparent 70%);
+      border-radius: 22px;
+    }
+    .door-big-lock {
+      font-size: 5.5rem;
+      animation: doorPulse 2s ease-in-out infinite;
+      filter: drop-shadow(0 0 18px rgba(98,217,255,.5));
+    }
+    .door-code-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      align-items: center;
+      direction: ltr;
+    }
+    .door-digit-box {
+      width: 54px;
+      height: 62px;
+      background: rgba(255,255,255,.04);
+      border: 2.5px solid var(--border);
+      border-radius: 14px;
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--text);
+      text-align: center;
+      caret-color: var(--accent);
+      transition: border-color .2s, box-shadow .2s;
+      font-family: inherit;
+    }
+    .door-digit-box:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(98,217,255,.25);
+    }
+    .door-digit-sep {
+      font-size: 1.5rem;
+      color: var(--text-muted);
+      font-weight: 300;
+    }
+    .door-submit-btn {
+      margin-top: 8px;
+      padding: 14px 44px;
+      font-size: 1.1rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #0d1a26;
+      border: none;
+      border-radius: 40px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      font-family: inherit;
+    }
+    .door-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(98,217,255,.35); }
+    .door-codes-hint {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    .door-unlock-success {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+      animation: fadeIn .5s ease;
+    }
+    .door-unlock-icon { font-size: 5rem; animation: bounceIn .6s ease; }
+    @keyframes bounceIn {
+      0%   { transform: scale(0); opacity: 0; }
+      60%  { transform: scale(1.2); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .door-shake { animation: wrongShake .5s ease; }
+
+    /* ---- DYK Screen ---- */
+    .dyk-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      padding: 28px 24px;
+      text-align: center;
+    }
+    .dyk-image {
+      width: 100%;
+      max-width: 320px;
+      border-radius: 18px;
+      object-fit: cover;
+      max-height: 220px;
+      box-shadow: 0 8px 28px rgba(0,0,0,.4);
+    }
+    .dyk-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #0d1a26;
+      font-weight: 800;
+      padding: 4px 18px;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      letter-spacing: .05em;
+    }
+    .dyk-text {
+      font-size: 1rem;
+      color: var(--text);
+      line-height: 1.7;
+      max-width: 520px;
+    }
+
+    /* ---- Step 5: Matching Game ---- */
+    .match-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .match-col-title {
+      text-align: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 6px 14px;
+      border-radius: 99px;
+      margin-bottom: 8px;
+    }
+    .match-col-nature { background: rgba(136,243,185,.18); color: var(--accent-2); }
+    .match-col-tech   { background: rgba(98,217,255,.12); color: var(--accent); }
+    .match-card {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 2px solid var(--border);
+      background: rgba(255,255,255,.04);
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      transition: border-color .2s, background .2s, transform .12s, opacity .3s;
+      margin-bottom: 8px;
+    }
+    .match-card:hover:not(.matched) { border-color: var(--accent); background: rgba(98,217,255,.07); transform: translateY(-2px); }
+    .match-card.selected { border-color: var(--accent-2); background: rgba(136,243,185,.1); box-shadow: 0 0 0 3px rgba(136,243,185,.2); }
+    .match-card.matched  { opacity: .55; cursor: default; pointer-events: none; border-color: rgba(120,255,180,.4); }
+    .match-card.wrong-flash { animation: wrongShake .45s ease; }
+    .match-card.correct-flash { animation: correctPulse .5s ease; }
+    @keyframes wrongShake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-5px); }
+      60% { transform: translateX(5px); }
+    }
+    @keyframes correctPulse {
+      0% { box-shadow: 0 0 0 0 rgba(120,255,180,.7); }
+      60% { box-shadow: 0 0 0 14px rgba(120,255,180,0); }
+      100% { box-shadow: none; }
+    }
+    .match-img {
+      width: 48px; height: 48px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid rgba(255,255,255,.1);
+      background: rgba(255,255,255,.06);
+      flex-shrink: 0;
+    }
+    .score-display {
+      text-align: center;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent-2);
+      margin-bottom: 12px;
+    }
+
+    /* ---- Step 6: Count Elements ---- */
+    .count-visual {
+      display: flex;
+      justify-content: center;
+      margin: 20px 0;
+    }
+    .count-svg-wrap {
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 24px rgba(0,0,0,.3);
+    }
+
+    /* ---- Step 8: Cipher ---- */
+    .cipher-table {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+      gap: 6px;
+      margin: 14px 0;
+    }
+    .cipher-cell {
+      background: rgba(255,255,255,.05);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 4px;
+      text-align: center;
+      font-size: 0.82rem;
+    }
+    .cipher-cell .plain  { font-weight: 800; color: var(--accent); font-size: 1rem; }
+    .cipher-cell .coded  { color: var(--muted); font-size: 0.82rem; }
+    .cipher-encoded {
+      background: rgba(255,215,130,.06);
+      border: 1px solid rgba(255,215,130,.18);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      color: var(--heading);
+      text-align: center;
+      margin: 14px 0;
+      direction: rtl;
+    }
+    .cipher-input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255,255,255,.06);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 1.05rem;
+      font-weight: 600;
+      font-family: inherit;
+      text-align: center;
+      transition: border-color .2s;
+    }
+    .cipher-input:focus { outline: none; border-color: var(--accent); }
+
+    /* ---- Final Screen ---- */
+    .final-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 16px;
+      padding: 30px 0;
+    }
+    .final-icon { font-size: 5.5rem; animation: spin 4s linear infinite; }
+    @keyframes spin {
+      0%   { transform: rotate(0deg) scale(1); }
+      25%  { transform: rotate(5deg) scale(1.05); }
+      75%  { transform: rotate(-5deg) scale(1.05); }
+      100% { transform: rotate(0deg) scale(1); }
+    }
+    .final-title {
+      font-size: clamp(1.6rem, 4vw, 2.4rem);
+      font-weight: 800;
+      color: var(--heading);
+    }
+    .final-msg {
+      font-size: 1.15rem;
+      color: var(--muted);
+      max-width: 560px;
+      line-height: 1.7;
+    }
+    .final-secret-box {
+      background: rgba(136,243,185,.1);
+      border: 2px solid rgba(136,243,185,.3);
+      border-radius: 16px;
+      padding: 16px 28px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent-2);
+    }
+
+    /* ---- Organism Image Panel ---- */
+    .org-image {
+      width: 100%;
+      max-width: 220px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      margin-top: 10px;
+      float: left;
+      margin-left: 18px;
+      margin-bottom: 8px;
+    }
+    @media (max-width: 520px) {
+      .org-image { float: none; margin: 14px auto; display: block; }
+    }
+
+    /* ---- Separator ---- */
+    .sep { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+
+    /* =========================================================
+       שלב 8 – צופן מספרי (s8-* prefix למניעת התנגשויות)
+       ========================================================= */
+    @keyframes s8-confettiFall {
+      0%   { transform: translateY(-18vh) rotate(0deg);   opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+    @keyframes s8-goldShimmer {
+      0%   { background-position: 0%   50%; }
+      50%  { background-position: 100% 50%; }
+      100% { background-position: 0%   50%; }
+    }
+
+    .s8-wrapper { overflow: visible; }
+
+    .s8-puzzle-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(200px, 0.58fr);
+      gap: 20px;
+      align-items: start;
+      margin-top: 18px;
+    }
+    @media (max-width: 720px) { .s8-puzzle-grid { grid-template-columns: 1fr; } }
+
+    .s8-cipher-card, .s8-key-card, .s8-status-card {
+      background: linear-gradient(180deg, rgba(8,30,40,.72), rgba(7,24,34,.60));
+      border: 1px solid rgba(120,255,200,.16);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .s8-label {
+      display: block;
+      color: #caffef;
+      opacity: .78;
+      font-size: 13px;
+      letter-spacing: .09em;
+      margin-bottom: 10px;
+    }
+
+    .s8-cipher-text {
+      direction: rtl;
+      text-align: center;
+      font-family: "Courier New", monospace;
+      font-weight: 700;
+      font-size: clamp(18px, 2.2vw, 26px);
+      line-height: 1.8;
+      color: #ffd76a;
+      letter-spacing: .08em;
+      word-spacing: .2em;
+    }
+    .s8-cipher-group { display: inline-block; direction: ltr; unicode-bidi: isolate; }
+    .s8-separator    { color: #ff89d8; margin-inline: 8px; font-weight: 900; }
+
+    .s8-answer-area {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: center;
+    }
+    .s8-word-row {
+      display: flex;
+      flex-direction: row;
+      direction: rtl;
+      gap: 8px;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .s8-letter-box {
+      width: 54px; height: 58px;
+      border-radius: 14px;
+      border: 2px solid rgba(120,255,200,.30);
+      background: linear-gradient(180deg, rgba(10,44,58,.95), rgba(8,30,42,.84));
+      color: #f4fff9;
+      font-size: 28px;
+      font-weight: 700;
+      text-align: center;
+      direction: rtl;
+      outline: none;
+      transition: transform .15s, border-color .2s, box-shadow .2s;
+      caret-color: #f4fff9;
+    }
+    @media (max-width: 520px) {
+      .s8-letter-box { width: 42px; height: 48px; font-size: 22px; }
+    }
+    .s8-letter-box:focus {
+      border-color: rgba(120,255,200,.85);
+      box-shadow: 0 0 0 3px rgba(120,255,200,.11), 0 0 18px rgba(120,255,200,.15);
+      transform: translateY(-1px) scale(1.02);
+    }
+    .s8-letter-box.filled  { color: #ffd76a; border-color: rgba(255,215,106,.32); }
+    .s8-letter-box.success { border-color: rgba(120,255,200,.88); background: linear-gradient(180deg, rgba(21,86,73,.96), rgba(10,52,44,.92)); box-shadow: 0 0 14px rgba(120,255,200,.2); }
+    .s8-letter-box.error   { border-color: rgba(255,143,143,.85); background: linear-gradient(180deg, rgba(85,28,28,.94), rgba(54,18,18,.92)); }
+
+    .s8-controls  { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .s8-btn-row   { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+    .s8-btn {
+      border: 0; border-radius: 12px; padding: 11px 22px;
+      cursor: pointer; font-size: 15px; font-weight: 700;
+      transition: transform .16s, box-shadow .18s;
+    }
+    .s8-btn:hover  { transform: translateY(-1px); }
+    .s8-btn:active { transform: translateY(0); }
+    .s8-btn-primary {
+      color: #062018;
+      background: linear-gradient(135deg, #78ffc8, #a7ffe1, #ffd76a);
+      background-size: 200% 200%;
+      box-shadow: 0 8px 20px rgba(120,255,200,.22);
+      animation: s8-goldShimmer 6s ease-in-out infinite;
+    }
+    .s8-btn-secondary {
+      color: #d9fff2;
+      background: rgba(120,255,200,.10);
+      border: 1px solid rgba(120,255,200,.20);
+    }
+
+    .s8-status-card {
+      min-height: 60px; padding: 12px 14px;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center; font-size: 15px; line-height: 1.7; color: #effff8;
+      border-radius: 14px;
+      border: 1px solid rgba(120,255,200,.12);
+      background: rgba(8,30,40,.55);
+      transition: border-color .25s, background .25s;
+    }
+    .s8-status-card.success { border-color: rgba(120,255,200,.35); background: rgba(18,66,55,.42); color: #bfffe6; }
+    .s8-status-card.error   { border-color: rgba(255,143,143,.35); background: rgba(76,26,26,.36);  color: #ffd8d8; }
+
+    .s8-key-card    { max-width: 260px; justify-self: center; }
+    .s8-key-grid    { display: grid; grid-template-columns: repeat(2, minmax(80px, 1fr)); gap: 6px 7px; font-family: "Courier New", monospace; font-size: 13px; }
+    .s8-key-item    { display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 6px 8px; border-radius: 9px; background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.04); }
+    .s8-key-item strong { color: #ffd76a; font-weight: 700; direction: ltr; }
+    .s8-key-item span   { color: #d4fff2; font-weight: 700; font-size: 15px; }
+    .s8-mini-note { margin-top: 10px; font-size: 12px; opacity: .72; line-height: 1.7; color: #d8fff2; }
+
+    .s8-confetti-layer {
+      position: fixed; inset: 0; overflow: hidden;
+      pointer-events: none; z-index: 140;
+    }
+    .s8-confetti-piece {
+      position: absolute; width: 10px; height: 18px;
+      border-radius: 3px; opacity: 0;
+      animation: s8-confettiFall 2.8s linear forwards;
+    }
+
+    .s8-modal {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+      background: rgba(2,10,16,.76); backdrop-filter: blur(8px);
+      z-index: 120; opacity: 0; visibility: hidden;
+      transition: opacity .28s, visibility .28s;
+    }
+    .s8-modal.open { opacity: 1; visibility: visible; }
+    .s8-modal-card {
+      width: min(700px, 100%); position: relative; overflow: hidden;
+      background: linear-gradient(180deg, rgba(8,28,40,.97), rgba(7,20,28,.95));
+      border: 1px solid rgba(120,255,200,.32); border-radius: 26px;
+      box-shadow: 0 24px 60px rgba(0,0,0,.38), 0 0 40px rgba(120,255,200,.08);
+      padding: 32px 26px 24px; text-align: center;
+    }
+    .s8-modal-card::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(circle at top center, rgba(120,255,200,.14), transparent 42%);
+      pointer-events: none;
+    }
+    .s8-modal-title  { position: relative; z-index: 1; font-size: clamp(24px, 2.8vw, 38px); color: #effff8; line-height: 1.5; margin-bottom: 12px; }
+    .s8-modal-quote  { position: relative; z-index: 1; font-size: clamp(20px, 2.4vw, 32px); font-weight: 700; color: #ffd76a; margin: 8px 0; text-shadow: 0 0 18px rgba(255,215,106,.12); }
+    .s8-modal-actions { position: relative; z-index: 1; margin-top: 22px; display: flex; justify-content: center; }
+
+    /* ============================================================
+       ✨ MAGICAL BIOMIMICRY ATMOSPHERE
+       ============================================================ */
+
+    /* --- Animated background gradient --- */
+    html, body {
+      background:
+        radial-gradient(circle at 18% 8%,  rgba(98,217,255,.22), transparent 32%),
+        radial-gradient(circle at 82% 12%, rgba(136,243,185,.16), transparent 30%),
+        radial-gradient(circle at 50% 90%, rgba(180,100,255,.10), transparent 40%),
+        linear-gradient(160deg, var(--bg-2), var(--bg));
+      background-size: 100% 100%;
+      animation: bgShift 18s ease-in-out infinite alternate;
+    }
+    @keyframes bgShift {
+      0%   { filter: hue-rotate(0deg) brightness(1); }
+      50%  { filter: hue-rotate(8deg)  brightness(1.04); }
+      100% { filter: hue-rotate(-6deg) brightness(0.97); }
+    }
+
+    /* --- Hex grid overlay --- */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.045;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='92'%3E%3Cpolygon points='40,2 74,21 74,59 40,78 6,59 6,21' fill='none' stroke='%2362d9ff' stroke-width='1.2'/%3E%3C/svg%3E");
+      background-size: 80px 92px;
+      animation: hexDrift 60s linear infinite;
+    }
+    @keyframes hexDrift {
+      from { background-position: 0 0; }
+      to   { background-position: 240px 276px; }
+    }
+
+    /* --- Bio sparkle particles --- */
+    #bio-sparks {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .spark {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0;
+      animation: sparkFloat linear infinite;
+    }
+    @keyframes sparkFloat {
+      0%   { opacity: 0;    transform: translateY(0)    scale(1); }
+      15%  { opacity: .85; }
+      80%  { opacity: .4;  }
+      100% { opacity: 0;    transform: translateY(-110vh) scale(.4); }
+    }
+
+    /* --- Glowing card border + DNA shimmer top stripe --- */
+    .card {
+      border-color: rgba(98,217,255,.22) !important;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        0 0 0 1px rgba(98,217,255,.08),
+        0 12px 40px rgba(0,0,0,.5),
+        0 0 60px rgba(98,217,255,.04);
+      position: relative;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(98,217,255,.7) 20%,
+        rgba(136,243,185,.9) 50%,
+        rgba(98,217,255,.7) 80%,
+        transparent 100%);
+      border-radius: var(--radius) var(--radius) 0 0;
+      animation: dnaShimmer 4s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes dnaShimmer {
+      0%,100% { opacity: .35; }
+      50%     { opacity: 1; }
+    }
+
+    /* --- Title glow --- */
+    .screen-title {
+      text-shadow:
+        0 0 18px rgba(124,246,255,.55),
+        0 0 40px rgba(98,217,255,.25);
+    }
+    .screen-eyebrow {
+      text-shadow: 0 0 10px rgba(98,217,255,.6);
+      letter-spacing: .1em;
+    }
+
+    /* --- Glowing option buttons --- */
+    .option-btn:hover {
+      box-shadow: 0 0 0 2px rgba(98,217,255,.4), 0 8px 24px rgba(98,217,255,.18) !important;
+    }
+    .option-btn.correct-glow {
+      border-color: var(--accent-2) !important;
+      box-shadow: 0 0 20px rgba(136,243,185,.6) !important;
+      animation: correctPulseGlow .6s ease;
+    }
+    @keyframes correctPulseGlow {
+      0%   { box-shadow: 0 0 0 rgba(136,243,185,0); }
+      50%  { box-shadow: 0 0 40px rgba(136,243,185,.8); }
+      100% { box-shadow: 0 0 20px rgba(136,243,185,.4); }
+    }
+
+    /* --- Shimmer on primary buttons --- */
+    .btn-primary, .door-submit-btn {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-primary::after, .door-submit-btn::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.28), transparent);
+      animation: btnShimmer 3.5s ease-in-out infinite;
+    }
+    @keyframes btnShimmer {
+      0%   { left: -100%; }
+      55%  { left: 160%; }
+      100% { left: 160%; }
+    }
+
+    /* --- Header glow --- */
+    #game-header .logo {
+      text-shadow: 0 0 14px rgba(124,246,255,.7);
+      letter-spacing: .04em;
+    }
+
+    /* --- Progress bar glow --- */
+    #progress-bar-fill {
+      box-shadow: 0 0 8px rgba(98,217,255,.5);
+    }
+
+    /* --- Floating nature runes in background --- */
+    #bio-runes {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+      font-size: 1.8rem;
+      color: rgba(98,217,255,.06);
+      user-select: none;
+    }
+    .bio-rune {
+      position: absolute;
+      animation: runeDrift linear infinite;
+      filter: blur(0.5px);
+    }
+    @keyframes runeDrift {
+      0%   { transform: translateY(110vh) rotate(0deg);   opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 1; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* --- Magical success burst overlay --- */
+    #magic-burst {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .burst-particle {
+      position: absolute;
+      border-radius: 50%;
+      animation: burstFly .9s cubic-bezier(.22,.61,.36,1) forwards;
+    }
+    @keyframes burstFly {
+      0%   { transform: translate(0,0)               scale(1);    opacity: 1; }
+      100% { transform: translate(var(--bx),var(--by)) scale(.2); opacity: 0; }
+    }
+
+    /* --- App z-index above effects --- */
+    #app { position: relative; z-index: 1; }
+  </style>
+</head>
+<body>
+<div id="bio-sparks"></div>
+<div id="bio-runes"></div>
+<div id="magic-burst"></div>
+<div id="app">
+  <div id="game-header">
+    <span class="logo">🔬 ביומימיקרי – חדר הבריחה</span>
+    <div id="progress-bar-outer"><div id="progress-bar-fill"></div></div>
+    <span id="header-step-label">שלב 1 מתוך 9</span>
+  </div>
+
+  <div id="status-bar" class="idle" aria-live="polite"></div>
+
+  <div id="game-screen"></div>
+
+  <!-- Fullscreen iframe overlay for matching & final cipher -->
+  <div id="iframe-overlay" style="display:none; position:fixed; inset:0; z-index:200; background:#000;">
+    <iframe id="iframe-content" style="width:100%;height:100%;border:none;" src=""></iframe>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ============================================================
+   IFRAME OVERLAY – matching & final cipher
+   ============================================================ */
+
+function showIframe(src) {
+  const overlay = document.getElementById('iframe-overlay');
+  const frame   = document.getElementById('iframe-content');
+  frame.src     = src;
+  overlay.style.display = 'block';
+}
+
+function hideIframe() {
+  const overlay = document.getElementById('iframe-overlay');
+  const frame   = document.getElementById('iframe-content');
+  overlay.style.display = 'none';
+  frame.src = '';
+}
+
+window.addEventListener('message', (event) => {
+  if (!event.data || typeof event.data !== 'object') return;
+
+  if (event.data.type === 'matchComplete') {
+    hideIframe();
+    solveStep5([]);
+  }
+
+  if (event.data.type === 'cipherComplete') {
+    hideIframe();
+    showActualFinalScreen();
+  }
+});
+
+/* ============================================================
+   קבועים – תוכן המשחק
+   ============================================================ */
+
+const STEP_1_CORRECT_ANSWER = "שממית";
+const STEP_1_CODE            = "5";
+
+const STEP_2_CORRECT_ANSWER = "שערות זעירות";
+const STEP_2_CODE            = "7";
+
+const STEP_3_CORRECT_ANSWER = "ליד בתים, קירות וסדקים חמים";
+const STEP_3_CODE            = "2";
+
+const STEP_5_SECRET_DIGIT_1  = "3";
+const STEP_5_SECRET_DIGIT_2  = "4";
+
+const STEP_6_CORRECT_COUNT   = 7;
+
+const CIPHER_SOLUTION        = "השראה מן הטבע";
+const ENDING_MESSAGE         = "הטבע כבר גילה הכול — לנו נותר רק להתבונן וללמוד.";
+
+/* ניקוד לכל שלב (סה"כ 100 נקודות) */
+const STEP_SCORES = {
+  step1: 10,
+  step2: 10,
+  step3: 15,
+  step5: 30,
+  step6: 15,
+  step8: 20,
+};
+
+/* קודי הדלתות המשולבים */
+const DOOR_1_CODE = STEP_1_CODE + STEP_2_CODE + STEP_3_CODE;                                       /* "572" */
+const DOOR_2_CODE = STEP_5_SECRET_DIGIT_1 + STEP_5_SECRET_DIGIT_2 + String(STEP_6_CORRECT_COUNT);  /* "347" */
+
+/* נתוני קלפי בית הגידול (שלב 3) */
+const HABITAT_CARDS = [
+  { id: 1, image: "images/gid1.png", name: "מדבר חם",           info: "סביבה יבשה ולוהטת. מעט מינים שורדים כאן ללא מקורות מים קבועים." },
+  { id: 2, image: "images/gid2.png", name: "יער גשם טרופי",     info: "עשיר בצמחייה ולחות רבה. הרבה מינים חיים כאן, אך שממיות הבית מעדיפות סביבות יבשות יותר." },
+  { id: 3, image: "images/gid3.png", name: "סביבה עירונית",     info: "קירות, בתים וסדקים חמים – הסביבה המושלמת לשממיות! הן מטפסות על הקירות ומחפשות חרקים בלילה." },
+  { id: 4, image: "images/gid4.png", name: "ים ואוקיינוס",      info: "עולם תת-ימי עשיר בחיים. שממיות אינן שוחות ואינן יכולות לחיות בסביבה ימית." },
+  { id: 5, image: "images/gid5.png", name: "הרים מושלגים",      info: "קר מדי לשממיות! הן חיות רק בסביבות חמות – טמפרטורה מתחת ל-10°C מסכנת את חייהן." }
+];
+
+/* ============================================================
+   נתוני תוכן
+   ============================================================ */
+
+const gameData = {
+  step1: {
+    question: "מאחורי הדלת מסתתר יצור עם סופר-כוח. הוא מטפס על קירות ואפילו הולך על התקרה. האם תצליחו לגלות מי הוא?",
+    options: ["צפרדע", "שממית", "עכביש", "נחש"],
+    optionImages: ["images/frog.svg", "images/gecko.png", "images/spider.png", "images/snake.png"],
+    correctAnswer: STEP_1_CORRECT_ANSWER,
+    code: STEP_1_CODE,
+    hint: "היצור הזה יכול להיצמד לקירות ולתקרות בלי ליפול.",
+    eyebrow: "שלב 1 – זיהוי היצור",
+    title: "שער הגילוי הנסתר",
+    image: "images/q.png"
+  },
+  step2: {
+    question: "מה עוזר לשממית להיצמד למשטחים חלקים?",
+    options: ["שערות זעירות", "עור חלק", "רגליים חזקות", "עור מחוספס"],
+    correctAnswer: STEP_2_CORRECT_ANSWER,
+    code: STEP_2_CODE,
+    hint: "חפשו תכונה זעירה שנמצאת בכפות הרגליים ועוזרת להיצמד.",
+    eyebrow: "שלב 2 – הסוד הקדום",
+    title: "שער הסוד הקדום",
+    image: "images/gecko.png",
+    didYouKnow: "לשממית יש מיליוני שערות זעירות בכפות הרגליים, שעוזרות לה להיצמד גם למשטחים חלקים."
+  },
+  step3: {
+    question: "מהו בית הגידול שבו אפשר למצוא שממיות?",
+    options: [
+      "ליד בתים, קירות וסדקים חמים",
+      "הקוטב הדרומי",
+      "מעמקי הים",
+      "יער גשם צפוף"
+    ],
+    correctAnswer: STEP_3_CORRECT_ANSWER,
+    code: STEP_3_CODE,
+    hint: "חפשו מקום חמים שבו אפשר למצוא קירות, אבנים ומסתורים קטנים.",
+    eyebrow: "שלב 3 – בית הגידול",
+    title: "שער הרמזים הנעלמים",
+    image: "images/gecko.png"
+  },
+  step5: {
+    eyebrow: "שלב 5 – חיבור טבע–המצאה",
+    title: "שער ההמצאות",
+    instructions: "לחצו על כרטיס מהטבע ואז על ההמצאה המתאימה לו. כשתחברו את כל 6 הזוגות – שתי הספרות הסודיות יתגלו!",
+    pairs: [
+      { id: 1, nature: { image: "images/mat1.png", label: "סנפיר לווייתן" }, tech: { image: "images/mat7.png",  label: "טורבינת רוח" },         info: "צורת הסנפיר משפרת זרימת אוויר" },
+      { id: 2, nature: { image: "images/mat2.png", label: "פרפר מורפו" },   tech: { image: "images/mat8.png",  label: "צבעים מחליפי גוון" },    info: "מבנה מיקרוסקופי יוצר צבעים" },
+      { id: 3, nature: { image: "images/mat3.png", label: "כריש" },         tech: { image: "images/mat9.png",  label: "חליפת שחייה" },          info: "טקסטורת העור מפחיתה חיכוך" },
+      { id: 4, nature: { image: "images/mat4.png", label: "פנגולין" },      tech: { image: "images/mat10.png", label: "שריון" },                 info: "מבנה הקשקשים יוצר הגנה יעילה" },
+      { id: 5, nature: { image: "images/mat5.png", label: "קורי עכביש" },  tech: { image: "images/mat11.png", label: "גשר" },                   info: "חוזק מבני עם גמישות" },
+      { id: 6, nature: { image: "images/mat6.png", label: "עלה לוטוס" },   tech: { image: "images/mat12.png", label: "משטח דוחה מים" },         info: "אפקט הלוטוס – ניקוי עצמי" }
+    ],
+    digit1: STEP_5_SECRET_DIGIT_1,
+    digit2: STEP_5_SECRET_DIGIT_2
+  },
+  step6: {
+    eyebrow: "שלב 6 – ספירת אלמנטים",
+    title: "שער התמונה הנסתרת",
+    prompt: "בתמונה מוצגת כף הרגל של שממית במיקרוסקופ. ספרו כמה שערות זעירות (Setae) מסומנות בצהוב.",
+    hint: "ספרו רק את הנקודות הצהובות הבולטות בתמונה.",
+    correctCount: STEP_6_CORRECT_COUNT
+  },
+  step8: {
+    eyebrow: "שלב 8 – כתב הסתרים",
+    title: "שער המפתח הסופי",
+    instructions: "פענחו את הקוד המספרי בעזרת מפתח האותיות שמימין. כל מספר מייצג אות אחת. מלאו את התיבות לפי מבנה המשפט וגלו את המסר הסודי.",
+    solution: CIPHER_SOLUTION
+  },
+  dyk: {
+    eyebrow: "הידעת?",
+    title: "ההמצאה בהשראת הטבע",
+    text: "בהשראת שערות הדבקות של השממית, פיתחו מדענים חומרים מיוחדים שנצמדים למשטחים בלי דבק כלל! הטכנולוגיה הזו מיושמת היום בכפפות טיפוס, פלסטרים רפואיים חדשניים – ואפילו בחלל החיצון.",
+    image: "images/q.png"
+  }
+};
+
+/* ============================================================
+   STATE מרכזי
+   ============================================================ */
+
+const gameState = {
+  currentScreen: "name_entry",
+
+  player: {
+    name:  '',
+    score: 0,
+  },
+
+  progress: {
+    step1Solved:    false,
+    step2Solved:    false,
+    step3Solved:    false,
+    door1Unlocked:  false,
+    step5Solved:    false,
+    step6Solved:    false,
+    door2Unlocked:  false,
+    step8Solved:    false,
+    gameCompleted:  false
+  },
+
+  codes: {
+    codeStep1:         null,
+    codeStep2:         null,
+    codeStep3:         null,
+    step5Digit1:       null,
+    step5Digit2:       null,
+    step6ElementCount: null,
+    door2Code:         null
+  },
+
+  answers: {
+    step1SelectedAnswer:  null,
+    step2SelectedAnswer:  null,
+    step3SelectedAnswer:  null,
+    step5Matches:         [],
+    step6SubmittedCount:  null,
+    step8SubmittedCipher: null
+  },
+
+  ui: {
+    errorMessage:  "",
+    successMessage: "",
+    hintOpen:      false,
+    animationBusy: false
+  },
+
+  /* משתנים פנימיים לשלב 3 – קלפי בית הגידול */
+  _step3: {
+    flippedIds: [],
+    mustFlipBeforeRetry: false
+  },
+
+  /* משתנים פנימיים לשלב 5 בלבד */
+  _step5: {
+    selectedCard: null,
+    selectedSide: null,
+    matchedIds:   []
+  },
+
+  /* מעקב ניסיונות שגויים לצורך מכפיל ניקוד */
+  _attempts: {
+    step1: 0,
+    step2: 0,
+    step3: 0,
+    step5: 0,
+    step6: 0,
+    step8: 0,
+  },
+};
+
+/* ============================================================
+   PERSISTENCE
+   ============================================================ */
+
+function saveGameState() {
+  const snapshot = {
+    currentScreen: gameState.currentScreen,
+    player:        { ...gameState.player },
+    progress:      { ...gameState.progress },
+    codes:         { ...gameState.codes },
+    answers:       { ...gameState.answers },
+    _attempts:     { ...gameState._attempts },
+  };
+  sessionStorage.setItem("bioroom_game_state", JSON.stringify(snapshot));
+}
+
+function loadGameState() {
+  const raw = sessionStorage.getItem("bioroom_game_state");
+  if (!raw) return false;
+  try {
+    const parsed = JSON.parse(raw);
+    gameState.currentScreen = parsed.currentScreen || "name_entry";
+    if (parsed.player)    Object.assign(gameState.player,    parsed.player);
+    if (parsed._attempts) Object.assign(gameState._attempts, parsed._attempts);
+    Object.assign(gameState.progress, parsed.progress || {});
+    Object.assign(gameState.codes,    parsed.codes    || {});
+    Object.assign(gameState.answers,  parsed.answers  || {});
+    /* אם אין שם שמור, תמיד חזור למסך הזנת שם */
+    if (!gameState.player.name) gameState.currentScreen = "name_entry";
+    return true;
+  } catch (e) {
+    return false;
+  }
+}
+
+function clearSavedState() {
+  sessionStorage.removeItem("bioroom_game_state");
+}
+
+/* ============================================================
+   NAVIGATION – פונקציית ניווט יחידה
+   ============================================================ */
+
+function goToScreen(screenName) {
+  gameState.currentScreen = screenName;
+  gameState.ui.hintOpen    = false;
+  clearStatus();
+  saveGameState();
+  renderCurrentScreen();
+  updateHeader();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ============================================================
+   STATUS – שגיאה / הצלחה
+   ============================================================ */
+
+function showError(message) {
+  gameState.ui.errorMessage   = message;
+  gameState.ui.successMessage = "";
+  renderStatus();
+}
+
+function showSuccess(message) {
+  gameState.ui.successMessage = message;
+  gameState.ui.errorMessage   = "";
+  renderStatus();
+  /* ✨ magic burst */
+  if (typeof window.triggerMagicBurst === 'function') {
+    window.triggerMagicBurst(window.innerWidth / 2, window.innerHeight / 2);
+  }
+}
+
+function clearStatus() {
+  gameState.ui.errorMessage   = "";
+  gameState.ui.successMessage = "";
+  renderStatus();
+}
+
+function renderStatus() {
+  const bar = document.getElementById("status-bar");
+  if (!bar) return;
+  if (gameState.ui.errorMessage) {
+    bar.textContent = "⚠️ " + gameState.ui.errorMessage;
+    bar.className   = "error";
+  } else if (gameState.ui.successMessage) {
+    bar.textContent = "✅ " + gameState.ui.successMessage;
+    bar.className   = "success";
+  } else {
+    bar.textContent = "";
+    bar.className   = "idle";
+  }
+}
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+const SCREEN_ORDER = [
+  "name_entry", "waiting_room",
+  "step_1_identification", "step_2_secret", "step_3_habitat",
+  "door_1",
+  "step_5_nature_invention_match", "step_6_count_elements",
+  "door_2", "door_2_dyk",
+  "step_8_cipher", "final_screen"
+];
+const SCREEN_LABELS = {
+  "name_entry":                   "כניסה למשחק",
+  "waiting_room":                 "ממתינים להתחלה...",
+  "step_1_identification":        "שלב 1 – זיהוי",
+  "step_2_secret":                "שלב 2 – הסוד",
+  "step_3_habitat":               "שלב 3 – בית גידול",
+  "door_1":                       "דלת 1",
+  "step_5_nature_invention_match":"שלב 5 – התאמה",
+  "step_6_count_elements":        "שלב 6 – ספירה",
+  "door_2":                       "דלת 2",
+  "door_2_dyk":                   "הידעת?",
+  "step_8_cipher":                "שלב 8 – כתב סתרים",
+  "final_screen":                 "סיום!"
+};
+
+function updateHeader() {
+  const idx   = SCREEN_ORDER.indexOf(gameState.currentScreen);
+  const total = SCREEN_ORDER.length;
+  const pct   = idx < 0 ? 0 : Math.round(((idx + 1) / total) * 100);
+
+  const fill  = document.getElementById("progress-bar-fill");
+  const label = document.getElementById("header-step-label");
+  if (fill)  fill.style.width   = pct + "%";
+  if (label) label.textContent  = SCREEN_LABELS[gameState.currentScreen] || "";
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+
+function escapeHTML(s) {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function setScreen(html) {
+  const el = document.getElementById("game-screen");
+  if (el) el.innerHTML = html;
+}
+
+/* ============================================================
+   STEP 1 LOGIC
+   ============================================================ */
+
+function solveStep1(selectedAnswer) {
+  if (selectedAnswer !== STEP_1_CORRECT_ANSWER) {
+    gameState._attempts.step1++;
+    showError(attemptsErrorMsg('step1'));
+    return;
+  }
+  gameState.progress.step1Solved            = true;
+  gameState.answers.step1SelectedAnswer     = selectedAnswer;
+  gameState.codes.codeStep1                 = STEP_1_CODE;
+  saveGameState();
+  const { pts, wrong } = scoreStep('step1', STEP_SCORES.step1);
+  showSuccess(`נכון! קוד 1 נשמר. ${scoreSuffix(pts, wrong)}`);
+  setTimeout(() => goToScreen("step_2_secret"), 1200);
+}
+
+/* ============================================================
+   STEP 2 LOGIC
+   ============================================================ */
+
+function solveStep2(selectedAnswer) {
+  if (!gameState.progress.step1Solved) {
+    showError("אי אפשר לפתוח שלב זה לפני השלמת שלב 1.");
+    return;
+  }
+  if (selectedAnswer !== STEP_2_CORRECT_ANSWER) {
+    gameState._attempts.step2++;
+    showError(attemptsErrorMsg('step2'));
+    return;
+  }
+  gameState.progress.step2Solved            = true;
+  gameState.answers.step2SelectedAnswer     = selectedAnswer;
+  gameState.codes.codeStep2                 = STEP_2_CODE;
+  saveGameState();
+  const { pts, wrong } = scoreStep('step2', STEP_SCORES.step2);
+  showSuccess(`נכון! קוד 2 נשמר. ${scoreSuffix(pts, wrong)}`);
+  setTimeout(() => goToScreen("step_3_habitat"), 1200);
+}
+
+/* ============================================================
+   STEP 3 LOGIC
+   ============================================================ */
+
+function solveStep3(selectedAnswer) {
+  if (!gameState.progress.step2Solved) {
+    showError("אי אפשר לפתוח שלב זה לפני השלמת שלב 2.");
+    return;
+  }
+  if (selectedAnswer !== STEP_3_CORRECT_ANSWER) {
+    gameState._attempts.step3++;
+    showError(attemptsErrorMsg('step3'));
+    return;
+  }
+  gameState.progress.step3Solved            = true;
+  gameState.answers.step3SelectedAnswer     = selectedAnswer;
+  gameState.codes.codeStep3                 = STEP_3_CODE;
+  saveGameState();
+  const { pts, wrong } = scoreStep('step3', STEP_SCORES.step3);
+  showSuccess(`נכון! קוד 3 נשמר. שלושת הקודים הושגו! ${scoreSuffix(pts, wrong)}`);
+  setTimeout(() => goToScreen("door_1"), 1400);
+}
+
+/* ============================================================
+   DOOR 1 LOGIC
+   ============================================================ */
+
+function canUnlockDoor1() {
+  return Boolean(
+    gameState.codes.codeStep1 &&
+    gameState.codes.codeStep2 &&
+    gameState.codes.codeStep3
+  );
+}
+
+function unlockDoor1() {
+  if (!canUnlockDoor1()) {
+    showError("לא נאספו כל הקודים הדרושים לפתיחת הדלת.");
+    return;
+  }
+  gameState.progress.door1Unlocked = true;
+  saveGameState();
+  showSuccess("הדלת נפתחה! ממשיכים...");
+  setTimeout(() => goToScreen("step_5_nature_invention_match"), 1400);
+}
+
+/* ============================================================
+   STEP 5 LOGIC – התאמת טבע–המצאה
+   ============================================================ */
+
+function solveStep5(userMatches) {
+  if (!gameState.progress.door1Unlocked) {
+    showError("אי אפשר להגיע לכאן בלי לפתוח דלת 1.");
+    return;
+  }
+  gameState.answers.step5Matches  = userMatches;
+  gameState.progress.step5Solved  = true;
+  gameState.codes.step5Digit1     = STEP_5_SECRET_DIGIT_1;
+  gameState.codes.step5Digit2     = STEP_5_SECRET_DIGIT_2;
+  saveGameState();
+  const { pts: p5, wrong: w5 } = scoreStep('step5', STEP_SCORES.step5);
+  showSuccess(`כל הכבוד! שתי הספרות הסודיות הן: ${STEP_5_SECRET_DIGIT_1} ו-${STEP_5_SECRET_DIGIT_2} — ${scoreSuffix(p5, w5)}`);
+  setTimeout(() => goToScreen("step_6_count_elements"), 2000);
+}
+
+/* ============================================================
+   STEP 6 LOGIC – ספירת אלמנטים
+   ============================================================ */
+
+function solveStep6(submittedCount) {
+  if (!gameState.progress.step5Solved) {
+    showError("אי אפשר לפתוח שלב זה לפני השלמת שלב 5.");
+    return;
+  }
+  const numericCount = Number(submittedCount);
+  if (isNaN(numericCount) || numericCount <= 0) {
+    showError("הזינו מספר חוקי.");
+    return;
+  }
+  if (numericCount !== STEP_6_CORRECT_COUNT) {
+    gameState._attempts.step6++;
+    showError(attemptsErrorMsg('step6'));
+    return;
+  }
+  gameState.answers.step6SubmittedCount  = numericCount;
+  gameState.codes.step6ElementCount      = numericCount;
+  gameState.progress.step6Solved         = true;
+  saveGameState();
+  const { pts: p6, wrong: w6 } = scoreStep('step6', STEP_SCORES.step6);
+  showSuccess(`נכון! מספר האלמנטים נשמר. ${scoreSuffix(p6, w6)}`);
+  setTimeout(() => goToScreen("door_2"), 1400);
+}
+
+/* ============================================================
+   DOOR 2 LOGIC
+   ============================================================ */
+
+function buildDoor2Code() {
+  const d1    = gameState.codes.step5Digit1;
+  const d2    = gameState.codes.step5Digit2;
+  const count = gameState.codes.step6ElementCount;
+  if (d1 === null || d2 === null || count === null) return null;
+  return `${d1}${d2}${count}`;
+}
+
+function prepareDoor2Code() {
+  const code = buildDoor2Code();
+  if (!code) {
+    showError("אין מספיק נתונים לבניית הקוד.");
+    return null;
+  }
+  gameState.codes.door2Code = code;
+  return code;
+}
+
+function unlockDoor2(submittedCode) {
+  if (!gameState.progress.step6Solved) {
+    showError("אי אפשר לפתוח את הדלת לפני השלמת שלב 6.");
+    return;
+  }
+  const expectedCode = prepareDoor2Code();
+  if (!expectedCode) return;
+  if (String(submittedCode).trim() !== String(expectedCode)) {
+    showError("הקוד שגוי. בדקו את שתי הספרות ומספר האלמנטים.");
+    return;
+  }
+  gameState.progress.door2Unlocked = true;
+  saveGameState();
+  showSuccess("הדלת נפתחה! ממשיכים...");
+  setTimeout(() => goToScreen("door_2_dyk"), 1500);
+}
+
+/* ============================================================
+   STEP 8 LOGIC – כתב סתרים
+   ============================================================ */
+
+function normalizeHebrew(s) {
+  return s.replace(/[\u0591-\u05C7]/g, "").replace(/\s+/g, " ").trim();
+}
+
+function solveStep8() {
+  if (!gameState.progress.door2Unlocked) {
+    showError("אין אפשרות להגיע לשלב זה לפני פתיחת דלת 2.");
+    return;
+  }
+  gameState.answers.step8SubmittedCipher = CIPHER_SOLUTION;
+  gameState.progress.step8Solved         = true;
+  gameState.progress.gameCompleted       = true;
+  saveGameState();
+  const { pts: p8 } = scoreStep('step8', STEP_SCORES.step8);
+  apiPost('gameScore', {
+    name:      gameState.player.name,
+    score:     String(gameState.player.score),
+    step:      'completed',
+    completed: 'true',
+  });
+  setTimeout(() => goToScreen("final_screen"), 900);
+}
+
+/* ============================================================
+   RENDER – רינדור מרכזי
+   ============================================================ */
+
+function renderCurrentScreen() {
+  switch (gameState.currentScreen) {
+    case "name_entry":                   return renderNameEntry();
+    case "waiting_room":                 return renderWaitingRoom();
+    case "step_1_identification":        return renderStep1();
+    case "step_2_secret":                return renderStep2();
+    case "step_3_habitat":               return renderStep3();
+    case "door_1":                       return renderDoor1();
+    case "step_5_nature_invention_match":return renderStep5();
+    case "step_6_count_elements":        return renderStep6();
+    case "door_2":                       return renderDoor2();
+    case "door_2_dyk":                   return renderDykScreen();
+    case "step_8_cipher":                return renderStep8();
+    case "final_screen":                 return renderFinalScreen();
+    default:                             return renderFallbackError();
+  }
+}
+
+/* ============================================================
+   API HELPERS  – כל הקריאות עוברות דרך Google Apps Script
+   ============================================================ */
+const APPS_URL = "https://script.google.com/macros/s/AKfycbzyZUKSrxJCCkM70ZtQbuZdj-LIHLPZzo6z9S-DQHwLIcGikJRG4k_qkxWpi4o2eB9uLg/exec";
+
+async function apiPost(action, data) {
+  try {
+    const params = new URLSearchParams({ action, ...data });
+    await fetch(APPS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params.toString(),
+    });
+  } catch (e) { /* offline – ignore */ }
+}
+
+async function apiGet(action, extra = {}) {
+  try {
+    const qs = new URLSearchParams({ action, ...extra });
+    const r  = await fetch(`${APPS_URL}?${qs}`, { cache: 'no-store' });
+    return r.json();
+  } catch { return null; }
+}
+
+/* ============================================================
+   SCORING HELPER  (מחשב נקודות לפי מספר ניסיונות שגויים)
+   ============================================================ */
+
+/**
+ * מחזיר: { pts, multiplier, wrong }
+ *   wrong=0 → מכפיל 1.0  (ניקוד מלא)
+ *   wrong=1 → מכפיל 0.5  (חצי ניקוד – ניסיון שני)
+ *   wrong≥2 → מכפיל 0    (אפס ניקוד – ניסיון שלישי+)
+ */
+function scoreStep(stepKey, maxPts) {
+  const wrong      = gameState._attempts[stepKey] || 0;
+  const multiplier = wrong === 0 ? 1.0 : wrong === 1 ? 0.5 : 0.0;
+  const pts        = Math.round(maxPts * multiplier);
+  gameState.player.score += pts;
+  apiPost('gameScore', {
+    name:  gameState.player.name,
+    score: String(gameState.player.score),
+    step:  stepKey,
+  });
+  return { pts, multiplier, wrong };
+}
+
+/** מחזיר טקסט ניקוד לתוך הודעת ההצלחה */
+function scoreSuffix(pts, wrong) {
+  if (wrong === 0) return `✨ +${pts} נקודות`;
+  if (wrong === 1) return `⚡ +${pts} נקודות (חצי ניקוד – ניסיון שני)`;
+  return `⚠️ +0 נקודות (ניסיון שלישי+)`;
+}
+
+/** הודעת שגיאה לפי מספר ניסיונות שגויים שנצברו (AFTER increment) */
+function attemptsErrorMsg(stepKey) {
+  const count = gameState._attempts[stepKey] || 0;
+  /* count=1: שגיאה ראשונה – הניסיון הבא יזכה בחצי ניקוד */
+  if (count === 1) return "לא נכון ❌ — שגיאה ראשונה! תשובה נכונה בניסיון הבא תזכה בחצי ניקוד בלבד.";
+  /* count=2: שגיאה שנייה – כבר לא יזכה בניקוד */
+  if (count === 2) return "לא נכון ⚠️ — שגיאה שנייה. פתרון נכון מכאן לא יזכה בניקוד.";
+  /* count≥3: ממשיכים לנסות, ללא ניקוד */
+  return "לא נכון 😔 — נסו שוב. לא ייזקף ניקוד על שאלה זו.";
+}
+
+/* ============================================================
+   NAME ENTRY SCREEN
+   ============================================================ */
+let _namePoll = null;
+
+function renderNameEntry() {
+  setScreen(`
+    <div class="card" style="max-width:460px;margin:0 auto;text-align:center">
+
+      <!-- מצב המתנה: לפני שהמדריך לוחץ PLAY -->
+      <div id="name-waiting-state">
+        <div class="screen-eyebrow">ממתינים</div>
+        <div style="font-size:4rem;animation:doorPulse 2s ease-in-out infinite">⏳</div>
+        <h2 class="screen-title" style="font-size:clamp(1.3rem,3vw,1.9rem)">
+          חדר הבריחה הביומימיקרי
+        </h2>
+        <p class="screen-body">
+          המשחק ייפתח בקרוב על ידי המדריך...<br/>
+          <span style="color:var(--accent);font-size:0.88rem">ממתינים לאות הפתיחה</span>
+        </p>
+        <div style="margin-top:20px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;opacity:.45;font-size:.9rem">
+          🧬 🌿 🔬 🦋 🌱
+        </div>
+      </div>
+
+      <!-- טופס כניסה: מוסתר עד שהמדריך לוחץ PLAY -->
+      <div id="name-form-state" style="display:none">
+        <div class="screen-eyebrow">כניסה למשחק</div>
+        <h2 class="screen-title" style="font-size:clamp(1.4rem,3vw,2rem)">
+          🔬 ברוכים הבאים לחדר הבריחה הביומימיקרי!
+        </h2>
+        <p class="screen-body" style="margin-bottom:22px">
+          המשחק התחיל! הכניסו את שמכם:
+        </p>
+        <div style="display:flex;flex-direction:column;gap:14px;align-items:center">
+          <input
+            id="player-name-input"
+            type="text"
+            placeholder="שמי הוא..."
+            maxlength="30"
+            dir="rtl"
+            style="
+              width:100%; max-width:320px;
+              padding:14px 18px;
+              background:rgba(255,255,255,.06);
+              border:2px solid var(--border);
+              border-radius:14px;
+              color:var(--text);
+              font-size:1.2rem;
+              font-weight:700;
+              font-family:inherit;
+              text-align:center;
+              outline:none;
+              transition:border-color .2s;
+            "
+            oninput="this.style.borderColor='var(--accent)'"
+            onkeydown="if(event.key==='Enter')window.submitPlayerName()"
+          />
+          <button class="door-submit-btn" onclick="window.submitPlayerName()">
+            כניסה למשחק →
+          </button>
+        </div>
+      </div>
+
+    </div>`);
+
+  _pollNameEntryStatus();
+  if (_namePoll) clearInterval(_namePoll);
+  _namePoll = setInterval(_pollNameEntryStatus, 3000);
+}
+
+async function _pollNameEntryStatus() {
+  if (gameState.currentScreen !== 'name_entry') { clearInterval(_namePoll); return; }
+  const data = await apiGet('gameStatus');
+  if (data?.status === 'active') {
+    clearInterval(_namePoll);
+    _revealNameForm();
+  }
+}
+
+function _revealNameForm() {
+  const waiting = document.getElementById('name-waiting-state');
+  const form    = document.getElementById('name-form-state');
+  if (!form) return;
+  if (waiting) waiting.style.display = 'none';
+  form.style.display     = 'block';
+  form.style.animation   = 'fadeIn .5s ease';
+  setTimeout(() => document.getElementById('player-name-input')?.focus(), 120);
+}
+
+/* ============================================================
+   קריינות + ספירה לאחור
+   ============================================================ */
+function startCountdownWithNarration() {
+  const overlay = document.createElement('div');
+  overlay.id        = 'narration-overlay';
+  overlay.className = 'narration-overlay';
+  overlay.innerHTML = `
+    <div class="narration-content">
+      <div class="narration-wave">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+      <p class="narration-text" id="narration-label">מאזינים לסיפור המסגרת...</p>
+      <div class="narration-cnum" id="narration-cnum" style="display:none">10</div>
+      <button class="narration-skip-btn" id="narration-skip">דלגו ←</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+
+  const audio      = new Audio('audio/narration.m4a');
+  let scheduleId   = null;
+  let intervalId   = null;
+  let started      = false;
+
+  function runCountdown() {
+    if (started) return;
+    started = true;
+    clearTimeout(scheduleId);
+
+    const numEl   = document.getElementById('narration-cnum');
+    const labelEl = document.getElementById('narration-label');
+    const waveEl  = overlay.querySelector('.narration-wave');
+    if (labelEl) labelEl.textContent = 'המשחק מתחיל בעוד...';
+    if (numEl)   numEl.style.display = 'block';
+    if (waveEl)  waveEl.style.display = 'none';
+
+    let sec = 10;
+    if (numEl) numEl.textContent = sec;
+
+    intervalId = setInterval(() => {
+      sec--;
+      if (numEl) numEl.textContent = sec;
+      if (sec <= 0) {
+        clearInterval(intervalId);
+        audio.pause();
+        overlay.remove();
+        goToScreen('step_1_identification');
+      }
+    }, 1000);
+  }
+
+  function scheduleCountdown() {
+    if (started) return;
+    const dur   = audio.duration;
+    const delay = (Number.isFinite(dur) && dur > 10) ? (dur - 10) * 1000 : 0;
+    scheduleId  = setTimeout(runCountdown, delay);
+  }
+
+  audio.addEventListener('loadedmetadata', scheduleCountdown);
+  audio.addEventListener('canplaythrough', scheduleCountdown);
+  audio.onerror = () => { if (!started) runCountdown(); };
+  audio.onended = () => { if (!started) runCountdown(); };
+
+  document.getElementById('narration-skip').addEventListener('click', () => {
+    clearTimeout(scheduleId);
+    clearInterval(intervalId);
+    started = true;
+    audio.pause();
+    overlay.remove();
+    goToScreen('step_1_identification');
+  });
+
+  audio.play().catch(() => { if (!started) runCountdown(); });
+}
+
+window.submitPlayerName = async function() {
+  const input = document.getElementById('player-name-input');
+  const name  = (input?.value || '').trim();
+  if (!name) { showError('נא להכניס שם לפני הכניסה.'); return; }
+  gameState.player.name  = name;
+  gameState.player.score = 0;
+  saveGameState();
+  await apiPost('gameJoin', { name });
+  startCountdownWithNarration();
+};
+
+/* ============================================================
+   WAITING ROOM SCREEN  (fallback – כבר לא בשימוש רגיל)
+   ============================================================ */
+function renderWaitingRoom() {
+  goToScreen('step_1_identification');
+}
+
+/* ---- שאלת MCQ גנרית ---- */
+function renderMCQ({ eyebrow, title, question, options, optionImages, image, hint, didYouKnow, onAnswer }) {
+  const letters = ["א", "ב", "ג", "ד"];
+
+  let optionsHTML, optionsWrapper;
+  if (optionImages && optionImages.length === options.length) {
+    optionsHTML = options.map((opt, i) => `
+      <button class="option-img-card" onclick="${onAnswer}(${JSON.stringify(opt)})">
+        <img src="${escapeHTML(optionImages[i])}" alt="${escapeHTML(opt)}" onerror="this.style.display='none'" />
+        <span class="opt-letter">${letters[i]}</span>
+        ${escapeHTML(opt)}
+      </button>
+    `).join("");
+    optionsWrapper = `<div class="option-img-grid">${optionsHTML}</div>`;
+  } else {
+    optionsHTML = options.map((opt, i) => `
+      <button class="option-btn" onclick="${onAnswer}(${JSON.stringify(opt)})">
+        <span class="opt-letter">${letters[i]}</span>
+        ${escapeHTML(opt)}
+      </button>
+    `).join("");
+    optionsWrapper = `<div class="options-grid">${optionsHTML}</div>`;
+  }
+
+  const hintHTML = hint ? `
+    <div style="margin-top:14px">
+      <button class="btn btn-secondary btn-sm" onclick="toggleHint()">
+        ${gameState.ui.hintOpen ? "🙈 הסתר רמז" : "💡 קבלו רמז"}
+      </button>
+      <div id="hint-box" class="hint-box" style="display:${gameState.ui.hintOpen ? "block" : "none"}; margin-top:8px">
+        ${escapeHTML(hint)}
+      </div>
+    </div>
+  ` : "";
+
+  const dykHTML = didYouKnow ? `
+    <div class="hint-box" style="margin-top:10px; border-color: rgba(136,243,185,.25); color: var(--accent-2);">
+      🌱 <strong>האם ידעת?</strong> ${escapeHTML(didYouKnow)}
+    </div>
+  ` : "";
+
+  const imgHTML = (image && !optionImages) ? `<img class="org-image" src="${escapeHTML(image)}" alt="יצור" onerror="this.style.display='none'" />` : "";
+
+  setScreen(`
+    <div class="card">
+      <div class="screen-eyebrow">${escapeHTML(eyebrow)}</div>
+      <h2 class="screen-title">🔒 ${escapeHTML(title)}</h2>
+      ${imgHTML}
+      <p class="screen-body">${escapeHTML(question)}</p>
+      <div style="clear:both"></div>
+      <hr class="sep"/>
+      <p style="font-size:.88rem; color:var(--muted); margin-bottom:6px">בחרו את התשובה הנכונה:</p>
+      ${optionsWrapper}
+      ${hintHTML}
+      ${dykHTML}
+    </div>
+  `);
+}
+
+window.toggleHint = function() {
+  gameState.ui.hintOpen = !gameState.ui.hintOpen;
+  renderCurrentScreen();
+};
+
+/* ---- Step 1 ---- */
+function renderStep1() {
+  window._answerStep1 = function(answer) { solveStep1(answer); };
+  renderMCQ({
+    ...gameData.step1,
+    onAnswer: "_answerStep1"
+  });
+}
+
+/* ---- Step 2 ---- */
+function renderStep2() {
+  const codesHTML = gameState.codes.codeStep1
+    ? `<div class="code-reveal">קוד 1: ${escapeHTML(gameState.codes.codeStep1)}</div>`
+    : "";
+  window._answerStep2 = function(answer) { solveStep2(answer); };
+  renderMCQ({
+    ...gameData.step2,
+    onAnswer: "_answerStep2"
+  });
+  /* הוסף תצוגת קוד מעל הכרטיס */
+  if (codesHTML) {
+    const s = document.getElementById("game-screen");
+    if (s) s.insertAdjacentHTML("afterbegin", `<div style="margin-bottom:10px">${codesHTML}</div>`);
+  }
+}
+
+/* ---- Step 3 ---- */
+function renderStep3() {
+  const d = gameData.step3;
+  const flipped = new Set(gameState._step3.flippedIds);
+  const mustFlip = gameState._step3.mustFlipBeforeRetry;
+
+  if (gameState.progress.step3Solved) {
+    setScreen(`
+      <div class="card" style="text-align:center">
+        <div class="screen-eyebrow">${escapeHTML(d.eyebrow)}</div>
+        <h2 class="screen-title">✅ בית הגידול זוהה!</h2>
+        <p class="screen-body">קוד 3 נשמר: <strong class="badge badge-code">${STEP_3_CODE}</strong></p>
+      </div>`);
+    return;
+  }
+
+  const cardsHTML = HABITAT_CARDS.map(card => {
+    const isFlipped = flipped.has(card.id);
+    const highlight = mustFlip && !isFlipped ? ' must-flip' : '';
+    return `
+      <div class="habitat-card-wrap${highlight}" onclick="window.flipHabitatCard(${card.id})">
+        <div class="habitat-card ${isFlipped ? 'flipped' : ''}">
+          <div class="habitat-card-front">
+            <img src="${escapeHTML(card.image)}" alt="${escapeHTML(card.name)}" />
+            <span class="hcard-name">${escapeHTML(card.name)}</span>
+          </div>
+          <div class="habitat-card-back">
+            <strong>${escapeHTML(card.name)}</strong>
+            <p>${escapeHTML(card.info)}</p>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  const letters = ["א", "ב", "ג", "ד"];
+  const optionsHTML = d.options.map((opt, i) => `
+    <button class="option-btn" onclick="window.answerStep3(${JSON.stringify(opt)})">
+      <span class="opt-letter">${letters[i]}</span>${escapeHTML(opt)}
+    </button>`).join('');
+
+  const codesBar = [
+    gameState.codes.codeStep1 ? `קוד 1: ${gameState.codes.codeStep1}` : null,
+    gameState.codes.codeStep2 ? `קוד 2: ${gameState.codes.codeStep2}` : null
+  ].filter(Boolean).map(c => `<span class="badge badge-code">${c}</span>`).join(' ');
+
+  setScreen(`
+    <div class="card">
+      ${codesBar ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">${codesBar}</div>` : ''}
+      <div class="screen-eyebrow">${escapeHTML(d.eyebrow)}</div>
+      <h2 class="screen-title">🌍 ${escapeHTML(d.title)}</h2>
+      <p class="screen-body">${escapeHTML(d.question)}</p>
+      <div class="habitat-grid">${cardsHTML}</div>
+      ${flipped.size === 0
+        ? `<p class="habitat-hint">👆 לחצו על קלף כדי לגלות מידע על בית הגידול</p>`
+        : `<div class="habitat-mcq">${optionsHTML}</div>`
+      }
+    </div>`);
+}
+
+window.flipHabitatCard = function(cardId) {
+  const flipped = gameState._step3.flippedIds;
+  if (flipped.includes(cardId)) {
+    gameState._step3.flippedIds = flipped.filter(id => id !== cardId);
+  } else {
+    gameState._step3.flippedIds = [...flipped, cardId];
+    gameState._step3.mustFlipBeforeRetry = false;
+  }
+  saveGameState();
+  renderStep3();
+};
+
+window.answerStep3 = function(selectedAnswer) {
+  if (!gameState.progress.step2Solved) { showError("השלימו את השלב הקודם תחילה."); return; }
+  if (selectedAnswer !== STEP_3_CORRECT_ANSWER) {
+    const totalFlipped = gameState._step3.flippedIds.length;
+    if (totalFlipped < HABITAT_CARDS.length) {
+      gameState._step3.mustFlipBeforeRetry = true;
+      showError("לא בדיוק... קראו עוד קלף ונסו שוב! הקלפים הלא-קראו מודגשים.");
+    } else {
+      showError("נסו שוב – כבר ראיתם את כל הקלפים!");
+    }
+    saveGameState();
+    renderStep3();
+    return;
+  }
+  solveStep3(selectedAnswer);
+};
+
+/* ---- Door 1 ---- */
+function renderDoor1() {
+  if (gameState.progress.door1Unlocked) {
+    setScreen(`
+      <div class="card">
+        <div class="door-immersive">
+          <div class="door-unlock-success">
+            <div class="door-unlock-icon">🔓</div>
+            <h2 class="screen-title" style="margin:0">הדלת כבר פתוחה!</h2>
+            <button class="door-submit-btn" onclick="goToScreen('step_5_nature_invention_match')">המשיכו →</button>
+          </div>
+        </div>
+      </div>`);
+    return;
+  }
+
+  const codesHint = [
+    { label: "קוד שלב 1", val: gameState.codes.codeStep1 },
+    { label: "קוד שלב 2", val: gameState.codes.codeStep2 },
+    { label: "קוד שלב 3", val: gameState.codes.codeStep3 }
+  ].map(c => `<span class="badge badge-code">${c.label}: ${c.val ? escapeHTML(c.val) : '❌'}</span>`).join('');
+
+  const canOpen = canUnlockDoor1();
+
+  setScreen(`
+    <div class="card">
+      <div class="screen-eyebrow">דלת 1 – מחסום ראשון</div>
+      <h2 class="screen-title" style="text-align:center">🚪 שער מחסום 1</h2>
+      <div class="door-immersive">
+        <div class="door-big-lock" id="d1-lock">🔐</div>
+        <p class="screen-body" style="text-align:center;margin:0">
+          בנו את הקוד הסודי בסדר: ספרה 1 → ספרה 2 → ספרה 3
+        </p>
+        <div class="door-codes-hint">${codesHint}</div>
+        ${canOpen ? `
+          <div class="door-code-row" id="d1-row">
+            <input type="text" inputmode="numeric" maxlength="1" class="door-digit-box" id="d1-0"
+                   oninput="window.d1Advance(0)" />
+            <span class="door-digit-sep">–</span>
+            <input type="text" inputmode="numeric" maxlength="1" class="door-digit-box" id="d1-1"
+                   oninput="window.d1Advance(1)" />
+            <span class="door-digit-sep">–</span>
+            <input type="text" inputmode="numeric" maxlength="1" class="door-digit-box" id="d1-2"
+                   oninput="window.d1Advance(2)" />
+          </div>
+          <button class="door-submit-btn" onclick="window.submitDoor1()">פתחו את הדלת 🔓</button>
+        ` : `<p style="color:var(--danger);font-weight:700;text-align:center">⚠️ לא נאספו כל הקודים הדרושים לפתיחת הדלת.</p>`}
+      </div>
+    </div>`);
+
+  if (canOpen) document.getElementById('d1-0')?.focus();
+}
+
+window.d1Advance = function(idx) {
+  const val = document.getElementById(`d1-${idx}`)?.value;
+  if (val && idx < 2) document.getElementById(`d1-${idx+1}`)?.focus();
+};
+
+window.submitDoor1 = function() {
+  const entered = [0,1,2].map(i => document.getElementById(`d1-${i}`)?.value.trim()).join('');
+  if (entered.length < 3) { showError("הזינו את כל 3 הספרות."); return; }
+  if (entered !== DOOR_1_CODE) {
+    document.getElementById('d1-row')?.classList.add('door-shake');
+    setTimeout(() => document.getElementById('d1-row')?.classList.remove('door-shake'), 600);
+    showError("קוד שגוי – בדקו שוב את הסדר.");
+    return;
+  }
+  unlockDoor1();
+};
+
+/* ---- Step 5: Matching ---- */
+function renderStep5() {
+  if (gameState.progress.step5Solved) {
+    /* שלב הושלם – הצג סיכום */
+    setScreen(`
+      <div class="card">
+        <div class="screen-eyebrow">שלב 5 – התאמה</div>
+        <h2 class="screen-title">✅ ההתאמה הושלמה!</h2>
+        <p class="screen-body">
+          הספרות הסודיות שגיליתם: <strong>${STEP_5_SECRET_DIGIT_1}</strong> ו-<strong>${STEP_5_SECRET_DIGIT_2}</strong>
+        </p>
+      </div>
+    `);
+    return;
+  }
+  /* הצג פעילות ההתאמה המלאה כ-iframe */
+  showIframe('biomatch.html');
+}
+
+window.step5SelectCard = function(pairId, side) {
+  const s5 = gameState._step5;
+  const matchedIds = new Set(s5.matchedIds);
+
+  if (matchedIds.has(pairId)) return;
+
+  /* ביטול בחירה זהה */
+  if (s5.selectedSide === side && s5.selectedCard === pairId) {
+    s5.selectedCard = null;
+    s5.selectedSide = null;
+    renderStep5();
+    return;
+  }
+
+  /* אותו צד – מחליף בחירה */
+  if (s5.selectedSide === side) {
+    s5.selectedCard = pairId;
+    renderStep5();
+    return;
+  }
+
+  /* שני צדדים נבחרו – בדיקת התאמה */
+  if (s5.selectedSide !== null && s5.selectedSide !== side) {
+    const natureId = s5.selectedSide === "nature" ? s5.selectedCard : pairId;
+    const techId   = s5.selectedSide === "tech"   ? s5.selectedCard : pairId;
+
+    s5.selectedCard = null;
+    s5.selectedSide = null;
+
+    if (natureId === techId) {
+      /* התאמה נכונה */
+      const newMatchedIds = [...matchedIds, natureId];
+      s5.matchedIds = newMatchedIds;
+
+      const pair = gameData.step5.pairs.find(p => p.id === natureId);
+      if (pair) showSuccess(`✓ ${pair.info}`);
+
+      if (newMatchedIds.length === gameData.step5.pairs.length) {
+        /* כל ההתאמות הושלמו */
+        setTimeout(() => {
+          solveStep5(newMatchedIds.map(id => {
+            const p = gameData.step5.pairs.find(x => x.id === id);
+            return `${p.nature.label} ↔ ${p.tech.label}`;
+          }));
+        }, 600);
+      } else {
+        renderStep5();
+      }
+    } else {
+      /* התאמה שגויה */
+      showError("לא מתאים – נסו שוב.");
+      renderStep5();
+    }
+    return;
+  }
+
+  /* בחירה ראשונה */
+  s5.selectedCard = pairId;
+  s5.selectedSide = side;
+  renderStep5();
+};
+
+/* ---- Step 6: Count Elements ---- */
+function renderStep6() {
+  const d = gameData.step6;
+
+  /* SVG של כף שממית עם 7 שערות מסומנות בצהוב */
+  const svgVisual = `
+    <svg width="300" height="260" viewBox="0 0 300 260" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="footGrad" cx="50%" cy="60%" r="55%">
+          <stop offset="0%" stop-color="#7a8a6a"/>
+          <stop offset="100%" stop-color="#4a5a3a"/>
+        </radialGradient>
+      </defs>
+      <!-- כף הרגל -->
+      <ellipse cx="150" cy="160" rx="65" ry="80" fill="url(#footGrad)" />
+      <!-- בהונות -->
+      <ellipse cx="85"  cy="95"  rx="20" ry="30" fill="#6a7a5a"/>
+      <ellipse cx="115" cy="75"  rx="20" ry="30" fill="#6a7a5a"/>
+      <ellipse cx="150" cy="68"  rx="20" ry="30" fill="#6a7a5a"/>
+      <ellipse cx="185" cy="75"  rx="20" ry="30" fill="#6a7a5a"/>
+      <ellipse cx="215" cy="95"  rx="20" ry="30" fill="#6a7a5a"/>
+      <!-- 7 שערות זעירות מסומנות בצהוב -->
+      <circle cx="85"  cy="93"  r="9" fill="#FFD700" stroke="#fff" stroke-width="2.5"/>
+      <text   x="85"  y="97"  text-anchor="middle" font-size="9" fill="#000" font-weight="bold">1</text>
+
+      <circle cx="115" cy="73"  r="9" fill="#FFD700" stroke="#fff" stroke-width="2.5"/>
+      <text   x="115" y="77"  text-anchor="middle" font-size="9" fill="#000" font-weight="bold">2</text>
+
+      <circle cx="150" cy="66"  r="9" fill="#FFD700" stroke="#fff" stroke-width="2.5"/>
+      <text   x="150" y="70"  text-anchor="middle" font-size="9" fill="#000" font-weight="bold">3</text>
+
+      <circle cx="185" cy="73"  r="9" fill="#FFD700" stroke="#fff" stroke-width="2.5"/>
+      <text   x="185" y="77"  text-anchor="middle" font-size="9" fill="#000" font-weight="bold">4</text>
+
+      <circle cx="215" cy="93"  r="9" fill="#FFD700" stroke="#fff" stroke-width="2.5"/>
+      <text   x="215" y="97"  text-anchor="middle" font-size="9" fill="#000" font-weight="bold">5</text>
+
+      <circle cx="130" cy="155" r="9" fill="#FFD700" stroke="#fff" stroke-width="2.5"/>
+      <text   x="130" y="159" text-anchor="middle" font-size="9" fill="#000" font-weight="bold">6</text>
+
+      <circle cx="170" cy="155" r="9" fill="#FFD700" stroke="#fff" stroke-width="2.5"/>
+      <text   x="170" y="159" text-anchor="middle" font-size="9" fill="#000" font-weight="bold">7</text>
+
+      <!-- כיתוב -->
+      <text x="150" y="250" text-anchor="middle" fill="rgba(255,255,255,0.5)" font-size="11" font-family="Arial">כף רגל שממית – מיקרוסקופ</text>
+    </svg>
+  `;
+
+  const hintBtnLabel = gameState.ui.hintOpen ? "🙈 הסתר רמז" : "💡 קבלו רמז";
+
+  setScreen(`
+    <div class="card">
+      <div class="screen-eyebrow">${escapeHTML(d.eyebrow)}</div>
+      <h2 class="screen-title">🔍 ${escapeHTML(d.title)}</h2>
+      <p class="screen-body">${escapeHTML(d.prompt)}</p>
+
+      <div class="count-visual">
+        <div class="count-svg-wrap">${svgVisual}</div>
+      </div>
+
+      <p style="font-size:.9rem; color:var(--muted); margin-bottom:8px">הזינו את מספר השערות המסומנות:</p>
+      <div class="code-input-wrap">
+        <input type="number" id="count-input" class="code-input" min="1" max="30" placeholder="מספר..."
+               onkeydown="if(event.key==='Enter') submitCount()" />
+        <button class="btn btn-primary" onclick="submitCount()">אשרו</button>
+      </div>
+
+      <div style="margin-top:14px">
+        <button class="btn btn-secondary btn-sm" onclick="toggleHint()">${hintBtnLabel}</button>
+        <div id="hint-box" class="hint-box" style="display:${gameState.ui.hintOpen ? "block" : "none"}; margin-top:8px">
+          ${escapeHTML(d.hint)}
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+window.submitCount = function() {
+  const val = document.getElementById("count-input")?.value;
+  if (!val) { showError("הזינו מספר."); return; }
+  solveStep6(val);
+};
+
+/* ---- Door 2 ---- */
+function renderDoor2() {
+  if (gameState.progress.door2Unlocked) {
+    setScreen(`
+      <div class="card">
+        <div class="door-immersive">
+          <div class="door-unlock-success">
+            <div class="door-unlock-icon">🔓</div>
+            <h2 class="screen-title" style="margin:0">הדלת כבר פתוחה!</h2>
+            <button class="door-submit-btn" onclick="goToScreen('door_2_dyk')">המשיכו →</button>
+          </div>
+        </div>
+      </div>`);
+    return;
+  }
+
+  const canOpen = (
+    gameState.codes.step5Digit1 !== null &&
+    gameState.codes.step5Digit2 !== null &&
+    gameState.codes.step6ElementCount !== null
+  );
+
+  const codesHint = [
+    { label: "ספרה 1 (שלב 5)", val: gameState.codes.step5Digit1 },
+    { label: "ספרה 2 (שלב 5)", val: gameState.codes.step5Digit2 },
+    { label: "ספירת אלמנטים (שלב 6)", val: gameState.codes.step6ElementCount }
+  ].map(c => `<span class="badge badge-code">${c.label}: ${c.val !== null ? escapeHTML(String(c.val)) : '❌'}</span>`).join('');
+
+  setScreen(`
+    <div class="card">
+      <div class="screen-eyebrow">דלת 2 – מחסום שני</div>
+      <h2 class="screen-title" style="text-align:center">🚪 שער מחסום 2</h2>
+      <div class="door-immersive">
+        <div class="door-big-lock" id="d2-lock">🔐</div>
+        <p class="screen-body" style="text-align:center;margin:0">
+          בנו את הקוד הסודי: ספרה 1 → ספרה 2 → מספר האלמנטים
+        </p>
+        <div class="door-codes-hint">${codesHint}</div>
+        ${canOpen ? `
+          <div class="door-code-row" id="d2-row">
+            <input type="text" inputmode="numeric" maxlength="1" class="door-digit-box" id="d2-0"
+                   oninput="window.d2Advance(0)" />
+            <span class="door-digit-sep">–</span>
+            <input type="text" inputmode="numeric" maxlength="1" class="door-digit-box" id="d2-1"
+                   oninput="window.d2Advance(1)" />
+            <span class="door-digit-sep">–</span>
+            <input type="text" inputmode="numeric" maxlength="1" class="door-digit-box" id="d2-2"
+                   oninput="window.d2Advance(2)" />
+          </div>
+          <button class="door-submit-btn" onclick="window.submitDoor2()">פתחו את הדלת 🔓</button>
+        ` : `<p style="color:var(--danger);font-weight:700;text-align:center">⚠️ לא נאספו כל הנתונים הדרושים לפתיחת הדלת.</p>`}
+      </div>
+    </div>`);
+
+  if (canOpen) document.getElementById('d2-0')?.focus();
+}
+
+window.d2Advance = function(idx) {
+  const val = document.getElementById(`d2-${idx}`)?.value;
+  if (val && idx < 2) document.getElementById(`d2-${idx+1}`)?.focus();
+};
+
+window.submitDoor2 = function() {
+  const entered = [0,1,2].map(i => document.getElementById(`d2-${i}`)?.value.trim()).join('');
+  if (entered.length < 3) { showError("הזינו את כל 3 הספרות."); return; }
+  unlockDoor2(entered);
+};
+
+/* ---- DYK Screen (אחרי דלת 2) ---- */
+function renderDykScreen() {
+  const d = gameData.dyk;
+  setScreen(`
+    <div class="card">
+      <div class="dyk-card">
+        <span class="dyk-badge">${escapeHTML(d.eyebrow)}</span>
+        <h2 class="screen-title" style="margin:0">${escapeHTML(d.title)}</h2>
+        <img src="${escapeHTML(d.image)}" alt="המצאה בהשראת הטבע" class="dyk-image"
+             onerror="this.src='images/gecko.png'" />
+        <p class="dyk-text">${escapeHTML(d.text)}</p>
+        <button class="door-submit-btn" onclick="goToScreen('step_8_cipher')">המשיכו לשלב הסיום →</button>
+      </div>
+    </div>`);
+}
+
+/* ---- Step 8: Cipher ---- */
+/* ---------- נתוני שלב 8 ---------- */
+const S8_CIPHER_MAP = {
+  1:'א',2:'ב',3:'ג',4:'ד',5:'ה',6:'ו',7:'ז',8:'ח',9:'ט',
+  10:'י',11:'כ',12:'ל',13:'מ',14:'נ',15:'ס',16:'ע',17:'פ',
+  18:'צ',19:'ק',20:'ר',21:'ש',22:'ת'
+};
+const S8_WORDS        = ['השראה','מן','הטבע'];
+const S8_FINAL_FORMS  = {'ך':'כ','ם':'מ','ן':'נ','ף':'פ','ץ':'צ'};
+/* S8_FLAT מנורמל לצורות רגילות (לא סופיות) כדי להתאים לקלט המנורמל */
+const S8_FLAT         = S8_WORDS.join('').split('').map(c => S8_FINAL_FORMS[c] || c).join('');
+
+function s8NormChar(ch) {
+  const c = (ch || '').trim().slice(-1);
+  if (!/^[א-תךםןףץ]$/.test(c)) return '';
+  return S8_FINAL_FORMS[c] || c;
+}
+
+function s8BurstConfetti() {
+  const layer = document.getElementById('s8-confetti-layer');
+  if (!layer) return;
+  layer.innerHTML = '';
+  const colors = ['#78ffc8','#50c8ff','#ffd76a','#c080ff','#ffffff','#ff89d8'];
+  for (let i = 0; i < 80; i++) {
+    const p = document.createElement('div');
+    p.className = 's8-confetti-piece';
+    Object.assign(p.style, {
+      left: `${Math.random() * 100}%`,
+      top: '-10vh',
+      background: colors[Math.floor(Math.random() * colors.length)],
+      transform: `rotate(${Math.random() * 360}deg)`,
+      animationDelay: `${Math.random() * 0.45}s`,
+      animationDuration: `${2.1 + Math.random() * 1.3}s`
+    });
+    layer.appendChild(p);
+  }
+  setTimeout(() => { if (layer) layer.innerHTML = ''; }, 3800);
+}
+
+function renderStep8() {
+  const d = gameData.step8;
+
+  /* בניית שורות תיבות הקלט */
+  const sizes = [5, 2, 4];
+  const rowsHTML = sizes.map((n, wi) => {
+    const boxes = Array.from({length: n}, (_, bi) => `
+      <input type="text" class="s8-letter-box"
+             dir="rtl" lang="he"
+             spellcheck="false" autocapitalize="off" autocomplete="off"
+             inputmode="text" maxlength="1"
+             aria-label="אות ${bi+1} במילה ${wi+1}" />`
+    ).join('');
+    return `<div class="s8-word-row" data-word="${wi}">${boxes}</div>`;
+  }).join('');
+
+  setScreen(`
+    <div class="card s8-wrapper">
+      <div class="screen-eyebrow">${escapeHTML(d.eyebrow)}</div>
+      <h2 class="screen-title">🗝️ ${escapeHTML(d.title)}</h2>
+      <p class="screen-body">${escapeHTML(d.instructions)}</p>
+
+      <div class="s8-puzzle-grid">
+        <div>
+          <div class="s8-cipher-card">
+            <span class="s8-label">פענחו את הקוד</span>
+            <div class="s8-cipher-text">
+              <span class="s8-cipher-group">5 - 9 - 2 - 16</span>
+              <span class="s8-separator">|</span>
+              <span class="s8-cipher-group">13 - 14</span>
+              <span class="s8-separator">|</span>
+              <span class="s8-cipher-group">5 - 21 - 20 - 1 - 5</span>
+            </div>
+
+            <div class="s8-answer-area" id="s8-answer-area">
+              ${rowsHTML}
+            </div>
+
+            <div class="s8-controls">
+              <div class="s8-btn-row">
+                <button class="s8-btn s8-btn-primary" id="s8-check-btn">בדוק</button>
+                <button class="s8-btn s8-btn-secondary" id="s8-clear-btn">נקה</button>
+              </div>
+              <div class="s8-status-card" id="s8-status-card" aria-live="polite">
+                מלאו את התיבות לפי הסדר וגלו את המשפט הסודי.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside>
+          <div class="s8-key-card">
+            <span class="s8-label">מפתח הפענוח</span>
+            <div class="s8-key-grid" id="s8-key-grid"></div>
+            <p class="s8-mini-note">כל מספר מייצג אות אחת. פענחו תחילה את שלוש קבוצות המספרים, ואז מלאו את התיבות לפי סדר המשפט.</p>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div class="s8-modal" id="s8-modal" aria-hidden="true">
+      <div class="s8-modal-card" role="dialog" aria-modal="true">
+        <div class="s8-modal-title">כל הכבוד! פיענחתם את כתב הסתרים! 🎉</div>
+        <div class="s8-modal-quote">הטבע כבר גילה הכול — לנו נותר להתבונן וללמוד.</div>
+        <div class="s8-modal-actions">
+          <button class="s8-btn s8-btn-primary" id="s8-continue-btn">המשך לסיום</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="s8-confetti-layer" id="s8-confetti-layer"></div>
+  `);
+
+  setTimeout(step8Init, 0);
+}
+
+function step8Init() {
+  /* ---- מפתח ---- */
+  const keyGrid = document.getElementById('s8-key-grid');
+  if (keyGrid) {
+    Object.entries(S8_CIPHER_MAP).forEach(([num, letter]) => {
+      const item = document.createElement('div');
+      item.className = 's8-key-item';
+      item.innerHTML = `<strong>${num}</strong><span>${letter}</span>`;
+      keyGrid.appendChild(item);
+    });
+  }
+
+  const boxes      = Array.from(document.querySelectorAll('.s8-letter-box'));
+  const checkBtn   = document.getElementById('s8-check-btn');
+  const clearBtn   = document.getElementById('s8-clear-btn');
+  const continueBtn= document.getElementById('s8-continue-btn');
+  const modal      = document.getElementById('s8-modal');
+  const statusCard = document.getElementById('s8-status-card');
+
+  if (!boxes.length || !checkBtn) return;
+
+  const hebrewPat = /^[א-תךםןףץ]$/;
+
+  function setStatus(msg, type) {
+    if (!statusCard) return;
+    statusCard.classList.remove('success','error');
+    if (type) statusCard.classList.add(type);
+    statusCard.innerHTML = msg;
+  }
+
+  function openModal() {
+    if (!modal) return;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden','false');
+    s8BurstConfetti();
+  }
+
+  function closeModal() {
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden','true');
+  }
+
+  function moveFwd(i) { if (i < boxes.length - 1) { boxes[i+1].focus(); boxes[i+1].select(); } }
+  function moveBwd(i) { if (i > 0)               { boxes[i-1].focus(); boxes[i-1].select(); } }
+
+  boxes.forEach((box, i) => {
+    box.addEventListener('keydown', e => {
+      if (e.key === 'Backspace') {
+        if (box.value) {
+          box.value = '';
+          box.classList.remove('filled','error','success');
+        } else {
+          moveBwd(i);
+          if (i > 0) { boxes[i-1].value = ''; boxes[i-1].classList.remove('filled','error','success'); }
+        }
+        e.preventDefault(); return;
+      }
+      if (e.key === 'ArrowLeft')  { moveFwd(i); e.preventDefault(); return; }
+      if (e.key === 'ArrowRight') { moveBwd(i); e.preventDefault(); return; }
+      if (e.key.length === 1 && hebrewPat.test(e.key)) {
+        box.value = s8NormChar(e.key);
+        box.classList.add('filled');
+        box.classList.remove('error','success');
+        moveFwd(i);
+        e.preventDefault();
+      }
+    });
+
+    box.addEventListener('input', () => {
+      const n = s8NormChar(box.value);
+      box.value = n;
+      box.classList.toggle('filled', !!n);
+      box.classList.remove('error','success');
+      if (n) moveFwd(i);
+    });
+
+    box.addEventListener('focus', () => box.select());
+
+    box.addEventListener('paste', e => {
+      e.preventDefault();
+      const chars = Array.from((e.clipboardData || window.clipboardData).getData('text'))
+        .map(s8NormChar).filter(Boolean);
+      let cur = i;
+      chars.forEach(ch => {
+        if (cur >= boxes.length) return;
+        boxes[cur].value = ch;
+        boxes[cur].classList.add('filled');
+        boxes[cur].classList.remove('error','success');
+        cur++;
+      });
+      const fi = Math.min(cur, boxes.length - 1);
+      boxes[fi].focus(); boxes[fi].select();
+    });
+  });
+
+  checkBtn.addEventListener('click', () => {
+    boxes.forEach(b => b.classList.remove('success','error'));
+    const entered = boxes.map(b => s8NormChar(b.value)).join('');
+
+    if (entered.length !== S8_FLAT.length) {
+      setStatus('יש למלא את כל התיבות לפני הבדיקה.', 'error');
+      boxes.filter(b => !s8NormChar(b.value)).forEach(b => b.classList.add('error'));
+      return;
+    }
+
+    if (entered === S8_FLAT) {
+      boxes.forEach((b, i) => setTimeout(() => b.classList.add('success'), i * 45));
+      openModal();
+      return;
+    }
+
+    boxes.forEach((b, i) => b.classList.add(s8NormChar(b.value) === S8_FLAT[i] ? 'success' : 'error'));
+    setStatus('הפתרון אינו נכון. בדקו שוב את התאמת המספרים לאותיות ונסו מחדש.', 'error');
+  });
+
+  clearBtn.addEventListener('click', () => {
+    boxes.forEach(b => { b.value = ''; b.classList.remove('filled','success','error'); });
+    closeModal();
+    setStatus('מלאו את התיבות לפי הסדר וגלו את המשפט הסודי.');
+    boxes[0].focus();
+  });
+
+  if (continueBtn) {
+    continueBtn.addEventListener('click', () => {
+      closeModal();
+      solveStep8();
+    });
+  }
+
+  if (modal) {
+    modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+  }
+
+  document.addEventListener('keydown', function s8Escape(e) {
+    if (e.key === 'Escape') closeModal();
+    if (gameState.currentScreen !== 'step_8_cipher') {
+      document.removeEventListener('keydown', s8Escape);
+    }
+  });
+
+  boxes[0]?.focus();
+}
+
+/* ---- Final Screen – cipher activity (biofinal.html) ---- */
+function renderFinalScreen() {
+  /* הצג את פעילות כתב הסתרים המלאה כ-iframe */
+  showIframe('biofinal.html');
+}
+
+/* נקרא לאחר שהמשתמש פיתר את כתב הסתרים (postMessage מ-biofinal.html) */
+function showActualFinalScreen() {
+  const allCodes = [
+    `קוד 1: ${gameState.codes.codeStep1 || "—"}`,
+    `קוד 2: ${gameState.codes.codeStep2 || "—"}`,
+    `קוד 3: ${gameState.codes.codeStep3 || "—"}`,
+    `ספרה 1: ${gameState.codes.step5Digit1 || "—"}`,
+    `ספרה 2: ${gameState.codes.step5Digit2 || "—"}`,
+    `אלמנטים: ${gameState.codes.step6ElementCount || "—"}`,
+    `קוד דלת 2: ${gameState.codes.door2Code || "—"}`
+  ].map(c => `<span class="badge badge-code">${c}</span>`).join(" ");
+
+  setScreen(`
+    <div class="card">
+      <div class="final-center">
+        <video
+          src="images/opendoor.mp4"
+          autoplay
+          playsinline
+          style="width:100%; max-width:560px; border-radius:18px; margin-bottom:22px; box-shadow:0 8px 32px rgba(0,0,0,.35);"
+          onended="this.style.display='none'"
+          onerror="this.style.display='none'"
+        ></video>
+        <div class="final-icon">🏆</div>
+        <h2 class="final-title">כל הכבוד! עשיתם זאת!</h2>
+        ${gameState.player.name ? `<p style="font-size:1.15rem;font-weight:700;color:var(--accent);margin-bottom:4px">שחקן: ${escapeHTML(gameState.player.name)}</p>` : ''}
+        <div style="
+          display:inline-block;
+          background:linear-gradient(135deg,#7c3aed,#2563eb);
+          border-radius:18px;
+          padding:14px 36px;
+          margin:12px 0 18px;
+          box-shadow:0 4px 20px rgba(124,58,237,.4);
+        ">
+          <div style="font-size:.85rem;color:rgba(255,255,255,.75);font-weight:600;letter-spacing:.08em;margin-bottom:2px">ניקוד סופי</div>
+          <div style="font-size:2.8rem;font-weight:900;color:#fff;line-height:1">${gameState.player.score}</div>
+          <div style="font-size:.8rem;color:rgba(255,255,255,.6)">מתוך 100 נקודות</div>
+        </div>
+        <p class="final-msg">${escapeHTML(ENDING_MESSAGE)}</p>
+        <div class="final-secret-box">
+          🔑 המשפט הסודי שפוענח:<br/>
+          <strong>${escapeHTML(CIPHER_SOLUTION)}</strong>
+        </div>
+        <details style="margin-top:12px">
+          <summary class="btn btn-secondary btn-sm" style="cursor:pointer; list-style:none; display:inline-flex">
+            📋 הציגו את כל הקודים שנאספו
+          </summary>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin-top:12px">
+            ${allCodes}
+          </div>
+        </details>
+        <div class="btn-row" style="justify-content:center; margin-top:20px">
+          <button class="btn btn-secondary" onclick="restartGame()">🔄 שחקו שוב מההתחלה</button>
+          <button class="btn btn-primary" onclick="location.href='index.html'">🏠 חזרה לדף הבית</button>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+/* ---- Fallback ---- */
+function renderFallbackError() {
+  setScreen(`
+    <div class="card">
+      <div class="screen-eyebrow">שגיאה</div>
+      <h2 class="screen-title" style="color:var(--danger)">מסך לא ידוע</h2>
+      <p class="screen-body">המסך "<strong>${escapeHTML(gameState.currentScreen)}</strong>" אינו מוכר.</p>
+      <div class="btn-row">
+        <button class="btn btn-primary" onclick="restartGame()">התחילו מחדש</button>
+      </div>
+    </div>
+  `);
+}
+
+/* ============================================================
+   RESTART
+   ============================================================ */
+
+window.restartGame = function() {
+  clearSavedState();
+  gameState.currentScreen = "name_entry";
+  gameState.player.name   = '';
+  gameState.player.score  = 0;
+  Object.assign(gameState._attempts, { step1:0, step2:0, step3:0, step5:0, step6:0, step8:0 });
+  Object.assign(gameState.progress, {
+    step1Solved: false, step2Solved: false, step3Solved: false,
+    door1Unlocked: false, step5Solved: false, step6Solved: false,
+    door2Unlocked: false, step8Solved: false, gameCompleted: false
+  });
+  Object.assign(gameState.codes, {
+    codeStep1: null, codeStep2: null, codeStep3: null,
+    step5Digit1: null, step5Digit2: null,
+    step6ElementCount: null, door2Code: null
+  });
+  Object.assign(gameState.answers, {
+    step1SelectedAnswer: null, step2SelectedAnswer: null, step3SelectedAnswer: null,
+    step5Matches: [], step6SubmittedCount: null, step8SubmittedCipher: null
+  });
+  gameState._step3.flippedIds           = [];
+  gameState._step3.mustFlipBeforeRetry  = false;
+  gameState._step5.selectedCard = null;
+  gameState._step5.selectedSide = null;
+  gameState._step5.matchedIds   = [];
+  clearStatus();
+  goToScreen("step_1_identification");
+};
+
+/* ============================================================
+   INIT
+   ============================================================ */
+
+document.addEventListener("DOMContentLoaded", function() {
+  const loaded = loadGameState();
+  if (!loaded) {
+    gameState.currentScreen = "step_1_identification";
+  }
+  updateHeader();
+  renderCurrentScreen();
+});
+</script>
+
+<!-- ✨ Magical Biomimicry Atmosphere ✨ -->
+<script>
+(function bioMagic() {
+  /* --- Firefly sparkles --- */
+  const sparks = document.getElementById('bio-sparks');
+  const SPARK_COLORS = [
+    'rgba(98,217,255,',   // cyan
+    'rgba(136,243,185,',  // mint
+    'rgba(255,231,155,',  // gold
+    'rgba(210,160,255,',  // violet
+    'rgba(80,220,180,',   // teal
+  ];
+
+  function createSpark() {
+    const el = document.createElement('div');
+    el.className = 'spark';
+    const size  = 2 + Math.random() * 5;
+    const color = SPARK_COLORS[Math.floor(Math.random() * SPARK_COLORS.length)];
+    const dur   = 8 + Math.random() * 18;
+    const delay = Math.random() * -20;
+    const glow  = size * 3;
+    Object.assign(el.style, {
+      width:  size + 'px',
+      height: size + 'px',
+      left:   Math.random() * 100 + 'vw',
+      bottom: '-10px',
+      background: color + '0.9)',
+      boxShadow: `0 0 ${glow}px ${glow/2}px ${color}0.4)`,
+      animationDuration:  dur + 's',
+      animationDelay:     delay + 's',
+    });
+    sparks.appendChild(el);
+    setTimeout(() => el.remove(), (dur + Math.abs(delay)) * 1000 + 200);
+  }
+
+  /* spawn 35 initial sparks, then keep adding */
+  for (let i = 0; i < 35; i++) {
+    setTimeout(createSpark, i * 400);
+  }
+  setInterval(createSpark, 600);
+
+  /* --- Floating bio runes (nature emojis) --- */
+  const runes = document.getElementById('bio-runes');
+  const BIO_RUNES = ['🧬','🍃','🌿','🦠','🔬','⚗️','🌱','🕸️','🐾','🦋','🌾','🔮'];
+
+  function createRune() {
+    const el   = document.createElement('span');
+    el.className = 'bio-rune';
+    el.textContent = BIO_RUNES[Math.floor(Math.random() * BIO_RUNES.length)];
+    const dur  = 22 + Math.random() * 28;
+    const delay = Math.random() * -15;
+    Object.assign(el.style, {
+      left:               Math.random() * 100 + 'vw',
+      bottom:             '-60px',
+      fontSize:           (1.2 + Math.random() * 1.8) + 'rem',
+      opacity:            0.04 + Math.random() * 0.05,
+      animationDuration:  dur + 's',
+      animationDelay:     delay + 's',
+    });
+    runes.appendChild(el);
+    setTimeout(() => el.remove(), (dur + Math.abs(delay)) * 1000 + 500);
+  }
+
+  for (let i = 0; i < 14; i++) setTimeout(createRune, i * 1200);
+  setInterval(createRune, 2200);
+
+  /* --- Magic burst on success --- */
+  const burst = document.getElementById('magic-burst');
+  const BURST_COLORS = ['#62d9ff','#88f3b9','#ffd76a','#c080ff','#ffffff','#5ef5a0'];
+
+  window.triggerMagicBurst = function(x, y) {
+    for (let i = 0; i < 22; i++) {
+      const p   = document.createElement('div');
+      p.className = 'burst-particle';
+      const size  = 4 + Math.random() * 8;
+      const angle = Math.random() * Math.PI * 2;
+      const dist  = 60 + Math.random() * 140;
+      const bx    = Math.cos(angle) * dist;
+      const by    = Math.sin(angle) * dist;
+      Object.assign(p.style, {
+        width:    size + 'px',
+        height:   size + 'px',
+        left:     (x - size / 2) + 'px',
+        top:      (y - size / 2) + 'px',
+        background: BURST_COLORS[Math.floor(Math.random() * BURST_COLORS.length)],
+        boxShadow: `0 0 ${size*2}px ${BURST_COLORS[Math.floor(Math.random() * BURST_COLORS.length)]}`,
+        '--bx':   bx + 'px',
+        '--by':   by + 'px',
+        animationDuration: (.5 + Math.random() * .6) + 's',
+        animationDelay:    (Math.random() * .15) + 's',
+      });
+      burst.appendChild(p);
+      setTimeout(() => p.remove(), 1200);
+    }
+  };
+
+  /* Cursor sparkle trail */
+  let lastTrail = 0;
+  document.addEventListener('mousemove', function(e) {
+    const now = Date.now();
+    if (now - lastTrail < 90) return;
+    lastTrail = now;
+    if (Math.random() > 0.5) return; /* skip some for subtlety */
+    const p = document.createElement('div');
+    p.className = 'spark';
+    const size  = 2 + Math.random() * 3;
+    const color = SPARK_COLORS[Math.floor(Math.random() * SPARK_COLORS.length)];
+    Object.assign(p.style, {
+      width:  size + 'px',
+      height: size + 'px',
+      left:   e.clientX + 'px',
+      top:    e.clientY + 'px',
+      position: 'fixed',
+      bottom: 'auto',
+      background: color + '0.9)',
+      boxShadow: `0 0 ${size*4}px ${color}0.6)`,
+      animationDuration: '1.5s',
+      animationDelay: '0s',
+      zIndex: 9998,
+    });
+    sparks.appendChild(p);
+    setTimeout(() => p.remove(), 1600);
+  });
+})();
+</script>
+</body>
+</html>

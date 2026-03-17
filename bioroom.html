@@ -289,6 +289,49 @@
     }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+    /* ============================================================
+       MICRO-INTERACTIONS — תחושת לחיצה גלובלית
+       ============================================================ */
+
+    /* כל כפתור: מעיך מעט בלחיצה */
+    button, [role="button"], .btn, .vault-btn, .s1-option-btn,
+    .door-submit-btn, .dyk-popup-btn, .narration-name-btn,
+    .flip-card, .match-card, .org-card, .cipher-cell {
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    button:active, [role="button"]:active, .btn:active,
+    .vault-btn:active, .s1-option-btn:active,
+    .door-submit-btn:active, .dyk-popup-btn:active,
+    .narration-name-btn:active {
+      transform: scale(.94) !important;
+      transition: transform .08s ease !important;
+    }
+    .flip-card:active, .match-card:active, .org-card:active {
+      transform: scale(.93) !important;
+    }
+    .cipher-cell:active {
+      transform: scale(.88) !important;
+    }
+
+    /* Ripple effect */
+    .ripple-host { position: relative; overflow: hidden; }
+    @keyframes rippleOut {
+      0%   { transform: scale(0); opacity: .55; }
+      100% { transform: scale(4); opacity: 0; }
+    }
+    .ripple-circle {
+      position: absolute;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      background: rgba(136,243,185,.35);
+      pointer-events: none;
+      transform: scale(0);
+      animation: rippleOut .55s ease forwards;
+      z-index: 9999;
+    }
+
     .narration-content {
       display: flex;
       flex-direction: column;
@@ -489,6 +532,75 @@
     .habitat-card-back strong { font-size: 13px; color: var(--accent); }
     .habitat-card-back p { font-size: 11.5px; color: var(--text-muted); margin: 0; line-height: 1.5; }
     .habitat-card-wrap.must-flip { animation: cardPulse 1s ease 3; }
+
+    /* ---- Step 3 — קלפי בחירה ישירה (ללא flip) ---- */
+    .s3-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+    @media (max-width: 480px) {
+      .s3-cards-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .s3-card {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid rgba(98,217,255,.18);
+      box-shadow: 0 4px 16px rgba(0,0,0,.35);
+      background: #0a1520;
+      transition: transform .18s, border-color .18s, box-shadow .18s;
+      aspect-ratio: 3/4;
+      display: flex;
+      flex-direction: column;
+    }
+    .s3-card:hover {
+      transform: translateY(-4px) scale(1.03);
+      border-color: rgba(136,243,185,.55);
+      box-shadow: 0 8px 28px rgba(136,243,185,.2);
+    }
+    .s3-card:active {
+      transform: scale(.95) !important;
+    }
+    .s3-card img {
+      width: 100%;
+      flex: 1;
+      object-fit: cover;
+      display: block;
+    }
+    .s3-card-label {
+      padding: 6px 8px;
+      background: rgba(10,21,32,.88);
+      font-size: .78rem;
+      font-weight: 700;
+      color: #e8f8ff;
+      text-align: center;
+      border-top: 1px solid rgba(98,217,255,.15);
+      line-height: 1.2;
+    }
+    .s3-card-num {
+      position: absolute;
+      top: 7px;
+      right: 8px;
+      background: rgba(136,243,185,.9);
+      color: #0a1520;
+      font-size: .7rem;
+      font-weight: 900;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,.4);
+      z-index: 2;
+    }
+    .s3-card.selected {
+      border-color: var(--accent-2);
+      box-shadow: 0 0 20px rgba(136,243,185,.45);
+    }
     @keyframes cardPulse {
       0%,100% { filter: drop-shadow(0 0 4px rgba(255,160,90,.0)); }
       50%      { filter: drop-shadow(0 0 12px rgba(255,160,90,.9)); }
@@ -905,6 +1017,152 @@
     @media (max-width: 520px) {
       .org-image { float: none; margin: 14px auto; display: block; }
     }
+
+    /* ---- Step 1 split layout: image | options ---- */
+    .s1-split {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      margin-top: 12px;
+    }
+    .s1-img-wrap {
+      flex: 0 0 auto;
+      width: 210px;
+      height: 210px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 3px solid rgba(98,217,255,.35);
+      box-shadow: 0 0 28px rgba(98,217,255,.35), 0 0 60px rgba(136,243,185,.18);
+      background: #0a1a2a;
+    }
+    .s1-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .s1-options {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .s1-option-btn {
+      width: 100%;
+      padding: 13px 20px;
+      background: rgba(136,243,185,.13);
+      border: 1.5px solid rgba(136,243,185,.3);
+      border-radius: 50px;
+      color: var(--accent-2);
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      text-align: center;
+      transition: background .18s, border-color .18s, transform .12s, box-shadow .18s;
+      letter-spacing: .02em;
+    }
+    .s1-option-btn:hover {
+      background: rgba(136,243,185,.26);
+      border-color: rgba(136,243,185,.6);
+      transform: translateX(-3px);
+      box-shadow: 0 4px 16px rgba(136,243,185,.2);
+    }
+    .s1-option-btn:active { transform: scale(.97); }
+    .s1-opt-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(136,243,185,.22);
+      border: 1px solid rgba(136,243,185,.45);
+      font-size: .72rem;
+      font-weight: 900;
+      color: var(--accent-2);
+      margin-left: 8px;
+      flex-shrink: 0;
+    }
+    @media (max-width: 520px) {
+      .s1-split { flex-direction: column; }
+      .s1-img-wrap { width: 100%; height: 200px; }
+    }
+
+    /* ---- DYK Popup Modal ---- */
+    .dyk-popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5,15,28,.78);
+      backdrop-filter: blur(4px);
+      z-index: 9000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: fadeIn .25s ease;
+    }
+    .dyk-popup-card {
+      background: linear-gradient(160deg, #0d2235 0%, #0a1a2a 100%);
+      border: 1.5px solid rgba(136,243,185,.3);
+      border-radius: 22px;
+      padding: 30px 26px 24px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 8px 40px rgba(0,0,0,.55), 0 0 40px rgba(136,243,185,.1);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      animation: bounceIn .4s ease;
+    }
+    .dyk-popup-badge {
+      display: inline-block;
+      background: rgba(136,243,185,.15);
+      border: 1px solid rgba(136,243,185,.35);
+      border-radius: 30px;
+      padding: 4px 16px;
+      font-size: .72rem;
+      letter-spacing: .14em;
+      color: var(--accent-2);
+      text-transform: uppercase;
+      align-self: center;
+    }
+    .dyk-popup-success {
+      font-size: .9rem;
+      color: var(--accent-2);
+      font-weight: 700;
+    }
+    .dyk-popup-text {
+      font-size: .95rem;
+      color: rgba(255,255,255,.85);
+      line-height: 1.65;
+    }
+    .dyk-popup-btn {
+      margin-top: 4px;
+      padding: 12px 36px;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      color: #0a1520;
+      border: none;
+      border-radius: 40px;
+      font-size: 1rem;
+      font-weight: 800;
+      font-family: inherit;
+      cursor: pointer;
+      align-self: center;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .dyk-popup-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(136,243,185,.4); }
+    .dyk-popup-img {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 14px;
+      border: 1.5px solid rgba(136,243,185,.25);
+      box-shadow: 0 4px 18px rgba(0,0,0,.35);
+    }
+    .dyk-popup-card.wide { max-width: 540px; }
+    .dyk-popup-facts { text-align: right; display: grid; gap: 10px; }
+    .dyk-fact-item { font-size: .88rem; color: rgba(255,255,255,.85); line-height: 1.55; border-right: 3px solid rgba(136,243,185,.5); padding-right: 10px; }
 
     /* ---- Separator ---- */
     .sep { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
@@ -1331,21 +1589,30 @@ window.addEventListener('message', (event) => {
    ============================================================ */
 
 const STEP_1_CORRECT_ANSWER = "שממית";
-const STEP_1_CODE            = "5";
+const STEP_1_CODE            = "2";   /* תשובה נכונה = אפשרות מספר 2 */
 
 const STEP_2_CORRECT_ANSWER = "שערות זעירות";
-const STEP_2_CODE            = "7";
+const STEP_2_CODE            = "1";   /* תשובה נכונה = אפשרות מספר 1 */
 
 const STEP_3_CORRECT_ANSWER = "ליד בתים, קירות וסדקים חמים";
-const STEP_3_CODE            = "2";
+const STEP_3_CODE            = "3";   /* תשובה נכונה = קלף מספר 3 */
 
 const STEP_5_SECRET_DIGIT_1  = "3";
 const STEP_5_SECRET_DIGIT_2  = "4";
 
 const STEP_6_CORRECT_COUNT   = 7;
 
+/* הידעת? — שלב 5 (אחרי משחק ההתאמה) */
+const STEP5_DYK_IMG   = "images/prd2.png";
+const STEP5_DYK_FACTS = `
+  <div class="dyk-fact-item">🦈 <strong>כריש ← חליפת שחייה</strong><br>העור של הכריש בנוי כך שמקטין חיכוך עם המים. בהשראתו פותחו בגדי ים תחרותיים ומשטחים שמפחיתים חיכוך.</div>
+  <div class="dyk-fact-item">🌿 <strong>עלה לוטוס ← משטח דוחה מים</strong><br>מבנה עלה הלוטוס גורם למים להתגלגל ולנקות לכלוך. בהשראתו פותחו בדים ומשטחים שנשארים נקיים לאורך זמן.</div>
+  <div class="dyk-fact-item">🐋 <strong>לווייתן ← טורבינת רוח</strong><br>לסנפירי הלווייתן צורה שעוזרת לו לנוע ביעילות. צורה זו נתנה השראה לפיתוח טורבינות רוח יעילות יותר.</div>
+  <div class="dyk-fact-item">🕷 <strong>קורי עכביש ← חומרים חזקים</strong><br>קורי העכביש דקים אך חזקים וגמישים. בהשראתם מפתחים חוקרים חומרים חזקים לשימושים מגוונים.</div>
+`;
+
 const CIPHER_SOLUTION        = "השראה מן הטבע";
-const ENDING_MESSAGE         = "הטבע כבר גילה הכול — לנו נותר רק להתבונן וללמוד.";
+const ENDING_MESSAGE         = "כל הכבוד! הצלחתם לפענח את כתב הסתרים.\nהטבע כבר גילה הכול — לנו נותר להתבונן וללמוד.\nהסתכלו סביבכם וגלו את ההשראה מן הטבע";
 
 /* ניקוד לכל שלב (סה"כ 100 נקודות) */
 const STEP_SCORES = {
@@ -1358,16 +1625,16 @@ const STEP_SCORES = {
 };
 
 /* קודי הדלתות המשולבים */
-const DOOR_1_CODE = STEP_1_CODE + STEP_2_CODE + STEP_3_CODE;                                       /* "572" */
+const DOOR_1_CODE = STEP_1_CODE + STEP_2_CODE + STEP_3_CODE;                                       /* "213" */
 const DOOR_2_CODE = STEP_5_SECRET_DIGIT_1 + STEP_5_SECRET_DIGIT_2 + String(STEP_6_CORRECT_COUNT);  /* "347" */
 
 /* נתוני קלפי בית הגידול (שלב 3) */
 const HABITAT_CARDS = [
-  { id: 1, image: "images/gid1.png", name: "מדבר חם",           info: "סביבה יבשה ולוהטת. מעט מינים שורדים כאן ללא מקורות מים קבועים." },
-  { id: 2, image: "images/gid2.png", name: "יער גשם טרופי",     info: "עשיר בצמחייה ולחות רבה. הרבה מינים חיים כאן, אך שממיות הבית מעדיפות סביבות יבשות יותר." },
-  { id: 3, image: "images/gid3.png", name: "סביבה עירונית",     info: "קירות, בתים וסדקים חמים – הסביבה המושלמת לשממיות! הן מטפסות על הקירות ומחפשות חרקים בלילה." },
-  { id: 4, image: "images/gid4.png", name: "ים ואוקיינוס",      info: "עולם תת-ימי עשיר בחיים. שממיות אינן שוחות ואינן יכולות לחיות בסביבה ימית." },
-  { id: 5, image: "images/gid5.png", name: "הרים מושלגים",      info: "קר מדי לשממיות! הן חיות רק בסביבות חמות – טמפרטורה מתחת ל-10°C מסכנת את חייהן." }
+  { id: 1, image: "images/gid1.png", name: "מדבר חם",           answer: "מדבר חם",                          info: "סביבה יבשה ולוהטת. מעט מינים שורדים כאן ללא מקורות מים קבועים." },
+  { id: 2, image: "images/gid2.png", name: "יער גשם טרופי",     answer: "יער גשם צפוף",                     info: "עשיר בצמחייה ולחות רבה. הרבה מינים חיים כאן, אך שממיות הבית מעדיפות סביבות יבשות יותר." },
+  { id: 3, image: "images/gid3.png", name: "סביבה עירונית",     answer: "ליד בתים, קירות וסדקים חמים",     info: "קירות, בתים וסדקים חמים – הסביבה המושלמת לשממיות! הן מטפסות על הקירות ומחפשות חרקים בלילה." },
+  { id: 4, image: "images/gid4.png", name: "ים ואוקיינוס",      answer: "מעמקי הים",                        info: "עולם תת-ימי עשיר בחיים. שממיות אינן שוחות ואינן יכולות לחיות בסביבה ימית." },
+  { id: 5, image: "images/gid5.png", name: "הרים מושלגים",      answer: "הקוטב הדרומי",                     info: "קר מדי לשממיות! הן חיות רק בסביבות חמות – טמפרטורה מתחת ל-10°C מסכנת את חייהן." }
 ];
 
 /* ============================================================
@@ -1500,7 +1767,8 @@ const gameState = {
   /* משתנים פנימיים לשלב 3 – קלפי בית הגידול */
   _step3: {
     flippedIds: [],
-    mustFlipBeforeRetry: false
+    mustFlipBeforeRetry: false,
+    selectedCardId: null
   },
 
   /* משתנים פנימיים לשלב 5 בלבד */
@@ -1592,6 +1860,39 @@ function showSuccess(message) {
   if (typeof window.triggerMagicBurst === 'function') {
     window.triggerMagicBurst(window.innerWidth / 2, window.innerHeight / 2);
   }
+}
+
+/* פופאפ "הידעת?" — מוצג אחרי תשובה נכונה
+   imgSrc   – אופציונלי: נתיב תמונה להצגה בראש הפופאפ
+   factsHTML – אופציונלי: HTML מוכן להצגה במקום dykText (לפורמט עשיר) */
+function showDykPopup(dykText, successMsg, onContinue, imgSrc = null, factsHTML = null) {
+  showSuccess(successMsg);
+
+  if (!dykText && !factsHTML) { setTimeout(onContinue, 1200); return; }
+
+  const imgTag  = imgSrc
+    ? `<img src="${imgSrc}" alt="הידעת?" class="dyk-popup-img" onerror="this.style.display='none'">`
+    : '';
+  const body    = factsHTML
+    ? `<div class="dyk-popup-facts">${factsHTML}</div>`
+    : `<div class="dyk-popup-text">${escapeHTML(dykText)}</div>`;
+  const wideClass = (imgSrc || factsHTML) ? ' wide' : '';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'dyk-popup-overlay';
+  overlay.innerHTML = `
+    <div class="dyk-popup-card${wideClass}">
+      <span class="dyk-popup-badge">✨ הידעת?</span>
+      <div class="dyk-popup-success">${escapeHTML(successMsg)}</div>
+      ${imgTag}
+      ${body}
+      <button class="dyk-popup-btn" id="dyk-continue-btn">המשך →</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  overlay.querySelector('#dyk-continue-btn').addEventListener('click', () => {
+    overlay.remove();
+    onContinue();
+  });
 }
 
 function clearStatus() {
@@ -1694,8 +1995,8 @@ function solveStep1(selectedAnswer) {
   gameState.codes.codeStep1                 = STEP_1_CODE;
   saveGameState();
   const { pts, wrong } = scoreStep('step1', STEP_SCORES.step1);
-  showSuccess(`נכון! קוד 1 נשמר. ${scoreSuffix(pts, wrong)}`);
-  setTimeout(() => goToScreen("step_2_secret"), 1200);
+  showSuccess(`נכון! ✅ ספרה 1 בקוד: ${STEP_1_CODE} ${scoreSuffix(pts, wrong)}`);
+  setTimeout(() => goToScreen("step_2_secret"), 1400);
 }
 
 /* ============================================================
@@ -1717,8 +2018,10 @@ function solveStep2(selectedAnswer) {
   gameState.codes.codeStep2                 = STEP_2_CODE;
   saveGameState();
   const { pts, wrong } = scoreStep('step2', STEP_SCORES.step2);
-  showSuccess(`נכון! קוד 2 נשמר. ${scoreSuffix(pts, wrong)}`);
-  setTimeout(() => goToScreen("step_3_habitat"), 1200);
+  /* מציג פופאפ הידעת? לפני המעבר לשלב 3 */
+  showDykPopup(gameData.step2.didYouKnow, `נכון! ✅ ספרה 2 בקוד: ${STEP_2_CODE} ${scoreSuffix(pts, wrong)}`, () => {
+    goToScreen("step_3_habitat");
+  });
 }
 
 /* ============================================================
@@ -1740,8 +2043,8 @@ function solveStep3(selectedAnswer) {
   gameState.codes.codeStep3                 = STEP_3_CODE;
   saveGameState();
   const { pts, wrong } = scoreStep('step3', STEP_SCORES.step3);
-  showSuccess(`נכון! קוד 3 נשמר. שלושת הקודים הושגו! ${scoreSuffix(pts, wrong)}`);
-  setTimeout(() => goToScreen("door_1"), 1400);
+  showSuccess(`נכון! ✅ ספרה 3 בקוד: ${STEP_3_CODE} — שלושת הספרות הושגו! ${scoreSuffix(pts, wrong)}`);
+  setTimeout(() => goToScreen("door_1"), 1800);
 }
 
 /* ============================================================
@@ -1782,8 +2085,8 @@ function solveStep5(userMatches) {
   gameState.codes.step5Digit2     = STEP_5_SECRET_DIGIT_2;
   saveGameState();
   const { pts: p5, wrong: w5 } = scoreStep('step5', STEP_SCORES.step5);
-  showSuccess(`כל הכבוד! שתי הספרות הסודיות הן: ${STEP_5_SECRET_DIGIT_1} ו-${STEP_5_SECRET_DIGIT_2} — ${scoreSuffix(p5, w5)}`);
-  setTimeout(() => goToScreen("step_6_count_elements"), 2000);
+  const successMsg = `כל הכבוד! שתי הספרות הסודיות הן: ${STEP_5_SECRET_DIGIT_1} ו-${STEP_5_SECRET_DIGIT_2} — ${scoreSuffix(p5, w5)}`;
+  showDykPopup(null, successMsg, () => goToScreen("step_6_count_elements"), STEP5_DYK_IMG, STEP5_DYK_FACTS);
 }
 
 /* ============================================================
@@ -2231,34 +2534,83 @@ window.toggleHint = function() {
 /* ---- Step 1 ---- */
 function renderStep1() {
   window._answerStep1 = function(answer) { solveStep1(answer); };
-  renderMCQ({
-    ...gameData.step1,
-    onAnswer: "_answerStep1"
-  });
+  const d = gameData.step1;
+  const optionsHTML = d.options.map((opt, i) => {
+    const safe = opt.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    return `<button class="s1-option-btn" onclick="window._answerStep1('${safe}')">
+      <span class="s1-opt-num">${i + 1}</span> ${escapeHTML(opt)}
+    </button>`;
+  }).join('');
+
+  const hintHTML = d.hint ? `
+    <div style="margin-top:16px">
+      <button class="btn btn-secondary btn-sm" onclick="toggleHint()">
+        ${gameState.ui.hintOpen ? '🙈 הסתר רמז' : '💡 קבלו רמז'}
+      </button>
+      <div id="hint-box" class="hint-box" style="display:${gameState.ui.hintOpen ? 'block' : 'none'};margin-top:8px">
+        ${escapeHTML(d.hint)}
+      </div>
+    </div>` : '';
+
+  setScreen(`
+    <div class="card">
+      <div class="screen-eyebrow">${escapeHTML(d.eyebrow)}</div>
+      <h2 class="screen-title">🔒 ${escapeHTML(d.title)}</h2>
+      <p class="screen-body" style="margin-bottom:6px">${escapeHTML(d.question)}</p>
+      <div class="s1-split">
+        <div class="s1-img-wrap">
+          <img src="${escapeHTML(d.image)}" alt="יצור סודי" onerror="this.style.display='none'" />
+        </div>
+        <div class="s1-options">${optionsHTML}</div>
+      </div>
+      ${hintHTML}
+    </div>`);
 }
 
 /* ---- Step 2 ---- */
 function renderStep2() {
-  const codesHTML = gameState.codes.codeStep1
-    ? `<div class="code-reveal">קוד 1: ${escapeHTML(gameState.codes.codeStep1)}</div>`
-    : "";
   window._answerStep2 = function(answer) { solveStep2(answer); };
-  renderMCQ({
-    ...gameData.step2,
-    onAnswer: "_answerStep2"
-  });
-  /* הוסף תצוגת קוד מעל הכרטיס */
-  if (codesHTML) {
-    const s = document.getElementById("game-screen");
-    if (s) s.insertAdjacentHTML("afterbegin", `<div style="margin-bottom:10px">${codesHTML}</div>`);
-  }
+  const d = gameData.step2;
+  const optionsHTML = d.options.map((opt, i) => {
+    const safe = opt.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    return `<button class="s1-option-btn" onclick="window._answerStep2('${safe}')">
+      <span class="s1-opt-num">${i + 1}</span> ${escapeHTML(opt)}
+    </button>`;
+  }).join('');
+
+  const hintHTML = d.hint ? `
+    <div style="margin-top:16px">
+      <button class="btn btn-secondary btn-sm" onclick="toggleHint()">
+        ${gameState.ui.hintOpen ? '🙈 הסתר רמז' : '💡 קבלו רמז'}
+      </button>
+      <div id="hint-box" class="hint-box" style="display:${gameState.ui.hintOpen ? 'block' : 'none'};margin-top:8px">
+        ${escapeHTML(d.hint)}
+      </div>
+    </div>` : '';
+
+  const code1Badge = gameState.codes.codeStep1
+    ? `<span class="badge badge-code" style="margin-bottom:8px;display:inline-block">קוד 1: ${escapeHTML(gameState.codes.codeStep1)}</span>`
+    : '';
+
+  setScreen(`
+    <div class="card">
+      ${code1Badge}
+      <div class="screen-eyebrow">${escapeHTML(d.eyebrow)}</div>
+      <h2 class="screen-title">🔒 ${escapeHTML(d.title)}</h2>
+      <p class="screen-body" style="margin-bottom:6px">${escapeHTML(d.question)}</p>
+      <div class="s1-split">
+        <div class="s1-img-wrap">
+          <img src="${escapeHTML(d.image)}" alt="שממית" onerror="this.style.display='none'" />
+        </div>
+        <div class="s1-options">${optionsHTML}</div>
+      </div>
+      ${hintHTML}
+    </div>`);
 }
 
 /* ---- Step 3 ---- */
 function renderStep3() {
   const d = gameData.step3;
-  const flipped = new Set(gameState._step3.flippedIds);
-  const mustFlip = gameState._step3.mustFlipBeforeRetry;
 
   if (gameState.progress.step3Solved) {
     setScreen(`
@@ -2270,31 +2622,17 @@ function renderStep3() {
     return;
   }
 
-  const cardsHTML = HABITAT_CARDS.map(card => {
-    const isFlipped = flipped.has(card.id);
-    const highlight = mustFlip && !isFlipped ? ' must-flip' : '';
-    return `
-      <div class="habitat-card-wrap${highlight}" onclick="window.flipHabitatCard(${card.id})">
-        <div class="habitat-card ${isFlipped ? 'flipped' : ''}">
-          <div class="habitat-card-front">
-            <img src="${escapeHTML(card.image)}" alt="${escapeHTML(card.name)}" />
-            <span class="hcard-name">${escapeHTML(card.name)}</span>
-          </div>
-          <div class="habitat-card-back">
-            <strong>${escapeHTML(card.name)}</strong>
-            <p>${escapeHTML(card.info)}</p>
-          </div>
-        </div>
-      </div>`;
-  }).join('');
+  const selected = gameState._step3.selectedCardId || null;
 
-  const letters = ["א", "ב", "ג", "ד"];
-  const optionsHTML = d.options.map((opt, i) => {
-    const safe = opt.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+  const cardsHTML = HABITAT_CARDS.map((card, i) => {
+    const safe = card.answer.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const isSelected = selected === card.id;
     return `
-    <button class="option-btn" onclick="window.answerStep3('${safe}')">
-      <span class="opt-letter">${letters[i]}</span>${escapeHTML(opt)}
-    </button>`;
+      <div class="s3-card${isSelected ? ' selected' : ''}" onclick="window.selectHabitatCard(${card.id}, '${safe}')">
+        <span class="s3-card-num">${i + 1}</span>
+        <img src="${escapeHTML(card.image)}" alt="${escapeHTML(card.name)}" onerror="this.style.opacity='.3'" />
+        <div class="s3-card-label">${escapeHTML(card.name)}</div>
+      </div>`;
   }).join('');
 
   const codesBar = [
@@ -2302,19 +2640,33 @@ function renderStep3() {
     gameState.codes.codeStep2 ? `קוד 2: ${gameState.codes.codeStep2}` : null
   ].filter(Boolean).map(c => `<span class="badge badge-code">${c}</span>`).join(' ');
 
+  const hintHTML = d.hint ? `
+    <div style="margin-top:14px">
+      <button class="btn btn-secondary btn-sm" onclick="toggleHint()">
+        ${gameState.ui.hintOpen ? '🙈 הסתר רמז' : '💡 קבלו רמז'}
+      </button>
+      <div id="hint-box" class="hint-box" style="display:${gameState.ui.hintOpen ? 'block' : 'none'};margin-top:8px">
+        ${escapeHTML(d.hint)}
+      </div>
+    </div>` : '';
+
   setScreen(`
     <div class="card">
-      ${codesBar ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">${codesBar}</div>` : ''}
+      ${codesBar ? `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px">${codesBar}</div>` : ''}
       <div class="screen-eyebrow">${escapeHTML(d.eyebrow)}</div>
       <h2 class="screen-title">🌍 ${escapeHTML(d.title)}</h2>
-      <p class="screen-body">${escapeHTML(d.question)}</p>
-      <div class="habitat-grid">${cardsHTML}</div>
-      ${flipped.size === 0
-        ? `<p class="habitat-hint">👆 לחצו על קלף כדי לגלות מידע על בית הגידול</p>`
-        : `<div class="habitat-mcq">${optionsHTML}</div>`
-      }
+      <p class="screen-body" style="margin-bottom:4px">${escapeHTML(d.question)}</p>
+      <div class="s3-cards-grid">${cardsHTML}</div>
+      ${hintHTML}
     </div>`);
 }
+
+window.selectHabitatCard = function(cardId, answer) {
+  gameState._step3.selectedCardId = cardId;
+  renderStep3();
+  /* תשובה מיידית */
+  setTimeout(() => window.answerStep3(answer), 120);
+};
 
 window.flipHabitatCard = function(cardId) {
   const flipped = gameState._step3.flippedIds;
@@ -2735,11 +3087,11 @@ function renderStep8() {
           <div class="s8-cipher-card">
             <span class="s8-label">פענחו את הקוד</span>
             <div class="s8-cipher-text">
-              <span class="s8-cipher-group">5 - 9 - 2 - 16</span>
+              <span class="s8-cipher-group">5 - 21 - 20 - 1 - 5</span>
               <span class="s8-separator">|</span>
               <span class="s8-cipher-group">13 - 14</span>
               <span class="s8-separator">|</span>
-              <span class="s8-cipher-group">5 - 21 - 20 - 1 - 5</span>
+              <span class="s8-cipher-group">5 - 9 - 2 - 16</span>
             </div>
 
             <div class="s8-answer-area" id="s8-answer-area">
@@ -2928,13 +3280,12 @@ function step8Init() {
   boxes[0]?.focus();
 }
 
-/* ---- Final Screen – cipher activity (biofinal.html) ---- */
+/* ---- Final Screen ---- */
 function renderFinalScreen() {
-  /* הצג את פעילות כתב הסתרים המלאה כ-iframe */
-  showIframe('biofinal.html');
+  showActualFinalScreen();
 }
 
-/* נקרא לאחר שהמשתמש פיתר את כתב הסתרים (postMessage מ-biofinal.html) */
+/* הצגת מסך סיום: סרטון + ניקוד */
 function showActualFinalScreen() {
   const allCodes = [
     `קוד 1: ${gameState.codes.codeStep1 || "—"}`,
@@ -2972,7 +3323,7 @@ function showActualFinalScreen() {
           <div style="font-size:2.8rem;font-weight:900;color:#fff;line-height:1">${gameState.player.score}</div>
           <div style="font-size:.8rem;color:rgba(255,255,255,.6)">מתוך 100 נקודות</div>
         </div>
-        <p class="final-msg">${escapeHTML(ENDING_MESSAGE)}</p>
+        <p class="final-msg">${escapeHTML(ENDING_MESSAGE).replace(/\n/g,'<br>')}</p>
         <div class="final-secret-box">
           🔑 המשפט הסודי שפוענח:<br/>
           <strong>${escapeHTML(CIPHER_SOLUTION)}</strong>
@@ -3034,6 +3385,7 @@ window.restartGame = function() {
   });
   gameState._step3.flippedIds           = [];
   gameState._step3.mustFlipBeforeRetry  = false;
+  gameState._step3.selectedCardId       = null;
   gameState._step5.selectedCard = null;
   gameState._step5.selectedSide = null;
   gameState._step5.matchedIds   = [];
@@ -3053,6 +3405,46 @@ document.addEventListener("DOMContentLoaded", function() {
   updateHeader();
   renderCurrentScreen();
 });
+
+/* ============================================================
+   MICRO-INTERACTIONS — ripple + haptic
+   ============================================================ */
+(function initMicroInteractions() {
+  /* ripple רק על כפתורים פשוטים — לא על כרטיסים עם flip */
+  const RIPPLE_SEL = [
+    'button', '.btn', '.vault-btn', '.s1-option-btn', '.door-submit-btn',
+    '.dyk-popup-btn', '.narration-name-btn', '.cipher-cell'
+  ].join(',');
+
+  /* haptic (רטט) לכולם */
+  const HAPTIC_SEL = RIPPLE_SEL + ', .flip-card, .match-card, .org-card, [role="button"]';
+
+  function spawnRipple(el, clientX, clientY) {
+    const style = window.getComputedStyle(el);
+    /* אל תוסיף ripple אם לא ניתן לחתוך overflow */
+    if (style.overflow === 'visible' || style.overflow === '') el.style.overflow = 'hidden';
+    el.classList.add('ripple-host');
+    const rect = el.getBoundingClientRect();
+    const r = document.createElement('span');
+    r.className = 'ripple-circle';
+    r.style.left = (clientX - rect.left - 30) + 'px';
+    r.style.top  = (clientY - rect.top  - 30) + 'px';
+    el.appendChild(r);
+    setTimeout(() => r.remove(), 620);
+  }
+
+  function haptic() {
+    if (navigator.vibrate) navigator.vibrate(10);
+  }
+
+  document.addEventListener('pointerdown', function(e) {
+    const rippleEl = e.target.closest(RIPPLE_SEL);
+    if (rippleEl) spawnRipple(rippleEl, e.clientX, e.clientY);
+
+    const hapticEl = e.target.closest(HAPTIC_SEL);
+    if (hapticEl) haptic();
+  }, { passive: true });
+})();
 </script>
 
 <!-- ✨ Magical Biomimicry Atmosphere ✨ -->

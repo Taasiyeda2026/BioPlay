@@ -1861,12 +1861,18 @@ let _namePoll = null;
 
 function renderNameEntry() {
   setScreen(`
-    <div class="card" style="max-width:460px;margin:0 auto;text-align:center">
+    <div class="card" style="max-width:680px;margin:0 auto;text-align:center;padding:0;overflow:hidden">
+
+      <!-- תמונת פתיחה -->
+      <img src="images/gameintro.png" alt="חדר הבריחה הביומימיקרי"
+        style="width:100%;display:block;border-radius:var(--radius) var(--radius) 0 0;max-height:340px;object-fit:cover;object-position:center top" />
+
+      <div style="padding:clamp(16px,2.4vw,30px)">
 
       <!-- מצב המתנה: לפני שהמדריך לוחץ PLAY -->
       <div id="name-waiting-state">
         <div class="screen-eyebrow">ממתינים</div>
-        <div style="font-size:4rem;animation:doorPulse 2s ease-in-out infinite">⏳</div>
+        <div style="font-size:3.5rem;animation:doorPulse 2s ease-in-out infinite">⏳</div>
         <h2 class="screen-title" style="font-size:clamp(1.3rem,3vw,1.9rem)">
           חדר הבריחה הביומימיקרי
         </h2>
@@ -1918,6 +1924,7 @@ function renderNameEntry() {
         </div>
       </div>
 
+      </div><!-- /padding-wrapper -->
     </div>`);
 
   _pollNameEntryStatus();
@@ -2851,7 +2858,7 @@ function showActualFinalScreen() {
         </details>
         <div class="btn-row" style="justify-content:center; margin-top:20px">
           <button class="btn btn-secondary" onclick="restartGame()">🔄 שחקו שוב מההתחלה</button>
-          <button class="btn btn-primary" onclick="location.href='index.html'">🏠 חזרה לדף הבית</button>
+          <button class="btn btn-primary" onclick="location.href='bioroom.html'">🏠 חזרה לדף הבית</button>
         </div>
       </div>
     </div>

@@ -1,0 +1,34 @@
+{
+  "files": [
+    {
+      "sheet_name": "מסכים",
+      "file": "screens.json",
+      "record_count": 38
+    },
+    {
+      "sheet_name": "שאלה 1",
+      "file": "question1.json",
+      "record_count": 44
+    },
+    {
+      "sheet_name": "שאלה 2",
+      "file": "question2.json",
+      "record_count": 28
+    },
+    {
+      "sheet_name": "שאלה 3",
+      "file": "question3.json",
+      "record_count": 30
+    },
+    {
+      "sheet_name": "משחק התאמה",
+      "file": "matching_game.json",
+      "record_count": 14
+    },
+    {
+      "sheet_name": "משחק התאמה-המשך",
+      "file": "matching_game_continuation.json",
+      "record_count": 30
+    }
+  ]
+}

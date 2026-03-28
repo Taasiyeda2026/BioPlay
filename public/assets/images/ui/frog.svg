@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+  <!-- body -->
+  <ellipse cx="100" cy="130" rx="65" ry="52" fill="#4caf50"/>
+  <!-- head -->
+  <circle cx="100" cy="82" r="46" fill="#4caf50"/>
+  <!-- eye sockets -->
+  <circle cx="75" cy="62" r="17" fill="#2e7d32"/>
+  <circle cx="125" cy="62" r="17" fill="#2e7d32"/>
+  <!-- eyes -->
+  <circle cx="75" cy="62" r="12" fill="#fff"/>
+  <circle cx="125" cy="62" r="12" fill="#fff"/>
+  <circle cx="77" cy="63" r="7" fill="#1a237e"/>
+  <circle cx="127" cy="63" r="7" fill="#1a237e"/>
+  <circle cx="79" cy="61" r="2.5" fill="#fff"/>
+  <circle cx="129" cy="61" r="2.5" fill="#fff"/>
+  <!-- nostril -->
+  <circle cx="93" cy="82" r="3" fill="#2e7d32"/>
+  <circle cx="107" cy="82" r="3" fill="#2e7d32"/>
+  <!-- smile -->
+  <path d="M78 96 Q100 112 122 96" fill="none" stroke="#2e7d32" stroke-width="3.5" stroke-linecap="round"/>
+  <!-- belly -->
+  <ellipse cx="100" cy="138" rx="40" ry="32" fill="#a5d6a7"/>
+  <!-- front legs -->
+  <ellipse cx="48" cy="158" rx="16" ry="9" fill="#4caf50" transform="rotate(-30 48 158)"/>
+  <ellipse cx="152" cy="158" rx="16" ry="9" fill="#4caf50" transform="rotate(30 152 158)"/>
+  <!-- back feet -->
+  <ellipse cx="62" cy="180" rx="22" ry="10" fill="#388e3c" transform="rotate(-15 62 180)"/>
+  <ellipse cx="138" cy="180" rx="22" ry="10" fill="#388e3c" transform="rotate(15 138 180)"/>
+</svg>

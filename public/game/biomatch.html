@@ -1,0 +1,755 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>שלב ההתאמה</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --night: #020c04;
+      --teal: #00e8c8;
+      --sky: #62ff9a;
+      --pearl: #e4f5e8;
+      --gold: #d4a843;
+      --card-size: 64px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      height: 100%;
+    }
+    html, body {
+      height: 100%;
+      overflow-x: hidden;
+    }
+    body {
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      font-family: 'Rubik', sans-serif;
+      color: var(--pearl);
+      background-image:
+        linear-gradient(180deg, rgba(2,14,10,.42), rgba(2,14,10,.54)),
+        url('../assets/images/backgrounds/bg-all.png');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-attachment: scroll;
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+      user-select: none;
+    }
+
+    /* ── HEADER ── */
+    .header {
+      padding: 2px 10px 4px;
+      text-align: center;
+      border-bottom: none;
+      background: transparent;
+      flex-shrink: 0;
+    }
+    .stage-title { font-size: clamp(13px,1.8vw,17px); font-weight: 800; color: var(--sky); }
+    .stage-sub   { font-size: 10px; color: rgba(228,245,232,.7); margin-top: 1px; }
+    @media (max-height: 520px) { .stage-sub { display: none; } }
+    .progress-pill {
+      display: inline-block; margin-top: 2px;
+      padding: 2px 10px; border-radius: 999px;
+      border: 1px solid rgba(0,200,140,.38);
+      background: rgba(2,16,8,.8);
+      font-weight: 700; font-size: 12px;
+    }
+    .match-zoom-hint {
+      text-align: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(228,245,232,.88);
+      margin: 2px 10px 0;
+      line-height: 1.45;
+      max-width: 40rem;
+      margin-inline: auto;
+    }
+
+    /* ── BOARD ── */
+    .board-wrap {
+      flex: 1 1 auto;
+      min-height: 0;
+      position: relative;
+      padding: 4px 8px 8px;
+      display: flex;
+      align-items: stretch;
+      height: calc(100dvh - 92px);
+    }
+    #line-svg {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      pointer-events: none; z-index: 1; overflow: visible;
+    }
+    .board-grid {
+      position: relative; z-index: 2;
+      width: 100%; height: 100%;
+      display: grid;
+      grid-template-columns: 1fr 70px 1fr;
+      gap: 4px;
+    }
+
+    /* ── COLUMNS ── */
+    .column {
+      display: flex; flex-direction: column;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0;
+    }
+    .column-title {
+      font-size: 11px; font-weight: 700;
+      padding: 4px 12px; border-radius: 999px;
+      border: 1px solid rgba(0,200,140,.38);
+      background: rgba(2,14,6,.7); color: var(--sky);
+      flex-shrink: 0; white-space: nowrap;
+    }
+
+    /* ── SQUARE CARDS ── */
+    .match-card {
+      position: relative;
+      width: var(--card-size); height: var(--card-size);
+      border-radius: 12px;
+      border: 2px solid rgba(0,200,140,.3);
+      background: rgba(3,12,5,.95);
+      box-shadow: 0 3px 12px rgba(0,0,0,.45);
+      transition: border-color .18s, box-shadow .18s, transform .14s;
+      cursor: pointer;
+      flex-shrink: 0;
+      overflow: visible; /* let dot overflow */
+    }
+    /* Image container — clips image to square */
+    .card-inner {
+      width: 100%; height: 100%;
+      border-radius: 10px; overflow: hidden;
+    }
+    .card-thumb {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+      pointer-events: none;
+    }
+
+    /* Hover tooltip — label only on hover */
+    .match-card::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: calc(100% + 7px);
+      left: 50%; transform: translateX(-50%);
+      background: rgba(2,14,6,.97);
+      color: var(--pearl);
+      font-family: 'Rubik', sans-serif;
+      font-size: 12px; font-weight: 700;
+      padding: 5px 11px; border-radius: 8px;
+      white-space: nowrap; pointer-events: none;
+      opacity: 0; transition: opacity .15s;
+      border: 1px solid rgba(0,200,140,.35);
+      box-shadow: 0 3px 10px rgba(0,0,0,.55);
+      z-index: 20;
+    }
+    .match-card:hover::after { opacity: 1; }
+
+    /* States */
+    .match-card:hover:not(.matched) {
+      border-color: rgba(0,232,180,.75);
+      box-shadow: 0 5px 20px rgba(0,0,0,.5), 0 0 16px rgba(0,200,140,.2);
+      transform: translateY(-2px);
+    }
+    .match-card:active:not(.matched) { transform: scale(.96); }
+    .match-card.selected {
+      border-color: rgba(255,215,70,.9);
+      box-shadow: 0 0 0 3px rgba(255,215,70,.35), 0 5px 18px rgba(0,0,0,.5);
+    }
+    .match-card.matched {
+      border-color: rgba(0,232,180,.5);
+      opacity: .72; cursor: default; pointer-events: none;
+    }
+    .match-card.wrong { animation: wrongFlash .45s; }
+    @keyframes wrongFlash {
+      0%,100% { border-color: rgba(0,200,140,.3); }
+      40%     { border-color: rgba(255,60,60,.85); box-shadow: 0 0 16px rgba(255,60,60,.35); }
+    }
+
+    /* ── CONNECTOR DOTS — absolute on inner edges ── */
+    /*
+      RTL layout:  tech-col (1st DOM) → visually RIGHT
+                   nature-col (3rd DOM) → visually LEFT
+      Nature (LEFT):  inner edge = right side  → dot at right: -11px
+      Tech   (RIGHT): inner edge = left side   → dot at left: -11px
+      Dots are positioned further outside the card so they don't overlap
+      the image, giving users a clear tap target for selection.
+    */
+    .dot {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      width: 18px; height: 18px; border-radius: 50%;
+      border: 2.5px solid rgba(0,232,200,.75);
+      background: rgba(0,10,6,.92);
+      z-index: 10;
+      cursor: pointer;
+      transition: background .18s, border-color .18s, box-shadow .18s;
+      /* Enlarge touch target without changing visual size */
+      touch-action: manipulation;
+    }
+    /* Extra tap area via pseudo-element so small dots are easier to hit */
+    .dot::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+    }
+    .nature-card .dot { right: -11px; }
+    .tech-card   .dot { left:  -11px; }
+    .match-card.selected .dot {
+      background: rgba(255,215,70,.92);
+      border-color: rgba(255,215,70,.92);
+      box-shadow: 0 0 10px rgba(255,215,70,.65);
+    }
+    .match-card.matched .dot {
+      background: rgba(0,232,180,.88);
+      border-color: rgba(0,232,180,.88);
+      box-shadow: 0 0 10px rgba(0,232,180,.55);
+    }
+
+    /* ── CENTER GUIDE ── */
+    .digits-col {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: space-around;
+      padding: 28px 0;
+    }
+    .digit-node {
+      width: 36px; height: 36px; border-radius: 50%;
+      display: grid; place-items: center;
+      font-weight: 800; font-size: 15px;
+      border: none;
+      background: transparent;
+      box-shadow: none;
+      color: transparent;
+      opacity: 0;
+      flex-shrink: 0; z-index: 3;
+      pointer-events: none;
+    }
+
+    /* ── SVG LINES ── */
+    .line-correct {
+      fill: none; stroke: #f6e7b7; stroke-width: 2.5;
+      stroke-linecap: round;
+      filter: drop-shadow(0 0 4px rgba(232,211,111,.6));
+      opacity: .95;
+    }
+    .line-pending {
+      fill: none; stroke: rgba(255,215,70,.6); stroke-width: 2;
+      stroke-linecap: round; stroke-dasharray: 6 4;
+    }
+
+    /* ── POPUPS ── */
+    .overlay {
+      position: fixed; inset: 0; z-index: 30;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(1,6,2,.78); backdrop-filter: blur(8px);
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      width: min(340px,90vw); border-radius: 20px;
+      border: 1px solid rgba(0,200,140,.32);
+      background: linear-gradient(145deg, rgba(2,12,5,.97), rgba(1,8,3,.98));
+      box-shadow: 0 18px 48px rgba(0,0,0,.65), 0 0 32px rgba(57,224,122,.1);
+      padding: 18px 16px; text-align: center;
+    }
+    .modal h3 { margin: 0 0 8px; font-size: clamp(1.05rem,2vw,1.35rem); color: var(--sky); line-height: 1.35; }
+    .modal p  { margin: 6px 0; line-height: 1.7; color: rgba(228,245,232,.9); font-size: .92rem; }
+    .modal .actions { margin-top: 14px; display: flex; justify-content: center; }
+    .btn {
+      border: 1px solid rgba(0,200,140,.55);
+      background: linear-gradient(135deg, rgba(0,232,180,.22), rgba(57,224,122,.16));
+      color: var(--pearl); border-radius: 999px; padding: 10px 24px;
+      font-weight: 800; cursor: pointer; font-size: .92rem; font-family: inherit;
+      box-shadow: 0 0 16px rgba(0,200,140,.2);
+    }
+    .btn:hover { background: linear-gradient(135deg, rgba(0,232,180,.32), rgba(57,224,122,.24)); }
+    .finish-success { color: #88f3b9; font-weight: 700; }
+    .finish-code { color: #f6e7b7; font-weight: 900; font-size: 1.25rem; letter-spacing: .1em; margin: 8px 0; }
+
+    /* ── ZOOM OVERLAY ── */
+    .zoom-overlay {
+      position: fixed; inset: 0; z-index: 50;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(0,5,2,.9); backdrop-filter: blur(14px);
+      cursor: pointer;
+    }
+    .zoom-overlay.open { display: flex; }
+    .zoom-image {
+      max-width: min(700px,92vw); max-height: 88vh;
+      border-radius: 16px;
+      border: 1.5px solid rgba(0,200,140,.45);
+      box-shadow: 0 24px 60px rgba(0,0,0,.8), 0 0 36px rgba(0,180,120,.15);
+      object-fit: contain; cursor: default; pointer-events: none;
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 640px) {
+      .board-grid { grid-template-columns: 1fr 48px 1fr; gap: 4px; }
+      .digit-node { width: 28px; height: 28px; font-size: 12px; }
+      .dot { width: 16px; height: 16px; }
+      .nature-card .dot { right: -9px; }
+      .tech-card   .dot { left:  -9px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div id="stage-title" class="stage-title">ביומימיקרי – משחק התאמה</div>
+  <div id="stage-sub"   class="stage-sub">לחצו על ריבוע כדי לבחור, ואז חברו לפריט המתאים בצד השני</div>
+  <div id="progress" class="progress-pill">התאמות: 0/6</div>
+  <p class="match-zoom-hint">בלחיצה על התמונה ניתן להגדיל ולראות את המוצר או האורגניזם</p>
+</div>
+
+<div class="board-wrap">
+  <svg id="line-svg"></svg>
+  <div class="board-grid">
+    <!--
+      RTL NOTE: in dir="rtl" the first grid child appears on the RIGHT.
+      → tech-col first  = visually RIGHT  (dot on left  edge of card)
+      → nature-col last = visually LEFT   (dot on right edge of card)
+    -->
+    <div class="column" id="tech-col">
+      <div class="column-title">טכנולוגיה</div>
+    </div>
+    <div class="digits-col" id="digits-col"></div>
+    <div class="column" id="nature-col">
+      <div class="column-title">אורגניזמים</div>
+    </div>
+  </div>
+</div>
+
+<div id="pair-overlay"   class="overlay"><div class="modal" id="pair-modal"></div></div>
+<div id="finish-overlay" class="overlay"><div class="modal" id="finish-modal"></div></div>
+<div id="zoom-overlay"   class="zoom-overlay"><img id="zoom-image" class="zoom-image" alt="" /></div>
+
+<script>
+"use strict";
+
+/* ── CONFIG ── */
+const MATCHING_JSON_PATH  = '../data/matching-stage.json';
+const MATCHING_IMAGE_BASE = '../assets/images/matching/';
+const TOTAL_PAIRS = 6;
+
+const params = new URLSearchParams(location.search);
+const ctxKey = params.get('ctx');
+const ctx = (() => {
+  try {
+    const raw = ctxKey && sessionStorage.getItem(ctxKey);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+})();
+
+/* ── STATE ── */
+const state = {
+  data:           null,
+  layout:         null,
+  pairsById:      new Map(),
+  natureOrder:    [],
+  techOrder:      [],
+  selected:       null,   // { pairId, side, el }
+  matchedIds:     new Set(),
+  attemptsByPair: new Map(),
+  score:          0,
+  showedCompletion: false,
+  lockedLines:    [],     // [{ pairId, natEl, techEl }]
+};
+
+/* ── LAYOUT VARIANTS ── */
+const LAYOUT_VARIANTS = {
+  layout01: { natureOrder: ['pair01','pair02','pair03','pair04','pair05','pair06'], techOrder: ['pair05','pair01','pair06','pair03','pair02','pair04'] },
+  layout02: { natureOrder: ['pair03','pair04','pair05','pair06','pair01','pair02'], techOrder: ['pair02','pair06','pair04','pair01','pair05','pair03'] },
+  layout03: { natureOrder: ['pair02','pair03','pair04','pair05','pair06','pair01'], techOrder: ['pair04','pair01','pair05','pair02','pair03','pair06'] },
+  layout04: { natureOrder: ['pair06','pair05','pair04','pair03','pair02','pair01'], techOrder: ['pair01','pair04','pair02','pair06','pair03','pair05'] },
+  layout05: { natureOrder: ['pair04','pair06','pair01','pair05','pair02','pair03'], techOrder: ['pair03','pair02','pair06','pair01','pair04','pair05'] },
+};
+
+/* ── HELPERS ── */
+function imgPath(filename) {
+  if (!filename) return '';
+  if (filename.startsWith('data:') || filename.startsWith('http')) return filename;
+  return MATCHING_IMAGE_BASE + filename.trim();
+}
+
+function escapeHTML(s) {
+  return String(s || '')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── CARD SIZE ── */
+function computeCardSize() {
+  const wrap = document.querySelector('.board-wrap');
+  if (!wrap) return;
+  const r = wrap.getBoundingClientRect();
+  const small = window.innerWidth <= 640;
+  const centerW = small ? 48 : 80;
+  const gridGap = small ? 4 : 6;
+  const padH = 20; // 10px each side
+  const dotRoom = 20; // room for dot overflow (dot is 18px, offset -11px)
+  const maxW = Math.floor((r.width - padH - centerW - 2 * gridGap) / 2 - dotRoom);
+  // height: distribute 6 cards + title in the column
+  // column uses justify-content: space-around, so cards fill height evenly
+  const titleH = 26; // column-title approx height
+  const padV = 4;    // column padding top+bottom
+  const maxH = Math.floor((r.height - padV - titleH) / 6 - (small ? 8 : 10));
+  const size = Math.max(44, Math.min(64, maxW, maxH));
+  document.documentElement.style.setProperty('--card-size', `${size}px`);
+}
+
+/* ── LAYOUT ── */
+function pickLayout() {
+  const door = Number(ctx?.doorNumber || 0);
+  const layout = state.data.layouts.find(
+    l => Array.isArray(l.doorNumbers) && l.doorNumbers.includes(door)
+  ) || state.data.layouts[0];
+  state.layout = layout;
+  const variant = LAYOUT_VARIANTS[layout.id] || LAYOUT_VARIANTS.layout01;
+  state.natureOrder = [...variant.natureOrder];
+  state.techOrder   = [...variant.techOrder];
+}
+
+/* ── RENDER DIGITS ── */
+function renderDigits() {
+  const col = document.getElementById('digits-col');
+  col.innerHTML = '';
+  (state.layout.allDigits || [1,2,3,4,5,6,7,8,9]).forEach((digit) => {
+    const node = document.createElement('div');
+    node.className = 'digit-node';
+    node.textContent = digit;
+    col.appendChild(node);
+  });
+}
+
+/* ── RENDER CARDS ── */
+function cardEl(pair, side) {
+  const isNature = side === 'nature';
+  const label  = isNature ? pair.natureLabel : pair.techLabel;
+  const src    = imgPath(isNature ? pair.natureImage : pair.techImage);
+
+  const btn = document.createElement('button');
+  btn.type      = 'button';
+  btn.className = `match-card ${isNature ? 'nature-card' : 'tech-card'}`;
+  btn.id        = `card-${side}-${pair.id}`;
+  btn.dataset.pairId  = pair.id;
+  btn.dataset.side    = side;
+  btn.dataset.imgSrc  = src;
+  btn.dataset.label   = label;
+  btn.setAttribute('aria-label', label);
+
+  // Image container — clips image to the square
+  const inner = document.createElement('div');
+  inner.className = 'card-inner';
+  const img = document.createElement('img');
+  img.className = 'card-thumb';
+  img.src = src; img.alt = label; img.draggable = false;
+  img.onerror = () => { img.style.opacity = '.25'; };
+  inner.appendChild(img);
+  btn.appendChild(inner);
+
+  // Connector dot — outside card-inner, positioned on inner edge via CSS
+  const dot = document.createElement('span');
+  dot.className = 'dot';
+  dot.setAttribute('aria-hidden', 'true');
+  // Dot click: select for matching WITHOUT opening zoom.
+  // Stop propagation so the card's own click handler (which opens zoom) does not fire.
+  dot.addEventListener('click', (e) => {
+    e.stopPropagation();
+    handleDotClick(btn);
+  });
+  btn.appendChild(dot);
+
+  btn.addEventListener('click', () => handleClick(btn));
+  return btn;
+}
+
+function renderCards() {
+  const natCol  = document.getElementById('nature-col');
+  const techCol = document.getElementById('tech-col');
+  natCol.innerHTML  = '<div class="column-title">אורגניזמים</div>';
+  techCol.innerHTML = '<div class="column-title">טכנולוגיה</div>';
+  state.natureOrder.forEach(id => {
+    const pair = state.pairsById.get(id);
+    if (pair) natCol.appendChild(cardEl(pair, 'nature'));
+  });
+  state.techOrder.forEach(id => {
+    const pair = state.pairsById.get(id);
+    if (pair) techCol.appendChild(cardEl(pair, 'tech'));
+  });
+}
+
+/* ── PROGRESS ── */
+function updateProgress() {
+  document.getElementById('progress').textContent =
+    `התאמות: ${state.matchedIds.size}/${TOTAL_PAIRS}`;
+}
+
+/* ── SELECTION ── */
+function clearSelection() {
+  document.querySelectorAll('.match-card.selected').forEach(el => el.classList.remove('selected'));
+  state.selected = null;
+}
+
+/* ── CLICK HANDLER ── */
+function handleClick(card) {
+  const pairId = card.dataset.pairId;
+  const side   = card.dataset.side;
+
+  // Matched card — open zoom to view image
+  if (state.matchedIds.has(pairId)) {
+    openZoom(card.dataset.imgSrc, card.dataset.label);
+    return;
+  }
+
+  // De-select same card
+  if (state.selected?.el === card) {
+    clearSelection();
+    return;
+  }
+
+  // Switch selection within same side — select new card + zoom
+  if (state.selected && state.selected.side === side) {
+    clearSelection();
+    card.classList.add('selected');
+    state.selected = { pairId, side, el: card };
+    openZoom(card.dataset.imgSrc, card.dataset.label);
+    return;
+  }
+
+  // First selection — select + zoom so player can identify the item
+  if (!state.selected) {
+    card.classList.add('selected');
+    state.selected = { pairId, side, el: card };
+    openZoom(card.dataset.imgSrc, card.dataset.label);
+    return;
+  }
+
+  // Second selection on opposite side — attempt match (no zoom, instant feedback)
+  const prev = state.selected;
+  clearSelection();
+
+  const natId  = prev.side === 'nature' ? prev.pairId : pairId;
+  const techId = prev.side === 'tech'   ? prev.pairId : pairId;
+  const natEl  = document.getElementById(`card-nature-${natId}`);
+  const techEl = document.getElementById(`card-tech-${techId}`);
+
+  const attempts = (state.attemptsByPair.get(natId) || 0) + 1;
+  state.attemptsByPair.set(natId, attempts);
+
+  if (natId === techId) {
+    lockMatch(natId, natEl, techEl, attempts);
+  } else {
+    [natEl, techEl].forEach(el => {
+      if (!el) return;
+      el.classList.add('wrong');
+      setTimeout(() => el.classList.remove('wrong'), 500);
+    });
+    drawTempWrongLine(natEl, techEl);
+  }
+}
+
+/* ── DOT CLICK HANDLER — select without zoom ── */
+function handleDotClick(card) {
+  const pairId = card.dataset.pairId;
+  const side   = card.dataset.side;
+
+  // Matched card — ignore dot clicks
+  if (state.matchedIds.has(pairId)) return;
+
+  // De-select same card
+  if (state.selected?.el === card) {
+    clearSelection();
+    return;
+  }
+
+  // Switch selection within same side — no zoom
+  if (state.selected && state.selected.side === side) {
+    clearSelection();
+    card.classList.add('selected');
+    state.selected = { pairId, side, el: card };
+    return;
+  }
+
+  // First selection — select without opening zoom
+  if (!state.selected) {
+    card.classList.add('selected');
+    state.selected = { pairId, side, el: card };
+    return;
+  }
+
+  // Second selection on opposite side — attempt match
+  const prev = state.selected;
+  clearSelection();
+
+  const natId  = prev.side === 'nature' ? prev.pairId : pairId;
+  const techId = prev.side === 'tech'   ? prev.pairId : pairId;
+  const natEl  = document.getElementById(`card-nature-${natId}`);
+  const techEl = document.getElementById(`card-tech-${techId}`);
+
+  const attempts = (state.attemptsByPair.get(natId) || 0) + 1;
+  state.attemptsByPair.set(natId, attempts);
+
+  if (natId === techId) {
+    lockMatch(natId, natEl, techEl, attempts);
+  } else {
+    [natEl, techEl].forEach(el => {
+      if (!el) return;
+      el.classList.add('wrong');
+      setTimeout(() => el.classList.remove('wrong'), 500);
+    });
+    drawTempWrongLine(natEl, techEl);
+  }
+}
+
+/* ── LOCK MATCH ── */
+function lockMatch(pairId, natEl, techEl, attempts) {
+  state.matchedIds.add(pairId);
+  const scoring = state.data.rules?.attemptScoring || { firstTry: 5, secondTry: 2, thirdTryOrMore: 0 };
+  const pts = attempts === 1 ? scoring.firstTry : attempts === 2 ? scoring.secondTry : scoring.thirdTryOrMore;
+  state.score += pts;
+  natEl?.classList.add('matched');
+  techEl?.classList.add('matched');
+  state.lockedLines.push({ pairId, natEl, techEl });
+  redrawAllLines();
+  updateProgress();
+  const pair = state.pairsById.get(pairId);
+  if (pair) openPairPopup(pair);
+}
+
+/* ── SVG LINES ── */
+function getDotCenter(cardEl) {
+  if (!cardEl) return null;
+  const dot = cardEl.querySelector('.dot');
+  if (!dot) return null;
+  const wrap = document.querySelector('.board-wrap');
+  const wr   = wrap.getBoundingClientRect();
+  const dr   = dot.getBoundingClientRect();
+  return {
+    x: dr.left + dr.width  / 2 - wr.left,
+    y: dr.top  + dr.height / 2 - wr.top,
+  };
+}
+
+function redrawAllLines() {
+  const svg = document.getElementById('line-svg');
+  svg.querySelectorAll('.line-correct').forEach(el => el.remove());
+  state.lockedLines.forEach(({ natEl, techEl }) => {
+    const s = getDotCenter(natEl);
+    const e = getDotCenter(techEl);
+    if (!s || !e) return;
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('class', 'line-correct');
+    line.setAttribute('x1', s.x); line.setAttribute('y1', s.y);
+    line.setAttribute('x2', e.x); line.setAttribute('y2', e.y);
+    svg.appendChild(line);
+  });
+}
+
+function drawTempWrongLine(natEl, techEl) {
+  const svg = document.getElementById('line-svg');
+  const s = getDotCenter(natEl);
+  const e = getDotCenter(techEl);
+  if (!s || !e) return;
+  const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+  line.setAttribute('class', 'line-pending');
+  line.setAttribute('x1', s.x); line.setAttribute('y1', s.y);
+  line.setAttribute('x2', e.x); line.setAttribute('y2', e.y);
+  svg.appendChild(line);
+  setTimeout(() => line.remove(), 480);
+}
+
+/* ── POPUPS ── */
+function openPairPopup(pair) {
+  const overlay = document.getElementById('pair-overlay');
+  const modal   = document.getElementById('pair-modal');
+  const popup   = pair.popup || {};
+  const lines   = Array.isArray(popup.lines) ? popup.lines : [];
+  modal.style.borderColor = `${pair.accentColor || '#00c88c'}88`;
+  modal.innerHTML = `
+    <h3 style="color:${pair.accentColor || '#62ff9a'}">${escapeHTML(popup.title || pair.natureLabel + ' ↔ ' + pair.techLabel)}</h3>
+    ${lines.map(l => `<p>${escapeHTML(l)}</p>`).join('')}
+    <div class="actions"><button class="btn" id="pair-close">${escapeHTML(popup.buttonLabel || 'המשך')}</button></div>
+  `;
+  overlay.classList.add('open');
+  modal.querySelector('#pair-close').addEventListener('click', () => {
+    overlay.classList.remove('open');
+    if (state.matchedIds.size === TOTAL_PAIRS && !state.showedCompletion) {
+      state.showedCompletion = true;
+      setTimeout(openCompletionPopup, 250);
+    }
+  }, { once: true });
+}
+
+function openCompletionPopup() {
+  const [d1, d2] = state.layout.codeDigits || [0, 0];
+  const overlay  = document.getElementById('finish-overlay');
+  const modal    = document.getElementById('finish-modal');
+  const tpl      = state.data.stageCompletionPopup || {};
+  const scoreLine = tpl.scoreLine
+    ? tpl.scoreLine.replace('{totalScore}', String(state.score))
+    : `קיבלתם: ${state.score} נקודות`;
+  modal.innerHTML = `
+    <h3>${escapeHTML(tpl.title || 'כל הכבוד! סיימתם את ההתאמות.')}</h3>
+    <p class="finish-success">✅ שלב ההתאמה הושלם בהצלחה</p>
+    <p>${escapeHTML(scoreLine)}</p>
+    <div class="actions"><button class="btn" id="finish-close">${escapeHTML(tpl.buttonLabel || 'המשך')}</button></div>
+  `;
+  overlay.classList.add('open');
+  modal.querySelector('#finish-close').addEventListener('click', () => {
+    overlay.classList.remove('open');
+    window.parent.postMessage({
+      type: 'matchComplete',
+      payload: { digits: [d1, d2], matches: Array.from(state.matchedIds), scoreAward: state.score, status: 'completed' }
+    }, '*');
+  }, { once: true });
+}
+
+/* ── ZOOM ── */
+function openZoom(src, alt) {
+  const overlay = document.getElementById('zoom-overlay');
+  const img     = document.getElementById('zoom-image');
+  img.src = src; img.alt = alt || '';
+  overlay.classList.add('open');
+}
+document.getElementById('zoom-overlay').addEventListener('click', e => {
+  if (e.target.id === 'zoom-overlay') e.currentTarget.classList.remove('open');
+});
+
+/* ── RESIZE ── */
+window.addEventListener('resize', () => {
+  computeCardSize();
+  redrawAllLines();
+});
+
+/* ── INIT ── */
+async function init() {
+  let data;
+  try {
+    const res = await fetch(MATCHING_JSON_PATH, { cache: 'no-store' });
+    if (!res.ok) throw new Error('fetch failed');
+    data = await res.json();
+  } catch (err) {
+    document.body.innerHTML +=
+      `<div style="padding:24px;color:#ff9090;text-align:center">שגיאה בטעינת נתוני ההתאמה.<br>${err.message}</div>`;
+    return;
+  }
+  state.data = data;
+  data.pairs.forEach(p => state.pairsById.set(p.id, p));
+  document.getElementById('stage-title').textContent = data.screen?.title    || 'ביומימיקרי – משחק התאמה';
+  document.getElementById('stage-sub').textContent   = data.screen?.subtitle || '';
+  pickLayout();
+  renderDigits();
+  renderCards();
+  updateProgress();
+  // Compute card size after layout is painted
+  requestAnimationFrame(() => { computeCardSize(); });
+}
+init();
+</script>
+</body>
+</html>

@@ -4,6 +4,7 @@ const path = require('path');
 
 const PORT       = 5000;
 const ROOT       = __dirname;
+const PUBLIC_ROOT = path.join(ROOT, 'public');
 const ADMIN_CODE = 'BIO2026';
 const AUTO_CLEAR_MS = 15 * 60 * 1000; /* 15 דקות לאחר סיום משחק */
 
@@ -12,7 +13,7 @@ const AUTO_CLEAR_MS = 15 * 60 * 1000; /* 15 דקות לאחר סיום משחק 
    ============================================================ */
 const store = {
   status:      'waiting', /* waiting | active | ended */
-  players:     {},        /* { [name]: { score, steps, joinedAt, completedAt } } */
+  players:     {},        /* { [name]: { score, steps, startTime, joinedAt, completedAt } } */
   gameEndedAt: null,      /* timestamp ms – מתי הסתיים המשחק */
   _clearTimer: null,      /* setTimeout handle למחיקה אוטומטית */
 };
@@ -67,6 +68,7 @@ const MIME_TYPES = {
   '.gif':  'image/gif',
   '.ico':  'image/x-icon',
   '.mp4':  'video/mp4',
+  '.webm': 'video/webm',
   '.m4a':  'audio/mp4',
   '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   '.csv':  'text/csv',
@@ -97,9 +99,28 @@ const server = http.createServer(async (req, res) => {
       name,
       score:       p.score,
       steps:       p.steps,
+      door:        p.door || null,
+      startTime:   p.startTime || null,
       joinedAt:    p.joinedAt,
       completedAt: p.completedAt || null,
-    })).sort((a, b) => b.score - a.score);
+      elapsedMs:   (() => {
+        const st = Number(p.startTime) || 0;
+        const done = Date.parse(p.completedAt || '') || 0;
+        if (!st || !done || done < st) return null;
+        return done - st;
+      })(),
+    })).sort((a, b) => {
+      const scoreA = Number(a.score) || 0;
+      const scoreB = Number(b.score) || 0;
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      const elapsedA = Number.isFinite(Number(a.elapsedMs)) ? Number(a.elapsedMs) : Number.MAX_SAFE_INTEGER;
+      const elapsedB = Number.isFinite(Number(b.elapsedMs)) ? Number(b.elapsedMs) : Number.MAX_SAFE_INTEGER;
+      if (elapsedA !== elapsedB) return elapsedA - elapsedB;
+      const completedA = Date.parse(a.completedAt || '') || Number.MAX_SAFE_INTEGER;
+      const completedB = Date.parse(b.completedAt || '') || Number.MAX_SAFE_INTEGER;
+      if (completedA !== completedB) return completedA - completedB;
+      return String(a.name).localeCompare(String(b.name), 'he');
+    });
     const clearAt = store.gameEndedAt ? store.gameEndedAt + AUTO_CLEAR_MS : null;
     return jsonRes(res, { status: store.status, players: list, clearAt });
   }
@@ -109,6 +130,7 @@ const server = http.createServer(async (req, res) => {
     const body = await parseBody(req);
     if (!checkAdmin(body)) return jsonRes(res, { ok: false, error: 'קוד מדריך שגוי' }, 403);
     store.status      = 'active';
+    store.players     = {};
     store.gameEndedAt = null;
     if (store._clearTimer) { clearTimeout(store._clearTimer); store._clearTimer = null; }
     console.log('[BioPlay] המשחק התחיל.');
@@ -143,22 +165,32 @@ const server = http.createServer(async (req, res) => {
     const body = await parseBody(req);
     const name = String(body.name || '').trim().slice(0, 40);
     if (!name) return jsonRes(res, { ok: false, error: 'שם ריק' }, 400);
+    if (store.status !== 'active') return jsonRes(res, { ok: false, error: 'החדר אינו פעיל' }, 409);
     if (!store.players[name]) {
-      store.players[name] = { score: 0, steps: [], joinedAt: new Date().toISOString(), completedAt: null };
+      const nowMs = Date.now();
+      store.players[name] = {
+        score: 0,
+        steps: [],
+        startTime: nowMs,
+        joinedAt: new Date(nowMs).toISOString(),
+        completedAt: null,
+      };
     }
     return jsonRes(res, { ok: true, name, status: store.status });
   }
 
-  /* POST /api/score → update player score {name, score, step, completed} */
+  /* POST /api/score → update player score {name, score, step, completed, door} */
   if (method === 'POST' && urlPath === '/api/score') {
     const body  = await parseBody(req);
     const name  = String(body.name  || '').trim();
     const score = Number(body.score || 0);
     const step  = String(body.step  || '');
+    if (store.status !== 'active') return jsonRes(res, { ok: false, error: 'המשחק סגור לעדכונים' }, 409);
     if (!name || !store.players[name]) return jsonRes(res, { ok: false, error: 'שחקן לא קיים' }, 404);
     const p = store.players[name];
     p.score = score;
     if (step && !p.steps.includes(step)) p.steps.push(step);
+    if (body.door) p.door = String(body.door);
     if (body.completed) p.completedAt = new Date().toISOString();
     return jsonRes(res, { ok: true });
   }
@@ -166,21 +198,41 @@ const server = http.createServer(async (req, res) => {
   /* ============================================================
      STATIC FILE SERVING
      ============================================================ */
-  let filePath = path.join(ROOT, urlPath === '/' ? '/bioroom.html' : urlPath);
-  if (!filePath.startsWith(ROOT)) {
-    res.writeHead(403); return res.end('Forbidden');
-  }
+  // Serve:
+  // - `/` and all web pages/assets from `public/`
+  // - `/data/**` from repo root, so JSON under `data/generated/` is accessible
+  const isDataRoute = urlPath === '/data' || urlPath.startsWith('/data/');
+  const defaultPath = '/index.html';
 
-  fs.stat(filePath, (err, stat) => {
-    if (err || !stat.isFile()) {
+  const resolveStaticFile = (rootDir) => {
+    const p = path.join(rootDir, urlPath === '/' ? defaultPath : urlPath);
+    if (!p.startsWith(rootDir)) return null;
+    return p;
+  };
+
+  const primaryRoot = isDataRoute ? ROOT : PUBLIC_ROOT;
+  const fallbackRoot = isDataRoute ? PUBLIC_ROOT : null;
+
+  const primaryPath = resolveStaticFile(primaryRoot);
+  const fallbackPath = fallbackRoot ? resolveStaticFile(fallbackRoot) : null;
+  const candidates = [primaryPath, fallbackPath].filter(Boolean);
+
+  const tryNext = (i) => {
+    if (i >= candidates.length) {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       return res.end('Not found');
     }
-    const ext         = path.extname(filePath).toLowerCase();
-    const contentType = MIME_TYPES[ext] || 'application/octet-stream';
-    res.writeHead(200, { 'Content-Type': contentType });
-    fs.createReadStream(filePath).pipe(res);
-  });
+    const filePath = candidates[i];
+    fs.stat(filePath, (err, stat) => {
+      if (err || !stat.isFile()) return tryNext(i + 1);
+      const ext         = path.extname(filePath).toLowerCase();
+      const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+      res.writeHead(200, { 'Content-Type': contentType });
+      fs.createReadStream(filePath).pipe(res);
+    });
+  };
+
+  tryNext(0);
 });
 
 server.listen(PORT, '0.0.0.0', () => {

@@ -1,0 +1,127 @@
+{
+  "secretDigits": [
+    4,
+    2
+  ],
+  "pairs": [
+    {
+      "pairId": 1,
+      "organism": "לווייתן",
+      "organismImage": "assets/images/organisms/whale.png",
+      "product": "טורבינת רוח",
+      "productImage": "assets/images/products/prd12.png",
+      "didYouKnow": "למבנה הסנפירים של הלווייתן יש צורה מיוחדת שעוזרת לו לנוע ביעילות, והמבנה הזה נתן השראה ללהבים יעילים יותר בטורבינות רוח.",
+      "nature": {
+        "image": "assets/images/organisms/whale.png",
+        "label": "לווייתן"
+      },
+      "tech": {
+        "image": "assets/images/products/prd12.png",
+        "label": "טורבינת רוח"
+      }
+    },
+    {
+      "pairId": 2,
+      "organism": "פרפר מורפו",
+      "organismImage": "assets/images/organisms/morpho.png",
+      "product": "צבעים מחליפי גוון",
+      "productImage": "assets/images/products/prd18.png",
+      "didYouKnow": "הברק הכחול של פרפר מורפו נוצר ממבנה מיקרוסקופי בכנפיים ולא רק מפיגמנט, והרעיון הזה השפיע על חומרים מחליפי גוון.",
+      "nature": {
+        "image": "assets/images/organisms/morpho.png",
+        "label": "פרפר מורפו"
+      },
+      "tech": {
+        "image": "assets/images/products/prd18.png",
+        "label": "צבעים מחליפי גוון"
+      }
+    },
+    {
+      "pairId": 3,
+      "organism": "כריש",
+      "organismImage": "assets/images/organisms/shark.png",
+      "product": "חליפת שחייה",
+      "productImage": "assets/images/products/prd3.png",
+      "didYouKnow": "מרקם העור של הכריש מפחית חיכוך במים, ולכן שימש השראה לפיתוח חליפות שחייה תחרותיות.",
+      "nature": {
+        "image": "assets/images/organisms/shark.png",
+        "label": "כריש"
+      },
+      "tech": {
+        "image": "assets/images/products/prd3.png",
+        "label": "חליפת שחייה"
+      }
+    },
+    {
+      "pairId": 4,
+      "organism": "קרנף",
+      "organismImage": "assets/images/organisms/rhino.png",
+      "product": "שריון מגן",
+      "productImage": "assets/images/products/prd30.png",
+      "didYouKnow": "מבנה שכבות ההגנה בגוף הקרנף נתן השראה לפיתוח פתרונות מיגון ושריון חזקים יותר.",
+      "nature": {
+        "image": "assets/images/organisms/rhino.png",
+        "label": "קרנף"
+      },
+      "tech": {
+        "image": "assets/images/products/prd30.png",
+        "label": "שריון מגן"
+      }
+    },
+    {
+      "pairId": 5,
+      "organism": "עכביש",
+      "organismImage": "assets/images/organisms/spider.png",
+      "product": "חומרי מתיחה חזקים",
+      "productImage": "assets/images/products/prd10.png",
+      "didYouKnow": "קורי עכביש דקים מאוד אך חזקים וגמישים במיוחד, ולכן הם מקור השראה לחומרים הנדסיים מתקדמים.",
+      "nature": {
+        "image": "assets/images/organisms/spider.png",
+        "label": "עכביש"
+      },
+      "tech": {
+        "image": "assets/images/products/prd10.png",
+        "label": "חומרי מתיחה חזקים"
+      }
+    },
+    {
+      "pairId": 6,
+      "organism": "פרח הלוטוס",
+      "organismImage": "assets/images/organisms/lotus.png",
+      "product": "משטח דוחה מים",
+      "productImage": "assets/images/products/prd2.png",
+      "didYouKnow": "עלה הלוטוס גורם למים להתגלגל ולקחת לכלוך, ותופעה זו הובילה לפיתוח משטחים דוחי מים וניקוי עצמי.",
+      "nature": {
+        "image": "assets/images/organisms/lotus.png",
+        "label": "פרח הלוטוס"
+      },
+      "tech": {
+        "image": "assets/images/products/prd2.png",
+        "label": "משטח דוחה מים"
+      }
+    }
+  ],
+  "dykImage": "assets/images/products/prd2.png",
+  "dykFacts": [
+    {
+      "emoji": "🐋",
+      "title": "לווייתן ← טורבינת רוח",
+      "text": "צורת הסנפיר העניקה השראה ללהבים יעילים יותר בטורבינות רוח."
+    },
+    {
+      "emoji": "🦋",
+      "title": "פרפר מורפו ← צבעים מחליפי גוון",
+      "text": "מבנה מיקרוסקופי יוצר ברק וצבע משתנה גם בלי פיגמנט חזק."
+    },
+    {
+      "emoji": "🦈",
+      "title": "כריש ← חליפת שחייה",
+      "text": "מרקם עור הכריש מפחית חיכוך ולכן שימש לפיתוח חליפות תחרותיות."
+    },
+    {
+      "emoji": "🌿",
+      "title": "לוטוס ← משטח דוחה מים",
+      "text": "אפקט הלוטוס מאפשר ניקוי עצמי ומשטחים שנשארים נקיים יותר."
+    }
+  ]
+}

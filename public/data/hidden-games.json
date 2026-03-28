@@ -1,0 +1,105 @@
+{
+  "meta": {
+    "stepId": "step6_hidden_games",
+    "requiredToFind": 4,
+    "totalItemsPerGame": 6
+  },
+  "ui": {
+    "selectionTitle": "איפה תחפשו את הסודות של עולם הביומימיקרי הסודי?",
+    "selectionSubtitle": "בחרו אחת משתי התמונות הקסומות כדי להמשיך בדרך.",
+    "instructions": "עליכם לחפש 4 מתוך 6 האלמנטים המסתתרים.\nאחרי שתמצאו 4 פריטים - תקבלו ספרה לקוד הסודי.",
+    "topBarTitle": "הפריטים שנאספו",
+    "progressText": "יש למצוא 4 מתוך 6 פריטים",
+    "successTitle": "כל הכבוד!",
+    "successBody": "מצאתם 4 פריטים מתוך 6 — כל הכבוד!\nהספרה לקוד הסודי היא: 4",
+    "successCode": 4
+  },
+  "games": [
+    {
+      "id": "hiddenGame01",
+      "background": "assets/images/hiddengame01/hidden01.png",
+      "magnifier": "assets/images/hiddengame01/magnifier-tool1.png",
+      "items": [
+        {
+          "id": "h1_item1",
+          "label": "מטבע",
+          "image": "assets/images/hiddengame01/h1_item1.png",
+          "hotspot": { "x": 20.3, "y": 7.5, "w": 6, "h": 6 }
+        },
+        {
+          "id": "h1_item2",
+          "label": "שעון חול",
+          "image": "assets/images/hiddengame01/h1_item2.png",
+          "hotspot": { "x": 60.6, "y": 94.3, "w": 6, "h": 6 }
+        },
+        {
+          "id": "h1_item3",
+          "label": "מגילה",
+          "image": "assets/images/hiddengame01/h1_item3.png",
+          "hotspot": { "x": 73.6, "y": 71.1, "w": 6, "h": 6 }
+        },
+        {
+          "id": "h1_item4",
+          "label": "משקפת",
+          "image": "assets/images/hiddengame01/h1_item4.png",
+          "hotspot": { "x": 34.6, "y": 55.8, "w": 6, "h": 6 }
+        },
+        {
+          "id": "h1_item5",
+          "label": "מצפן",
+          "image": "assets/images/hiddengame01/h1_item5.png",
+          "hotspot": { "x": 82.5, "y": 37.6, "w": 6, "h": 6 }
+        },
+        {
+          "id": "h1_item6",
+          "label": "מפתחות",
+          "image": "assets/images/hiddengame01/h1_item6.png",
+          "hotspot": { "x": 12.0, "y": 93.0, "w": 6, "h": 6 }
+        }
+      ]
+    },
+    {
+      "id": "hiddenGame02",
+      "background": "assets/images/hiddengame02/hidden02.png",
+      "magnifier": "assets/images/hiddengame02/magnifier-tool2.png",
+      "items": [
+        {
+          "id": "h2_item1",
+          "label": "ספר עתיק",
+          "image": "assets/images/hiddengame02/h2_item1.png",
+          "hotspot": { "x": 88.2, "y": 39.3, "w": 6, "h": 6 }
+        },
+        {
+          "id": "h2_item2",
+          "label": "מפתחות",
+          "image": "assets/images/hiddengame02/h2_item2.png",
+          "hotspot": { "x": 70.9, "y": 89.9, "w": 6, "h": 6 }
+        },
+        {
+          "id": "h2_item3",
+          "label": "נוצה",
+          "image": "assets/images/hiddengame02/h2_item3.png",
+          "hotspot": { "x": 56.1, "y": 39.3, "w": 6, "h": 6 }
+        },
+        {
+          "id": "h2_item4",
+          "label": "מטבע",
+          "image": "assets/images/hiddengame02/h2_item4.png",
+          "hotspot": { "x": 15.8, "y": 53.0, "w": 6, "h": 6 }
+        },
+        {
+          "id": "h2_item5",
+          "label": "משקפת",
+          "image": "assets/images/hiddengame02/h2_item5.png",
+          "hotspot": { "x": 23.2, "y": 38.4, "w": 6, "h": 6 }
+        },
+        {
+          "id": "h2_item6",
+          "label": "מכתב בבקבוק",
+          "image": "assets/images/hiddengame02/h2_item6.png",
+          "hotspot": { "x": 57.9, "y": 65.3, "w": 6, "h": 6 }
+        }
+      ]
+    }
+  ]
+}

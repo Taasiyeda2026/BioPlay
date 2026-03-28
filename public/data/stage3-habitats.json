@@ -1,0 +1,224 @@
+{
+  "stageId": 3,
+  "stageKey": "habitat",
+  "questionImage": "habitat.png",
+  "answerOptions": [
+    "ים",
+    "מדבר",
+    "יער",
+    "ליד הבית",
+    "סוואנה"
+  ],
+  "doors": [
+    {
+      "door": 1,
+      "organism": "שממית",
+      "correctHabitat": "ליד הבית",
+      "didYouKnowImage": "gid4.png",
+      "didYouKnowText": "הבית הוא בית גידול שנוצר בידי האדם, שבו יכולים לחיות אורגניזמים שונים לצד בני האדם ובסביבתם."
+    },
+    {
+      "door": 2,
+      "organism": "פרח הלוטוס",
+      "correctHabitat": "ליד הבית",
+      "didYouKnowImage": "gid4.png",
+      "didYouKnowText": "הבית הוא בית גידול שנוצר בידי האדם, שבו יכולים לחיות אורגניזמים שונים לצד בני האדם ובסביבתם."
+    },
+    {
+      "door": 3,
+      "organism": "כריש",
+      "correctHabitat": "ים",
+      "didYouKnowImage": "gid3.png",
+      "didYouKnowText": "הים הוא בית גידול מימי, שבו חיים אורגניזמים המותאמים לחיים במים ולתנאים הקיימים בסביבה הימית."
+    },
+    {
+      "door": 4,
+      "organism": "דבורה",
+      "correctHabitat": "ליד הבית",
+      "didYouKnowImage": "gid4.png",
+      "didYouKnowText": "הבית הוא בית גידול שנוצר בידי האדם, שבו יכולים לחיות אורגניזמים שונים לצד בני האדם ובסביבתם."
+    },
+    {
+      "door": 5,
+      "organism": "פינגווין",
+      "correctHabitat": "ים",
+      "didYouKnowImage": "gid3.png",
+      "didYouKnowText": "הים הוא בית גידול מימי, שבו חיים אורגניזמים המותאמים לחיים במים ולתנאים הקיימים בסביבה הימית."
+    },
+    {
+      "door": 6,
+      "organism": "נשר",
+      "correctHabitat": "מדבר",
+      "didYouKnowImage": "gid5.png",
+      "didYouKnowText": "המדבר הוא בית גידול יבש מאוד, שבו חיים אורגניזמים המותאמים למעט מים, לחום ולתנאי קיצון."
+    },
+    {
+      "door": 7,
+      "organism": "ברקן",
+      "correctHabitat": "ליד הבית",
+      "didYouKnowImage": "gid4.png",
+      "didYouKnowText": "הבית הוא בית גידול שנוצר בידי האדם, שבו יכולים לחיות אורגניזמים שונים לצד בני האדם ובסביבתם."
+    },
+    {
+      "door": 8,
+      "organism": "שפירית",
+      "correctHabitat": "ליד הבית",
+      "didYouKnowImage": "gid4.png",
+      "didYouKnowText": "הבית הוא בית גידול שנוצר בידי האדם, שבו יכולים לחיות אורגניזמים שונים לצד בני האדם ובסביבתם."
+    },
+    {
+      "door": 9,
+      "organism": "ברדלס (צ'יטה)",
+      "correctHabitat": "סוואנה",
+      "didYouKnowImage": "gid2.png",
+      "didYouKnowText": "הסוואנה היא בית גידול חם ופתוח, שבו חיים אורגניזמים המותאמים לעשבים, לעצים פזורים ולעונות של יובש וגשם."
+    },
+    {
+      "door": 10,
+      "organism": "עכביש",
+      "correctHabitat": "ליד הבית",
+      "didYouKnowImage": "gid4.png",
+      "didYouKnowText": "הבית הוא בית גידול שנוצר בידי האדם, שבו יכולים לחיות אורגניזמים שונים לצד בני האדם ובסביבתם."
+    },
+    {
+      "door": 11,
+      "organism": "טרמיטים",
+      "correctHabitat": "סוואנה",
+      "didYouKnowImage": "gid2.png",
+      "didYouKnowText": "הסוואנה היא בית גידול חם ופתוח, שבו חיים אורגניזמים המותאמים לעשבים, לעצים פזורים ולעונות של יובש וגשם."
+    },
+    {
+      "door": 12,
+      "organism": "לווייתן",
+      "correctHabitat": "ים",
+      "didYouKnowImage": "gid3.png",
+      "didYouKnowText": "הים הוא בית גידול מימי, שבו חיים אורגניזמים המותאמים לחיים במים ולתנאים הקיימים בסביבה הימית."
+    },
+    {
+      "door": 13,
+      "organism": "יתוש",
+      "correctHabitat": "ליד הבית",
+      "didYouKnowImage": "gid4.png",
+      "didYouKnowText": "הבית הוא בית גידול שנוצר בידי האדם, שבו יכולים לחיות אורגניזמים שונים לצד בני האדם ובסביבתם."
+    },
+    {
+      "door": 14,
+      "organism": "זבוב",
+      "correctHabitat": "ליד הבית",
+      "didYouKnowImage": "gid4.png",
+      "didYouKnowText": "הבית הוא בית גידול שנוצר בידי האדם, שבו יכולים לחיות אורגניזמים שונים לצד בני האדם ובסביבתם."
+    },
+    {
+      "door": 15,
+      "organism": "גחלילית",
+      "correctHabitat": "יער",
+      "didYouKnowImage": "gid1.png",
+      "didYouKnowText": "היער הוא בית גידול עשיר בצמחייה, שבו חיים אורגניזמים רבים המותאמים לסביבה צפופה, מוצלת ומגוונת."
+    },
+    {
+      "door": 16,
+      "organism": "שלדג",
+      "correctHabitat": "ליד הבית",
+      "didYouKnowImage": "gid4.png",
+      "didYouKnowText": "הבית הוא בית גידול שנוצר בידי האדם, שבו יכולים לחיות אורגניזמים שונים לצד בני האדם ובסביבתם."
+    },
+    {
+      "door": 17,
+      "organism": "דיונון",
+      "correctHabitat": "ים",
+      "didYouKnowImage": "gid3.png",
+      "didYouKnowText": "הים הוא בית גידול מימי, שבו חיים אורגניזמים המותאמים לחיים במים ולתנאים הקיימים בסביבה הימית."
+    },
+    {
+      "door": 18,
+      "organism": "פרפר מורפו",
+      "correctHabitat": "יער",
+      "didYouKnowImage": "gid1.png",
+      "didYouKnowText": "היער הוא בית גידול עשיר בצמחייה, שבו חיים אורגניזמים רבים המותאמים לסביבה צפופה, מוצלת ומגוונת."
+    },
+    {
+      "door": 19,
+      "organism": "עטלף",
+      "correctHabitat": "יער",
+      "didYouKnowImage": "gid1.png",
+      "didYouKnowText": "היער הוא בית גידול עשיר בצמחייה, שבו חיים אורגניזמים רבים המותאמים לסביבה צפופה, מוצלת ומגוונת."
+    },
+    {
+      "door": 20,
+      "organism": "היפופוטם",
+      "correctHabitat": "סוואנה",
+      "didYouKnowImage": "gid2.png",
+      "didYouKnowText": "הסוואנה היא בית גידול חם ופתוח, שבו חיים אורגניזמים המותאמים לעשבים, לעצים פזורים ולעונות של יובש וגשם."
+    },
+    {
+      "door": 21,
+      "organism": "פיל",
+      "correctHabitat": "סוואנה",
+      "didYouKnowImage": "gid2.png",
+      "didYouKnowText": "הסוואנה היא בית גידול חם ופתוח, שבו חיים אורגניזמים המותאמים לעשבים, לעצים פזורים ולעונות של יובש וגשם."
+    },
+    {
+      "door": 22,
+      "organism": "ינשוף",
+      "correctHabitat": "יער",
+      "didYouKnowImage": "gid1.png",
+      "didYouKnowText": "היער הוא בית גידול עשיר בצמחייה, שבו חיים אורגניזמים רבים המותאמים לסביבה צפופה, מוצלת ומגוונת."
+    },
+    {
+      "door": 23,
+      "organism": "דג קופסה",
+      "correctHabitat": "ים",
+      "didYouKnowImage": "gid3.png",
+      "didYouKnowText": "הים הוא בית גידול מימי, שבו חיים אורגניזמים המותאמים לחיים במים ולתנאים הקיימים בסביבה הימית."
+    },
+    {
+      "door": 24,
+      "organism": "ג'ירפה",
+      "correctHabitat": "סוואנה",
+      "didYouKnowImage": "gid2.png",
+      "didYouKnowText": "הסוואנה היא בית גידול חם ופתוח, שבו חיים אורגניזמים המותאמים לעשבים, לעצים פזורים ולעונות של יובש וגשם."
+    },
+    {
+      "door": 25,
+      "organism": "נחש",
+      "correctHabitat": "מדבר",
+      "didYouKnowImage": "gid5.png",
+      "didYouKnowText": "המדבר הוא בית גידול יבש מאוד, שבו חיים אורגניזמים המותאמים למעט מים, לחום ולתנאי קיצון."
+    },
+    {
+      "door": 26,
+      "organism": "דוריאן",
+      "correctHabitat": "יער",
+      "didYouKnowImage": "gid1.png",
+      "didYouKnowText": "היער הוא בית גידול עשיר בצמחייה, שבו חיים אורגניזמים רבים המותאמים לסביבה צפופה, מוצלת ומגוונת."
+    },
+    {
+      "door": 27,
+      "organism": "בז",
+      "correctHabitat": "מדבר",
+      "didYouKnowImage": "gid5.png",
+      "didYouKnowText": "המדבר הוא בית גידול יבש מאוד, שבו חיים אורגניזמים המותאמים למעט מים, לחום ולתנאי קיצון."
+    },
+    {
+      "door": 28,
+      "organism": "סנאי דואה",
+      "correctHabitat": "יער",
+      "didYouKnowImage": "gid1.png",
+      "didYouKnowText": "היער הוא בית גידול עשיר בצמחייה, שבו חיים אורגניזמים רבים המותאמים לסביבה צפופה, מוצלת ומגוונת."
+    },
+    {
+      "door": 29,
+      "organism": "נקר",
+      "correctHabitat": "יער",
+      "didYouKnowImage": "gid1.png",
+      "didYouKnowText": "היער הוא בית גידול עשיר בצמחייה, שבו חיים אורגניזמים רבים המותאמים לסביבה צפופה, מוצלת ומגוונת."
+    },
+    {
+      "door": 30,
+      "organism": "קרנף",
+      "correctHabitat": "סוואנה",
+      "didYouKnowImage": "gid2.png",
+      "didYouKnowText": "הסוואנה היא בית גידול חם ופתוח, שבו חיים אורגניזמים המותאמים לעשבים, לעצים פזורים ולעונות של יובש וגשם."
+    }
+  ]
+}

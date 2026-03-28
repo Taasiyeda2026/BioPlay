@@ -1,0 +1,3720 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>פאנל בקרה – Bio-magic</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http://www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2214%22%20fill%3D%22%230b1f3a%22/%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%227%22%20fill%3D%22%2362d9ff%22/%3E%3C/svg%3E" />
+  <script src="js/backend-config.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --admin-scale: 0.66;
+      --page-bg: #1f2732;
+      --panel-bg: #ffffff;
+      --panel-soft: #f4f9ff;
+      --frame: #163251;
+      --border: #c8d8e8;
+      --border-strong: #87a9c6;
+      --text-main: #17324d;
+      --text-soft: #5f7f99;
+      --text-faint: #8fa5b7;
+      --green: #238d4b;
+      --green-2: #dff6e6;
+      --red: #b83b3b;
+      --red-2: #fde8e8;
+      --blue: #225f9f;
+      --blue-2: #e3effc;
+      --gold: #ffb300;
+      --gold-2: #fff6dd;
+      --shadow: 0 22px 48px rgba(15, 41, 67, 0.14);
+      --shadow-soft: 0 10px 22px rgba(18, 45, 72, 0.08);
+      --radius: 16px;
+      --control-height: 36px;
+      --chip-size: 170px;
+      --chip-height: 40px;
+      --inner-width: calc(100% - 32px);
+    }
+
+    html, body {
+      min-height: 100%;
+      font-family: "Assistant", Arial, sans-serif;
+      background:
+        radial-gradient(circle at 18% 16%, rgba(151, 178, 201, 0.16) 0, rgba(151, 178, 201, 0) 44%),
+        radial-gradient(circle at 82% 20%, rgba(136, 152, 176, 0.11) 0, rgba(136, 152, 176, 0) 40%),
+        radial-gradient(circle at 50% 90%, rgba(120, 139, 163, 0.10) 0, rgba(120, 139, 163, 0) 50%),
+        linear-gradient(180deg, #323d49 0%, #242d38 52%, #1a212c 100%);
+      color: var(--text-main);
+    }
+
+    body {
+      padding: 16px 12px;
+      position: relative;
+      isolation: isolate;
+      overflow-x: hidden;
+    }
+
+    #admin-zoom-root {
+      width: calc(100% / var(--admin-scale));
+      transform: scale(var(--admin-scale));
+      transform-origin: top center;
+      margin: 0 auto;
+    }
+
+    @supports (zoom: 1) {
+      #admin-zoom-root {
+        width: 100%;
+        transform: none;
+        transform-origin: initial;
+        zoom: var(--admin-scale);
+      }
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: -1;
+      background-image:
+        radial-gradient(circle at 12% 22%, rgba(255, 255, 255, 0.34) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 78% 34%, rgba(255, 255, 255, 0.26) 0 1px, transparent 2px),
+        radial-gradient(circle at 33% 72%, rgba(255, 255, 255, 0.2) 0 1px, transparent 2px),
+        radial-gradient(circle at 63% 86%, rgba(255, 255, 255, 0.24) 0 1px, transparent 1.8px),
+        radial-gradient(circle at 90% 74%, rgba(255, 255, 255, 0.18) 0 1px, transparent 2px);
+      opacity: .35;
+    }
+
+    #panel-outer {
+      max-width: min(1280px, calc(100vw - 64px));
+      margin: 0 auto;
+      background: linear-gradient(180deg, #f9fcff 0%, #f2f7fc 100%);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: grid;
+      grid-template-areas:
+        "header"
+        "status"
+        "content"
+        "db";
+      grid-template-columns: 1fr;
+    }
+
+    .admin-header {
+      grid-area: header;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px 20px;
+      background: linear-gradient(180deg, #fbfdff 0%, #f0f6fc 100%);
+      border-bottom: 1px solid var(--border);
+      box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.7);
+      width: var(--inner-width);
+      max-width: var(--inner-width);
+      justify-self: center;
+    }
+
+    .header-title {
+      text-align: center;
+      display: grid;
+      gap: 4px;
+      justify-items: center;
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: nowrap;
+    }
+
+    .header-logo {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .header-title h1 {
+      font-size: 1.9rem;
+      margin-bottom: 4px;
+      color: #102f4c;
+      letter-spacing: .8px;
+      font-weight: 900;
+      text-shadow:
+        0 1px 0 rgba(255,255,255,.85),
+        0 2px 6px rgba(16,47,76,.14);
+    }
+
+    .header-title p {
+      color: #123b60;
+      font-size: 1.32rem;
+      font-weight: 900;
+      margin-bottom: 4px;
+      letter-spacing: .35px;
+      text-shadow: 0 1px 0 rgba(255,255,255,.82), 0 3px 10px rgba(16,47,76,.12);
+    }
+
+    .header-instruction {
+      color: #8fa5b7 !important;
+      font-size: .82rem !important;
+      font-weight: 500 !important;
+      margin-bottom: 8px !important;
+      max-width: 480px;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .header-action-msg {
+      margin-top: 8px;
+      min-height: 34px;
+      padding: 10px 14px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: linear-gradient(180deg, #2d3642 0%, #1d2430 100%);
+      color: #ffffff;
+      font-size: .84rem;
+      font-weight: 700;
+      line-height: 1.5;
+      text-align: right;
+      white-space: pre-line;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      width: 100%;
+      max-width: 520px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.06),
+        0 8px 18px rgba(0,0,0,.22);
+    }
+
+    .status-strip {
+      grid-area: status;
+      display: flex;
+      justify-content: center;
+      padding: 8px 14px;
+      width: var(--inner-width);
+      max-width: var(--inner-width);
+      justify-self: center;
+    }
+
+    .status-strip:empty {
+      display: none;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      flex-wrap: wrap;
+      min-height: var(--chip-height);
+      border-radius: 999px;
+      padding: 7px 14px;
+      border: 1px solid #97b4cf;
+      background: linear-gradient(180deg, #ffffff 0%, #deebf8 100%);
+      color: #173652;
+      font-size: .9rem;
+      font-weight: 900;
+      text-align: center;
+      text-shadow: 0 1px 0 rgba(255,255,255,.8);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 7px 16px rgba(20, 52, 84, 0.13);
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #f59e0b;
+      box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
+    }
+    .status-dot.started { background: var(--green); box-shadow: 0 0 0 4px rgba(38,166,83,.15); }
+    .status-dot.waiting { background: #f59e0b; }
+    .status-dot.off { background: var(--red); box-shadow: 0 0 0 4px rgba(201,71,71,.12); }
+
+    .status-label { color: #335774; font-weight: 900; }
+    .status-sep {
+      color: #6f8ea7;
+      opacity: .85;
+      font-weight: 800;
+    }
+    .status-chip strong { color: #102f4c; }
+    .status-label.started { color: #1f8b48; }
+
+.logout-sm {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  width: 62px;
+  min-height: 24px;
+  border-radius: 999px;
+  border: 1px solid #8f1d1d;
+  background: linear-gradient(180deg, #f26e6e 0%, #cf3030 54%, #921d1d 100%);
+  color: #ffffff;
+  padding: 2px 6px;
+  font-size: .64rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  text-shadow: 0 1px 1px rgba(0,0,0,.28);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    inset 0 -6px 10px rgba(0,0,0,.16),
+    0 4px 8px rgba(52, 10, 10, 0.16);
+  transition: transform .15s ease, box-shadow .15s ease, filter .15s ease;
+}
+    .logout-sm:hover {
+      transform: translateY(-1px);
+      filter: saturate(1.04);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.28),
+        inset 0 -8px 12px rgba(0,0,0,.20),
+        0 8px 14px rgba(52, 10, 10, 0.22);
+    }
+    .logout-sm:active {
+      transform: translateY(0);
+      box-shadow:
+        inset 0 2px 6px rgba(0,0,0,.20),
+        0 3px 8px rgba(52, 10, 10, 0.16);
+    }
+
+    #panel-content {
+      grid-area: content;
+      display: grid;
+      grid-template-columns: minmax(0, 1.8fr) minmax(340px, 1fr);
+      gap: 14px;
+      align-items: start;
+      padding: 0 0 12px;
+      background: transparent;
+      width: var(--inner-width);
+      max-width: var(--inner-width);
+      min-width: 0;
+      justify-self: center;
+      box-sizing: border-box;
+    }
+
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-soft);
+      padding: 10px 12px;
+      min-width: 0;
+      position: relative;
+      z-index: 1;
+      overflow: visible;
+    }
+
+    .panel h2 {
+      margin-bottom: 4px;
+      font-size: .92rem;
+      color: #123555;
+      font-weight: 900;
+      letter-spacing: .2px;
+      text-shadow: 0 1px 0 rgba(255,255,255,.7);
+    }
+
+    .panel p, .panel small, .panel label {
+      color: var(--text-soft);
+    }
+
+    .panel-control,
+    .panel-setup,
+    .panel-link {
+      min-height: auto;
+      box-sizing: border-box;
+      max-width: 100%;
+      min-width: 0;
+      width: 100%;
+      position: relative;
+      z-index: 3;
+      overflow: visible;
+    }
+
+    .admin-left,
+    .admin-right {
+      display: grid;
+      gap: 12px;
+      min-width: 0;
+      align-content: start;
+    }
+
+    .panel-db {
+      margin: 0;
+      width: 100%;
+      max-width: 100%;
+      justify-self: stretch;
+    }
+
+    .panel-setup,
+    .panel-link {
+      display: grid;
+      gap: 6px;
+      align-content: start;
+    }
+
+    .field-group { margin-bottom: 4px; display: grid; gap: 4px; }
+
+    .compact-fields-row {
+      display: flex;
+      align-items: end;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: nowrap;
+      width: 100%;
+    }
+
+    .compact-field {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
+    }
+
+    .compact-field-room,
+    .compact-field-doors {
+      flex: 1 1 0;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .compact-select {
+      width: 100%;
+      height: 36px;
+      min-height: var(--control-height);
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: .95rem;
+    }
+    input, select, button { font: inherit; }
+
+    .room-select,
+    .count-select,
+    .room-link-input,
+    .search-input {
+      width: 100%;
+      height: 36px;
+      min-height: var(--control-height);
+      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      background: linear-gradient(180deg, #ffffff, #f8fbff);
+      color: var(--text-main);
+      padding: 8px 12px;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 1px 2px rgba(20,46,70,.05);
+    }
+
+    .compact-field label,
+    .field-group label {
+      font-size: .84rem;
+      line-height: 1.2;
+      margin-bottom: 0;
+    }
+
+    .room-select,
+    .count-select,
+    .compact-select {
+      width: 100%;
+      height: 36px;
+      min-height: var(--control-height);
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: .95rem;
+    }
+    .room-select:focus,
+    .count-select:focus,
+    .room-link-input:focus,
+    .search-input:focus,
+    .login-input:focus {
+      outline: none;
+      border-color: #6f97bc;
+      box-shadow: 0 0 0 3px rgba(58, 121, 182, 0.16);
+    }
+
+    .btn {
+      border-radius: 11px;
+      min-height: var(--control-height);
+      padding: 9px 14px;
+      font-weight: 800;
+      cursor: pointer;
+      border: 1px solid transparent;
+      box-shadow: 0 7px 15px rgba(17, 40, 63, 0.18);
+      transition: transform .15s ease, filter .15s ease, opacity .15s ease, box-shadow .15s ease;
+    }
+    .btn:hover:not(:disabled) { transform: translateY(-1px); filter: brightness(1.03); box-shadow: 0 9px 20px rgba(16, 39, 63, 0.22); }
+    .btn:active:not(:disabled) { transform: translateY(0); box-shadow: inset 0 3px 7px rgba(9, 27, 45, 0.28), 0 3px 8px rgba(12, 34, 56, 0.12); }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+
+.btn-room,
+.btn-copy-link {
+  width: fit-content;
+  min-width: 106px;
+  min-height: var(--control-height);
+  border-radius: 999px;
+  padding: 7px 16px;
+  margin-top: 4px;
+  font-size: .88rem;
+  font-weight: 900;
+  letter-spacing: .2px;
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.35), inset 0 -9px 14px rgba(0,0,0,.2), 0 10px 18px rgba(17, 40, 63, 0.26);
+  pointer-events: auto;
+  touch-action: manipulation;
+  position: relative;
+  z-index: 8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-room {
+  background: linear-gradient(180deg, #4d97df 0%, #2a70b5 54%, #184f84 100%);
+  border-color: #154772;
+  color: #ffffff;
+  text-shadow: 0 1px 1px rgba(0,0,0,.22);
+}
+
+.btn-copy-link {
+  background: linear-gradient(180deg, #ff7a2e 0%, #ff5e00 56%, #d84e00 100%);
+  border-color: #b94300;
+  color: #ffffff;
+  text-shadow: none;
+}
+
+.room-link-input {
+  direction: ltr;
+  font-family: "Courier New", monospace;
+  font-size: .82rem;
+}
+
+.link-status-box {
+  width: 100%;
+  min-height: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border-strong);
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+  color: var(--text-main);
+  padding: 8px 12px;
+  box-shadow: inset 0 1px 1px rgba(255,255,255,.9), 0 1px 2px rgba(20,46,70,.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  text-align: center;
+  font-size: .82rem;
+  font-weight: 700;
+}
+
+.link-status-text {
+  color: #5f7f99;
+}
+
+.link-loader {
+  display: none;
+  align-items: center;
+  gap: 4px;
+}
+
+.link-loader span {
+  width: 7px;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(34, 95, 159, 0.22);
+  box-shadow: 0 0 0 rgba(80, 180, 255, 0);
+  animation: linkPulse 1s infinite ease-in-out;
+}
+
+.link-loader span:nth-child(2) { animation-delay: .15s; }
+.link-loader span:nth-child(3) { animation-delay: .3s; }
+.link-loader span:nth-child(4) { animation-delay: .45s; }
+
+@keyframes linkPulse {
+  0%, 100% {
+    background: rgba(34, 95, 159, 0.22);
+    box-shadow: 0 0 0 rgba(80, 180, 255, 0);
+    transform: scaleY(.75);
+  }
+  50% {
+    background: #6bc7ff;
+    box-shadow: 0 0 10px rgba(107, 199, 255, 0.7);
+    transform: scaleY(1);
+  }
+}
+
+.link-status-box.loading .link-loader {
+  display: inline-flex;
+}
+
+.link-status-box.loading .link-status-text {
+  color: #225f9f;
+  font-weight: 800;
+}
+
+.link-status-box.ready .link-status-text {
+  color: #238d4b;
+  font-weight: 800;
+}
+
+.link-status-box.error .link-status-text {
+  color: #bc2b2b;
+  font-weight: 800;
+}
+
+.link-status-box.idle .link-status-text {
+  color: #6d8499;
+}
+
+.setup-box,
+.link-box {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  border: 1px dashed #c7d9e8;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #f8fbff, #eef5fc);
+  min-height: unset;
+  padding: 6px 8px;
+  display: grid;
+  gap: 6px;
+  justify-items: center;
+  align-content: center;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+  position: relative;
+  z-index: 4;
+  overflow: visible;
+}
+.panel-link .btn-copy-link,
+.panel-setup .btn-room {
+  justify-self: center;
+  margin-top: 6px;
+}
+.steps-selector-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: flex-start;
+}
+.steps-selector-label {
+  font-size: .78rem;
+  font-weight: 700;
+  color: #446;
+  letter-spacing: .03em;
+}
+.steps-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.step-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 20px;
+  font-size: .78rem;
+  font-weight: 700;
+  cursor: default;
+  user-select: none;
+  border: 1.5px solid #c8d8e8;
+  background: #eef5fc;
+  color: #335;
+  transition: background .15s, border-color .15s;
+}
+.step-pill input[type="checkbox"] { display: none; }
+.step-pill-toggle {
+  cursor: pointer;
+}
+.step-pill-toggle:has(input:checked) {
+  background: #1a6eff;
+  border-color: #1a6eff;
+  color: #fff;
+}
+.step-pill-mandatory {
+  opacity: .6;
+  font-style: italic;
+}
+.step-pill-num { font-size: .72rem; opacity: .8; }
+.step-pill-lock { font-size: .7rem; margin-right: 2px; }
+    .controls-section {
+      display: grid;
+      gap: 4px;
+      justify-items: center;
+      align-content: start;
+      min-height: auto;
+      width: 100%;
+      position: relative;
+      z-index: 4;
+      overflow: visible;
+    }
+
+    .control-buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 22px;
+      width: 100%;
+      max-width: 100%;
+      margin-inline: auto;
+      position: relative;
+      z-index: 5;
+      overflow: visible;
+    }
+
+    .btn-play, .btn-reset {
+      width: 80px;
+      height: 80px;
+      min-height: 44px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.22);
+      color: #fff;
+      font-size: .92rem;
+      font-weight: 900;
+      letter-spacing: .55px;
+      cursor: pointer;
+      text-shadow: 0 2px 2px rgba(0,0,0,.42);
+      box-shadow:
+        inset 0 10px 16px rgba(255,255,255,0.16),
+        inset 0 -22px 28px rgba(0,0,0,.36),
+        0 18px 28px rgba(0,0,0,.30),
+        0 6px 10px rgba(8,20,34,.18);
+      transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+      pointer-events: auto;
+      touch-action: manipulation;
+      position: relative;
+      z-index: 8;
+    }
+    .btn-play {
+      background: radial-gradient(circle at 30% 18%, #71f0a0 0%, #23a956 34%, #167540 68%, #0d4a28 100%);
+    }
+    .btn-play.active-glow {
+      box-shadow:
+        inset 0 10px 16px rgba(255,255,255,0.16),
+        inset 0 -22px 28px rgba(0,0,0,.36),
+        0 18px 28px rgba(0,0,0,.30),
+        0 10px 24px rgba(0, 255, 100, 0.40),
+        0 18px 36px rgba(80, 255, 140, 0.32);
+    }
+    .btn-reset {
+      background: radial-gradient(circle at 30% 18%, #f07a7a 0%, #cf2f2f 34%, #971d1d 68%, #5e0f0f 100%);
+    }
+    .btn-play:hover:not(:disabled), .btn-reset:hover:not(:disabled) {
+      transform: scale(1.04) translateY(-1px);
+      filter: saturate(1.08) contrast(1.03);
+      box-shadow:
+        inset 0 10px 16px rgba(255,255,255,0.18),
+        inset 0 -22px 28px rgba(0,0,0,.38),
+        0 22px 34px rgba(0,0,0,.33),
+        0 8px 12px rgba(8,20,34,.20);
+    }
+    .btn-play:active:not(:disabled), .btn-reset:active:not(:disabled) {
+      transform: scale(1);
+      box-shadow:
+        inset 0 8px 14px rgba(255,255,255,.12),
+        inset 0 -16px 20px rgba(0,0,0,.42),
+        0 8px 14px rgba(0,0,0,.22);
+    }
+    .btn-play:disabled, .btn-reset:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+
+
+    .control-help { display: grid; gap: 6px; font-size: .88rem; color: var(--text-soft); }
+
+    .control-stats { display: none; }
+
+    .control-stat {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .8rem;
+      font-weight: 800;
+      color: #335774;
+    }
+
+    .control-stat strong {
+      color: #102f4c;
+    }
+
+    .link-note-box {
+      border: 1px dashed #c7d9e8;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #f8fbff, #eef5fc);
+      padding: 12px;
+      color: #5a7892;
+      font-size: .95rem;
+      font-weight: 700;
+      line-height: 1.5;
+      text-align: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+    }
+
+    .action-msg {
+      min-height: 12px;
+      font-size: .8rem;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+
+
+    .setup-help-text,
+    .copy-help-text {
+      margin-top: 8px;
+      min-height: 32px;
+      font-size: .74rem;
+      color: #6d8499;
+      text-align: center;
+      font-weight: 700;
+      line-height: 1.25;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+    .action-msg.success { color: var(--green); }
+    .action-msg.error { color: var(--red); }
+    .action-msg.info { color: #6a8399; }
+
+    .header-action-msg.action-msg,
+    .header-action-msg.action-msg.info,
+    .header-action-msg.action-msg.success,
+    .header-action-msg.action-msg.error {
+      color: #ffffff;
+    }
+
+    .db-stats {
+      grid-template-columns: max-content;
+      justify-content: start;
+    }
+
+    .db-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #f9fcff, #eef5fb);
+      border: 1px solid var(--border);
+      padding: 8px 11px;
+      min-height: 40px;
+      gap: 10px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.75);
+    }
+
+    .db-stat strong { color: var(--text-main); }
+
+    .search-section {
+      position: relative;
+      margin: 0;
+      width: min(440px, 100%);
+      justify-self: center;
+    }
+    .search-input-wrap {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .search-input {
+      flex: 1 1 auto;
+      max-width: 380px;
+    }
+
+    .search-btn-icon {
+      width: 38px;
+      height: 38px;
+      min-width: 38px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      border: 1px solid #5f86ab;
+      background: linear-gradient(180deg, #f8fbff 0%, #d6e5f6 55%, #bfd5ec 100%);
+      color: #1f4f7d;
+      font-size: .95rem;
+      font-weight: 900;
+      cursor: pointer;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.85),
+        inset 0 -6px 10px rgba(40,79,120,.14),
+        0 6px 12px rgba(16, 43, 68, 0.16);
+      transition: transform .14s ease, box-shadow .14s ease, filter .14s ease;
+    }
+    .search-btn-icon:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.9),
+        inset 0 -6px 10px rgba(40,79,120,.16),
+        0 8px 15px rgba(16, 43, 68, 0.20);
+    }
+
+    .search-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      right: 0;
+      width: min(340px, 100%);
+      max-height: 200px;
+      overflow-y: auto;
+      display: none;
+      background: #fff;
+      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      z-index: 20;
+      box-shadow: 0 12px 28px rgba(17, 46, 76, 0.12);
+    }
+    .search-dropdown.open { display: block; }
+
+    .dropdown-item {
+      padding: 7px 9px;
+      color: var(--text-main);
+      cursor: pointer;
+      border-bottom: 1px solid #e7eef5;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .dropdown-item:last-child { border-bottom: 0; }
+
+    .dropdown-num {
+      background: #d9ecff;
+      color: #115da5;
+      border-radius: 8px;
+      padding: 2px 8px;
+      font-weight: 800;
+    }
+
+    .result-box {
+      min-height: 56px;
+      border-radius: 12px;
+      border: 1px solid #d1dfee;
+      background: linear-gradient(180deg, #ffffff, #f3f9ff);
+      padding: 9px 12px;
+      color: var(--text-soft);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      margin-bottom: 10px;
+      font-weight: 700;
+      font-size: .95rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.95), 0 5px 12px rgba(17, 46, 76, 0.08);
+    }
+
+    .result-box.has-result {
+      color: #123d68;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: normal;
+      background: linear-gradient(180deg, #ffffff, #e9f4ff);
+      border-color: #a8c7e4;
+      display: block;
+      text-align: right;
+    }
+    .guide-search-helper {
+      z-index: 25;
+      display: grid;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid #b9d7ef;
+      background: linear-gradient(180deg, rgba(250, 254, 255, 0.98) 0%, rgba(237, 248, 255, 0.98) 100%);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.95),
+        0 7px 18px rgba(25, 77, 121, 0.12),
+        0 0 28px rgba(78, 205, 255, 0.08);
+    }
+    .guide-sheet {
+      display: grid;
+      gap: 12px;
+      width: 100%;
+      max-width: 100%;
+      margin: 0 auto;
+      direction: rtl;
+      color: #17324d;
+    }
+    .guide-sheet-header {
+      display:flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(180deg, #fff9d8 0%, #ffeeb0 100%);
+      border: 1px solid #efd67f;
+      border-radius: 16px;
+      padding: 12px 14px;
+      box-shadow: 0 10px 24px rgba(97, 74, 15, 0.16);
+    }
+    .guide-sheet-title {
+      font-size: 1.62rem;
+      font-weight: 900;
+      color:#0d3f69;
+      text-shadow: 0 0 16px rgba(75, 208, 255, 0.2);
+    }
+    .guide-sheet-subtitle { font-size: .96rem; color:#4c7394; margin-top:6px; }
+    .guide-sheet-block {
+      background: linear-gradient(180deg, #ffffff, #f3fbff);
+      border: 1px solid #d3e8f6;
+      border-radius: 16px;
+      padding: 13px 14px;
+      display: grid;
+      gap: 10px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.9),
+        0 7px 18px rgba(26, 74, 112, 0.09);
+    }
+    .guide-sheet-block:nth-of-type(2) {
+      background: linear-gradient(180deg, #e7f8ff, #d5f0ff);
+      border-color: #8cd7f7;
+    }
+    .guide-sheet-block:nth-of-type(3) {
+      background: linear-gradient(180deg, #ebffe9, #d4f8d0);
+      border-color: #8bd08f;
+    }
+    .guide-sheet-block:nth-of-type(4) {
+      background: linear-gradient(180deg, #ffeaea, #ffd6d6);
+      border-color: #f1aaaa;
+    }
+    .guide-sheet-block:nth-of-type(5) {
+      background: linear-gradient(180deg, #fff7db, #ffeab1);
+      border-color: #edcf70;
+    }
+    .guide-sheet-block:nth-of-type(6) {
+      background: linear-gradient(180deg, #e7f8ff, #d8f3ff);
+      border-color: #a5d9ef;
+    }
+    .guide-sheet-block h4 {
+      margin: 0;
+      color:#104f81;
+      font-size: 1.08rem;
+      font-weight: 900;
+      letter-spacing: .2px;
+      line-height: 1.45;
+    }
+    .guide-step-line {
+      display:grid;
+      gap:5px;
+      background:#fff;
+      border:1px solid #ddedf8;
+      border-radius:12px;
+      padding:10px 12px;
+    }
+    .guide-step-meta { font-size:.95rem; color:#2f638c; line-height:1.55; }
+    .digit-boxes { display:flex; gap:8px; flex-wrap: wrap; }
+    .digit-box {
+      min-width: 42px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid #8ac8ef;
+      background: linear-gradient(180deg, #e8fbff 0%, #c8eefe 100%);
+      color: #0c486f;
+      font-weight: 900;
+      font-size: 1.12rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.9),
+        0 0 14px rgba(90, 223, 255, 0.3);
+    }
+    .digit-box.placeholder {
+      background: linear-gradient(180deg, #eef5fb 0%, #dce9f5 100%);
+      border-color: #c2d8ea;
+      color: #6b88a2;
+      box-shadow: none;
+    }
+    .guide-code-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: linear-gradient(180deg, #f3fbff 0%, #e6f5ff 100%);
+      border: 1px solid #b8dbf0;
+      box-shadow: 0 5px 14px rgba(34, 103, 148, 0.08);
+      font-weight: 800;
+      color: #103e64;
+    }
+    .guide-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: rgba(255,255,255,.92);
+      border: 1px solid #d6e7f4;
+      border-radius: 12px;
+      overflow: hidden;
+      font-size: .93rem;
+      line-height: 1.5;
+      color: #17324d;
+    }
+    .guide-table thead th {
+      padding: 8px 10px;
+      text-align: right;
+      font-weight: 900;
+      color: #0d3f69;
+      background: #eaf4ff;
+      border-bottom: 1px solid #c9ddf0;
+    }
+    .guide-table tbody td {
+      padding: 8px 10px;
+      text-align: right;
+      color: #17324d;
+      border-bottom: 1px solid #e5eff8;
+      vertical-align: top;
+    }
+    .guide-table tbody tr:last-child td { border-bottom: 0; }
+    .guide-stage-name { font-weight: 900; color: #0f4d7d; }
+    .student-link-inline {
+      margin: 6px 0 0;
+      min-height: 18px;
+      text-align: center;
+      font-size: .78rem;
+      font-weight: 700;
+      color: #5f7790;
+      line-height: 1.35;
+    }
+    .guide-table.table-door1 thead th:nth-child(1),
+    .guide-table.table-door1 tbody td:nth-child(1) { width: 16%; min-width: 88px; }
+    .guide-table.table-door1 thead th:nth-child(2),
+    .guide-table.table-door1 tbody td:nth-child(2) { width: 28%; min-width: 128px; }
+    .guide-table.table-door1 thead th:nth-child(3),
+    .guide-table.table-door1 tbody td:nth-child(3) { width: 33%; min-width: 146px; }
+    .guide-table.table-door1 thead th:nth-child(4),
+    .guide-table.table-door1 tbody td:nth-child(4) { width: 23%; min-width: 94px; }
+    .guide-hint-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .guide-hint-column {
+      background: #ffffff;
+      border: 1px solid #ddedf8;
+      border-radius: 12px;
+      padding: 10px 12px;
+      line-height: 1.6;
+      color: #17324d;
+      font-weight: 700;
+      font-size: .93rem;
+    }
+    .guide-hint-column-title {
+      display: block;
+      margin-bottom: 6px;
+      color: #0f4d7d;
+      font-size: .96rem;
+      font-weight: 900;
+    }
+    .scores-action-btn {
+      width: 114px;
+      height: 38px;
+      border-radius: 12px;
+      border: 1px solid rgba(20, 46, 70, 0.22);
+      padding: 0 12px;
+      font-weight: 900;
+      cursor: pointer;
+      font-size: .85rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-sizing: border-box;
+      text-align: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.65), 0 8px 16px rgba(17, 40, 63, 0.2);
+      transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+    }
+    .scores-action-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.02);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.72), 0 10px 18px rgba(17, 40, 63, 0.24);
+    }
+    .scores-action-btn:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: inset 0 3px 7px rgba(9, 27, 45, 0.22), 0 4px 10px rgba(12, 34, 56, 0.14);
+    }
+    .guide-modal {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(8, 23, 39, 0.55);
+      backdrop-filter: blur(2px);
+      z-index: 80;
+      padding: 24px;
+    }
+    .guide-modal.open { display: flex; }
+    .guide-modal-panel {
+      width: min(520px, calc(100vw - 26px));
+      max-height: calc(100vh - 36px);
+      overflow: auto;
+      border-radius: 20px;
+      border: 1px solid #9ec9e6;
+      background: linear-gradient(180deg, #f8fdff 0%, #edf7ff 100%);
+      box-shadow: 0 24px 44px rgba(8, 30, 50, 0.35);
+      padding: 14px;
+      position: relative;
+    }
+    .guide-modal-close {
+      position: sticky;
+      top: 4px;
+      z-index: 1;
+      margin-inline-start: auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 999px;
+      border: 1px solid #8ebfe0;
+      background: #fff;
+      color: #195781;
+      font-size: 1.3rem;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(22, 66, 104, 0.16);
+    }
+
+    .db-stat strong {
+      display: inline-flex;
+      min-width: 54px;
+      min-height: 34px;
+      padding: 4px 10px;
+      border-radius: 10px;
+      border: 1px solid #bfd2e5;
+      background: linear-gradient(180deg, #ffffff 0%, #eaf3fc 100%);
+      align-items: center;
+      justify-content: center;
+      font-size: .95rem;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9);
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      max-width: 100%;
+    }
+    .guide-flow { display:grid; gap:10px; margin-top:16px; }
+    .guide-flow-item { background:linear-gradient(180deg,#f8fcff,#edf5ff); border:1px solid #cfe1f3; border-radius:12px; padding:10px 12px; }
+    .guide-flow-item .kicker { font-size:.72rem; color:#587796; font-weight:800; }
+    .guide-flow-item .title { font-size:.95rem; color:#17324d; font-weight:800; margin-top:4px; }
+    .guide-flow-item .meta { font-size:.82rem; color:#456782; margin-top:4px; line-height:1.5; white-space:pre-line; }
+    .hidden-games-guide { display:grid; gap:12px; }
+    .hidden-game-card { background:linear-gradient(180deg,#f7fbff,#ebf3ff); border:1px solid #c9dff5; border-radius:14px; padding:12px; }
+    .hidden-game-title { font-weight:800; color:#163251; margin-bottom:8px; }
+    .hidden-game-meta { display:grid; gap:6px; font-size:.86rem; color:#32516f; }
+    .hidden-game-items { display:grid; gap:6px; margin-top:8px; }
+    .hidden-game-item { background:#fff; border:1px solid #d3e3f3; border-radius:10px; padding:6px 10px; font-size:.82rem; color:#214668; }
+
+    .step-card-wrap { position: relative; padding-top: 12px; }
+
+    .step-badge {
+      position: absolute;
+      top: 4px;
+      right: 16px;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: #b9daf5;
+      color: #1f63b8;
+      font-weight: 900;
+      font-size: 1.05rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 4px solid #8fbfe6;
+      box-shadow: 0 6px 14px rgba(55, 105, 160, 0.16);
+      z-index: 2;
+    }
+
+    .step-card {
+      border-radius: 16px;
+      border: 2px solid #b9d3bd;
+      overflow: hidden;
+      background: #eef5ef;
+      min-height: 0;
+    }
+
+    .step-card-wrap.final .step-card {
+      background: #fbf5dd;
+      border-color: #f1d16c;
+    }
+
+    .step-card-wrap.final .step-badge {
+      background: #fff7dc;
+      border-color: #f1d16c;
+      color: #e26a00;
+      box-shadow: 0 6px 14px rgba(226, 106, 0, 0.15);
+    }
+
+    .card-top {
+      min-height: 0;
+      padding: 18px 72px 10px 14px;
+      text-align: right;
+      border-bottom: 3px solid #b9d3bd;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .step-card-wrap.final .card-top { border-bottom-color: #f1d16c; }
+
+    .card-top-label {
+      color: #74889a;
+      font-size: .86rem;
+      font-weight: 800;
+      margin-bottom: 0;
+    }
+
+    .card-answer {
+      color: #1f63b8;
+      font-weight: 900;
+      font-size: 1.02rem;
+      line-height: 1.45;
+      min-height: 0;
+    }
+
+    .card-code {
+      color: #c96a00;
+      font-weight: 900;
+      font-size: 1.25rem;
+      line-height: 1.2;
+      letter-spacing: 2.5px;
+      font-family: "Courier New", monospace;
+    }
+
+    .card-divider-line {
+      width: 34px;
+      height: 6px;
+      border-radius: 999px;
+      background: #246ac3;
+    }
+
+    .step-card-wrap.final .card-divider-line {
+      background: #ec6c00;
+    }
+
+    .card-bottom {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      min-height: 94px;
+    }
+
+    .card-cell {
+      padding: 12px 10px;
+      text-align: center;
+      border-left: 4px solid #b9d3bd;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .card-cell:first-child { border-left: 0; }
+    .step-card-wrap.final .card-cell { border-left-color: #f1d16c; }
+    .step-card-wrap.final .card-cell:first-child { border-left: 0; }
+
+    .cell-label {
+      display: block;
+      font-size: 1rem;
+      color: #7d8f9f;
+      margin-bottom: 0;
+      font-weight: 800;
+    }
+
+    .cell-value {
+      font-size: 1.02rem;
+      color: var(--text-main);
+      font-weight: 800;
+      word-break: break-word;
+      line-height: 1.3;
+    }
+
+    .final-bar {
+      margin-top: 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,179,0,0.42);
+      background: linear-gradient(180deg, rgba(255,245,214,.72) 0%, rgba(255,233,170,.42) 100%);
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.75),
+        0 6px 12px rgba(160, 113, 0, 0.08);
+    }
+
+    .final-bar-label {
+      color: #b67600;
+      font-size: .84rem;
+      letter-spacing: 1.2px;
+      font-weight: 900;
+    }
+
+    .final-bar-code {
+      color: #b95f00;
+      font-family: "Courier New", monospace;
+      letter-spacing: 4px;
+      font-size: 1.26rem;
+      font-weight: 900;
+      text-shadow: 0 1px 0 rgba(255,255,255,.4);
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 26px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 18px;
+      border-radius: 999px;
+      background: rgba(22, 45, 71, 0.94);
+      color: #fff;
+      opacity: 0;
+      transition: opacity .25s;
+      z-index: 50;
+    }
+    #toast.show { opacity: 1; }
+
+    #login-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(7, 18, 32, .72);
+      backdrop-filter: blur(3px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      padding: 16px;
+    }
+
+    .login-box {
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px;
+      width: min(380px, 100%);
+      text-align: center;
+      color: var(--text-main);
+      box-shadow: 0 20px 44px rgba(12, 35, 57, 0.2);
+    }
+
+    .login-logo { font-size: 1.3rem; font-weight: 900; letter-spacing: 3px; margin-bottom: 6px; color: var(--frame); }
+    .login-sub { color: var(--text-soft); margin-bottom: 20px; }
+    .login-input {
+      width: 100%;
+      min-height: var(--control-height);
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border-strong);
+      margin-bottom: 10px;
+      text-align: center;
+      direction: ltr;
+    }
+
+    .login-btn {
+      width: 100%;
+      min-height: var(--control-height);
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(180deg, #3ba15c, #236f3e);
+      color: #fff;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 8px 16px rgba(24, 74, 43, 0.22);
+    }
+
+    .login-msg { min-height: 22px; margin-top: 8px; }
+    .login-msg.error { color: var(--red); }
+
+    /* ── Tablet (701px – 1100px) ── */
+    @media (max-width: 1100px) and (min-width: 701px) {
+      #panel-outer {
+        grid-template-areas:
+          "header"
+          "status"
+          "content"
+          "db";
+        grid-template-columns: 1fr;
+      }
+      #panel-content { grid-template-columns: minmax(0, 64%) minmax(0, 36%); }
+      .admin-header { padding-left: 12px; padding-right: 12px; }
+      .logout-sm {
+        left: 12px;
+        width: 62px;
+        min-height: 24px;
+        padding: 2px 6px;
+        font-size: .64rem;
+      }
+      .panel-db { margin-bottom: 0; }
+      /* שמירת margins העקביים בטאבלט */
+    }
+
+    /* ── Mobile (≤700px) ──
+       המטרה היא לא לדחוס את גרסת הדסקטופ למובייל,
+       אלא לבנות פריסת מובייל נקייה, מאוזנת ונוחה לשימוש. */
+    @media (max-width: 700px) {
+      #panel-outer {
+        grid-template-areas:
+          "header"
+          "status"
+          "content"
+          "db";
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 10px;
+        overflow: visible;
+      }
+
+      /* ביטול margins — הגריד מנהל ריווח */
+      .panel-control { margin: 0; }
+      .panel-db      { margin: 0; }
+      #panel-content {
+        padding: 0;
+        gap: 10px;
+        grid-template-columns: 1fr;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        overflow: visible;
+      }
+
+      .admin-left,
+      .admin-right {
+        gap: 10px;
+      }
+
+      .panel-control,
+      .panel-setup,
+      .panel-link {
+        padding: 10px;
+        z-index: 6;
+      }
+
+      .panel-db {
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .panel h2 {
+        font-size: .95rem;
+        margin-bottom: 8px;
+      }
+
+      .admin-header {
+        padding: 12px 58px 12px 58px;
+      }
+
+      .header-brand {
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .header-logo {
+        width: 34px;
+        height: 34px;
+      }
+
+      .header-title h1 {
+        font-size: 1.18rem;
+        line-height: 1.15;
+      }
+
+      .header-title p {
+        font-size: .82rem;
+      }
+
+      .header-action-msg {
+        max-width: 100%;
+        min-height: 32px;
+        font-size: .78rem;
+        padding: 8px 10px;
+        line-height: 1.4;
+      }
+
+      .logout-sm {
+        top: 10px;
+        left: 8px;
+        width: 58px;
+        min-height: 24px;
+        padding: 3px 6px;
+        font-size: .64rem;
+      }
+
+      .status-strip { gap: 8px; padding: 8px 8px; }
+      .status-chip { font-size: .79rem; padding: 5px 8px; }
+
+      body { padding: 12px; }
+
+      .controls-section {
+        gap: 12px;
+        justify-items: stretch;
+      }
+
+      .control-buttons {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        margin: 0;
+        overflow: visible;
+      }
+
+      /* כפתורי PLAY/RESET קטנים ומאוזנים למובייל */
+      .btn-play, .btn-reset {
+        width: 62px;
+        height: 62px;
+        min-height: 52px;
+        font-size: .74rem;
+        letter-spacing: .35px;
+      }
+
+      .control-stats {
+        width: 100%;
+        gap: 8px;
+        padding: 8px;
+        border-radius: 10px;
+        border: 1px solid #d4e2ef;
+        background: linear-gradient(180deg, #fbfdff, #eef5fc);
+      }
+
+      .control-stat {
+        width: 100%;
+        justify-content: center;
+        flex-wrap: wrap;
+        text-align: center;
+        line-height: 1.3;
+      }
+
+      /* שמירת תיקוני טיפוגרפיה וכרטיסים */
+      .compact-fields-row { gap: 8px; }
+      .compact-field-room,
+      .compact-field-doors {
+        flex: 0 0 70px;
+        width: 70px;
+        max-width: 70px;
+      }
+      .setup-box,
+      .link-box {
+        gap: 7px;
+        padding: 6px;
+      }
+      .setup-help-text,
+      .copy-help-text {
+        margin-top: 4px;
+        font-size: .72rem;
+      }
+      .btn-room,
+      .btn-copy-link {
+        min-width: 92px;
+        min-height: 44px;
+        padding: 7px 12px;
+        font-size: .82rem;
+      }
+      .compact-select { min-height: 40px; padding: 6px 10px; }
+      .search-input { flex-basis: 65%; max-width: 100%; }
+      .cards-grid { grid-template-columns: 1fr; gap: 14px; }
+      .step-badge { width: 44px; height: 44px; font-size: .92rem; border-width: 3px; }
+      .step-card { min-height: 0; border-width: 2px; border-radius: 16px; }
+      .card-top { min-height: 0; padding: 16px 62px 10px 10px; border-bottom-width: 2px; }
+      .card-top-label { font-size: .96rem; }
+      .card-answer { font-size: .98rem; min-height: 0; }
+      .card-bottom { min-height: 82px; }
+      .card-cell { padding: 10px 6px; border-left-width: 3px; }
+      .cell-label { font-size: .9rem; }
+      .cell-value { font-size: .92rem; }
+    }
+
+    @media (max-width: 420px) {
+      #panel-content { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .admin-header {
+        padding: 12px 54px 12px 54px;
+      }
+
+      .header-brand {
+        gap: 6px;
+      }
+
+      .header-logo {
+        width: 30px;
+        height: 30px;
+      }
+
+      .header-title h1 {
+        font-size: 1.02rem;
+        letter-spacing: .4px;
+      }
+
+      .header-title p {
+        font-size: .76rem;
+      }
+
+      .header-action-msg {
+        font-size: .74rem;
+        line-height: 1.35;
+        padding: 8px 9px;
+      }
+
+      .status-strip {
+        grid-template-columns: 1fr;
+      }
+
+      .logout-sm {
+        width: 56px;
+        min-height: 22px;
+        padding: 2px 5px;
+        font-size: .62rem;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .control-buttons { gap: 8px; }
+      .btn-play, .btn-reset { width: 58px; height: 58px; font-size: .7rem; }
+      .cards-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="login-overlay" style="display:none">
+    <div class="login-box">
+      <div class="login-logo">BIO-MAGIC</div>
+      <p class="login-sub">כניסת מדריך – הזינו קוד</p>
+      <input id="login-code" class="login-input" type="password" placeholder="• • • • • •" autocomplete="off">
+      <button id="login-btn" class="login-btn">כניסה למערכת</button>
+      <p class="login-msg" id="login-msg"></p>
+    </div>
+  </div>
+
+<div id="admin-zoom-root">
+<div id="panel-outer" class="admin-shell">
+  <header class="admin-header">
+    <div class="header-title">
+      <div class="header-brand">
+        <img src="assets/images/ui/logo.webp" alt="לוגו" class="header-logo">
+        <h1>BIO-MAGIC ADMIN</h1>
+      </div>
+      <p>לוח הבקרה</p>
+      <div class="header-action-msg action-msg" id="action-msg"></div>
+    </div>
+    <button class="logout-sm" id="logout-btn">יציאה</button>
+  </header>
+
+    <div class="status-strip">
+      <div class="status-chip">
+        <span class="status-label">חדר פעיל:</span><strong id="room-id-label">—</strong>
+        <span class="status-sep">|</span>
+        <span class="status-label">סטטוס מערכת:</span><span class="status-dot waiting" id="status-dot"></span><strong id="room-status-label">טרם נוצר</strong><span class="status-label" id="status-label" style="display:none">ממתין</span>
+        <span class="status-sep">|</span>
+        <span class="status-label">מספר דלתות:</span><strong id="header-doors-count">5</strong>
+      </div>
+    </div>
+
+    <main id="panel-content" class="admin-grid">
+      <div class="admin-left">
+        <section class="panel" id="live-scores-panel">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px">
+            <h2 style="font-size:1.1rem;font-weight:800;color:var(--text-main);display:flex;align-items:center;gap:8px">
+              טבלת תוצאות
+              <span id="ls-status-dot" style="
+                display:inline-block;width:10px;height:10px;border-radius:50%;
+                background:#aaa;transition:background .3s;
+              "></span>
+            </h2>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;width:100%;flex-direction:column;align-items:stretch">
+              <div style="display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:.82rem;font-weight:700;color:var(--text-main,#17324d)">
+                <span>מצב:</span>
+                <label style="font-weight:600;cursor:pointer"><input type="radio" name="bioplay-conn" value="server" checked style="vertical-align:middle;margin-left:4px" /> רגיל</label>
+                <label style="font-weight:600;cursor:pointer"><input type="radio" name="bioplay-conn" value="internal" style="vertical-align:middle;margin-left:4px" /> פנימי</label>
+                <span id="internal-code-wrap" style="display:none;align-items:center;gap:6px;flex-wrap:wrap">
+                  <input id="internal-code-input" type="password" maxlength="16" placeholder="קוד BIO2026" autocomplete="off"
+                    style="padding:7px 10px;border-radius:9px;border:1.5px solid #c8d8e8;font-size:.85rem;width:120px" />
+                  <button type="button" id="internal-code-btn" class="btn" style="padding:7px 12px;border-radius:9px;font-size:.82rem;font-weight:700;border:1.5px solid #c8d8e8;background:#f7faff;display:none;cursor:pointer">אישור קוד</button>
+                </span>
+              </div>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <button type="button" id="ls-btn-refresh" class="btn scores-action-btn" style="background:#fad6e6;color:#000">↻ ריענון</button>
+                <button type="button" id="ls-btn-show-ranks" class="btn scores-action-btn" style="background:#d6ebfa;color:#000">תוצאות</button>
+              </div>
+            </div>
+          </div>
+
+          <div id="ls-game-status" style="
+            display:inline-block;padding:5px 14px;border-radius:20px;
+            font-size:.82rem;font-weight:700;letter-spacing:.05em;margin-bottom:14px;
+            background:#eee;color:#555;
+          ">טוען...</div>
+
+          <div class="guide-search-helper" style="margin:0 0 10px">
+            <div class="search-section" id="guide-search-section">
+              <div class="search-input-wrap">
+                <input id="guide-search-input" class="search-input" type="search" placeholder="חיפוש שם אורגניזם או מספר דלת">
+                <button class="search-btn-icon" id="guide-search-btn" type="button">🔍</button>
+              </div>
+              <div class="search-dropdown" id="guide-search-dropdown"></div>
+            </div>
+          </div>
+
+          <div id="ls-table-wrap" style="overflow-x:auto">
+            <table id="ls-table" style="
+              width:100%;border-collapse:collapse;font-size:.9rem;
+            ">
+              <thead>
+                <tr style="background:var(--panel-soft,#f4f9ff)">
+                  <th style="padding:8px 12px;text-align:right;font-weight:700;color:var(--text-main,#17324d);border-bottom:2px solid var(--border,#c8d8e8)">מקום</th>
+                  <th style="padding:8px 12px;text-align:right;font-weight:700;color:var(--text-main,#17324d);border-bottom:2px solid var(--border,#c8d8e8)">שם</th>
+                  <th style="padding:8px 12px;text-align:right;font-weight:700;color:var(--text-main,#17324d);border-bottom:2px solid var(--border,#c8d8e8)">סטטוס</th>
+                  <th style="padding:8px 12px;text-align:center;font-weight:700;color:var(--text-main,#17324d);border-bottom:2px solid var(--border,#c8d8e8)">דלת</th>
+                  <th style="padding:8px 12px;text-align:center;font-weight:700;color:var(--text-main,#17324d);border-bottom:2px solid var(--border,#c8d8e8)">ניקוד</th>
+                </tr>
+              </thead>
+              <tbody id="ls-tbody">
+                <tr><td colspan="5" style="padding:18px;text-align:center;color:#aaa">טוען נתונים...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin-top:8px;font-size:.75rem;color:var(--text-faint,#8fa5b7);text-align:left">
+            מתרענן אוטומטית כל 5 שניות
+          </p>
+          <div id="ls-clear-notice" style="display:none;margin-top:6px;padding:5px 12px;border-radius:8px;
+            background:#fff7e0;border:1.5px solid #ffb30066;font-size:.78rem;font-weight:600;color:#a06000">
+            ⏱ התוצאות יימחקו אוטומטית בעוד: <span id="ls-clear-countdown">—</span>
+          </div>
+        </section>
+
+      </div>
+
+      <div class="admin-right">
+        <section class="panel panel-setup">
+          <h2>הגדרת משחק</h2>
+          <div class="setup-box">
+            <div class="field-group compact-fields-row">
+              <div class="compact-field compact-field-room">
+                <label for="room-name-select">חדר</label>
+                <select id="room-name-select" class="room-select compact-select">
+                  <option value="">טוען...</option>
+                </select>
+              </div>
+              <div class="compact-field compact-field-doors">
+                <label for="doors-count-select">אורגניזמים</label>
+                <select id="doors-count-select" class="count-select compact-select"></select>
+              </div>
+            </div>
+
+            <div id="steps-toggles-container" style="display:none" aria-hidden="true">
+              <input type="checkbox" class="step-cb" value="2" id="step-cb-2" checked />
+              <input type="checkbox" class="step-cb" value="3" id="step-cb-3" checked />
+              <input type="checkbox" class="step-cb" value="4" id="step-cb-4" checked />
+              <input type="checkbox" class="step-cb" value="5" id="step-cb-5" checked />
+            </div>
+
+            <button class="btn btn-room" id="room-btn">צור חדר</button>
+            <small class="setup-help-text">בחרו חדר, אורגניזמים, שלבים ולחצו על "צור חדר"</small>
+            <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק</button>
+            <p class="student-link-inline">קישור לתלמידים - העתיקו את הקישור ושלחו אותו בצ'אט של Zoom</p>
+          </div>
+        </section>
+
+        <section class="panel panel-control">
+          <h2>שליטה במשחק</h2>
+          <div class="controls-section">
+            <div class="control-buttons">
+              <button class="btn-play" id="activate-btn">PLAY</button>
+              <button class="btn-reset" id="reset-btn">RESET</button>
+            </div>
+            <div class="control-stats"></div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+
+    <div class="guide-modal" id="guide-modal" aria-hidden="true">
+      <div class="guide-modal-panel">
+        <button type="button" class="guide-modal-close" id="guide-modal-close" aria-label="סגירה">×</button>
+        <div id="guide-modal-content"></div>
+      </div>
+    </div>
+
+
+  </div>
+
+  <div id="toast"></div>
+</div>
+
+  <script>
+  /* ============================================================
+     LIVE SCORES – ניקוד חי (Apps Script / פנימי), לפי roomId בלבד
+     ============================================================ */
+  (function() {
+    const STATUS_LABELS = { waiting: 'ממתינים', active: 'משחק פעיל', started: 'משחק פעיל', ended: 'הסתיים' };
+    const STATUS_COLORS = { waiting: '#ffb300', active: '#1a7f42', started: '#1a7f42', ended: '#2563eb' };
+    const LS_APPS_URL = window.BIOPLAY_BACKEND_URL || "https://script.google.com/macros/s/AKfycbxT4eu6cyT40XZI6-eFVtx5TQlgEirAsp6Sxmf2vUQYG6xpwBiEoRXgs23CxCYDoKNB9Q/exec";
+    const BIOPLAY_INTERNAL_LS_KEY = 'bioplay_internal_v1';
+
+    let _clearAt = null;
+    let _teacherRankByName = null;
+    let _teacherRankMeta = null;
+    let _lastNormalizedRows = [];
+    let _lsPrevScopeId = null;
+    let _roundClosed = false;
+
+    function getBioConnMode() {
+      return document.querySelector('input[name="bioplay-conn"]:checked')?.value || 'server';
+    }
+
+    function getLiveScoresRoomId() {
+      const roomIdEl = document.getElementById('room-id-label');
+      const roomIdFromUi = (roomIdEl?.dataset?.roomId || '').trim();
+      if (roomIdFromUi) return roomIdFromUi;
+      return (new URLSearchParams(window.location.search).get('room') || '').trim();
+    }
+
+    function unwrapLivePayload(payload) {
+      if (!payload || typeof payload !== 'object') return {};
+      if (payload.data && typeof payload.data === 'object') return payload.data;
+      if (payload.result && typeof payload.result === 'object') return payload.result;
+      return payload;
+    }
+
+    async function lsApi(method, action, body) {
+      try {
+        const roomIdFromUi = getLiveScoresRoomId();
+        if (method === 'GET') {
+          const qs = new URLSearchParams({ action });
+          if (roomIdFromUi) qs.set('roomId', roomIdFromUi);
+          const r = await fetch(`${LS_APPS_URL}?${qs}`, { cache: 'no-store' });
+          const raw = await r.text();
+          try { return JSON.parse(raw); } catch { return null; }
+        }
+        const params = new URLSearchParams({ action, ...(body || {}) });
+        if (roomIdFromUi) params.set('roomId', roomIdFromUi);
+        const r = await fetch(LS_APPS_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: params.toString(),
+        });
+        const raw = await r.text();
+        try { return JSON.parse(raw); } catch { return null; }
+      } catch { return null; }
+    }
+
+    async function lsApiWithFallback(method, actions, body) {
+      const candidates = Array.isArray(actions) ? actions : [actions];
+      for (const action of candidates) {
+        const raw = await lsApi(method, action, body);
+        const payload = unwrapLivePayload(raw);
+        if (payload && Object.keys(payload).length) return payload;
+      }
+      return null;
+    }
+
+    function internalRead() {
+      try { return JSON.parse(localStorage.getItem(BIOPLAY_INTERNAL_LS_KEY) || 'null'); } catch { return null; }
+    }
+
+    function scoresFromInternal(st) {
+      const players = Array.isArray(st?.players) ? st.players : [];
+      const rows = players.map((p) => ({
+        name: p.name,
+        score: p.score,
+        lastStep: p.lastStep,
+        completed: p.completed,
+        completedAt: p.completedAt,
+        startTime: p.startTime,
+      }));
+      const done = rows.filter((r) => r.completed && r.completedAt)
+        .sort((a, b) => Date.parse(a.completedAt) - Date.parse(b.completedAt));
+      const fr = {};
+      done.forEach((r, i) => { fr[r.name] = i + 1; });
+      return rows.map((r) => ({ ...r, finishRank: fr[r.name] || null }));
+    }
+
+    function fmtCountdown(ms) {
+      if (ms <= 0) return 'עכשיו';
+      const m = Math.floor(ms / 60000);
+      const s = Math.floor((ms % 60000) / 1000);
+      return `${m}:${String(s).padStart(2, '0')}`;
+    }
+
+    function fmtFinishTime(value) {
+      if (!value) return '—';
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return String(value);
+      return d.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    }
+
+    function fmtElapsedMs(ms) {
+      const n = Number(ms);
+      if (!Number.isFinite(n) || n <= 0 || n === Number.MAX_SAFE_INTEGER) return '—';
+      const totalSec = Math.floor(n / 1000);
+      const min = Math.floor(totalSec / 60);
+      const sec = totalSec % 60;
+      return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+    }
+
+    function normalizeCodes(rawCodes) {
+      if (Array.isArray(rawCodes)) return rawCodes.filter(Boolean).join(', ');
+      if (rawCodes && typeof rawCodes === 'object') {
+        return Object.entries(rawCodes).map(([k, v]) => `${k}:${v}`).join(', ');
+      }
+      return rawCodes ? String(rawCodes) : '—';
+    }
+
+    function normalizePlayerStatus(player) {
+      const status = String(player?.status || '').toLowerCase();
+      if (status === 'finished' || status === 'done' || player?.completed) return 'סיים';
+      if (status === 'active' || status === 'playing' || status === 'started') return 'פעיל';
+      if (status === 'waiting' || status === 'idle') return 'ממתין';
+      return player?.completedAt ? 'סיים' : 'ממתין';
+    }
+
+    function normalizeRow(player, idx) {
+      const participantId = String(
+        player?.participantId ||
+        player?.participantID ||
+        player?.playerId ||
+        player?.playerID ||
+        player?.pid ||
+        ''
+      ).trim();
+      return {
+        participantId,
+        name: player?.name || player?.playerName || player?.player || player?.nick || `שחקן ${idx + 1}`,
+        status: normalizePlayerStatus(player),
+        currentStage: player?.currentStage ?? player?.stage ?? player?.level ?? player?.lastStep ?? '—',
+        score: Number.isFinite(Number(player?.score))
+          ? Number(player.score)
+          : (Number.isFinite(Number(player?.totalScore)) ? Number(player.totalScore) : (Number.isFinite(Number(player?.points)) ? Number(player.points) : 0)),
+        completed: Boolean(player?.completed || player?.completedAt || player?.finishTime),
+        completedAt: player?.completedAt || player?.finishTime || player?.finishedAt || '',
+        finishRank: player?.finishRank != null ? player.finishRank : (player?.finishPlace != null ? player.finishPlace : null),
+        startTime: player?.startTime != null && player?.startTime !== '' ? String(player.startTime) : '',
+        codes: normalizeCodes(player?.codes || player?.collectedCodes || player?.code),
+        door: player?.door ?? player?.doorId ?? player?.currentDoor ?? '—',
+        details: player?.details || player?.note || player?.notes || '',
+      };
+    }
+
+    function computeTeacherRanks(rows) {
+      if (!Array.isArray(rows) || !rows.length) return null;
+
+      const enriched = rows.map((p) => {
+        const score = Number(p.score) || 0;
+        const startTimeMs = Number(p.startTime) || 0;
+        const completedAtMs = Date.parse(p.completedAt || '') || 0;
+        const hasElapsed = Boolean(startTimeMs && completedAtMs && completedAtMs >= startTimeMs);
+        const elapsedMs = hasElapsed ? (completedAtMs - startTimeMs) : Number.MAX_SAFE_INTEGER;
+        return {
+          p,
+          score,
+          startTimeMs,
+          completedAtMs: completedAtMs || Number.MAX_SAFE_INTEGER,
+          elapsedMs,
+        };
+      });
+
+      enriched.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        if (a.elapsedMs !== b.elapsedMs) return a.elapsedMs - b.elapsedMs;
+        if (a.completedAtMs !== b.completedAtMs) return a.completedAtMs - b.completedAtMs;
+        return String(a.p.name || '').localeCompare(String(b.p.name || ''), 'he');
+      });
+
+      const rankMap = new Map();
+      const metaMap = new Map();
+      enriched.forEach((x, i) => {
+        rankMap.set(x.p.name, i + 1);
+        metaMap.set(x.p.name, {
+          score: x.score,
+          elapsedMs: x.elapsedMs,
+          completedAtMs: x.completedAtMs,
+        });
+      });
+      return { rankMap, metaMap };
+    }
+
+    function rankCellDisplay(p) {
+      if (_teacherRankByName) {
+        const r = _teacherRankByName.get(p.name);
+        return r != null ? String(r) : '—';
+      }
+      return '—';
+    }
+
+    function rankCellColor(p, display) {
+      if (_teacherRankByName && display === '1') return '#ffb300';
+      if (!_teacherRankByName && p.completed && p.finishRank === 1) return '#ffb300';
+      if (display === '2') return '#aaa';
+      if (display === '3') return '#cd7f32';
+      return 'var(--text-soft,#5f7f99)';
+    }
+
+    function detailsCell(p) {
+      if (_teacherRankMeta) {
+        const m = _teacherRankMeta.get(p.name);
+        if (m) {
+          const elapsedText = fmtElapsedMs(m.elapsedMs);
+          return escLs(`ניקוד ${m.score} | זמן ${elapsedText}`);
+        }
+      }
+      return escLs(p.details) || '—';
+    }
+
+    async function closeRoundAfterShowResults() {
+      if (_roundClosed) return true;
+      if (getBioConnMode() === 'internal') {
+        const st = internalRead() || {};
+        st.status = 'ended';
+        try { localStorage.setItem(BIOPLAY_INTERNAL_LS_KEY, JSON.stringify(st)); } catch (_) {}
+        _roundClosed = true;
+        return true;
+      }
+      try {
+        const rid = (typeof currentRoomId === 'string' && currentRoomId.trim()) ? currentRoomId.trim() : getLiveScoresRoomId();
+        const token = (typeof getStoredTeacherTokenForRoom === 'function') ? getStoredTeacherTokenForRoom(rid) : '';
+        if (typeof sendAction === 'function' && rid && token) {
+          await sendAction('end', token, { roomId: rid });
+          _roundClosed = true;
+          return true;
+        }
+      } catch (_) {}
+      return false;
+    }
+
+    function updateClearCountdown() {
+      const notice = document.getElementById('ls-clear-notice');
+      const cd = document.getElementById('ls-clear-countdown');
+      if (!notice || !cd) return;
+      if (!_clearAt) { notice.style.display = 'none'; return; }
+      const left = _clearAt - Date.now();
+      if (left <= 0) { notice.style.display = 'none'; _clearAt = null; return; }
+      notice.style.display = 'block';
+      cd.textContent = fmtCountdown(left);
+    }
+
+    async function refreshScores(opts = {}) {
+      if (_roundClosed && !opts.force) return;
+      const mode = getBioConnMode();
+      const scopeId = mode === 'internal' ? 'INTERNAL' : (getLiveScoresRoomId() || '');
+      if (_lsPrevScopeId !== scopeId) {
+        _teacherRankByName = null;
+        _teacherRankMeta = null;
+        _lastNormalizedRows = [];
+        _lsPrevScopeId = scopeId;
+      }
+
+      const dot = document.getElementById('ls-status-dot');
+      const statusEl = document.getElementById('ls-game-status');
+      const tbody = document.getElementById('ls-tbody');
+      if (!tbody) return;
+
+      let statusData = null;
+      let scoresData = {};
+
+      if (mode === 'internal') {
+        const st = internalRead();
+        const internalStatus = String(st?.status || '').toLowerCase();
+        statusData = { status: internalStatus === 'started' ? 'active' : (internalStatus === 'ended' ? 'ended' : 'waiting') };
+        scoresData = { scores: scoresFromInternal(st) };
+      } else {
+        const rid = getLiveScoresRoomId();
+        if (!rid) {
+          if (dot) { dot.style.background = '#aaa'; dot.title = 'אין חדר'; }
+          if (statusEl) {
+            statusEl.textContent = 'צרו חדר כדי לראות ניקוד';
+            statusEl.style.background = '#eee';
+            statusEl.style.color = '#555';
+          }
+          tbody.innerHTML = '<tr><td colspan="5" style="padding:18px;text-align:center;color:#aaa">אין חדר פעיל — השתמשו ב"צור חדר" ואז PLAY.</td></tr>';
+          return;
+        }
+        const [statusDataRaw, scoresDataRaw] = await Promise.all([
+          lsApiWithFallback('GET', ['gameStatus', 'gamestatus', 'status']),
+          lsApiWithFallback('GET', ['gameScores', 'gamescores', 'scores', 'gameScore']),
+        ]);
+        statusData = unwrapLivePayload(statusDataRaw);
+        scoresData = unwrapLivePayload(scoresDataRaw);
+      }
+
+      if (!statusData) {
+        if (dot) { dot.style.background = '#e55'; dot.title = 'שגיאת חיבור'; }
+        if (statusEl) {
+          statusEl.textContent = 'שגיאת חיבור לשרת';
+          statusEl.style.background = '#fde8e8';
+          statusEl.style.color = '#b83b3b';
+        }
+        return;
+      }
+
+      if (dot) {
+        dot.style.background = STATUS_COLORS[statusData.status] || '#aaa';
+        dot.title = STATUS_LABELS[statusData.status] || statusData.status;
+      }
+      if (statusEl) {
+        const lbl = STATUS_LABELS[statusData.status] || statusData.status;
+        const col = STATUS_COLORS[statusData.status] || '#aaa';
+        statusEl.textContent = lbl;
+        statusEl.style.background = col + '22';
+        statusEl.style.color = col;
+        statusEl.style.border = `1.5px solid ${col}44`;
+      }
+
+      if (scoresData?.clearAt) _clearAt = scoresData.clearAt;
+      updateClearCountdown();
+
+      const scoresCandidates = [
+        scoresData?.scores,
+        scoresData?.gameScores,
+        scoresData?.gamescores,
+        scoresData?.players,
+        scoresData?.rows,
+      ];
+      const statusCandidates = [
+        statusData?.players,
+        statusData?.participants,
+        statusData?.rows,
+      ];
+      let rawRows = [];
+      for (const candidate of scoresCandidates) {
+        if (Array.isArray(candidate) && candidate.length) {
+          rawRows = candidate;
+          break;
+        }
+        if (candidate && typeof candidate === 'object' && !Array.isArray(candidate)) {
+          const vals = Object.values(candidate);
+          if (vals.length && vals.every((item) => item && typeof item === 'object')) {
+            rawRows = vals;
+            break;
+          }
+        }
+      }
+      let statusRows = [];
+      for (const candidate of statusCandidates) {
+        if (Array.isArray(candidate) && candidate.length) {
+          statusRows = candidate;
+          break;
+        }
+        if (candidate && typeof candidate === 'object' && !Array.isArray(candidate)) {
+          const vals = Object.values(candidate);
+          if (vals.length && vals.every((item) => item && typeof item === 'object')) {
+            statusRows = vals;
+            break;
+          }
+        }
+      }
+      const mergedRows = new Map();
+      [...statusRows, ...rawRows].forEach((player, idx) => {
+        const normalized = normalizeRow(player, idx);
+        const key = normalized.participantId || String(normalized.name || '').trim();
+        if (!key) return;
+        const prev = mergedRows.get(key) || {};
+        mergedRows.set(key, {
+          ...prev,
+          ...normalized,
+          name: String(normalized.name || '').trim() || String(prev.name || '').trim() || `שחקן ${idx + 1}`,
+          score: Number.isFinite(Number(normalized.score)) ? Number(normalized.score) : (Number(prev.score) || 0),
+          status: normalized.status || prev.status || 'ממתין',
+        });
+      });
+      const rows = [...mergedRows.values()];
+      _lastNormalizedRows = rows;
+
+      if (!rows.length) {
+        tbody.innerHTML = '<tr><td colspan="5" style="padding:18px;text-align:center;color:#aaa">אין שחקנים רשומים עדיין</td></tr>';
+        return;
+      }
+
+      const rankedRows = rows
+        .map((p) => {
+          const disp = rankCellDisplay(p);
+          const rankNum = Number.parseInt(disp, 10);
+          return {
+            ...p,
+            rankNum: Number.isFinite(rankNum) ? rankNum : null,
+          };
+        })
+        .sort((a, b) => {
+          if (a.rankNum != null && b.rankNum != null) return a.rankNum - b.rankNum;
+          if (a.rankNum != null) return -1;
+          if (b.rankNum != null) return 1;
+          if (b.score !== a.score) return b.score - a.score;
+          return String(a.name).localeCompare(String(b.name), 'he');
+        })
+        .slice(0, 5);
+
+      tbody.innerHTML = rankedRows.map((p, i) => {
+        const place = p.rankNum != null ? String(p.rankNum) : '—';
+        const col = rankCellColor(p, place);
+        const m = _teacherRankMeta ? _teacherRankMeta.get(p.name) : null;
+        const elapsedText = m ? fmtElapsedMs(m.elapsedMs) : '—';
+        const doorLabel = p.door && p.door !== '—' ? `דלת ${escLs(p.door)}` : '—';
+        return `
+        <tr style="background:${i % 2 === 0 ? 'transparent' : 'rgba(0,0,0,.03)'}">
+          <td style="padding:8px 12px;font-weight:700;color:${col}">${escLs(place)}</td>
+          <td style="padding:8px 12px;font-weight:600;color:var(--text-main,#17324d)">${escLs(p.name)}</td>
+          <td style="padding:8px 12px;color:var(--text-soft,#5f7f99);font-weight:700">${escLs(p.status || 'ממתין')}</td>
+          <td style="padding:8px 12px;text-align:center;font-weight:700;color:var(--text-main,#17324d)">${doorLabel}</td>
+          <td style="padding:8px 12px;text-align:center">
+            <span style="display:inline-block;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border-radius:999px;padding:3px 14px;font-weight:800;font-size:.9rem">${p.score}${_teacherRankByName ? ` | ${elapsedText}` : ''}</span>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    function escLs(str) {
+      return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    document.querySelectorAll('input[name="bioplay-conn"]').forEach((el) => {
+      el.addEventListener('change', () => {
+        const internal = getBioConnMode() === 'internal';
+        const wrap = document.getElementById('internal-code-wrap');
+        if (wrap) wrap.style.display = internal ? 'inline-flex' : 'none';
+        _teacherRankByName = null;
+        _teacherRankMeta = null;
+        refreshScores();
+      });
+    });
+
+    document.getElementById('ls-btn-refresh')?.addEventListener('click', () => { refreshScores(); });
+
+    document.getElementById('ls-btn-show-ranks')?.addEventListener('click', async () => {
+      const res = computeTeacherRanks(_lastNormalizedRows);
+      if (!res) {
+        alert('אין נתונים — לא ניתן לחשב דירוג.');
+        return;
+      }
+      _teacherRankByName = res.rankMap;
+      _teacherRankMeta = res.metaMap;
+      await closeRoundAfterShowResults();
+      await refreshScores({ force: true });
+    });
+
+    refreshScores();
+    setInterval(refreshScores, 5000);
+    setInterval(updateClearCountdown, 1000);
+  })();
+  </script>
+
+<script>
+  const APPS_URL = window.BIOPLAY_BACKEND_URL || "https://script.google.com/macros/s/AKfycbxT4eu6cyT40XZI6-eFVtx5TQlgEirAsp6Sxmf2vUQYG6xpwBiEoRXgs23CxCYDoKNB9Q/exec";
+  const POLL_MS = 4000;
+  const PLAY_GLOW_MS = 30 * 60 * 1000;
+  const INITIAL_ACTION_MESSAGE = ``;
+
+  const qp = new URLSearchParams(window.location.search);
+  let currentRoomId = "";
+
+  const INTERNAL_CODE = "BIO2026";
+  const INTERNAL_ROOM_ID = "INTERNAL";
+  const BIOPLAY_INTERNAL_LS_KEY_MAIN = "bioplay_internal_v1";
+
+  function getBioConnModeMain() {
+    return document.querySelector('input[name="bioplay-conn"]:checked')?.value || "server";
+  }
+
+  function pickInternalDoors(count) {
+    const pool = [];
+    for (let i = 1; i <= 30; i++) pool.push(i);
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      const t = pool[i];
+      pool[i] = pool[j];
+      pool[j] = t;
+    }
+    const n = Math.min(Math.max(1, Number(count) || 5), pool.length);
+    return pool.slice(0, n).sort((a, b) => a - b);
+  }
+
+  function scoped(base, rid = currentRoomId) {
+    return `${base}_${rid || "NO_ROOM"}`;
+  }
+
+  function getSessKey(rid = currentRoomId) {
+    return scoped("bioplay_admin_token", rid);
+  }
+
+  function getDoorsKey(rid = currentRoomId) {
+    return scoped("bioplay_doors_count", rid);
+  }
+
+  function getEnabledStepsKey(rid = currentRoomId) {
+    return scoped("bioplay_enabled_steps", rid);
+  }
+
+  function getCreatedRoomNameKey(rid = currentRoomId) {
+    return scoped("bioplay_last_created_room_name", rid);
+  }
+
+  function getPlayGlowKey(rid = currentRoomId) {
+    return scoped("bioplay_play_glow_until", rid);
+  }
+
+  let currentTeacherToken = "";
+  let pollTimer = null;
+  let playGlowTimer = null;
+  let doorsData = [];
+  let habitatRows = [];
+  let habitatByNum = new Map();
+  let habitatByOrganism = new Map();
+  let matchingByOrganism = new Map();
+  let mcqByOrganism = new Map();
+  let globalStep5Data = null;
+  let doorsCount = 5;
+  const loginOverlay = document.getElementById("login-overlay");
+  const loginCodeEl = document.getElementById("login-code");
+  const loginMsg = document.getElementById("login-msg");
+  const loginBtn = document.getElementById("login-btn");
+  const statusDot = document.getElementById("status-dot");
+  const statusLabel = document.getElementById("status-label");
+  const actionMsg = document.getElementById("action-msg");
+  const roomBtn = document.getElementById("room-btn");
+  const activateBtn = document.getElementById("activate-btn");
+  const resetBtn = document.getElementById("reset-btn");
+  const logoutBtn = document.getElementById("logout-btn");
+  const doorsSelect = document.getElementById("doors-count-select");
+  const guideSearchInput = document.getElementById("guide-search-input");
+  const guideSearchDropdown = document.getElementById("guide-search-dropdown");
+  const guideModal = document.getElementById("guide-modal");
+  const guideModalContent = document.getElementById("guide-modal-content");
+  const guideModalClose = document.getElementById("guide-modal-close");
+  const toastEl = document.getElementById("toast");
+  const roomIdLabel = document.getElementById("room-id-label");
+  const roomStatusLabel = document.getElementById("room-status-label");
+  const roomNameSelect = document.getElementById("room-name-select");
+  const copyLinkBtn = document.getElementById("copy-link-btn");
+  const headerDoorsCount = document.getElementById("header-doors-count");
+  const dbTitle = document.getElementById("db-title");
+
+  let lastSuccessfulCreatedRoom = "";
+  let lastCreateSucceeded = false;
+  let isCreatingRoom = false;
+  let createRequestSeq = 0;
+  let playInFlight = false;
+  let resetInFlight = false;
+  let buttonStabilityTimer = null;
+
+  function setStudentLinkState(state = "idle", customText = "") {
+    const hasReadyLink = Boolean(currentRoomId && studentUrlForRoom());
+    const normalizedState = ["idle", "loading", "ready", "error"].includes(state) ? state : "idle";
+    const stateMap = {
+      idle: "",
+      loading: "מכין קישור...",
+      ready: customText || "הקישור מוכן",
+      error: customText || "לא ניתן להכין קישור. נסו שוב"
+    };
+    if (stateMap[normalizedState]) {
+      setActionMessage(stateMap[normalizedState], normalizedState === "error" ? "error" : "info");
+    }
+    copyLinkBtn.disabled = !hasReadyLink;
+    copyLinkBtn.style.display = hasReadyLink ? "inline-flex" : "none";
+  }
+
+  function setActionMessage(text, tone = "info") {
+    if (!actionMsg) return;
+    actionMsg.textContent = String(text || "");
+    const allowedTone = ["info", "success", "error"].includes(tone) ? tone : "info";
+    actionMsg.className = `header-action-msg action-msg ${allowedTone}`;
+  }
+
+  function ensureButtonsStable() {
+    const buttons = [roomBtn, activateBtn, resetBtn, copyLinkBtn].filter(Boolean);
+    buttons.forEach((btn) => {
+      const computed = window.getComputedStyle(btn);
+      if (computed.display === "none") btn.style.display = "inline-flex";
+      if (computed.visibility === "hidden") btn.style.visibility = "visible";
+      if (computed.pointerEvents === "none") btn.style.pointerEvents = "auto";
+    });
+  }
+
+  function scheduleButtonStabilityCheck() {
+    if (buttonStabilityTimer) {
+      clearTimeout(buttonStabilityTimer);
+    }
+    requestAnimationFrame(ensureButtonsStable);
+    buttonStabilityTimer = setTimeout(ensureButtonsStable, 2500);
+  }
+
+  function studentUrlForRoom() {
+    if (!currentRoomId) return "";
+    const u = new URL("index.html", window.location.href);
+    u.searchParams.delete("mode");
+    if (getBioConnModeMain() === "internal") {
+      u.searchParams.set("room", INTERNAL_ROOM_ID);
+      u.searchParams.set("mode", "local");
+      return u.toString();
+    }
+    u.searchParams.set("room", currentRoomId);
+    return u.toString();
+  }
+
+  function canPlayNow() {
+    if (isCreatingRoom || playInFlight || resetInFlight) return false;
+    if (getBioConnModeMain() === "internal") {
+      return sessionStorage.getItem("bioplay_internal_ok") === "1";
+    }
+    return hasStrictActiveStateMatch();
+  }
+
+  function canResetNow() {
+    if (isCreatingRoom || playInFlight || resetInFlight) return false;
+    if (getBioConnModeMain() === "internal") {
+      return sessionStorage.getItem("bioplay_internal_ok") === "1";
+    }
+    return hasStrictActiveStateMatch();
+  }
+
+  function getStoredTeacherTokenForRoom(roomId = currentRoomId) {
+    const rid = String(roomId || "").trim();
+    if (!rid) return "";
+    return sessionStorage.getItem(getSessKey(rid)) || "";
+  }
+
+  function hasStrictActiveStateMatch() {
+    const selectedRoomName = roomNameSelect.value.trim();
+    const storedTokenForRoom = getStoredTeacherTokenForRoom(currentRoomId);
+    return Boolean(
+      currentRoomId &&
+      currentTeacherToken &&
+      storedTokenForRoom &&
+      storedTokenForRoom === currentTeacherToken &&
+      lastCreateSucceeded &&
+      lastSuccessfulCreatedRoom &&
+      selectedRoomName &&
+      selectedRoomName === lastSuccessfulCreatedRoom
+    );
+  }
+
+  function syncDashboardMeta(statusText = "ממתין") {
+    headerDoorsCount.textContent = String(doorsCount || 0);
+    activateBtn.disabled = isCreatingRoom || playInFlight;
+    resetBtn.disabled = isCreatingRoom || resetInFlight;
+  }
+
+  function normalizeEnabledSteps(rawSteps) {
+    const allowed = new Set([1, 2, 3, 4, 5, 6]);
+    const arr = Array.isArray(rawSteps)
+      ? rawSteps
+      : String(rawSteps || '').split(',');
+
+    const parsed = arr
+      .map((v) => Number(v))
+      .filter((v) => Number.isFinite(v) && allowed.has(v));
+
+    parsed.push(1, 6);
+    return [...new Set(parsed)].sort((a, b) => a - b);
+  }
+
+  function applyEnabledSteps(enabledSteps) {
+    const normalized = normalizeEnabledSteps(enabledSteps);
+    document.querySelectorAll('.step-cb').forEach((cb) => {
+      const step = Number(cb.value);
+      cb.checked = normalized.includes(step);
+    });
+    if (currentRoomId) {
+      localStorage.setItem(getEnabledStepsKey(currentRoomId), normalized.join(','));
+    }
+  }
+
+  function restoreEnabledStepsFromStorage(roomId = currentRoomId) {
+    const raw = localStorage.getItem(getEnabledStepsKey(roomId));
+    if (!raw) return;
+    applyEnabledSteps(raw);
+  }
+
+  function clearSessionRoomState(roomId = "") {
+    const roomStatePrefixes = ["bioplay_admin_token_", "bioplay_last_created_room_name_"];
+    const targetRoomId = String(roomId || "").trim();
+    for (let i = sessionStorage.length - 1; i >= 0; i--) {
+      const key = sessionStorage.key(i);
+      if (!key) continue;
+      if (targetRoomId && !key.endsWith(`_${targetRoomId}`)) continue;
+      if (roomStatePrefixes.some((prefix) => key.startsWith(prefix))) {
+        sessionStorage.removeItem(key);
+      }
+    }
+  }
+
+  function clearPlayGlowState() {
+    const glowPrefix = "bioplay_play_glow_until_";
+    for (let i = localStorage.length - 1; i >= 0; i--) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith(glowPrefix)) {
+        localStorage.removeItem(key);
+      }
+    }
+  }
+
+  function clearActiveRoomState(options = {}) {
+    const { clearCurrentRoomId = false } = options;
+    currentTeacherToken = "";
+    currentRoomId = clearCurrentRoomId ? "" : currentRoomId;
+    lastSuccessfulCreatedRoom = "";
+    lastCreateSucceeded = false;
+    loginCodeEl.value = "";
+    clearSessionRoomState(currentRoomId);
+    clearPlayGlowState();
+    if (clearCurrentRoomId) {
+      updateUrlWithRoom();
+    }
+    removePlayGlow();
+    syncDashboardMeta();
+  }
+
+  function updateRoomInfo(statusText = "ממתין") {
+    const selectedFriendlyRoom = roomNameSelect.value.trim();
+    roomIdLabel.textContent = currentRoomId ? (selectedFriendlyRoom || lastSuccessfulCreatedRoom || "—") : "—";
+    roomIdLabel.dataset.roomId = currentRoomId || '';
+    roomStatusLabel.textContent = currentRoomId ? statusText : "טרם נוצר";
+
+    const studentUrl = studentUrlForRoom();
+    if (studentUrl) {
+      setStudentLinkState("ready");
+    } else {
+      setStudentLinkState("idle");
+    }
+    syncDashboardMeta(statusText);
+  }
+
+  function updateUrlWithRoom() {
+    const next = new URL(window.location.href);
+    if (currentRoomId) next.searchParams.set("room", currentRoomId);
+    else next.searchParams.delete("room");
+    window.history.replaceState({}, "", next.toString());
+  }
+
+  function clearPlayGlowTimer() {
+    if (playGlowTimer) {
+      clearTimeout(playGlowTimer);
+      playGlowTimer = null;
+    }
+  }
+
+  function removePlayGlow() {
+    activateBtn.classList.remove("active-glow");
+    clearPlayGlowTimer();
+    if (currentRoomId) {
+      localStorage.removeItem(getPlayGlowKey(currentRoomId));
+    }
+  }
+
+  function applyPlayGlow(untilTs) {
+    const now = Date.now();
+    const remaining = untilTs - now;
+
+    if (remaining <= 0) {
+      removePlayGlow();
+      return;
+    }
+
+    activateBtn.classList.add("active-glow");
+    clearPlayGlowTimer();
+
+    playGlowTimer = setTimeout(() => {
+      removePlayGlow();
+    }, remaining);
+  }
+
+  function refreshStorageScope(previousRoomId = "") {
+    if (previousRoomId && previousRoomId !== currentRoomId) {
+      console.info("[admin] room scope changed", { previousRoomId, currentRoomId });
+    }
+    const savedDoors = parseInt(localStorage.getItem(getDoorsKey(currentRoomId)), 10);
+    doorsCount = Math.max(1, Number.isFinite(savedDoors) ? savedDoors : 5);
+    doorsSelect.value = String(doorsCount);
+    if (currentTeacherToken && currentRoomId) {
+      sessionStorage.setItem(getSessKey(currentRoomId), currentTeacherToken);
+      sessionStorage.setItem(getCreatedRoomNameKey(currentRoomId), lastSuccessfulCreatedRoom);
+      const savedToken = sessionStorage.getItem(getSessKey(currentRoomId));
+      const savedRoomName = sessionStorage.getItem(getCreatedRoomNameKey(currentRoomId));
+      console.info("[admin][trace] persistence", {
+        currentRoomId,
+        currentTeacherToken,
+        sessionStorageTokenKey: getSessKey(currentRoomId),
+        sessionStorageTokenValueLength: savedToken ? savedToken.length : 0,
+        lastSuccessfulCreatedRoom,
+      });
+      console.info("[admin] token persisted", {
+        roomId: currentRoomId,
+        tokenKey: getSessKey(currentRoomId),
+        roomNameKey: getCreatedRoomNameKey(currentRoomId),
+        hasToken: Boolean(savedToken),
+        tokenLength: savedToken ? savedToken.length : 0,
+        savedRoomName,
+      });
+    }
+    localStorage.setItem(getDoorsKey(currentRoomId), doorsCount);
+    updateRoomInfo();
+    updateUrlWithRoom();
+    const savedGlowUntil = parseInt(localStorage.getItem(getPlayGlowKey(currentRoomId)), 10);
+    if (Number.isFinite(savedGlowUntil)) {
+      applyPlayGlow(savedGlowUntil);
+    }
+  }
+
+  for (let n = 2; n <= 30; n++) {
+    const o = document.createElement("option");
+    o.value = n; o.textContent = n;
+    if (n === doorsCount) o.selected = true;
+    doorsSelect.appendChild(o);
+  }
+
+  doorsSelect.addEventListener("change", () => {
+    doorsCount = parseInt(doorsSelect.value, 10) || 5;
+    localStorage.setItem(getDoorsKey(currentRoomId), doorsCount);
+    syncDashboardMeta(statusLabel.textContent.includes("פעיל") ? "פעיל" : "ממתין");
+  });
+
+  let toastT;
+  function toast(msg, type = "info") {
+    toastEl.textContent = msg;
+    toastEl.style.background = type === "success" ? "rgba(20,100,20,.95)" : type === "error" ? "rgba(150,20,20,.95)" : "rgba(8,18,38,.92)";
+    toastEl.classList.add("show");
+    clearTimeout(toastT);
+    toastT = setTimeout(() => toastEl.classList.remove("show"), 3000);
+  }
+
+  async function parseResponse(res) {
+    const raw = await res.text();
+    let data = null;
+    if (raw) {
+      try { data = JSON.parse(raw); } catch { data = null; }
+    }
+    return { raw, data };
+  }
+
+  function resolveApiError(res, data, raw) {
+    if (data && typeof data === "object") {
+      if (data.errorCode) return String(data.errorCode);
+      if (data.message) return String(data.message);
+      if (data.error) return String(data.error);
+    }
+    if (raw) return String(raw);
+    return `HTTP ${res.status}`;
+  }
+
+  async function getStatus() {
+    const url = `${APPS_URL}?action=status&roomId=${encodeURIComponent(currentRoomId)}`;
+    const res = await fetch(url, { cache: "no-store" });
+    const { data: d, raw } = await parseResponse(res);
+    if (!res.ok || d?.ok === false) throw new Error(resolveApiError(res, d, raw));
+    return d || {};
+  }
+
+  async function sendAction(action, token, extra = {}) {
+    const targetRoomId = String(extra.roomId || "").trim();
+    const safeToken = String(token || "").trim();
+    if (!targetRoomId || !safeToken) {
+      throw new Error("MISSING_ACTION_STATE");
+    }
+    const payload = { ...extra };
+    delete payload.roomId;
+    const body = new URLSearchParams({ action, roomId: targetRoomId, ...payload });
+    body.set("teacherToken", safeToken);
+    console.info("[admin][trace] sendAction request", {
+      action,
+      roomId: targetRoomId,
+      teacherToken: safeToken,
+      teacherTokenLength: safeToken.length,
+      payload,
+    });
+    const res = await fetch(APPS_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
+    });
+    const { data: d, raw } = await parseResponse(res);
+    if (!res.ok || d?.ok === false) throw new Error(resolveApiError(res, d, raw));
+    return d;
+  }
+
+  function normalizeApiError(err) {
+    const text = String(err?.message || err || "").trim();
+    return text.toUpperCase();
+  }
+
+  function isInvalidTeacherTokenError(err) {
+    const normalized = normalizeApiError(err);
+    return normalized.includes("INVALID_TEACHER_TOKEN") || normalized.includes("INVALID TEACHER TOKEN") || normalized.includes("INVALID TEACHERTOKEN");
+  }
+
+  function isRoomNotFoundError(err) {
+    const normalized = normalizeApiError(err);
+    return normalized.includes("ROOM_NOT_FOUND") || normalized.includes("ROOM NOT FOUND");
+  }
+
+  function handleInvalidServerState(err) {
+    const staleRoomId = currentRoomId;
+    if (isInvalidTeacherTokenError(err)) {
+      clearActiveRoomState({ clearCurrentRoomId: true });
+      setActionMessage("הגישה לחדר אינה תקפה או פגה. השלב הבא: בחרו חדר ולחצו שוב על \"צור חדר\".", "error");
+      console.warn("[admin] invalid teacher access", { roomId: staleRoomId });
+      return true;
+    }
+    if (isRoomNotFoundError(err)) {
+      clearActiveRoomState({ clearCurrentRoomId: true });
+      setActionMessage("החדר שנבחר לא נמצא. השלב הבא: בחרו חדר תקין ולחצו שוב על \"צור חדר\".", "error");
+      console.warn("[admin] room not found", { roomId: staleRoomId });
+      return true;
+    }
+    return false;
+  }
+
+  function normalizeRoomNames(rawNames) {
+    const seen = new Set();
+    const normalized = [];
+    for (const raw of rawNames || []) {
+      const name = String(raw || "").trim();
+      if (!name || seen.has(name)) continue;
+      seen.add(name);
+      normalized.push(name);
+    }
+    return normalized.sort((a, b) => a.localeCompare(b, "he"));
+  }
+
+  async function fetchRoomNamesFromAction(actionName) {
+    const res = await fetch(`${APPS_URL}?action=${encodeURIComponent(actionName)}`, { cache: "no-store" });
+    const { data: d, raw } = await parseResponse(res);
+    if (!res.ok || d?.ok === false) throw new Error(resolveApiError(res, d, raw));
+    return normalizeRoomNames(d?.roomNames || d?.rooms || d?.list || []);
+  }
+
+  async function loadRoomNames() {
+    roomNameSelect.innerHTML = '<option value="">טוען רשימת חדרים...</option>';
+    try {
+      let names = [];
+      const actionsToTry = ["list_room_names", "room_names"];
+      for (const actionName of actionsToTry) {
+        try {
+          names = await fetchRoomNamesFromAction(actionName);
+          if (names.length) break;
+        } catch (_) {}
+      }
+
+      if (!names.length) {
+        roomNameSelect.innerHTML = '<option value="">לא נמצאו חדרים זמינים</option>';
+        return;
+      }
+
+      roomNameSelect.innerHTML = '<option value="">בחרו חדר...</option>' + names.map((name) => `<option value="${name}">${name}</option>`).join('');
+    } catch (e) {
+      roomNameSelect.innerHTML = '<option value="">שגיאה בטעינת רשימת חדרים</option>';
+      toast("שגיאה בטעינת רשימת חדרים", "error");
+    }
+  }
+
+
+  function parseCreateRoomPayload(payload) {
+    if (!payload || payload.ok !== true) return null;
+    const roomId = String(payload.roomId || payload.roomID || payload.room_id || "").trim();
+    const teacherToken = String(
+      payload.teacherToken ||
+      payload.teacher_token ||
+      payload.token ||
+      payload.teacherAccessToken ||
+      ""
+    ).trim();
+    if (!roomId || !teacherToken) return null;
+    return { roomId, teacherToken, status: payload?.status === "started" ? "started" : "waiting" };
+  }
+
+  function buildCreateRoomFailureMessage(userMessage) {
+    const baseMessage = "יצירת החדר נכשלה. יש לבחור חדר תקין וללחוץ שוב על \"צור חדר\".";
+    const details = String(userMessage || "").trim();
+    if (!details) return baseMessage;
+    return `${baseMessage} (${details})`;
+  }
+
+  function createRoomValidationError(payload) {
+    if (!payload || typeof payload !== "object") {
+      return "השרת החזיר תגובה לא תקינה";
+    }
+    if (payload.ok !== true) {
+      return "השרת לא אישר את יצירת החדר";
+    }
+    if (!String(payload.roomId || "").trim()) {
+      return "התגובה חסרה מזהה חדר תקין";
+    }
+    if (!String(payload.teacherToken || "").trim()) {
+      return "התגובה חסרה טוקן מדריך תקין";
+    }
+    return "השרת החזיר תגובה חלקית";
+  }
+
+  async function createRoom() {
+    if (isCreatingRoom) return;
+    if (getBioConnModeMain() === "internal") {
+      setActionMessage('במצב פנימי אין "צור חדר". אשרו קוד BIO2026 ולחצו PLAY.', "info");
+      toast("מצב פנימי — השתמשו ב-PLAY בלבד", "info");
+      return;
+    }
+    isCreatingRoom = true;
+    const requestId = ++createRequestSeq;
+    const selectedRoomName = roomNameSelect.value.trim();
+    clearActiveRoomState({ clearCurrentRoomId: true });
+    if (!selectedRoomName) {
+      setActionMessage(INITIAL_ACTION_MESSAGE, "info");
+      isCreatingRoom = false;
+      return;
+    }
+
+    roomBtn.disabled = true;
+    setStudentLinkState("loading");
+    syncDashboardMeta();
+    setActionMessage("יוצר חדר, נא להמתין...", "info");
+    scheduleButtonStabilityCheck();
+    const doorsCountForCreate = Math.max(1, parseInt(doorsSelect.value, 10) || doorsCount || 5);
+    doorsCount = doorsCountForCreate;
+    try {
+      const res = await fetch(APPS_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          action: "create_room",
+          roomName: selectedRoomName,
+          doorsCount: String(doorsCountForCreate),
+          enabledSteps: getEnabledSteps().join(","),
+        }).toString(),
+      });
+      const { data: d, raw } = await parseResponse(res);
+      console.info("[admin] create_room response", { status: res.status, ok: res.ok, data: d, raw });
+      const validPayload = parseCreateRoomPayload(d);
+      if (!res.ok || !validPayload) {
+        const apiError = res.ok ? createRoomValidationError(d) : resolveApiError(res, d, raw);
+        throw new Error(apiError);
+      }
+
+      if (requestId !== createRequestSeq) {
+        return;
+      }
+
+      currentRoomId = validPayload.roomId;
+      currentTeacherToken = validPayload.teacherToken;
+      lastSuccessfulCreatedRoom = selectedRoomName;
+      lastCreateSucceeded = true;
+      localStorage.setItem(getDoorsKey(currentRoomId), String(doorsCountForCreate));
+      console.info("[admin][trace] create_room output", {
+        roomId: currentRoomId,
+        roomName: selectedRoomName,
+        teacherToken: currentTeacherToken,
+      });
+      refreshStorageScope();
+      if (Array.isArray(d?.enabledSteps) && d.enabledSteps.length) {
+        applyEnabledSteps(d.enabledSteps);
+      }
+      syncDashboardMeta();
+
+      clearGuideCards();
+      setStatus(validPayload.status);
+      if (pollTimer) startPolling();
+
+      setStudentLinkState("ready");
+      setActionMessage("החדר נוצר בהצלחה. השלב הבא: לחצו PLAY כדי להפעיל את המשחק.", "success");
+      console.info("[admin] create_room success", { roomId: currentRoomId, roomName: selectedRoomName });
+      toast("✔ חדר חדש נוצר", "success");
+    } catch (e) {
+      if (requestId !== createRequestSeq) {
+        return;
+      }
+      const friendlyMessage = buildCreateRoomFailureMessage(e.message || "");
+      clearActiveRoomState({ clearCurrentRoomId: true });
+      setStudentLinkState("error");
+      setActionMessage(friendlyMessage, "error");
+      toast(friendlyMessage, "error");
+      syncDashboardMeta();
+    } finally {
+      isCreatingRoom = false;
+      if (requestId === createRequestSeq) {
+        roomBtn.disabled = false;
+        syncDashboardMeta();
+      }
+      scheduleButtonStabilityCheck();
+    }
+  }
+
+  function setStatus(s) {
+    const inactive = !currentRoomId;
+    const on = (s === "started" || s === "active") && !inactive;
+    statusDot.className = `status-dot ${inactive ? "off" : (on ? "started" : "waiting")}`;
+    statusLabel.className = `status-label ${on ? "started" : ""}`;
+    statusLabel.textContent = inactive ? "לא פעיל" : (on ? "פעיל ✔" : "ממתין");
+    updateRoomInfo(inactive ? "לא פעיל" : (on ? "פעיל" : "ממתין"));
+  }
+
+  function startPolling() {
+    clearInterval(pollTimer);
+    (async () => {
+      try {
+        const statusPayload = await getStatus();
+        setStatus((statusPayload?.status === "started" || statusPayload?.status === "active") ? "started" : "waiting");
+        if (Array.isArray(statusPayload?.enabledSteps) && statusPayload.enabledSteps.length) {
+          applyEnabledSteps(statusPayload.enabledSteps);
+        }
+      } catch (err) {
+        handleInvalidServerState(err);
+      }
+    })();
+    pollTimer = setInterval(async () => {
+      try {
+        const statusPayload = await getStatus();
+        setStatus((statusPayload?.status === "started" || statusPayload?.status === "active") ? "started" : "waiting");
+        if (Array.isArray(statusPayload?.enabledSteps) && statusPayload.enabledSteps.length) {
+          applyEnabledSteps(statusPayload.enabledSteps);
+        }
+      } catch (err) {
+        if (handleInvalidServerState(err)) {
+          clearInterval(pollTimer);
+        }
+      }
+    }, POLL_MS);
+  }
+
+  async function doLogin() {
+    loginMsg.textContent = "התחברות ידנית לא זמינה. יש לבחור חדר וללחוץ על 'צור חדר'.";
+    loginMsg.className = "login-msg error";
+  }
+
+  function enterPanel(initStatus) {
+    loginOverlay.style.display = "none";
+    if (initStatus) setStatus(initStatus);
+    restoreEnabledStepsFromStorage(currentRoomId);
+    startPolling();
+    loadDoors();
+  }
+
+  roomBtn.onclick = createRoom;
+
+  document.getElementById("internal-code-btn")?.addEventListener("click", () => {
+    const inp = document.getElementById("internal-code-input");
+    const v = (inp?.value || "").trim();
+    if (v !== INTERNAL_CODE) {
+      alert("קוד שגוי. השתמשו ב-BIO2026");
+      return;
+    }
+    sessionStorage.setItem("bioplay_internal_ok", "1");
+    currentRoomId = INTERNAL_ROOM_ID;
+    currentTeacherToken = "internal";
+    lastCreateSucceeded = true;
+    lastSuccessfulCreatedRoom = "מצב פנימי";
+    sessionStorage.setItem(getSessKey(INTERNAL_ROOM_ID), "internal");
+    sessionStorage.setItem(getCreatedRoomNameKey(INTERNAL_ROOM_ID), "מצב פנימי");
+    updateUrlWithRoom();
+    updateRoomInfo("ממתין");
+    setStudentLinkState("ready");
+    toast("מצב פנימי פעיל — לחצו PLAY", "success");
+    if (inp) inp.value = "";
+  });
+
+  document.getElementById("internal-code-input")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") document.getElementById("internal-code-btn")?.click();
+  });
+
+  copyLinkBtn.onclick = async () => {
+    const url = studentUrlForRoom();
+    if (!url) return;
+    setStudentLinkState("loading");
+    try {
+      await navigator.clipboard.writeText(url);
+      setStudentLinkState("ready", "הקישור מוכן והועתק");
+      toast("הקישור הועתק", "success");
+    } catch (_) {
+      try {
+        const tempInput = document.createElement("textarea");
+        tempInput.value = url;
+        tempInput.setAttribute("readonly", "");
+        tempInput.style.position = "absolute";
+        tempInput.style.opacity = "0";
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        const copied = document.execCommand("copy");
+        document.body.removeChild(tempInput);
+        if (!copied) throw new Error("copy failed");
+        setStudentLinkState("ready", "הקישור מוכן והועתק");
+        toast("הקישור הועתק", "success");
+      } catch (copyErr) {
+        setStudentLinkState("error", "לא ניתן להעתיק את הקישור. נסו שוב");
+        toast("שגיאה בהעתקה", "error");
+      }
+    }
+  };
+
+  loginBtn.onclick = doLogin;
+  loginCodeEl.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+  roomNameSelect.addEventListener("change", () => {
+    clearActiveRoomState({ clearCurrentRoomId: true });
+    setActionMessage("נבחר חדר חדש. השלב הבא: לחצו שוב על \"צור חדר\" לפני PLAY.", "info");
+    syncDashboardMeta();
+    scheduleButtonStabilityCheck();
+  });
+
+  function getEnabledSteps() {
+    const steps = [1];
+    document.querySelectorAll('.step-cb').forEach(cb => {
+      if (cb.checked) steps.push(parseInt(cb.value, 10));
+    });
+    steps.push(6);
+    return [...new Set(steps)].sort((a, b) => a - b);
+  }
+
+  doorsSelect.addEventListener("change", scheduleButtonStabilityCheck);
+  window.addEventListener("resize", scheduleButtonStabilityCheck);
+  window.addEventListener("orientationchange", scheduleButtonStabilityCheck);
+  window.addEventListener("load", scheduleButtonStabilityCheck);
+
+  activateBtn.onclick = async () => {
+    if (playInFlight) return;
+    if (getBioConnModeMain() === "internal") {
+      if (sessionStorage.getItem("bioplay_internal_ok") !== "1") {
+        setActionMessage("בחרו \"פנימי\", הזינו קוד BIO2026 ולחצו אישור קוד.", "error");
+        return;
+      }
+      playInFlight = true;
+      activateBtn.disabled = true;
+      setActionMessage("מפעיל משחק פנימי...", "info");
+      scheduleButtonStabilityCheck();
+      try {
+        const n = doorsCount || 5;
+        const st = {
+          status: "active",
+          startedAt: Date.now(),
+          doorsCount: n,
+          selectedDoors: pickInternalDoors(n),
+          enabledSteps: getEnabledSteps(),
+          players: [],
+        };
+        localStorage.setItem(BIOPLAY_INTERNAL_LS_KEY_MAIN, JSON.stringify(st));
+        setStatus("started");
+        // GitHub Pages תחת subpath: בונים URL יחסית לנתיב הנוכחי (ללא leading slash).
+        const u = new URL('bioroom.html', window.location.href);
+        u.searchParams.set("room", INTERNAL_ROOM_ID);
+        u.searchParams.set("mode", "local");
+        window.open(u.toString(), "_blank", "noopener");
+        setActionMessage("נפתחה לשונית עם המשחק הפנימי.", "success");
+        toast("PLAY פנימי", "success");
+      } catch (e) {
+        setActionMessage(String(e?.message || e || "שגיאה"), "error");
+      } finally {
+        playInFlight = false;
+        activateBtn.disabled = false;
+        scheduleButtonStabilityCheck();
+      }
+      return;
+    }
+    if (!canPlayNow()) { setActionMessage("לא ניתן להפעיל עדיין. השלב הבא: בחרו חדר ולחצו על \"צור חדר\" לפני PLAY.", "info"); console.info("[admin] play blocked", { selectedRoom: roomNameSelect.value.trim(), hasRoomId: Boolean(currentRoomId), createSucceeded: lastCreateSucceeded }); return; }
+    const selectedRoomName = roomNameSelect.value.trim();
+    if (!selectedRoomName || selectedRoomName !== lastSuccessfulCreatedRoom) {
+      setActionMessage("יש ליצור מחדש את החדר שנבחר. השלב הבא: לחצו על \"צור חדר\" ואז על PLAY.", "error");
+      return;
+    }
+    const activeRoomId = currentRoomId;
+    const activeTeacherToken = currentTeacherToken;
+    console.info("[admin] start-game click", {
+      roomId: activeRoomId,
+      mode: getBioConnModeMain(),
+      selectedRoomName,
+      enabledSteps: getEnabledSteps(),
+      doorsCount,
+      appsUrl: APPS_URL,
+    });
+    console.info("[admin][trace] play preflight", {
+      currentRoomId: activeRoomId,
+      currentTeacherTokenLength: activeTeacherToken ? activeTeacherToken.length : 0,
+      selectedRoomName,
+      lastSuccessfulCreatedRoom,
+      storedTokenForRoomLength: getStoredTeacherTokenForRoom(activeRoomId).length,
+    });
+    playInFlight = true;
+    activateBtn.disabled = true;
+    setActionMessage("מפעיל את המשחק, נא להמתין...", "info");
+    scheduleButtonStabilityCheck();
+    try {
+      const r = await sendAction("start", activeTeacherToken, {
+        roomId: activeRoomId,
+        doorsCount: String(doorsCount || 5),
+        enabledSteps: getEnabledSteps().join(",")
+      });
+      console.info("[admin] start action response", { roomId: activeRoomId, response: r });
+      const resolvedCount = parseInt(r?.doorsCount, 10) || doorsCount;
+      localStorage.setItem(getDoorsKey(activeRoomId), resolvedCount);
+      setActionMessage("המשחק הופעל בהצלחה. התלמידים יכולים להתחיל.", "success");
+      setStatus("started");
+      console.info("[admin] status write acknowledged", {
+        roomId: activeRoomId,
+        expectedStatus: "active/started",
+        responseStatus: r?.status || null,
+      });
+      try {
+        const statusAfterStart = await getStatus();
+        console.info("[admin] status read-after-write", {
+          roomId: activeRoomId,
+          status: statusAfterStart?.status || null,
+          payload: statusAfterStart,
+        });
+      } catch (statusErr) {
+        console.warn("[admin] status read-after-write failed", {
+          roomId: activeRoomId,
+          appsUrl: APPS_URL,
+          message: String(statusErr?.message || statusErr || "unknown"),
+        });
+      }
+      const glowUntil = Date.now() + PLAY_GLOW_MS;
+      localStorage.setItem(getPlayGlowKey(activeRoomId), String(glowUntil));
+      applyPlayGlow(glowUntil);
+      toast(`✔ המשחק הופעל! Room ${activeRoomId}`, "success");
+    } catch (e) {
+      if (!handleInvalidServerState(e)) {
+        setActionMessage(`הפעלת המשחק נכשלה. ${String(e.message || "יש לנסות שוב")}`.trim(), "error");
+      }
+      toast("שגיאה בהפעלה", "error");
+    } finally {
+      playInFlight = false;
+      activateBtn.disabled = false;
+      scheduleButtonStabilityCheck();
+    }
+  };
+
+  resetBtn.onclick = async () => {
+    if (resetInFlight) return;
+    if (getBioConnModeMain() === "internal") {
+      if (sessionStorage.getItem("bioplay_internal_ok") !== "1") {
+        setActionMessage("מצב פנימי לא נפתח.", "info");
+        return;
+      }
+      resetInFlight = true;
+      resetBtn.disabled = true;
+      setActionMessage("מאפס מצב פנימי...", "info");
+      scheduleButtonStabilityCheck();
+      try {
+        const st = {
+          status: "waiting",
+          startedAt: 0,
+          doorsCount: doorsCount || 5,
+          selectedDoors: [],
+          enabledSteps: getEnabledSteps(),
+          players: [],
+        };
+        localStorage.setItem(BIOPLAY_INTERNAL_LS_KEY_MAIN, JSON.stringify(st));
+        setStatus("waiting");
+        removePlayGlow();
+        setActionMessage("איפוס מלא (פנימי): חדר בהמתנה, ניקוד נמחק.", "success");
+        toast("אופס (פנימי)", "success");
+      } catch (e) {
+        setActionMessage(String(e?.message || e || "שגיאה"), "error");
+      } finally {
+        resetInFlight = false;
+        resetBtn.disabled = false;
+        scheduleButtonStabilityCheck();
+      }
+      return;
+    }
+    if (!canResetNow()) { setActionMessage("לא ניתן לאפס כרגע. השלב הבא: צרו חדר תקין מחדש ואז לחצו RESET.", "info"); return; }
+    const activeRoomId = currentRoomId;
+    const activeTeacherToken = currentTeacherToken;
+    const selectedRoomName = roomNameSelect.value.trim();
+    console.info("[admin][trace] reset preflight", {
+      currentRoomId: activeRoomId,
+      currentTeacherTokenLength: activeTeacherToken ? activeTeacherToken.length : 0,
+      selectedRoomName,
+      lastSuccessfulCreatedRoom,
+      storedTokenForRoomLength: getStoredTeacherTokenForRoom(activeRoomId).length,
+    });
+    resetInFlight = true;
+    resetBtn.disabled = true;
+    setActionMessage("מאפס את המשחק, נא להמתין...", "info");
+    scheduleButtonStabilityCheck();
+    try {
+      await sendAction("reset", activeTeacherToken, { roomId: activeRoomId });
+      setStatus("waiting");
+      removePlayGlow();
+      setActionMessage("המשחק אופס וחזר למצב המתנה. השלב הבא: ניתן ללחוץ שוב על PLAY.", "success");
+      toast("✔ החדר אופס", "success");
+    } catch (e) {
+      if (!handleInvalidServerState(e)) {
+        setActionMessage(`איפוס המשחק נכשל. ${String(e.message || "יש לנסות שוב")}`.trim(), "error");
+      }
+    } finally {
+      resetInFlight = false;
+      resetBtn.disabled = false;
+      scheduleButtonStabilityCheck();
+    }
+  };
+
+  logoutBtn.onclick = () => {
+    clearActiveRoomState();
+    clearInterval(pollTimer);
+    removePlayGlow();
+    clearGuideCards();
+    loginOverlay.style.display = "none";
+    loginCodeEl.value = "";
+    loginMsg.textContent = "";
+    setActionMessage(INITIAL_ACTION_MESSAGE, "info");
+    scheduleButtonStabilityCheck();
+  };
+
+  async function loadHabitatMapping() {
+    try {
+      const res = await fetch("data/generated/habitat-mapping.json", { cache: "no-store" });
+      if (!res.ok) return;
+      const rows = await res.json();
+      if (!Array.isArray(rows)) return;
+      habitatRows = rows;
+      habitatByNum = new Map(rows.map((row) => [Number(row.num), row]));
+      habitatByOrganism = new Map(rows.map((row) => [String(row.organism || "").trim(), row]));
+    } catch (_) {
+      habitatRows = [];
+      habitatByNum = new Map();
+      habitatByOrganism = new Map();
+    }
+  }
+
+  function getHabitatForDoor(door) {
+    const id = Number(door?.id);
+    if (Number.isFinite(id) && habitatByNum.has(id)) return habitatByNum.get(id);
+    const organism = String(door?.creature || "").trim();
+    return habitatByOrganism.get(organism) || null;
+  }
+
+  function enrichDoorWithHabitat(door) {
+    const habitat = getHabitatForDoor(door);
+    if (!habitat) return door;
+    return { ...door, correctHabitatName: habitat.habitat, correctHabitatGid: habitat.gid };
+  }
+
+  async function loadDoors() {
+    try {
+      const res = await fetch("data/generated/doors.json", { cache: "no-store" });
+      const rows = await res.json();
+      doorsData = Array.isArray(rows) ? rows.map(enrichDoorWithHabitat) : [];
+    } catch { doorsData = []; }
+    const count = Array.isArray(doorsData) ? doorsData.length : 0;
+    if (dbTitle) dbTitle.textContent = `מאגר אורגניזמים (${count})`;
+  }
+
+  async function loadGuideData() {
+    try {
+      const matchingRes = await fetch("data/generated/matching-tasks.json", { cache: "no-store" });
+      const matchingRows = await matchingRes.json();
+      if (Array.isArray(matchingRows)) {
+        matchingByOrganism = new Map(
+          matchingRows.map((row) => [String(row.organismId || row.mainOrganism || "").trim(), row])
+        );
+      } else {
+        matchingByOrganism = new Map();
+      }
+    } catch (_) {
+      matchingByOrganism = new Map();
+    }
+
+    try {
+      const step5Res = await fetch("data/generated/step5-content.json", { cache: "no-store" });
+      const step5Json = await step5Res.json();
+      globalStep5Data = step5Json && typeof step5Json === "object" ? step5Json : null;
+    } catch (_) {
+      globalStep5Data = null;
+    }
+
+    try {
+      const mcqRes = await fetch("data/generated/mcq-stages.json", { cache: "no-store" });
+      const mcqRows = await mcqRes.json();
+      if (Array.isArray(mcqRows)) {
+        mcqByOrganism = new Map(
+          mcqRows.map((row) => [String(row.organismId || "").trim(), row])
+        );
+      } else {
+        mcqByOrganism = new Map();
+      }
+    } catch (_) {
+      mcqByOrganism = new Map();
+    }
+  }
+
+  function findStepByGate(steps, title, fallbackTitle = "") {
+    if (!Array.isArray(steps)) return null;
+    return steps.find((step) => step?.title === title || (fallbackTitle && step?.title === fallbackTitle)) || null;
+  }
+
+  function getStepSecretDigit(step) {
+    const val = step?.secretDigit ?? step?.code ?? "";
+    return String(val || "").trim();
+  }
+
+  function renderDigitBoxes(digits, expectedCount) {
+    const normalized = Array.isArray(digits) ? digits.map((d) => String(d ?? "").trim()) : [];
+    const pool = [...normalized];
+    while (pool.length < expectedCount) pool.push("");
+    return `<div class="digit-boxes">${pool.slice(0, expectedCount).map((d) =>
+      `<span class="digit-box${d ? "" : " placeholder"}">${escapeHTML(d || "—")}</span>`
+    ).join("")}</div>`;
+  }
+
+  function getDoorMatchingData(door) {
+    const organism = String(door?.creature || "").trim();
+    const fallbackPairs = Array.isArray(door?.matchingTask?.pairs) ? door.matchingTask.pairs : [];
+    if (!organism) return { pairs: fallbackPairs, secretDigits: [] };
+    const matchingRow = matchingByOrganism.get(organism);
+    if (!matchingRow) return { pairs: fallbackPairs, secretDigits: [] };
+    return {
+      pairs: Array.isArray(matchingRow.pairs) ? matchingRow.pairs : fallbackPairs,
+      secretDigits: Array.isArray(matchingRow.secretDigits) ? matchingRow.secretDigits : []
+    };
+  }
+
+  function getDoorSearchCountDigit(door) {
+    const imageAnswer = door?.imageTask?.answer;
+    if (imageAnswer !== undefined && imageAnswer !== null && imageAnswer !== "") return String(imageAnswer);
+    const fallback = globalStep5Data?.correctCount;
+    return fallback !== undefined && fallback !== null ? String(fallback) : "";
+  }
+
+  function clearGuideCards() {
+    if (guideModalContent) guideModalContent.innerHTML = "";
+  }
+
+  function renderGuideResult(door) {
+    if (!guideModal || !guideModalContent) return;
+    if (!door) { clearGuideCards(); return; }
+
+    const steps = Array.isArray(door.steps) ? door.steps : [];
+    const step1 = findStepByGate(steps, "שער הגילוי הנסתר");
+    const step2 = findStepByGate(steps, "שער הכוח הסודי", "שער הסוד הקדום");
+    const step3 = findStepByGate(steps, "שער ממלכת החיים", "שער הרמזים הנעלמים");
+
+    const mcqRow = mcqByOrganism.get(String(door?.creature || "").trim()) || null;
+    const step1Digit = String(mcqRow?.step1?.secretDigit || "").trim() || getStepSecretDigit(step1);
+    const step2Digit = String(mcqRow?.step2?.secretDigit || "").trim() || getStepSecretDigit(step2);
+    const step3Digit = String(mcqRow?.step3?.secretDigit || "").trim() || getStepSecretDigit(step3);
+    const door1Digits = [step1Digit, step2Digit, step3Digit];
+    const { secretDigits: matchingSecretDigits } = getDoorMatchingData(door);
+    const step5Digit = getDoorSearchCountDigit(door);
+    const door2Digits = [String(matchingSecretDigits?.[0] ?? "").trim(), String(matchingSecretDigits?.[1] ?? "").trim(), String(step5Digit || "").trim()];
+
+    guideModalContent.innerHTML = `
+      <div class="guide-sheet">
+        <div class="guide-sheet-header">
+          <div>
+            <div class="guide-sheet-title">דלת ${escapeHTML(door?.id || "—")} — ${escapeHTML(door?.creature || "—")}</div>
+          </div>
+        </div>
+
+        <div class="guide-sheet-block">
+          <h4>קוד לדלת 1</h4>
+          <table class="guide-table table-door1">
+            <thead>
+              <tr>
+                <th>שלב</th>
+                <th>שם השער</th>
+                <th>תשובה נכונה</th>
+                <th>ספרה לקוד</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><span class="guide-stage-name">שלב 1:</span></td>
+                <td>שער הגילוי הנסתר</td>
+                <td>${escapeHTML(step1?.answer || "—")}</td>
+                <td>${escapeHTML(step1Digit || "—")}</td>
+              </tr>
+              <tr>
+                <td><span class="guide-stage-name">שלב 2:</span></td>
+                <td>שער הכוח הסודי</td>
+                <td>${escapeHTML(step2?.answer || "—")}</td>
+                <td>${escapeHTML(step2Digit || "—")}</td>
+              </tr>
+              <tr>
+                <td><span class="guide-stage-name">שלב 3:</span></td>
+                <td>שער ממלכת החיים</td>
+                <td>${escapeHTML(step3?.answer || "—")}</td>
+                <td>${escapeHTML(step3Digit || "—")}</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="guide-code-row">
+            <strong>קוד לדלת 1:</strong>
+            ${renderDigitBoxes(door1Digits, 3)}
+          </div>
+        </div>
+
+        <div class="guide-sheet-block">
+          <h4><span class="guide-stage-name">שלב 4:</span> שער ההשראה החכמה</h4>
+          <table class="guide-table">
+            <thead>
+              <tr>
+                <th>אורגניזם</th>
+                <th>טכנולוגיה</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>פנגולין</td><td>שריון</td></tr>
+              <tr><td>חיפושית</td><td>מתקן לאיסוף מים</td></tr>
+              <tr><td>תמנון</td><td>וו תליה בוואקום</td></tr>
+              <tr><td>דב קוטב</td><td>מעיל מבודד קור</td></tr>
+              <tr><td>חתול</td><td>מדבקות זוהרות</td></tr>
+              <tr><td>שן הארי</td><td>מצנח רחיפה</td></tr>
+            </tbody>
+          </table>
+          <div class="guide-code-row">
+            <strong>ספרות לקוד:</strong>
+            ${renderDigitBoxes(matchingSecretDigits, 2)}
+          </div>
+        </div>
+
+        <div class="guide-sheet-block">
+          <h4><span class="guide-stage-name">שלב 5:</span> שער החיפוש הקסום</h4>
+          <div class="guide-hint-columns">
+            <div class="guide-hint-column">
+              <span class="guide-hint-column-title">תמונת היער</span>
+              <div>פריט 01. מעל העצלן המטפס</div>
+              <div>פריט 02. על האבנים ליד הצבים</div>
+              <div>פריט 03. במים מול חזיר הבר</div>
+              <div>פריט 04. בצמחים מאחורי הפיל</div>
+              <div>פריט 05. ליד הינשוף שעל העץ</div>
+              <div>פריט 06. בצמח הוורוד שבפינה</div>
+            </div>
+            <div class="guide-hint-column">
+              <span class="guide-hint-column-title">תמונת המדבר</span>
+              <div>פריט 01. בסלעים מתחת לנשר</div>
+              <div>פריט 02. מתחת ללטאה בצד ימין</div>
+              <div>פריט 03. בדשא ליד עדר הזברות</div>
+              <div>פריט 04. על החול מאחורי הגמל</div>
+              <div>פריט 05. בדשא מתחת לצבי</div>
+              <div>פריט 06. במים ליד ההיפופוטם</div>
+            </div>
+          </div>
+          <div class="guide-code-row">
+            <strong>ספרה לקוד:</strong>
+            ${renderDigitBoxes([step5Digit], 1)}
+          </div>
+        </div>
+
+        <div class="guide-sheet-block">
+          <h4>קוד לדלת 2</h4>
+          <div class="guide-code-row">
+            <strong>קוד לדלת 2:</strong>
+            ${renderDigitBoxes(door2Digits, 3)}
+          </div>
+        </div>
+
+        <div class="guide-sheet-block">
+          <h4>מסך הידעת? (אחרי דלת 2)</h4>
+          <div class="guide-step-line">
+            <div class="guide-step-meta">לאחר פתיחת דלת 2 מוצג לשחקנים מסך <strong>"הידעת?"</strong> עם עובדה על <strong>${escapeHTML(door?.creature || "האורגניזם")}</strong>. השחקנים חייבים ללחוץ <strong>"המשיכו לשלב הסיום"</strong> כדי לעבור לשלב הצופן.</div>
+          </div>
+        </div>
+
+        <div class="guide-sheet-block">
+          <h4><span class="guide-stage-name">שלב 6:</span> שער הצופן הסודי</h4>
+          <div class="guide-step-line">
+            <div class="guide-step-meta">התשובה לכתב הסתרים: <strong>"השראה מן הטבע"</strong></div>
+          </div>
+        </div>
+      </div>
+    `;
+    guideModal.classList.add("open");
+    guideModal.setAttribute("aria-hidden", "false");
+  }
+
+  function buildGuideDropdown(q) {
+    if (!guideSearchDropdown || !guideSearchInput) return;
+    const cleanQ = (q || "").trim();
+
+    if (!cleanQ) {
+      guideSearchDropdown.classList.remove("open");
+      guideSearchDropdown.innerHTML = "";
+      return;
+    }
+
+    const qLower = cleanQ.toLowerCase();
+    const items = doorsData.filter(d =>
+      (d.creature || "").toLowerCase().includes(qLower) ||
+      String(d.id) === cleanQ
+    );
+
+    if (!items.length) {
+      guideSearchDropdown.classList.remove("open");
+      guideSearchDropdown.innerHTML = "";
+      return;
+    }
+
+    guideSearchDropdown.innerHTML = items.slice(0, 10).map(d => `
+      <div class="dropdown-item" data-id="${d.id}">
+        <span class="dropdown-num">${d.id}</span>
+        <span>${d.creature || d.title || ('דלת ' + d.id)}</span>
+      </div>
+    `).join("");
+
+    guideSearchDropdown.querySelectorAll(".dropdown-item").forEach(el => {
+      el.onclick = () => {
+        const door = doorsData.find(d => d.id === parseInt(el.dataset.id, 10));
+        renderGuideResult(door);
+        guideSearchInput.value = door ? (door.creature || door.title || "") : "";
+        guideSearchDropdown.classList.remove("open");
+      };
+    });
+
+    guideSearchDropdown.classList.add("open");
+  }
+
+  if (guideSearchInput && guideSearchDropdown) {
+    const guideSearchSection = document.getElementById("guide-search-section");
+    let guideSearchT;
+    const closeGuideModal = () => {
+      if (!guideModal) return;
+      guideModal.classList.remove("open");
+      guideModal.setAttribute("aria-hidden", "true");
+    };
+
+    clearGuideCards();
+
+    guideModalClose?.addEventListener("click", closeGuideModal);
+    guideModal?.addEventListener("click", (e) => {
+      if (e.target === guideModal) closeGuideModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeGuideModal();
+    });
+
+    guideSearchInput.addEventListener("input", () => {
+      clearTimeout(guideSearchT);
+      guideSearchT = setTimeout(() => buildGuideDropdown(guideSearchInput.value.trim()), 200);
+    });
+
+    document.addEventListener("click", e => {
+      if (!guideSearchSection) return;
+      if (!e.target.closest("#guide-search-section")) {
+        guideSearchDropdown.classList.remove("open");
+      }
+    });
+
+    const guideSearchBtn = document.getElementById("guide-search-btn");
+    guideSearchBtn?.addEventListener("click", () => {
+      const q = guideSearchInput.value.trim();
+
+      if (!q) {
+        clearGuideCards();
+        guideSearchDropdown.classList.remove("open");
+        return;
+      }
+
+      const qLower = q.toLowerCase();
+      const door = doorsData.find(d =>
+        (d.creature || "").toLowerCase().includes(qLower) || String(d.id) === q
+      );
+
+      renderGuideResult(door || null);
+      guideSearchDropdown.classList.remove("open");
+    });
+
+    guideSearchInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") guideSearchBtn?.click();
+    });
+  }
+
+
+  function escapeHTML(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+
+
+  (async () => {
+    currentRoomId = (qp.get("room") || "").trim();
+    await loadRoomNames();
+    await loadHabitatMapping();
+    await loadDoors();
+    await loadGuideData();
+    refreshStorageScope();
+    if (currentRoomId) {
+      const savedGlowUntil = parseInt(localStorage.getItem(getPlayGlowKey(currentRoomId)), 10);
+      if (Number.isFinite(savedGlowUntil)) {
+        applyPlayGlow(savedGlowUntil);
+      }
+    }
+
+if (!currentRoomId) {
+  loginOverlay.style.display = "none";
+  clearGuideCards();
+  setStatus("waiting");
+  setActionMessage(INITIAL_ACTION_MESSAGE, "info");
+  scheduleButtonStabilityCheck();
+  return;
+
+}
+
+    const saved = sessionStorage.getItem(getSessKey(currentRoomId));
+    const savedRoomName = sessionStorage.getItem(getCreatedRoomNameKey(currentRoomId)) || "";
+    if (savedRoomName) {
+      const existingOption = Array.from(roomNameSelect.options).find((option) => option.value === savedRoomName);
+      if (!existingOption) {
+        const option = document.createElement("option");
+        option.value = savedRoomName;
+        option.textContent = savedRoomName;
+        roomNameSelect.appendChild(option);
+      }
+      roomNameSelect.value = savedRoomName;
+    }
+
+    const selectedRoomName = roomNameSelect.value.trim();
+    const tokenKey = getSessKey(currentRoomId);
+    const roomNameMatches = !savedRoomName || !selectedRoomName || savedRoomName === selectedRoomName;
+    console.info("[admin][trace] restore", {
+      currentRoomId,
+      savedTokenKey: tokenKey,
+      savedTokenExists: Boolean(saved),
+      savedRoomName,
+      selectedRoomName,
+      roomNameMatches,
+    });
+    console.info("[admin] restore token check", {
+      roomId: currentRoomId,
+      tokenKey,
+      roomNameKey: getCreatedRoomNameKey(currentRoomId),
+      hasSavedToken: Boolean(saved),
+      savedTokenLength: saved ? saved.length : 0,
+      savedRoomName,
+      selectedRoomName,
+      roomNameMatches,
+    });
+    if (saved && roomNameMatches) {
+      currentTeacherToken = saved;
+      lastSuccessfulCreatedRoom = savedRoomName || selectedRoomName;
+      lastCreateSucceeded = Boolean(lastSuccessfulCreatedRoom);
+      loginCodeEl.value = saved;
+      loginOverlay.style.display = "none";
+      setActionMessage("חדר קיים זוהה עם טוקן שמור. ניתן ללחוץ PLAY.", "success");
+      syncDashboardMeta();
+      enterPanel();
+      return;
+    }
+    if (saved || savedRoomName) {
+      const hasHardMismatch = Boolean(savedRoomName && selectedRoomName && savedRoomName !== selectedRoomName);
+      if (hasHardMismatch) {
+        console.warn("[admin] clearing stale token state", { roomId: currentRoomId, savedRoomName, selectedRoomName });
+        clearSessionRoomState(currentRoomId);
+      } else {
+        console.info("[admin] keeping saved state until room selector resolves", {
+          roomId: currentRoomId,
+          savedRoomName,
+          selectedRoomName,
+        });
+      }
+    }
+
+    loginOverlay.style.display = "none";
+    setActionMessage(INITIAL_ACTION_MESSAGE, "info");
+    scheduleButtonStabilityCheck();
+  })();
+</script>
+
+</body>
+</html>

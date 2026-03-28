@@ -1,0 +1,10 @@
+# Dependencies (reproducible via package-lock.json)
+node_modules/
+
+# Local temporary / quarantine folders
+trash_candidates/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

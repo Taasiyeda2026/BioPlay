@@ -1,0 +1,224 @@
+{
+  "stageKey": "matching",
+  "version": 1,
+  "screen": {
+    "title": "ביומימיקרי – משחק התאמה",
+    "subtitle": "מתחו קו בין כל אורגניזם לבין הטכנולוגיה שקיבלה ממנו השראה."
+  },
+  "preStagePopup": {
+    "title": "לפני שמתחילים – כך תאספו את הקוד",
+    "cards": [
+      {
+        "id": "code-explanation",
+        "title": "איך אוספים את הקוד לפתיחת הדלת?",
+        "body": [
+          "בכל שלב במשחק תרוויחו חלק מהקוד.",
+          "בסיום כל משימה מוצלחת תקבלו ספרה או ספרות שתצטרכו לשמור.",
+          "רק אחרי שתעברו את כל השלבים ותחברו את כל הספרות לפי הסדר, תוכלו לפתוח את הדלת."
+        ]
+      },
+      {
+        "id": "matching-explanation",
+        "title": "איך משחקים בשלב ההתאמה?",
+        "body": [
+          "מתחו קו בין כל אורגניזם לבין ההמצאה שקיבלה ממנו השראה.",
+          "על כל התאמה נכונה בניסיון הראשון תקבלו 5 נקודות."
+        ]
+      }
+    ],
+    "buttonLabel": "הבנתי, אפשר להתחיל"
+  },
+  "rules": {
+    "matchingDirection": "bidirectional",
+    "attemptScoring": {
+      "firstTry": 5,
+      "secondTry": 2,
+      "thirdTryOrMore": 0
+    },
+    "wrongMatch": {
+      "showPopup": false,
+      "lineBehavior": "flash-and-remove",
+      "flashEffect": "subtle"
+    },
+    "correctMatch": {
+      "showPopup": true,
+      "lineBehavior": "lock-and-persist",
+      "linePersistsUntilStageEnd": true,
+      "incrementProgress": true
+    },
+    "imageZoom": {
+      "enabled": true,
+      "openOnClick": true,
+      "closeOnOverlayClick": true,
+      "size": "centered-medium"
+    },
+    "progress": {
+      "start": "0/6",
+      "end": "6/6",
+      "totalPairs": 6
+    },
+    "finishFlow": {
+      "afterSixthMatch": [
+        "show-last-pair-popup",
+        "close-last-pair-popup",
+        "show-stage-completion-popup",
+        "continue-to-next-stage-as-usual"
+      ]
+    }
+  },
+  "pairs": [
+    {
+      "id": "pair01",
+      "natureImage": "pair01_nature.png",
+      "techImage": "pair01_tech.png",
+      "natureLabel": "קשקשי פנגולין",
+      "techLabel": "שריון אבירים",
+      "accentColor": "#D6B25E",
+      "popup": {
+        "title": "קשקשי פנגולין ↔ שריון אבירים",
+        "lines": [
+          "בטבע: לפנגולין יש קשקשים חזקים שמגינים עליו.",
+          "גילו: שכבות חזקות יכולות להגן וגם לאפשר תנועה.",
+          "פיתחו: שריונות מגנים וגמישים."
+        ],
+        "buttonLabel": "המשך"
+      }
+    },
+    {
+      "id": "pair02",
+      "natureImage": "pair02_nature.png",
+      "techImage": "pair02_tech.png",
+      "natureLabel": "חיפושית המדבר",
+      "techLabel": "מתקן לאיסוף מים",
+      "accentColor": "#5EE7E0",
+      "popup": {
+        "title": "חיפושית המדבר ↔ מתקן לאיסוף מים",
+        "lines": [
+          "בטבע: חיפושית המדבר אוספת טיפות מים מהאוויר.",
+          "גילו: מבנה מיוחד על הגב שלה עוזר למים להיאסף.",
+          "פיתחו: מתקנים לאיסוף מים מהאוויר."
+        ],
+        "buttonLabel": "המשך"
+      }
+    },
+    {
+      "id": "pair03",
+      "natureImage": "pair03_nature.png",
+      "techImage": "pair03_tech.png",
+      "natureLabel": "תמנון",
+      "techLabel": "תופסן נצמד בוואקום",
+      "accentColor": "#7FD8FF",
+      "popup": {
+        "title": "תמנון ↔ תופסן נצמד בוואקום",
+        "lines": [
+          "בטבע: לתמנון יש כפתורי הצמדה על הזרועות.",
+          "גילו: מבנה היניקה עוזר להיתפס בחוזקה.",
+          "פיתחו: תופסנים נצמדים ומכשירי יניקה."
+        ],
+        "buttonLabel": "המשך"
+      }
+    },
+    {
+      "id": "pair04",
+      "natureImage": "pair04_nature.png",
+      "techImage": "pair04_tech.png",
+      "natureLabel": "דוב קוטב",
+      "techLabel": "מעיל מבודד מקור",
+      "accentColor": "#A7D8FF",
+      "popup": {
+        "title": "דוב קוטב ↔ מעיל מבודד מקור",
+        "lines": [
+          "בטבע: דוב הקוטב נשאר חם גם בקור קיצוני.",
+          "גילו: הפרווה שלו שומרת על החום קרוב לגוף.",
+          "פיתחו: מעילים ובדים מבודדי קור."
+        ],
+        "buttonLabel": "המשך"
+      }
+    },
+    {
+      "id": "pair05",
+      "natureImage": "pair05_nature.png",
+      "techImage": "pair05_tech.png",
+      "natureLabel": "עיני חתול",
+      "techLabel": "מדבקות לבטיחות בדרכים",
+      "accentColor": "#F0C86A",
+      "popup": {
+        "title": "עיני חתול ↔ מדבקות לבטיחות בדרכים",
+        "lines": [
+          "בטבע: עיני החתול נראות כאילו הן \"נדלקות\" כשאור פוגע בהן.",
+          "גילו: בעין החתול יש שכבה מיוחדת שמחזירה את האור בחזרה, כמו מראה.",
+          "פיתחו: מדבקות מחזירות אור שעוזרות לבטיחות בדרכים."
+        ],
+        "buttonLabel": "המשך"
+      }
+    },
+    {
+      "id": "pair06",
+      "natureImage": "pair06_nature.png",
+      "techImage": "pair06_tech.png",
+      "natureLabel": "שן-הארי",
+      "techLabel": "מצנח רחיפה",
+      "accentColor": "#9CE5C8",
+      "popup": {
+        "title": "שן-הארי ↔ מצנח רחיפה",
+        "lines": [
+          "בטבע: זרעי צמח שן-הארי עפים ברוח בעדינות.",
+          "גילו: המבנה הקל שלהם עוזר להם לרחף באוויר.",
+          "פיתחו: מצנחי רחיפה ומבנים קלים לריחוף."
+        ],
+        "buttonLabel": "המשך"
+      }
+    }
+  ],
+  "layouts": [
+    {
+      "id": "layout01",
+      "doorNumbers": [1, 6, 11, 16, 21, 26],
+      "codeDigits": [4, 9],
+      "allDigits": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      "decorativeDigits": [1, 2, 3, 5, 6, 7, 8],
+      "note": "רק הספרות 4 ו-9 נחצות על ידי הקווים הנכונים. שאר הספרות מופיעות על הלוח בלבד."
+    },
+    {
+      "id": "layout02",
+      "doorNumbers": [2, 7, 12, 17, 22, 27],
+      "codeDigits": [2, 6],
+      "allDigits": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      "decorativeDigits": [1, 3, 4, 5, 7, 8, 9],
+      "note": "רק הספרות 2 ו-6 נחצות על ידי הקווים הנכונים. שאר הספרות מופיעות על הלוח בלבד."
+    },
+    {
+      "id": "layout03",
+      "doorNumbers": [3, 8, 13, 18, 23, 28],
+      "codeDigits": [7, 1],
+      "allDigits": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      "decorativeDigits": [2, 3, 4, 5, 6, 8, 9],
+      "note": "רק הספרות 7 ו-1 נחצות על ידי הקווים הנכונים. שאר הספרות מופיעות על הלוח בלבד."
+    },
+    {
+      "id": "layout04",
+      "doorNumbers": [4, 9, 14, 19, 24, 29],
+      "codeDigits": [3, 5],
+      "allDigits": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      "decorativeDigits": [1, 2, 4, 6, 7, 8, 9],
+      "note": "רק הספרות 3 ו-5 נחצות על ידי הקווים הנכונים. שאר הספרות מופיעות על הלוח בלבד."
+    },
+    {
+      "id": "layout05",
+      "doorNumbers": [5, 10, 15, 20, 25, 30],
+      "codeDigits": [4, 8],
+      "allDigits": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+      "decorativeDigits": [1, 2, 3, 5, 6, 7, 9],
+      "note": "רק הספרות 4 ו-8 נחצות על ידי הקווים הנכונים. שאר הספרות מופיעות על הלוח בלבד."
+    }
+  ],
+  "stageCompletionPopup": {
+    "title": "כל הכבוד! סיימתם את ההתאמות בין המוצרים הטכנולוגיים ובין הטבע.",
+    "scoreLine": "קיבלתם: {totalScore} נקודות",
+    "codeLine": "ספרות הקוד הן: {digit1}, {digit2}",
+    "buttonLabel": "המשך"
+  },
+  "flow": {
+    "afterCompletion": "continue-to-next-stage-as-usual"
+  }
+}

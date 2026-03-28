@@ -1,0 +1,662 @@
+[
+  {
+    "organismId": "שממית",
+    "mainOrganism": "שממית",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-שממית ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "שממית",
+      "invention": "כפפות ספיידרמן"
+    },
+    "pair2": {
+      "organism": "ברקן",
+      "invention": "סקוץ' לנעליים"
+    },
+    "pair3": {
+      "organism": "עכביש",
+      "invention": "חבל טיפוס חזק"
+    },
+    "mainCorrectMatch": "שממית ← כפפות ספיידרמן",
+    "secretDigits": [
+      "2",
+      "7"
+    ]
+  },
+  {
+    "organismId": "פרח הלוטוס",
+    "mainOrganism": "פרח הלוטוס",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-פרח הלוטוס ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "פרח הלוטוס",
+      "invention": "חולצה דוחה כתמים"
+    },
+    "pair2": {
+      "organism": "היפופוטם",
+      "invention": "קרם הגנה מהשמש"
+    },
+    "pair3": {
+      "organism": "גחלילית",
+      "invention": "נורת LED"
+    },
+    "mainCorrectMatch": "פרח הלוטוס ← חולצה דוחה כתמים",
+    "secretDigits": [
+      "8",
+      "4"
+    ]
+  },
+  {
+    "organismId": "כריש",
+    "mainOrganism": "כריש",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-כריש ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "כריש",
+      "invention": "בגד ים תחרותי"
+    },
+    "pair2": {
+      "organism": "שלדג",
+      "invention": "רכבת מהירה"
+    },
+    "pair3": {
+      "organism": "שפירית",
+      "invention": "רחפן"
+    },
+    "mainCorrectMatch": "כריש ← בגד ים תחרותי",
+    "secretDigits": [
+      "3",
+      "9"
+    ]
+  },
+  {
+    "organismId": "דבורה",
+    "mainOrganism": "דבורה",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-דבורה ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "דבורה",
+      "invention": "קרטון ביצים"
+    },
+    "pair2": {
+      "organism": "ברקן",
+      "invention": "סקוץ' לנעליים"
+    },
+    "pair3": {
+      "organism": "כריש",
+      "invention": "בגד ים תחרותי"
+    },
+    "mainCorrectMatch": "דבורה ← קרטון ביצים",
+    "secretDigits": [
+      "6",
+      "2"
+    ]
+  },
+  {
+    "organismId": "פינגווין",
+    "mainOrganism": "פינגווין",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-פינגווין ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "פינגווין",
+      "invention": "שק שינה מחמם"
+    },
+    "pair2": {
+      "organism": "גחלילית",
+      "invention": "נורת LED"
+    },
+    "pair3": {
+      "organism": "ינשוף",
+      "invention": "מאוורר שקט"
+    },
+    "mainCorrectMatch": "פינגווין ← שק שינה מחמם",
+    "secretDigits": [
+      "9",
+      "5"
+    ]
+  },
+  {
+    "organismId": "נשר",
+    "mainOrganism": "נשר",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-נשר ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "נשר",
+      "invention": "דאון"
+    },
+    "pair2": {
+      "organism": "שפירית",
+      "invention": "רחפן"
+    },
+    "pair3": {
+      "organism": "בז",
+      "invention": "מטוס מהיר"
+    },
+    "mainCorrectMatch": "נשר ← דאון",
+    "secretDigits": [
+      "1",
+      "8"
+    ]
+  },
+  {
+    "organismId": "ברקן",
+    "mainOrganism": "ברקן",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-ברקן ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "ברקן",
+      "invention": "סקוץ' לנעליים"
+    },
+    "pair2": {
+      "organism": "שממית",
+      "invention": "כפפות ספיידרמן"
+    },
+    "pair3": {
+      "organism": "פיל",
+      "invention": "זרוע רובוטית"
+    },
+    "mainCorrectMatch": "ברקן ← סקוץ' לנעליים",
+    "secretDigits": [
+      "7",
+      "3"
+    ]
+  },
+  {
+    "organismId": "שפירית",
+    "mainOrganism": "שפירית",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-שפירית ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "שפירית",
+      "invention": "רחפן"
+    },
+    "pair2": {
+      "organism": "זבוב",
+      "invention": "מצלמה מרובת עדשות"
+    },
+    "pair3": {
+      "organism": "שלדג",
+      "invention": "רכבת מהירה"
+    },
+    "mainCorrectMatch": "שפירית ← רחפן",
+    "secretDigits": [
+      "4",
+      "6"
+    ]
+  },
+  {
+    "organismId": "ברדלס (צ'יטה)",
+    "mainOrganism": "ברדלס (צ'יטה)",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-ברדלס (צ'יטה) ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "ברדלס (צ'יטה)",
+      "invention": "נעלי פקקים"
+    },
+    "pair2": {
+      "organism": "פינגווין",
+      "invention": "שק שינה מחמם"
+    },
+    "pair3": {
+      "organism": "נחש",
+      "invention": "רובוט חילוץ גמיש"
+    },
+    "mainCorrectMatch": "ברדלס (צ'יטה) ← נעלי פקקים",
+    "secretDigits": [
+      "5",
+      "8"
+    ]
+  },
+  {
+    "organismId": "עכביש",
+    "mainOrganism": "עכביש",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-עכביש ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "עכביש",
+      "invention": "חבל טיפוס חזק"
+    },
+    "pair2": {
+      "organism": "שממית",
+      "invention": "כפפות ספיידרמן"
+    },
+    "pair3": {
+      "organism": "גחלילית",
+      "invention": "נורת LED"
+    },
+    "mainCorrectMatch": "עכביש ← חבל טיפוס חזק",
+    "secretDigits": [
+      "2",
+      "1"
+    ]
+  },
+  {
+    "organismId": "טרמיטים",
+    "mainOrganism": "טרמיטים",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-טרמיטים ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "טרמיטים",
+      "invention": "בניין עם קירור טבעי"
+    },
+    "pair2": {
+      "organism": "ינשוף",
+      "invention": "מאוורר שקט"
+    },
+    "pair3": {
+      "organism": "לווייתן",
+      "invention": "טורבינת רוח"
+    },
+    "mainCorrectMatch": "טרמיטים ← בניין עם קירור טבעי",
+    "secretDigits": [
+      "6",
+      "7"
+    ]
+  },
+  {
+    "organismId": "לווייתן",
+    "mainOrganism": "לווייתן",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-לווייתן ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "לווייתן",
+      "invention": "טורבינת רוח"
+    },
+    "pair2": {
+      "organism": "שלדג",
+      "invention": "רכבת מהירה"
+    },
+    "pair3": {
+      "organism": "כריש",
+      "invention": "בגד ים תחרותי"
+    },
+    "mainCorrectMatch": "לווייתן ← טורבינת רוח",
+    "secretDigits": [
+      "3",
+      "4"
+    ]
+  },
+  {
+    "organismId": "יתוש",
+    "mainOrganism": "יתוש",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-יתוש ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "יתוש",
+      "invention": "מזרק עדין"
+    },
+    "pair2": {
+      "organism": "עטלף",
+      "invention": "מקל נחייה חכם"
+    },
+    "pair3": {
+      "organism": "פיל",
+      "invention": "זרוע רובוטית"
+    },
+    "mainCorrectMatch": "יתוש ← מזרק עדין",
+    "secretDigits": [
+      "8",
+      "9"
+    ]
+  },
+  {
+    "organismId": "זבוב",
+    "mainOrganism": "זבוב",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-זבוב ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "זבוב",
+      "invention": "מצלמה מרובת עדשות"
+    },
+    "pair2": {
+      "organism": "שפירית",
+      "invention": "רחפן"
+    },
+    "pair3": {
+      "organism": "נקר",
+      "invention": "קסדה"
+    },
+    "mainCorrectMatch": "זבוב ← מצלמה מרובת עדשות",
+    "secretDigits": [
+      "5",
+      "2"
+    ]
+  },
+  {
+    "organismId": "גחלילית",
+    "mainOrganism": "גחלילית",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-גחלילית ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "גחלילית",
+      "invention": "נורת LED"
+    },
+    "pair2": {
+      "organism": "פינגווין",
+      "invention": "שק שינה מחמם"
+    },
+    "pair3": {
+      "organism": "דג קופסה",
+      "invention": "מכונית בטיחותית"
+    },
+    "mainCorrectMatch": "גחלילית ← נורת LED",
+    "secretDigits": [
+      "7",
+      "6"
+    ]
+  },
+  {
+    "organismId": "שלדג",
+    "mainOrganism": "שלדג",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-שלדג ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "שלדג",
+      "invention": "רכבת מהירה"
+    },
+    "pair2": {
+      "organism": "כריש",
+      "invention": "בגד ים תחרותי"
+    },
+    "pair3": {
+      "organism": "בז",
+      "invention": "מטוס מהיר"
+    },
+    "mainCorrectMatch": "שלדג ← רכבת מהירה",
+    "secretDigits": [
+      "1",
+      "3"
+    ]
+  },
+  {
+    "organismId": "דיונון",
+    "mainOrganism": "דיונון",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-דיונון ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "דיונון",
+      "invention": "בגדי הסוואה חכמים"
+    },
+    "pair2": {
+      "organism": "פרפר מורפו",
+      "invention": "לק מחליף צבע"
+    },
+    "pair3": {
+      "organism": "זבוב",
+      "invention": "מצלמה מרובת עדשות"
+    },
+    "mainCorrectMatch": "דיונון ← בגדי הסוואה חכמים",
+    "secretDigits": [
+      "9",
+      "7"
+    ]
+  },
+  {
+    "organismId": "פרפר מורפו",
+    "mainOrganism": "פרפר מורפו",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-פרפר מורפו ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "פרפר מורפו",
+      "invention": "לק מחליף צבע"
+    },
+    "pair2": {
+      "organism": "דיונון",
+      "invention": "בגדי הסוואה חכמים"
+    },
+    "pair3": {
+      "organism": "גחלילית",
+      "invention": "נורת LED"
+    },
+    "mainCorrectMatch": "פרפר מורפו ← לק מחליף צבע",
+    "secretDigits": [
+      "6",
+      "4"
+    ]
+  },
+  {
+    "organismId": "עטלף",
+    "mainOrganism": "עטלף",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-עטלף ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "עטלף",
+      "invention": "מקל נחייה חכם"
+    },
+    "pair2": {
+      "organism": "יתוש",
+      "invention": "מזרק עדין"
+    },
+    "pair3": {
+      "organism": "פיל",
+      "invention": "זרוע רובוטית"
+    },
+    "mainCorrectMatch": "עטלף ← מקל נחייה חכם",
+    "secretDigits": [
+      "2",
+      "8"
+    ]
+  },
+  {
+    "organismId": "היפופוטם",
+    "mainOrganism": "היפופוטם",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-היפופוטם ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "היפופוטם",
+      "invention": "קרם הגנה מהשמש"
+    },
+    "pair2": {
+      "organism": "פינגווין",
+      "invention": "שק שינה מחמם"
+    },
+    "pair3": {
+      "organism": "קרנף",
+      "invention": "מגן גוף"
+    },
+    "mainCorrectMatch": "היפופוטם ← קרם הגנה מהשמש",
+    "secretDigits": [
+      "7",
+      "1"
+    ]
+  },
+  {
+    "organismId": "פיל",
+    "mainOrganism": "פיל",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-פיל ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "פיל",
+      "invention": "זרוע רובוטית"
+    },
+    "pair2": {
+      "organism": "שממית",
+      "invention": "כפפות ספיידרמן"
+    },
+    "pair3": {
+      "organism": "יתוש",
+      "invention": "מזרק עדין"
+    },
+    "mainCorrectMatch": "פיל ← זרוע רובוטית",
+    "secretDigits": [
+      "4",
+      "3"
+    ]
+  },
+  {
+    "organismId": "ינשוף",
+    "mainOrganism": "ינשוף",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-ינשוף ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "ינשוף",
+      "invention": "מאוורר שקט"
+    },
+    "pair2": {
+      "organism": "גחלילית",
+      "invention": "נורת LED"
+    },
+    "pair3": {
+      "organism": "פינגווין",
+      "invention": "שק שינה מחמם"
+    },
+    "mainCorrectMatch": "ינשוף ← מאוורר שקט",
+    "secretDigits": [
+      "8",
+      "6"
+    ]
+  },
+  {
+    "organismId": "דג קופסה",
+    "mainOrganism": "דג קופסה",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-דג קופסה ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "דג קופסה",
+      "invention": "מכונית בטיחותית"
+    },
+    "pair2": {
+      "organism": "קרנף",
+      "invention": "מגן גוף"
+    },
+    "pair3": {
+      "organism": "ג'ירפה",
+      "invention": "חליפת אסטרונאוט"
+    },
+    "mainCorrectMatch": "דג קופסה ← מכונית בטיחותית",
+    "secretDigits": [
+      "1",
+      "9"
+    ]
+  },
+  {
+    "organismId": "ג'ירפה",
+    "mainOrganism": "ג'ירפה",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-ג'ירפה ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "ג'ירפה",
+      "invention": "חליפת אסטרונאוט"
+    },
+    "pair2": {
+      "organism": "דג קופסה",
+      "invention": "מכונית בטיחותית"
+    },
+    "pair3": {
+      "organism": "בז",
+      "invention": "מטוס מהיר"
+    },
+    "mainCorrectMatch": "ג'ירפה ← חליפת אסטרונאוט",
+    "secretDigits": [
+      "5",
+      "5"
+    ]
+  },
+  {
+    "organismId": "נחש",
+    "mainOrganism": "נחש",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-נחש ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "נחש",
+      "invention": "רובוט חילוץ גמיש"
+    },
+    "pair2": {
+      "organism": "יתוש",
+      "invention": "מזרק עדין"
+    },
+    "pair3": {
+      "organism": "שפירית",
+      "invention": "רחפן"
+    },
+    "mainCorrectMatch": "נחש ← רובוט חילוץ גמיש",
+    "secretDigits": [
+      "9",
+      "2"
+    ]
+  },
+  {
+    "organismId": "דוריאן",
+    "mainOrganism": "דוריאן",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-דוריאן ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "דוריאן",
+      "invention": "מבנה ששומר על קור"
+    },
+    "pair2": {
+      "organism": "היפופוטם",
+      "invention": "קרם הגנה מהשמש"
+    },
+    "pair3": {
+      "organism": "טרמיטים",
+      "invention": "בניין עם קירור טבעי"
+    },
+    "mainCorrectMatch": "דוריאן ← מבנה ששומר על קור",
+    "secretDigits": [
+      "3",
+      "7"
+    ]
+  },
+  {
+    "organismId": "בז",
+    "mainOrganism": "בז",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-בז ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "בז",
+      "invention": "מטוס מהיר"
+    },
+    "pair2": {
+      "organism": "נשר",
+      "invention": "דאון"
+    },
+    "pair3": {
+      "organism": "שלדג",
+      "invention": "רכבת מהירה"
+    },
+    "mainCorrectMatch": "בז ← מטוס מהיר",
+    "secretDigits": [
+      "6",
+      "8"
+    ]
+  },
+  {
+    "organismId": "סנאי דואה",
+    "mainOrganism": "סנאי דואה",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-סנאי דואה ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "סנאי דואה",
+      "invention": "חליפת דאייה"
+    },
+    "pair2": {
+      "organism": "נשר",
+      "invention": "דאון"
+    },
+    "pair3": {
+      "organism": "בז",
+      "invention": "מטוס מהיר"
+    },
+    "mainCorrectMatch": "סנאי דואה ← חליפת דאייה",
+    "secretDigits": [
+      "2",
+      "4"
+    ]
+  },
+  {
+    "organismId": "נקר",
+    "mainOrganism": "נקר",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-נקר ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "נקר",
+      "invention": "קסדה"
+    },
+    "pair2": {
+      "organism": "זבוב",
+      "invention": "מצלמה מרובת עדשות"
+    },
+    "pair3": {
+      "organism": "עכביש",
+      "invention": "חבל טיפוס חזק"
+    },
+    "mainCorrectMatch": "נקר ← קסדה",
+    "secretDigits": [
+      "7",
+      "9"
+    ]
+  },
+  {
+    "organismId": "קרנף",
+    "mainOrganism": "קרנף",
+    "instruction": "התאימו בין האורגניזמים להמצאות. מצאו איזו המצאה קשורה ל-קרנף ואילו המצאות שייכות לאורגניזמים דומים מן המאגר.",
+    "pair1": {
+      "organism": "קרנף",
+      "invention": "מגן גוף"
+    },
+    "pair2": {
+      "organism": "דג קופסה",
+      "invention": "מכונית בטיחותית"
+    },
+    "pair3": {
+      "organism": "ג'ירפה",
+      "invention": "חליפת אסטרונאוט"
+    },
+    "mainCorrectMatch": "קרנף ← מגן גוף",
+    "secretDigits": [
+      "4",
+      "1"
+    ]
+  }
+]

@@ -5013,7 +5013,7 @@ function applyAutoScale() {
   app.style.zoom = '';
   app.style.maxHeight = 'none';
   gs.style.maxHeight  = 'none';
-  gs.style.overflow   = 'visible';
+  gs.style.overflow   = 'auto';
   gs.style.overflowX  = 'hidden';
 
   requestAnimationFrame(() => {
@@ -6981,7 +6981,7 @@ function renderDoor1DykScreen() {
   setScreen(`
     <div class="card dyk-card">
       <span class="dyk-badge">${escapeHTML(UI_COPY.step2DykTitle)}</span>
-      ${dykImg ? `<img class="dyk-image" src="${escapeHTML(dykImg)}" alt="הידעת?" onerror="this.style.display='none'" />` : ''}
+      ${dykImg ? `<img class="dyk-image" src="${escapeHTML(dykImg)}" alt="הידעת?" onerror="this.style.display='none'" onload="applyAutoScale()" />` : ''}
       <p class="dyk-text">${escapeHTML(dykText || 'גם בטבע כל פרט קטן מוביל לתגלית גדולה.')}</p>
       <button class="btn btn-primary" onclick="window.continueFromDoor1Dyk()">${escapeHTML(UI_COPY.step2DykBtn)}</button>
     </div>
@@ -6993,7 +6993,7 @@ function renderDoor2DykScreen() {
   setScreen(`
     <div class="card dyk-card">
       <span class="dyk-badge">${escapeHTML(UI_COPY.step3DykTitle)}</span>
-      ${dykEntry?.image ? `<img class="dyk-image" src="${escapeHTML(dykEntry.image)}" alt="הידעת?" onerror="this.style.display='none'" />` : ''}
+      ${dykEntry?.image ? `<img class="dyk-image" src="${escapeHTML(dykEntry.image)}" alt="הידעת?" onerror="this.style.display='none'" onload="applyAutoScale()" />` : ''}
       <p class="dyk-text">${escapeHTML(dykEntry?.text || 'עוד רגע מגיעים לפענוח האחרון!')}</p>
       <button class="btn btn-primary" onclick="window.continueFromDoor2Dyk()">${escapeHTML(UI_COPY.step3DykBtn)}</button>
     </div>

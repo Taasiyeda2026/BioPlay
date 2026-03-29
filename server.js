@@ -252,7 +252,11 @@ const server = http.createServer(async (req, res) => {
       const ext         = path.extname(filePath).toLowerCase();
       const contentType = MIME_TYPES[ext] || 'application/octet-stream';
       const headers = { 'Content-Type': contentType };
-      if (ext === '.html') headers['Cache-Control'] = 'no-store';
+      if (ext === '.html') {
+        headers['Cache-Control'] = 'no-store';
+      } else if (['.webp', '.png', '.jpg', '.jpeg', '.svg', '.gif'].includes(ext)) {
+        headers['Cache-Control'] = 'public, max-age=86400';
+      }
       res.writeHead(200, headers);
       fs.createReadStream(filePath).pipe(res);
     });

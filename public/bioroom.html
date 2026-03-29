@@ -315,10 +315,6 @@
       overflow-x: hidden;
       overflow-y: visible;
     }
-    body.step6-active {
-      overflow-y: auto;
-      overflow-x: hidden;
-    }
     body.step6-zoom-open {
       overflow: hidden;
     }
@@ -2091,6 +2087,58 @@
     @keyframes step6Miss {
       0%,100% { box-shadow: 0 20px 38px rgba(0,0,0,.36); }
       50% { box-shadow: 0 0 0 2px rgba(124,239,255,.28), 0 20px 38px rgba(0,0,0,.36); }
+    }
+    /* ---- Step 6: full-width redesign ---- */
+    .step6-scene-full {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background-position: center;
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      border-radius: 16px;
+      border: 1px solid rgba(127,233,255,.3);
+      overflow: hidden;
+      box-shadow: 0 12px 30px rgba(0,0,0,.38);
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Ccircle cx='14' cy='14' r='8' fill='none' stroke='%23B8F4FF' stroke-width='2'/%3E%3Cpath d='M14 3v5M14 20v5M3 14h5M20 14h5' stroke='%236EF3C7' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") 14 14, crosshair;
+      margin: 6px 0 8px;
+    }
+    .step6-scene-full.miss-pulse { animation: step6Miss .35s ease; }
+    .step6-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 2px 0 4px;
+      flex-wrap: wrap;
+    }
+    .step6-progress-pill {
+      display: inline-block;
+      background: rgba(4,12,22,0.55);
+      border: 1px solid rgba(120,235,255,.18);
+      border-radius: 20px;
+      padding: 3px 14px;
+      color: #d9f3ff;
+      font-size: .86rem;
+      white-space: nowrap;
+    }
+    .step6-items-strip {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 7px;
+      justify-content: center;
+      margin-top: 6px;
+    }
+    .step6-items-strip .step6-item-box {
+      min-height: 0;
+      width: clamp(68px, 13vw, 96px);
+      padding: 6px 4px;
+      gap: 4px;
+    }
+    .step6-items-strip .step6-item-box img {
+      width: 34px;
+      height: 34px;
     }
     .step6-success-overlay {
       position: absolute;
@@ -4962,14 +5010,6 @@ function applyAutoScale() {
   const gs  = document.getElementById('game-screen');
   if (!app || !gs) return;
 
-  if (app.classList.contains('screen-step6-wide')) {
-    app.style.zoom = '';
-    gs.style.overflow = '';
-    gs.style.overflowX = '';
-    gs.style.maxHeight = '';
-    return;
-  }
-
   app.style.zoom = '';
   app.style.maxHeight = 'none';
   gs.style.maxHeight  = 'none';
@@ -6282,19 +6322,11 @@ function syncStep6ZoomViewportState() {
   });
 }
 
-window.addEventListener('resize', syncStep6ZoomViewportState);
-
-window.step6ToggleZoom = function(forceValue = null) {
+window.step6ToggleZoom = function() {
+  /* zoom mode removed — scene is now full-width by default */
   const s6 = gameState._step6;
-  const next = forceValue === null ? !s6.zoom90 : Boolean(forceValue);
-  if (!next) {
-    closeStep6ZoomCleanup();
-  } else {
-    applyStep6ZoomBodyState(true);
-  }
-  s6.zoom90 = next;
-  saveGameState();
-  renderStep6();
+  s6.zoom90 = false;
+  closeStep6ZoomCleanup();
 };
 
 function renderStep1() {
@@ -6750,90 +6782,46 @@ function renderStep6() {
                 </div>
               ` : '';
 
-  const sceneClass = s6.zoom90 ? 'step6-scene step6-scene--zoom-panel' : 'step6-scene';
-  const sceneInnerHtml = `
-            <div class="${sceneClass}" style="background-image:url('${escapeHTML(game.image)}');" onclick="window.step6MissTap(event)">
-              ${hotspotsHtml}
-              ${successOverlayHtml}
-            </div>
-          `;
 
-  const mainSceneHtml = !s6.zoom90
-    ? `<div class="step6-scene-viewport">${sceneInnerHtml}</div>`
-    : '';
-
-  const zoomItemsHtml = items.map((item) => {
-    const found = foundSet.has(item.id);
-    return `<div class="step6-item-box ${found ? 'found' : 'step6-item-box--pending'}">
-      ${found
-        ? `<img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.name)}" />`
-        : `<span class="step6-item-pending-mark" aria-hidden="true"></span>`
-      }
-      <div class="step6-item-name ${found ? '' : 'step6-item-name--placeholder'}">${escapeHTML(item.name)}</div>
-    </div>`;
-  }).join('');
-
-  const zoomLayerHtml = s6.zoom90
-    ? `<div class="step6-fullscreen-zoom" role="dialog" aria-modal="true" aria-label="תמונה מוגדלת">
-          <div class="step6-fullscreen-zoom-backdrop" aria-hidden="true" onclick="window.step6ToggleZoom()"></div>
-          <div class="step6-fullscreen-zoom-panel">
-            <div class="step6-fullscreen-zoom-toolbar">
-              <button type="button" class="step6-zoom-toggle" onclick="window.step6ToggleZoom()">${escapeHTML(UI_COPY.step5ZoomOutLabel)}</button>
-            </div>
-            <div class="step6-fullscreen-zoom-body">
-              <div class="step6-zoom-inner-layout">
-                <div class="step6-zoom-scene-wrap">${sceneInnerHtml}</div>
-                <div class="step6-items-side step6-items-side--in-zoom">${zoomItemsHtml}</div>
-              </div>
-            </div>
-          </div>
-        </div>`
-    : '';
+  const progressText = escapeHTML(
+    (UI_COPY.step5ProgressTemplate || 'נמצאו: {found} מתוך {required}')
+      .replace('{found}', String(Math.min(foundCount, required)))
+      .replace('{required}', String(required))
+  );
 
   setScreen(`
     <div class="step6-shell">
       <div class="step6-game-wrap">
         <div class="screen-eyebrow">${escapeHTML(UI_COPY.step5FlowEyebrow)}</div>
-        <div class="screen-body" style="margin:0 0 8px; text-align:center; font-weight:700; color:#bdeaff">${escapeHTML(UI_COPY.step5TopBarTitle || ui.topBarTitle)}</div>
-        <p class="step6-instructions">${instrHtml}</p>
-        <div class="screen-body" style="text-align:center; margin:4px 0; color:#d9f3ff; display:inline-block; background:rgba(4,12,22,0.55); border-radius:20px; padding:3px 14px;">${escapeHTML((UI_COPY.step5ProgressTemplate || "נמצאו: {found} מתוך {required}").replace("{found}", String(Math.min(foundCount, required))).replace("{required}", String(required)))}</div>
-        <div class="step6-controls">
-          <button type="button" class="step6-zoom-toggle" onclick="window.step6ToggleZoom()">${s6.zoom90 ? escapeHTML(UI_COPY.step5ZoomOutLabel) : escapeHTML(UI_COPY.step5ZoomInLabel)}</button>
+        <div class="step6-header-bar">
+          <span style="font-weight:700;color:#bdeaff">${escapeHTML(UI_COPY.step5TopBarTitle || ui.topBarTitle)}</span>
+          <span class="step6-progress-pill">${progressText}</span>
+        </div>
+        <p class="step6-instructions" style="margin:0 0 4px">${instrHtml}</p>
+
+        <div class="step6-scene-full" style="background-image:url('${escapeHTML(game.image)}')" onclick="window.step6MissTap(event)">
+          ${hotspotsHtml}
+          ${successOverlayHtml}
         </div>
 
-        <div class="step6-search-layout ${s6.zoom90 ? 'step6-search-layout--zoom-open' : ''}">
-          ${mainSceneHtml}
-          <div class="step6-items-side">
-            ${items.map((item) => {
-              const found = foundSet.has(item.id);
-              return `<div class="step6-item-box ${found ? 'found' : 'step6-item-box--pending'}">
-                ${found
-                  ? `<img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.name)}" />`
-                  : `<span class="step6-item-pending-mark" aria-hidden="true"></span>
-                `}
-                <div class="step6-item-name ${found ? '' : 'step6-item-name--placeholder'}">${escapeHTML(item.name)}</div>
-              </div>`;
-            }).join('')}
-          </div>
+        <div class="step6-items-strip">
+          ${items.map((item) => {
+            const found = foundSet.has(item.id);
+            return `<div class="step6-item-box ${found ? 'found' : 'step6-item-box--pending'}">
+              ${found
+                ? `<img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.name)}" />`
+                : `<span class="step6-item-pending-mark" aria-hidden="true"></span>`
+              }
+              <div class="step6-item-name ${found ? '' : 'step6-item-name--placeholder'}">${escapeHTML(item.name)}</div>
+            </div>`;
+          }).join('')}
         </div>
       </div>
     </div>
   `);
   applyScreenScaleClass(gameState.currentScreen);
-  // Manage the zoom overlay directly on document.body so that position:fixed
-  // is always relative to the viewport, not to any scroll-container ancestor.
-  let _zoomRoot = document.getElementById('step6-zoom-body-root');
-  if (s6.zoom90) {
-    if (!_zoomRoot) {
-      _zoomRoot = document.createElement('div');
-      _zoomRoot.id = 'step6-zoom-body-root';
-      document.body.appendChild(_zoomRoot);
-    }
-    _zoomRoot.innerHTML = zoomLayerHtml;
-    syncStep6ZoomViewportState();
-  } else {
-    if (_zoomRoot) _zoomRoot.remove();
-  }
+  const _staleZoom = document.getElementById('step6-zoom-body-root');
+  if (_staleZoom) _staleZoom.remove();
 }
 
 window.step6SelectGame = function(gameId) {

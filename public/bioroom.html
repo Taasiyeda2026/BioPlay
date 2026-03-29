@@ -3654,7 +3654,7 @@ let STEP6_CONFIG = null;
 let STEP6_GAMES = {};
 let MCQ_BY_ORGANISM = new Map();
 let MATCHING_BY_ORGANISM = new Map();
-const GAME_DATA_BASE = 'gd';
+const GAME_DATA_BASE = '/gd';
 const gameDataUrl = (name) => `${GAME_DATA_BASE}/${name}`;
 
 
@@ -3971,14 +3971,18 @@ async function hydrateDoorMappingFromJson() {
     try {
       const res = await fetchAll();
       if (res.every((r) => r.ok)) { responses = res; break; }
+      const failed = res.filter((r) => !r.ok).map((r) => `${r.url} → ${r.status}`);
+      console.warn(`[BioPlay] hydrate attempt ${attempt}/${MAX_RETRIES} failed:`, failed);
       if (attempt < MAX_RETRIES) await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
-    } catch (_) {
+    } catch (err) {
+      console.warn(`[BioPlay] hydrate attempt ${attempt}/${MAX_RETRIES} network error:`, err);
       if (attempt < MAX_RETRIES) await new Promise((r) => setTimeout(r, RETRY_DELAY_MS));
     }
   }
 
   try {
     if (!responses) {
+      console.error('[BioPlay] All hydrate attempts exhausted — game data unavailable');
       showError('⚠️ לא ניתן לטעון את קבצי game-data. המשחק ממשיך עם תוכן ברירת מחדל.');
       return;
     }

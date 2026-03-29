@@ -198,7 +198,7 @@ const server = http.createServer(async (req, res) => {
   /* ============================================================
      GAME-DATA EXPLICIT ROUTE — serve game-data/*.json directly
      ============================================================ */
-  if (method === 'GET' && (urlPath === '/game-data' || urlPath.startsWith('/game-data/')) ) {
+  if (method === 'GET' && (urlPath === '/game-data' || urlPath.startsWith('/game-data/') || urlPath === '/gd' || urlPath.startsWith('/gd/'))) {
     const safeName = path.basename(urlPath);
     const filePath = path.join(ROOT, 'game-data', safeName);
     if (!filePath.startsWith(path.join(ROOT, 'game-data'))) {

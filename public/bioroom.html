@@ -3789,21 +3789,35 @@ function getStage3DoorEntry(doorNum) {
 }
 
 async function loadStage3Habitats() {
-  const response = await fetch(gameDataUrl('question3.json'), { cache: 'no-store' });
-  if (!response.ok) throw new Error('Failed loading question3.json');
-  const payload = await response.json();
-  const rows = Array.isArray(payload?.records) ? payload.records : [];
-  const doors = rows.map((entry) => {
-    const letter = String(entry?.correct_answer || '').trim().toLowerCase();
-    return {
-      door: Number(entry?.door),
-      correctHabitat: String(entry?.[`answer_${letter}`] || '').trim(),
-      didYouKnowImage: String(entry?.did_you_know_image || '').trim(),
-      didYouKnowText: String(entry?.did_you_know_explanation || '').trim(),
-      options: [entry?.answer_a, entry?.answer_b, entry?.answer_c, entry?.answer_d].map((x) => String(x || '').trim()).filter(Boolean),
-      doorCode: String(entry?.door_code ?? '').trim()
-    };
-  });
+  let doors = null;
+  try {
+    const r1 = await fetch(gameDataUrl('question3.json'), { cache: 'no-store' });
+    if (r1.ok) {
+      const payload = await r1.json();
+      const rows = Array.isArray(payload?.records) ? payload.records : [];
+      doors = rows.map((entry) => {
+        const letter = String(entry?.correct_answer || '').trim().toLowerCase();
+        return {
+          door: Number(entry?.door),
+          correctHabitat: String(entry?.[`answer_${letter}`] || '').trim(),
+          didYouKnowImage: String(entry?.did_you_know_image || '').trim(),
+          didYouKnowText: String(entry?.did_you_know_explanation || '').trim(),
+          options: [entry?.answer_a, entry?.answer_b, entry?.answer_c, entry?.answer_d].map((x) => String(x || '').trim()).filter(Boolean),
+          doorCode: String(entry?.door_code ?? '').trim()
+        };
+      });
+    }
+  } catch (_) {}
+  if (!doors) {
+    try {
+      const r2 = await fetch('data/stage3-habitats.json', { cache: 'no-store' });
+      if (r2.ok) {
+        const payload = await r2.json();
+        doors = Array.isArray(payload?.doors) ? payload.doors : [];
+      }
+    } catch (_) {}
+  }
+  if (!doors) return;
   STAGE3_CONFIG = { doors };
   STAGE3_BY_DOOR = new Map(doors.map((entry) => [Number(entry.door), entry]));
 }
@@ -7361,8 +7375,8 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   })();
 
-  await loadStage3Habitats();
-  await loadStep6HiddenGames();
+  try { await loadStage3Habitats(); } catch (_) {}
+  try { await loadStep6HiddenGames(); } catch (_) {}
   enrichDoorMappingData();
   rebuildDykByOrganism();
   const loaded = loadGameState();

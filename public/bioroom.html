@@ -3654,6 +3654,9 @@ let STEP6_CONFIG = null;
 let STEP6_GAMES = {};
 let MCQ_BY_ORGANISM = new Map();
 let MATCHING_BY_ORGANISM = new Map();
+const GAME_DATA_BASE = 'game-data';
+const gameDataUrl = (name) => `${GAME_DATA_BASE}/${name}`;
+
 
 function getStep6DefaultConfig() {
   const required = Number(STEP_6_CORRECT_COUNT) || 6;
@@ -3733,39 +3736,52 @@ function getStep6TargetToFind(game) {
 
 async function loadStep6HiddenGames() {
   const fallback = getStep6DefaultConfig();
-  try {
-    const response = await fetch('data/hidden-games.json', { cache: 'no-store' });
-    if (!response.ok) throw new Error('Failed loading hidden-games.json');
-    const payload = await response.json();
-    const required = Number(payload?.meta?.requiredToFind);
-    const normalizedRequired = Number.isFinite(required) && required > 0 ? required : fallback.meta.requiredToFind;
-    STEP6_CONFIG = {
-      meta: {
-        requiredToFind: normalizedRequired,
-        totalItemsPerGame: Number(payload?.meta?.totalItemsPerGame || fallback.meta.totalItemsPerGame)
+  STEP6_CONFIG = {
+    ...fallback,
+    meta: { ...fallback.meta, requiredToFind: 4, totalItemsPerGame: 6 },
+    ui: {
+      ...fallback.ui,
+      selectionTitle: UI_COPY.step5SelectionTitle || fallback.ui.selectionTitle,
+      selectionSubtitle: UI_COPY.step5SelectionSubtitle || fallback.ui.selectionSubtitle,
+      instructions: `${UI_COPY.step5FlowIntroText1 || 'עליכם לחפש 4 מתוך 6 האלמנטים המסתתרים.'}\n${UI_COPY.step5FlowIntroText2 || 'אחרי שתמצאו 4 פריטים - תקבלו ספרה לקוד הסודי.'}`,
+      topBarTitle: UI_COPY.step5TopBarTitle || fallback.ui.topBarTitle,
+      successTitle: UI_COPY.step5CompletionTitle || fallback.ui.successTitle,
+      successBody: `${UI_COPY.step5CompletionText || fallback.ui.successBody}\n${UI_COPY.step5CompletionCodeLabel || ''}`.trim(),
+      successCode: 4
+    },
+    games: [
+      {
+        id: 'forest',
+        background: 'assets/images/hiddengame01/hidden01.png',
+        magnifier: 'assets/images/hiddengame01/magnifier-tool1.png',
+        items: [
+          { id: 'h1_item1', label: 'מטבע', image: 'assets/images/hiddengame01/h1_item1.png', hotspot: { x: 20.3, y: 7.5, w: 6, h: 6 } },
+          { id: 'h1_item2', label: 'שעון חול', image: 'assets/images/hiddengame01/h1_item2.png', hotspot: { x: 60.6, y: 94.3, w: 6, h: 6 } },
+          { id: 'h1_item3', label: 'מגילה', image: 'assets/images/hiddengame01/h1_item3.png', hotspot: { x: 73.6, y: 71.1, w: 6, h: 6 } },
+          { id: 'h1_item4', label: 'משקפת', image: 'assets/images/hiddengame01/h1_item4.png', hotspot: { x: 34.6, y: 55.8, w: 6, h: 6 } },
+          { id: 'h1_item5', label: 'מצפן', image: 'assets/images/hiddengame01/h1_item5.png', hotspot: { x: 82.5, y: 37.6, w: 6, h: 6 } },
+          { id: 'h1_item6', label: 'מפתחות', image: 'assets/images/hiddengame01/h1_item6.png', hotspot: { x: 12.0, y: 93.0, w: 6, h: 6 } }
+        ]
       },
-      ui: {
-        selectionTitle: String(payload?.ui?.selectionTitle || fallback.ui.selectionTitle),
-        selectionSubtitle: String(payload?.ui?.selectionSubtitle || fallback.ui.selectionSubtitle),
-        instructions: String(payload?.ui?.instructions || fallback.ui.instructions),
-        topBarTitle: String(payload?.ui?.topBarTitle || fallback.ui.topBarTitle),
-        progressText: String(payload?.ui?.progressText || fallback.ui.progressText),
-        successTitle: String(payload?.ui?.successTitle || fallback.ui.successTitle),
-        successBody: String(payload?.ui?.successBody || fallback.ui.successBody),
-        successCode: Number(payload?.ui?.successCode ?? normalizedRequired)
-      },
-      games: Array.isArray(payload?.games) ? payload.games : []
-    };
-    STEP6_GAMES = normalizeStep6Games(STEP6_CONFIG.games);
-  } catch (_) {
-    STEP6_CONFIG = fallback;
-    STEP6_GAMES = {};
-    showError('⚠️ לא ניתן לטעון את hidden-games.json. שלב 6 לא יוצג כראוי.');
-  }
+      {
+        id: 'desert',
+        background: 'assets/images/hiddengame02/hidden02.png',
+        magnifier: 'assets/images/hiddengame02/magnifier-tool2.png',
+        items: [
+          { id: 'h2_item1', label: 'ספר עתיק', image: 'assets/images/hiddengame02/h2_item1.png', hotspot: { x: 88.2, y: 39.3, w: 6, h: 6 } },
+          { id: 'h2_item2', label: 'מפתחות', image: 'assets/images/hiddengame02/h2_item2.png', hotspot: { x: 70.9, y: 89.9, w: 6, h: 6 } },
+          { id: 'h2_item3', label: 'נוצה', image: 'assets/images/hiddengame02/h2_item3.png', hotspot: { x: 56.1, y: 39.3, w: 6, h: 6 } },
+          { id: 'h2_item4', label: 'מטבע', image: 'assets/images/hiddengame02/h2_item4.png', hotspot: { x: 15.8, y: 53.0, w: 6, h: 6 } },
+          { id: 'h2_item5', label: 'משקפת', image: 'assets/images/hiddengame02/h2_item5.png', hotspot: { x: 23.2, y: 38.4, w: 6, h: 6 } },
+          { id: 'h2_item6', label: 'מכתב בבקבוק', image: 'assets/images/hiddengame02/h2_item6.png', hotspot: { x: 57.9, y: 65.3, w: 6, h: 6 } }
+        ]
+      }
+    ]
+  };
 
-  const requiredToFind = getStep6RequiredToFind();
-  gameData.step6.correctCount = requiredToFind;
-  gameState._step6.requiredToFind = requiredToFind;
+  STEP6_GAMES = normalizeStep6Games(STEP6_CONFIG.games);
+  gameData.step6.correctCount = 4;
+  gameState._step6.requiredToFind = 4;
 }
 
 function getStage3DoorEntry(doorNum) {
@@ -3773,13 +3789,22 @@ function getStage3DoorEntry(doorNum) {
 }
 
 async function loadStage3Habitats() {
-  const response = await fetch('data/stage3-habitats.json', { cache: 'no-store' });
-  if (!response.ok) throw new Error('Failed loading Stage 3 habitats JSON');
+  const response = await fetch(gameDataUrl('question3.json'), { cache: 'no-store' });
+  if (!response.ok) throw new Error('Failed loading question3.json');
   const payload = await response.json();
-  const doors = Array.isArray(payload?.doors) ? payload.doors : [];
-  if (!doors.length) throw new Error('Stage 3 habitats JSON has no door entries');
-
-  STAGE3_CONFIG = payload;
+  const rows = Array.isArray(payload?.records) ? payload.records : [];
+  const doors = rows.map((entry) => {
+    const letter = String(entry?.correct_answer || '').trim().toLowerCase();
+    return {
+      door: Number(entry?.door),
+      correctHabitat: String(entry?.[`answer_${letter}`] || '').trim(),
+      didYouKnowImage: String(entry?.did_you_know_image || '').trim(),
+      didYouKnowText: String(entry?.did_you_know_explanation || '').trim(),
+      options: [entry?.answer_a, entry?.answer_b, entry?.answer_c, entry?.answer_d].map((x) => String(x || '').trim()).filter(Boolean),
+      doorCode: String(entry?.door_code ?? '').trim()
+    };
+  });
+  STAGE3_CONFIG = { doors };
   STAGE3_BY_DOOR = new Map(doors.map((entry) => [Number(entry.door), entry]));
 }
 
@@ -3917,132 +3942,247 @@ function applySelectedDoorContent() {
 
 async function hydrateDoorMappingFromJson() {
   try {
-    const [doorsRes, matchingStageRes, mcqStagesRes, matchingTasksRes] = await Promise.all([
-      fetch('data/generated/doors.json', { cache: 'no-store' }),
-      fetch('data/matching-stage.json', { cache: 'no-store' }),
-      fetch('data/generated/mcq-stages.json', { cache: 'no-store' }),
-      fetch('data/generated/matching-tasks.json', { cache: 'no-store' })
+    const [q1Res, q2Res, matchingRes, matchingContRes] = await Promise.all([
+      fetch(gameDataUrl('question1.json'), { cache: 'no-store' }),
+      fetch(gameDataUrl('question2.json'), { cache: 'no-store' }),
+      fetch(gameDataUrl('matching_game.json'), { cache: 'no-store' }),
+      fetch(gameDataUrl('matching_game_continuation.json'), { cache: 'no-store' })
     ]);
 
-    if (!doorsRes.ok) {
-      showError('⚠️ לא ניתן לטעון את doors.json. המשחק ממשיך עם תוכן ברירת מחדל.');
+    if (!q1Res.ok || !q2Res.ok || !matchingRes.ok || !matchingContRes.ok) {
+      showError('⚠️ לא ניתן לטעון את קבצי game-data. המשחק ממשיך עם תוכן ברירת מחדל.');
       return;
     }
 
-    const rows = await doorsRes.json();
-    if (!Array.isArray(rows) || !rows.length) {
-      showError('⚠️ doors.json נטען אך חסר/פגום. המשחק ממשיך עם תוכן ברירת מחדל.');
-      return;
-    }
+    const q1Payload = await q1Res.json();
+    const q2Payload = await q2Res.json();
+    const matchingPayload = await matchingRes.json();
+    const matchingContPayload = await matchingContRes.json();
 
-    if (matchingStageRes.ok) {
-      const matchingStage = await matchingStageRes.json();
-      gameData.step5.instructions = 'מה גילו בטבע ומה פיתחו בעקבותיו?';
-      gameData.step5.preStagePopup = matchingStage?.preStagePopup || null;
-    } else {
-      showError('⚠️ לא ניתן לטעון את matching-stage.json. שלב ההתאמה לא יוצג כראוי.');
-    }
+    const q1ByDoor = new Map((q1Payload.records || []).map((r) => [Number(r.door), r]));
+    const q2ByDoor = new Map((q2Payload.records || []).map((r) => [Number(r.door), r]));
+    const matchingById = new Map((matchingPayload.records || []).map((r) => [String(r.id || '').trim(), r]));
+    const contByDoor = new Map((matchingContPayload.records || []).map((r) => [Number(r.door), r]));
 
-    if (mcqStagesRes.ok) {
-      const mcqStages = await mcqStagesRes.json();
-      MCQ_BY_ORGANISM = new Map(
-        (Array.isArray(mcqStages) ? mcqStages : [])
-          .map((item) => [String(item?.organismId || '').trim(), item])
-          .filter(([organism]) => organism)
-      );
-    } else {
-      MCQ_BY_ORGANISM = new Map();
-      showError('⚠️ לא ניתן לטעון mcq-stages.json. ספרות שלבים 1–3 יחושבו לפי מיקום תשובה.');
-    }
+    const mapped = DOOR_MAPPING.map((door) => {
+      const num = Number(door.num);
+      const q1 = q1ByDoor.get(num) || null;
+      const q2 = q2ByDoor.get(num) || null;
+      const q3 = getStage3DoorEntry(num) || null;
+      const cont = contByDoor.get(num) || null;
+      if (!q1 || !q2 || !q3 || !cont) return door;
 
-    if (matchingTasksRes.ok) {
-      const matchingTasks = await matchingTasksRes.json();
-      MATCHING_BY_ORGANISM = new Map(
-        (Array.isArray(matchingTasks) ? matchingTasks : [])
-          .map((item) => [String(item?.organismId || '').trim(), item])
-          .filter(([organism]) => organism)
-      );
-    } else {
-      MATCHING_BY_ORGANISM = new Map();
-      showError('⚠️ לא ניתן לטעון matching-tasks.json. ספרות שלב 5 יגיעו מברירת המחדל.');
-    }
-
-    const mapped = rows.map((row, idx) => {
-      const num = Number(row.id || idx + 1);
-      const steps = Array.isArray(row.steps) ? row.steps : [];
-      const stepByTitle = (t) => steps.find(x => x?.title === t) || null;
-      const organism = String(row.creature || `אורגניזם ${num}`).trim();
-      const mcqRow = MCQ_BY_ORGANISM.get(organism) || null;
-      const matchingRow = MATCHING_BY_ORGANISM.get(organism) || null;
-      const legacyStep1 = stepByTitle('שער הגילוי הנסתר');
-      const legacyStep2 = stepByTitle('שער הכוח הסודי');
-      const legacyStep3 = stepByTitle('שער ממלכת החיים');
-      const step1 = mcqRow?.step1 ? {
-        ...legacyStep1,
-        question: mcqRow.step1.question,
-        options: mcqRow.step1.options,
-        answer: mcqRow.step1.correctAnswer,
-        hint: mcqRow.step1.hint,
-        didYouKnow: mcqRow.step1.didYouKnow,
-        secretDigit: String(mcqRow.step1.secretDigit || '').trim()
-      } : legacyStep1;
-      const step2 = mcqRow?.step2 ? {
-        ...legacyStep2,
-        question: mcqRow.step2.question,
-        options: mcqRow.step2.options,
-        answer: mcqRow.step2.correctAnswer,
-        hint: mcqRow.step2.hint,
-        didYouKnow: mcqRow.step2.didYouKnow,
-        secretDigit: String(mcqRow.step2.secretDigit || '').trim()
-      } : legacyStep2;
-      const step3 = mcqRow?.step3 ? {
-        ...legacyStep3,
-        question: mcqRow.step3.question,
-        options: mcqRow.step3.options,
-        answer: mcqRow.step3.correctAnswer,
-        hint: mcqRow.step3.hint,
-        didYouKnow: mcqRow.step3.didYouKnow,
-        secretDigit: String(mcqRow.step3.secretDigit || '').trim()
-      } : legacyStep3;
-      const step4 = stepByTitle('שער ההשראה החכמה');
-      const stage3DoorData = getStage3DoorEntry(num);
-      const correctHabitatKey = String(stage3DoorData?.correctHabitat || '').trim();
-      const doorCodeDigit = calcStepCode(step3) || STEP_3_CODE;
+      const layoutIds = String(cont.layout || '').split(',').map((x) => String(x || '').trim()).filter(Boolean).slice(0, 6);
+      const pairs = layoutIds.map((id, idx) => {
+        const pair = matchingById.get(id);
+        if (!pair) return null;
+        return {
+          id: idx + 1,
+          nature: { image: normalizeLegacyImagePath(`images/${pair.nature_image}`), label: String(pair.nature || '') },
+          tech: { image: normalizeLegacyImagePath(`images/${pair.tech_image}`), label: String(pair.tech || '') },
+          info: String(pair.what_they_discovered || '')
+        };
+      }).filter(Boolean);
 
       return {
-        num,
-        organism,
-        doorImg: assetFile('door', 'door', num),
-        prdImg: assetFile('product', 'prd', num),
-        doorCodeDigit: String(doorCodeDigit),
-        correctHabitatName: correctHabitatKey,
-        fact: step4?.didYouKnow || '',
-        organismDidYouKnow: step2?.didYouKnow || '',
-        productDidYouKnow: step4?.didYouKnow || '',
-        matchingTask: row.matchingTask || null,
-        matchingSecretDigits: normalizeTwoSecretDigits(matchingRow?.secretDigits),
-        imageTask: row.imageTask || null,
-        stepData: { step1, step2, step3, step4 }
+        ...door,
+        organism: String(q1.organism || door.organism || '').trim(),
+        fact: String(cont.did_you_know_products || door.fact || '').trim(),
+        organismDidYouKnow: String(q2.did_you_know || '').trim(),
+        matchingTask: { pairs },
+        matchingSecretDigits: normalizeTwoSecretDigits([cont.door_code_digit_1, cont.door_code_digit_2]),
+        imageTask: { answer: 4 },
+        stepData: {
+          step1: {
+            question: String(q1.question || ''),
+            options: [q1.answer_a, q1.answer_b, q1.answer_c, q1.answer_d].map((x) => String(x || '')),
+            answer: String(q1.correct_answer || ''),
+            hint: String(q1.hint || ''),
+            secretDigit: String(q1.door_code ?? '')
+          },
+          step2: {
+            question: String(q2.question || ''),
+            options: [q2.answer_a, q2.answer_b, q2.answer_c, q2.answer_d].map((x) => String(x || '')),
+            answer: String(q2.correct_answer || ''),
+            hint: String(q2.hint || ''),
+            didYouKnow: String(q2.did_you_know || ''),
+            secretDigit: String(q2.door_code ?? '')
+          },
+          step3: {
+            question: 'באיזה עולם חי בעל החיים?',
+            options: Array.isArray(q3.options) && q3.options.length ? q3.options : [q3.correctHabitat, ...(STAGE3_FIXED_OPTIONS.filter((o) => o !== q3.correctHabitat))].slice(0, 4),
+            answer: String(q3.correctHabitat || ''),
+            hint: '',
+            didYouKnow: String(q3.didYouKnowText || ''),
+            secretDigit: String(q3?.doorCode || '')
+          },
+          step4: { didYouKnow: String(cont.did_you_know_products || '') }
+        }
       };
     });
 
-    if (mapped.length) {
-      DOOR_MAPPING.splice(0, DOOR_MAPPING.length, ...mapped);
-      enrichDoorMappingData();
-      rebuildDykByOrganism();
-      if (gameState.selectedDoor?.num) {
-        const updated = DOOR_MAPPING.find(d => d.num === gameState.selectedDoor.num);
-        if (updated) {
-          gameState.selectedDoor = updated;
-          applySelectedDoorContent();
-          saveGameState();
-        }
+    DOOR_MAPPING.splice(0, DOOR_MAPPING.length, ...mapped);
+    enrichDoorMappingData();
+    rebuildDykByOrganism();
+    if (gameState.selectedDoor?.num) {
+      const updated = DOOR_MAPPING.find((d) => d.num === gameState.selectedDoor.num);
+      if (updated) {
+        gameState.selectedDoor = updated;
+        applySelectedDoorContent();
+        saveGameState();
       }
-      if (gameState.currentScreen === 'door_selection') renderDoorSelection();
     }
-  } catch (err) {
+    if (gameState.currentScreen === 'door_selection') renderDoorSelection();
+  } catch (_) {
     showError('⚠️ אירעה שגיאה בטעינת נתוני המשחק. ממשיכים עם תוכן ברירת מחדל.');
   }
+}
+
+
+let SCREENS_COPY_BY_ID = new Map();
+
+function parseScreenText(screenText) {
+  const map = {};
+  String(screenText || '').split('\n').forEach((line) => {
+    const idx = line.indexOf(':');
+    if (idx <= 0) return;
+    const key = line.slice(0, idx).trim();
+    const value = line.slice(idx + 1).trim();
+    if (key) map[key] = value;
+  });
+  return map;
+}
+
+async function loadScreensCopy() {
+  try {
+    const response = await fetch(gameDataUrl('screens.json'), { cache: 'no-store' });
+    if (!response.ok) return;
+    const payload = await response.json();
+    const records = Array.isArray(payload?.records) ? payload.records : [];
+    SCREENS_COPY_BY_ID = new Map(
+      records
+        .filter((row) => row?.screen_id && typeof row?.screen_text === 'string' && row.screen_text.trim())
+        .map((row) => [String(row.screen_id), parseScreenText(row.screen_text)])
+    );
+  } catch (_) {
+    SCREENS_COPY_BY_ID = new Map();
+  }
+}
+
+function screenCopy(screenId) {
+  return SCREENS_COPY_BY_ID.get(String(screenId || '')) || {};
+}
+
+
+function getConcreteCopy(copyObj, key) {
+  const raw = String(copyObj?.[key] ?? '').trim();
+  if (!raw) return null;
+  if (raw === 'null' || raw === 'undefined') return null;
+  if (/\{[^}]+\}/.test(raw)) return null;
+  return raw;
+}
+
+const UI_COPY = {
+  door1Title: 'הכניסו את הקוד הסודי',
+  door1Subtitle: 'הקלידו את הקוד לפי סדר השלבים: שלב 1, שלב 2, שלב 3.',
+  door1Error: 'הקוד עדיין לא נכון. נסו שוב לפי סדר השלבים.',
+  door2Title: 'הכניסו את הקוד הסופי',
+  door2Subtitle: 'הקלידו את הקוד לפי סדר השלבים: שלב 1, שלב 2, שלב 3.',
+  door2Error: 'הקוד עדיין לא נכון. נסו שוב לפי סדר השלבים.',
+  finalEyebrow: 'סיום המשחק',
+  finalTitle: '🎉 כל הכבוד!',
+  finalText: 'סיימתם את המשחק בהצלחה.',
+  step4IntroEyebrow: 'שלב 4 – שער ההשראה החכמה',
+  step4IntroTitle: 'רגע לפני שמתחילים',
+  step4IntroText1: 'בשלב זה תתאימו בין אורגניזמים לבין מוצרים טכנולוגיים בהשראת הטבע.',
+  step4IntroText2: 'בכל התאמה נכונה תיחשף פיסת מידע חדשה.',
+  step4IntroText3: 'בסיום השלב תקבלו את הספרות לקוד הבא.',
+  step4VictoryEyebrow: 'שלב 4 – שער ההשראה החכמה',
+  step4VictoryTitle: '✅ כל הכבוד! סיימתם את משחק ההתאמה',
+  step4VictoryText: 'השלב הושלם בהצלחה. שמרו את הספרות לקוד הדלת הבאה.',
+  step4VictoryCodeLabel: 'הספרות לקוד:',
+  step5FlowEyebrow: 'שלב 5 – שער החיפוש הקסום',
+  step5FlowIntroTitle: 'לפני שמתחילים',
+  step5FlowIntroText1: 'עליכם לחפש 4 מתוך 6 האלמנטים המסתתרים.',
+  step5FlowIntroText2: 'אחרי שתמצאו 4 פריטים - תקבלו ספרה לקוד הסודי.',
+  step5SelectionTitle: 'איפה תחפשו את הסודות של עולם הביומימיקרי הסודי?',
+  step5SelectionSubtitle: 'בחרו אחת משתי התמונות הקסומות כדי להמשיך בדרך.',
+  step5TopBarTitle: 'הפריטים שנאספו',
+  step5ProgressTemplate: 'נמצאו: {found} מתוך {required}',
+  step5CompletionTitle: 'מצאתם את הפריטים!',
+  step5CompletionText: 'גיליתם 4 פריטים נעלמים והספרה הבאה לקוד נחשפה.',
+  step5CompletionCodeLabel: 'הספרה שקיבלתם היא: 4',
+  step4ScoreLineTemplate: 'קיבלתם: {totalScore} נקודות',
+  step4ContinueBtnLabel: 'המשיכו לשלב הבא ←',
+  step4IntroBtnLabel: 'הבנתי, אפשר להתחיל',
+  step5FlowIntroBtnLabel: 'הבנתי, ממשיכים',
+  step5SuccessBtnLabel: 'המשיכו',
+  step5ZoomInLabel: 'הגדל תמונה',
+  step5ZoomOutLabel: 'סגור הגדלה'
+};
+
+function applyScreensCopyToRuntime() {
+  const s1 = screenCopy('step1_question');
+  const s2 = screenCopy('step2_question');
+  const s3 = screenCopy('step3_question');
+  const d1 = screenCopy('door1_code');
+  const d2 = screenCopy('door2_code');
+  const s6 = screenCopy('step6_question');
+  const step4Intro = screenCopy('step4_intro');
+  const step4Completion = screenCopy('step4_completion');
+  const step4Prestage = screenCopy('step4_prestage_popup');
+  const step5Intro = screenCopy('step5_intro');
+  const step5Selection = screenCopy('step5_selection');
+  const step5Search = screenCopy('step5_search_game');
+  const step5Completion = screenCopy('step5_completion');
+  const step4Task = screenCopy('step4_task');
+  const endingVideo = screenCopy('ending_video');
+  const finalSummary = screenCopy('final_summary');
+
+  { const v=getConcreteCopy(s1,'כותרת'); if (v) gameData.step1.title=v; }
+  { const v=getConcreteCopy(s1,'טקסט רמז בלחיצה'); if (v) gameData.step1.hint=v; }
+  { const v=getConcreteCopy(s2,'כותרת'); if (v) gameData.step2.title=v; }
+  { const v=getConcreteCopy(s2,'טקסט רמז בלחיצה'); if (v) gameData.step2.hint=v; }
+  { const v=getConcreteCopy(s3,'כותרת'); if (v) gameData.step3.title=v; }
+  { const v=getConcreteCopy(s3,'שאלה'); if (v) gameData.step3.question=v; }
+
+  { const v=getConcreteCopy(d1,'כותרת'); if (v) UI_COPY.door1Title=v; }
+  { const v=getConcreteCopy(d1,'טקסט'); if (v) UI_COPY.door1Subtitle=v; }
+  { const v=getConcreteCopy(d1,'הודעת שגיאה'); if (v) UI_COPY.door1Error=v; }
+  { const v=getConcreteCopy(d2,'כותרת'); if (v) UI_COPY.door2Title=v; }
+  { const v=getConcreteCopy(d2,'טקסט'); if (v) UI_COPY.door2Subtitle=v; }
+  { const v=getConcreteCopy(d2,'הודעת שגיאה'); if (v) UI_COPY.door2Error=v; }
+
+  { const v=getConcreteCopy(s6,'כותרת'); if (v) gameData.step8.title=v; }
+  { const v=getConcreteCopy(s6,'טקסט'); if (v) gameData.step8.instructions=v; }
+
+
+  if (step4Intro['כותרת']) { UI_COPY.step4IntroEyebrow = step4Intro['כותרת']; UI_COPY.step4VictoryEyebrow = step4Intro['כותרת']; }
+  if (step4Intro['כותרת משנה']) UI_COPY.step4IntroTitle = step4Intro['כותרת משנה'];
+  if (step4Intro['טקסט']) UI_COPY.step4IntroText1 = step4Intro['טקסט'];
+  if (step4Prestage['טקסט']) { UI_COPY.step4IntroText2 = step4Prestage['טקסט']; UI_COPY.step4IntroText3 = step4Prestage['טקסט']; }
+  if (step4Completion['כותרת']) UI_COPY.step4VictoryTitle = step4Completion['כותרת'];
+  if (step4Completion['טקסט']) UI_COPY.step4VictoryText = step4Completion['טקסט'];
+  if (step4Completion['שורת קוד']) UI_COPY.step4VictoryCodeLabel = step4Completion['שורת קוד'];
+  if (step4Completion['שורת ניקוד']) UI_COPY.step4ScoreLineTemplate = step4Completion['שורת ניקוד'];
+  if (step4Completion['כפתור']) UI_COPY.step4ContinueBtnLabel = step4Completion['כפתור'];
+  if (step4Prestage['כפתור']) UI_COPY.step4IntroBtnLabel = step4Prestage['כפתור'];
+
+  if (step5Selection['כותרת']) UI_COPY.step5SelectionTitle = step5Selection['כותרת'];
+  if (step5Selection['טקסט']) UI_COPY.step5SelectionSubtitle = step5Selection['טקסט'];
+  { const v=getConcreteCopy(step5Search,'כותרת'); if (v) UI_COPY.step5FlowEyebrow=v; }
+  if (step5Search['טקסט']) UI_COPY.step5FlowIntroText1 = step5Search['טקסט'];
+  if (step5Completion['כותרת']) UI_COPY.step5CompletionTitle = step5Completion['כותרת'];
+  if (step5Completion['טקסט']) UI_COPY.step5CompletionText = step5Completion['טקסט'];
+  if (step5Completion['שורת קוד']) UI_COPY.step5CompletionCodeLabel = step5Completion['שורת קוד'];
+  if (step5Intro['כפתור']) UI_COPY.step5FlowIntroBtnLabel = step5Intro['כפתור'];
+  if (step5Completion['כפתור']) UI_COPY.step5SuccessBtnLabel = step5Completion['כפתור'];
+  if (step4Task['טקסט']) { UI_COPY.step5ZoomInLabel = step4Task['טקסט']; UI_COPY.step5ZoomOutLabel = step4Task['טקסט']; }
+
+  { const v=getConcreteCopy(endingVideo,'כותרת'); if (v) UI_COPY.finalEyebrow=v; }
+
+  if (finalSummary['כותרת']) UI_COPY.finalTitle = finalSummary['כותרת'];
+  if (finalSummary['טקסט']) UI_COPY.finalText = finalSummary['טקסט'];
 }
 
 const gameData = {
@@ -4542,7 +4682,7 @@ function showRewardPanel({ digit, pts, title, subtitle }, onContinue) {
       <div class="dyk-popup-success">${escapeHTML(title || 'תשובה נכונה.')}</div>
       <div class="code-reveal" style="margin:6px auto 2px;display:block;text-align:center">${escapeHTML(String(digit || '•'))}</div>
       <div class="dyk-popup-text">${escapeHTML(subtitle || 'ניקוד נוסף הוענק.')} (+${Number(pts || 0)})</div>
-      <button class="dyk-popup-btn" id="reward-continue-btn">המשיכו</button>
+      <button class="dyk-popup-btn" id="reward-continue-btn">${escapeHTML(UI_COPY.step5SuccessBtnLabel)}</button>
     </div>`;
   document.body.appendChild(overlay);
   overlay.querySelector('#reward-continue-btn')?.addEventListener('click', () => {
@@ -4929,7 +5069,7 @@ function unlockDoor2(submittedCode) {
   if (!expectedCode) { setUiBusy(false); showError("שגיאה בבניית קוד הדלת."); return; }
   if (String(submittedCode).trim() !== String(expectedCode)) {
     setUiBusy(false);
-    showError("הקוד עדיין לא נכון. נסו שוב לפי סדר השלבים.");
+    showError(UI_COPY.door1Error);
     return;
   }
   gameState.progress.door2Unlocked = true;
@@ -6132,7 +6272,7 @@ function renderDoor1() {
         <div class="vault-open-state">
           <div class="vault-open-icon">🔓</div>
           <div class="vault-title">המחסום נפתח!</div>
-          <button class="vault-btn" onclick="goToScreen(getNextScreen('door_1'))">המשיכו לשלב הבא ←</button>
+          <button class="vault-btn" onclick="goToScreen(getNextScreen('door_1'))">${escapeHTML(UI_COPY.step4ContinueBtnLabel)}</button>
         </div>
       </div>`);
     return;
@@ -6143,7 +6283,7 @@ function renderDoor1() {
     <input type="text" inputmode="numeric" maxlength="1" class="vault-digit" id="d1-${i}"
            oninput="window.d1Advance(${i})" />
     ${i < code.length - 1 ? '<span class="vault-digit-sep">·</span>' : ''}`).join('');
-  const subtitle = "הקלידו את הקוד לפי סדר השלבים: שלב 1, שלב 2, שלב 3.";
+  const subtitle = UI_COPY.door1Subtitle;
   const canOpen  = canUnlockDoor1();
   const collected = getDoor1CollectedDigits();
   const door1Panel = gameState.ui.door1DigitsOpen
@@ -6161,7 +6301,7 @@ function renderDoor1() {
     <div class="vault-screen">
       <div class="vault-eyebrow">מחסום ראשון</div>
       <div class="vault-lock" id="d1-lock">🔐</div>
-      <div class="vault-title">הכניסו את הקוד הסודי</div>
+      <div class="vault-title">${escapeHTML(UI_COPY.door1Title)}</div>
       <div class="vault-subtitle">${subtitle}</div>
       ${canOpen ? `
         <div class="vault-entry-tools">
@@ -6195,7 +6335,7 @@ window.submitDoor1 = function() {
     Array.from({length: code.length}, (_, i) => document.getElementById(`d1-${i}`))
       .forEach((el) => { if (el) el.value = ''; });
     document.getElementById('d1-0')?.focus();
-    showError("הקוד עדיין לא נכון. נסו שוב לפי סדר השלבים.");
+    showError(UI_COPY.door1Error);
     return;
   }
   const row = document.getElementById('d1-row');
@@ -6217,20 +6357,19 @@ function renderStep5() {
     const ptsLine = Number.isFinite(pts) ? pts : 0;
     setScreen(`
       <div class="card step5-victory-card" style="text-align:center;max-width:520px;margin:0 auto">
-        <div class="screen-eyebrow">שלב 4 – שער ההשראה החכמה</div>
-        <h2 class="screen-title">✅ כל הכבוד! סיימתם את משחק ההתאמה</h2>
-        <p class="screen-body">השלב הושלם בהצלחה. שמרו את הספרות לקוד הדלת הבאה.</p>
+        <div class="screen-eyebrow">${escapeHTML(UI_COPY.step4VictoryEyebrow)}</div>
+        <h2 class="screen-title">${escapeHTML(UI_COPY.step4VictoryTitle)}</h2>
+        <p class="screen-body">${escapeHTML(UI_COPY.step4VictoryText)}</p>
         <div class="step5-victory-copy">
-          כל הכבוד! סיימתם את משחק ההתאמה<br/>
-          השלב הושלם בהצלחה. שמרו את הספרות לקוד הדלת הבאה.<br/><br/>
-          ניקוד מהשלב: +30 נקודות<br/>
-          הספרות לקוד:
+          ${escapeHTML(UI_COPY.step4VictoryText)}<br/><br/>
+          ${escapeHTML((UI_COPY.step4ScoreLineTemplate || "קיבלתם: {totalScore} נקודות").replace("{totalScore}", String(ptsLine)))}<br/>
+          ${escapeHTML(UI_COPY.step4VictoryCodeLabel)}
         </div>
-        <div class="step5-victory-score">ניקוד מהשלב: <strong>+${escapeHTML(String(ptsLine))}</strong> נקודות</div>
-        <div class="screen-body" style="margin-bottom:4px;font-weight:700;color:var(--accent)">הספרות לקוד:</div>
+        <div class="step5-victory-score">ניקוד מהשלב: <strong>${escapeHTML((UI_COPY.step4ScoreLineTemplate || "קיבלתם: {totalScore} נקודות").replace("{totalScore}", String(ptsLine)))}</strong></div>
+        <div class="screen-body" style="margin-bottom:4px;font-weight:700;color:var(--accent)">${escapeHTML(UI_COPY.step4VictoryCodeLabel)}</div>
         <div class="step5-victory-code" dir="ltr">${escapeHTML(codeLine)}</div>
         <div class="btn-row" style="justify-content:center;margin-top:16px">
-          <button type="button" class="btn btn-primary" onclick="window.step5VictoryContinue()">המשיכו לשלב הבא ←</button>
+          <button type="button" class="btn btn-primary" onclick="window.step5VictoryContinue()">${escapeHTML(UI_COPY.step4ContinueBtnLabel)}</button>
         </div>
       </div>
     `);
@@ -6240,15 +6379,15 @@ function renderStep5() {
     setUiBusy(false);
     setScreen(`
       <div class="card step5-instructions-card">
-        <div class="screen-eyebrow">שלב 4 – שער ההשראה החכמה</div>
-        <h2 class="screen-title">רגע לפני שמתחילים</h2>
+        <div class="screen-eyebrow">${escapeHTML(UI_COPY.step4IntroEyebrow)}</div>
+        <h2 class="screen-title">${escapeHTML(UI_COPY.step4IntroTitle)}</h2>
         <div class="step5-instructions-body">
-          <p>בשלב זה תתאימו בין אורגניזמים לבין מוצרים טכנולוגיים בהשראת הטבע.</p>
-          <p>בכל התאמה נכונה תיחשף פיסת מידע חדשה.</p>
-          <p>בסיום השלב תקבלו את הספרות לקוד הבא.</p>
+          <p>${escapeHTML(UI_COPY.step4IntroText1)}</p>
+          <p>${escapeHTML(UI_COPY.step4IntroText2)}</p>
+          <p>${escapeHTML(UI_COPY.step4IntroText3)}</p>
         </div>
         <div class="btn-row" style="justify-content:flex-end;margin-top:8px">
-          <button type="button" class="btn btn-primary" onclick="window.confirmStep5Intro()">הבנתי, אפשר להתחיל</button>
+          <button type="button" class="btn btn-primary" onclick="window.confirmStep5Intro()">${escapeHTML(UI_COPY.step4IntroBtnLabel)}</button>
         </div>
       </div>
     `);
@@ -6345,14 +6484,14 @@ function renderStep6() {
     setScreen(`
       <div class="step6-shell">
         <div class="card" style="text-align:center;max-width:520px;margin:0 auto;padding:18px 18px 16px">
-          <div class="screen-eyebrow">שלב 5 – שער החיפוש הקסום</div>
-          <h2 class="screen-title">לפני שמתחילים</h2>
+          <div class="screen-eyebrow">${escapeHTML(UI_COPY.step5FlowEyebrow)}</div>
+          <h2 class="screen-title">${escapeHTML(UI_COPY.step5FlowIntroTitle)}</h2>
           <div class="screen-body" style="text-align:right;margin-top:10px;line-height:1.58">
-            <p style="margin:0 0 10px">עליכם לחפש 4 מתוך 6 האלמנטים המסתתרים.</p>
-            <p style="margin:0">אחרי שתמצאו 4 פריטים - תקבלו ספרה לקוד הסודי.</p>
+            <p style="margin:0 0 10px">${escapeHTML(UI_COPY.step5FlowIntroText1)}</p>
+            <p style="margin:0">${escapeHTML(UI_COPY.step5FlowIntroText2)}</p>
           </div>
           <div class="btn-row" style="justify-content:center;margin-top:14px">
-            <button type="button" class="btn btn-primary" onclick="window.confirmStep6FlowIntro()">הבנתי, ממשיכים</button>
+            <button type="button" class="btn btn-primary" onclick="window.confirmStep6FlowIntro()">${escapeHTML(UI_COPY.step5FlowIntroBtnLabel)}</button>
           </div>
         </div>
       </div>
@@ -6362,9 +6501,9 @@ function renderStep6() {
   if (!s6.selectedGame) {
     setScreen(`
       <div class="step6-shell">
-        <div class="screen-eyebrow">שלב 5 – שער החיפוש הקסום</div>
-        <h2 class="screen-title">${escapeHTML(ui.selectionTitle)}</h2>
-        <p class="screen-body">${escapeHTML(ui.selectionSubtitle)}</p>
+        <div class="screen-eyebrow">${escapeHTML(UI_COPY.step5FlowEyebrow)}</div>
+        <h2 class="screen-title">${escapeHTML(UI_COPY.step5SelectionTitle || ui.selectionTitle)}</h2>
+        <p class="screen-body">${escapeHTML(UI_COPY.step5SelectionSubtitle || ui.selectionSubtitle)}</p>
         <div class="step6-choice-grid">
           ${games.map((g) => `
             <button class="step6-choice-card" onclick="window.step6SelectGame('${g.id}')" aria-label="פתיחת משחק ${g.id}">
@@ -6399,7 +6538,7 @@ function renderStep6() {
                   <div class="step6-success-card">
                     <h3>${escapeHTML(ui.successTitle)}</h3>
                     <p>${escapeHTML(ui.successBody)}</p>
-                    <div class="btn-row"><button class="btn btn-primary" onclick="window.step6Complete()">המשיכו</button></div>
+                    <div class="btn-row"><button class="btn btn-primary" onclick="window.step6Complete()">${escapeHTML(UI_COPY.step5SuccessBtnLabel)}</button></div>
                   </div>
                 </div>
               ` : '';
@@ -6432,7 +6571,7 @@ function renderStep6() {
           <div class="step6-fullscreen-zoom-backdrop" aria-hidden="true" onclick="window.step6ToggleZoom()"></div>
           <div class="step6-fullscreen-zoom-panel">
             <div class="step6-fullscreen-zoom-toolbar">
-              <button type="button" class="step6-zoom-toggle" onclick="window.step6ToggleZoom()">סגור הגדלה</button>
+              <button type="button" class="step6-zoom-toggle" onclick="window.step6ToggleZoom()">${escapeHTML(UI_COPY.step5ZoomOutLabel)}</button>
             </div>
             <div class="step6-fullscreen-zoom-body">
               <div class="step6-zoom-inner-layout">
@@ -6447,12 +6586,12 @@ function renderStep6() {
   setScreen(`
     <div class="step6-shell">
       <div class="step6-game-wrap">
-        <div class="screen-eyebrow">שלב 5 – שער החיפוש הקסום</div>
-        <div class="screen-body" style="margin:0 0 8px; text-align:center; font-weight:700; color:#bdeaff">${escapeHTML(ui.topBarTitle)}</div>
+        <div class="screen-eyebrow">${escapeHTML(UI_COPY.step5FlowEyebrow)}</div>
+        <div class="screen-body" style="margin:0 0 8px; text-align:center; font-weight:700; color:#bdeaff">${escapeHTML(UI_COPY.step5TopBarTitle || ui.topBarTitle)}</div>
         <p class="step6-instructions">${instrHtml}</p>
-        <div class="screen-body" style="text-align:center; margin:4px 0; color:#d9f3ff; display:inline-block; background:rgba(4,12,22,0.55); border-radius:20px; padding:3px 14px;">נמצאו: ${Math.min(foundCount, required)} מתוך ${required}</div>
+        <div class="screen-body" style="text-align:center; margin:4px 0; color:#d9f3ff; display:inline-block; background:rgba(4,12,22,0.55); border-radius:20px; padding:3px 14px;">${escapeHTML((UI_COPY.step5ProgressTemplate || "נמצאו: {found} מתוך {required}").replace("{found}", String(Math.min(foundCount, required))).replace("{required}", String(required)))}</div>
         <div class="step6-controls">
-          <button type="button" class="step6-zoom-toggle" onclick="window.step6ToggleZoom()">${s6.zoom90 ? 'סגור הגדלה' : 'הגדל תמונה'}</button>
+          <button type="button" class="step6-zoom-toggle" onclick="window.step6ToggleZoom()">${s6.zoom90 ? escapeHTML(UI_COPY.step5ZoomOutLabel) : escapeHTML(UI_COPY.step5ZoomInLabel)}</button>
         </div>
 
         <div class="step6-search-layout ${s6.zoom90 ? 'step6-search-layout--zoom-open' : ''}">
@@ -6553,7 +6692,7 @@ function renderDoor2() {
     <input type="text" inputmode="numeric" maxlength="1" class="vault-digit" id="d2-${i}"
            oninput="window.d2Advance(${i})" onkeydown="window.d2Keydown(event, ${i})" />
     ${i < code.length - 1 ? '<span class="vault-digit-sep">·</span>' : ''}`).join('');
-  const subtitle   = "הקלידו את הקוד לפי סדר השלבים: שלב 1, שלב 2, שלב 3.";
+  const subtitle   = UI_COPY.door2Subtitle;
   const collected = getDoor2CollectedDigits();
   const door2Panel = gameState.ui.door2DigitsOpen
     ? `<div class="vault-digits-panel">
@@ -6570,7 +6709,7 @@ function renderDoor2() {
     <div class="vault-screen">
       <div class="vault-eyebrow">מחסום שני</div>
       <div class="vault-lock" id="d2-lock">🔐</div>
-      <div class="vault-title">הכניסו את הקוד הסופי</div>
+      <div class="vault-title">${escapeHTML(UI_COPY.door2Title)}</div>
       <div class="vault-subtitle">${subtitle}</div>
       ${canOpen ? `
         <div class="vault-entry-tools">
@@ -6964,9 +7103,9 @@ function renderFinalScreen() {
 function renderFinalSummary() {
   setScreen(`
     <div class="card" style="text-align:center">
-      <div class="screen-eyebrow">סיום המשחק</div>
-      <h2 class="screen-title">🎉 כל הכבוד!</h2>
-      <p class="screen-body">סיימתם את המשחק בהצלחה.</p>
+      <div class="screen-eyebrow">${escapeHTML(UI_COPY.finalEyebrow)}</div>
+      <h2 class="screen-title">${escapeHTML(UI_COPY.finalTitle)}</h2>
+      <p class="screen-body">${escapeHTML(UI_COPY.finalText)}</p>
       <p class="screen-body" style="font-weight:800;color:var(--accent-2)">הניקוד שלכם: ${Number(gameState.player.score || 0)}</p>
       <div class="btn-row" style="justify-content:center">
         <button class="btn btn-primary" onclick="restartGame()">שחקו שוב</button>
@@ -7222,6 +7361,8 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   })();
 
+  await loadScreensCopy();
+  applyScreensCopyToRuntime();
   await loadStage3Habitats();
   await loadStep6HiddenGames();
   enrichDoorMappingData();

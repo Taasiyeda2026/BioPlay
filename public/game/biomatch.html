@@ -332,7 +332,8 @@
 "use strict";
 
 /* ── CONFIG ── */
-const MATCHING_JSON_PATH  = '../data/matching-stage.json';
+const MATCHING_GAME_JSON_PATH = '../game-data/matching_game.json';
+const MATCHING_CONT_JSON_PATH = '../game-data/matching_game_continuation.json';
 const MATCHING_IMAGE_BASE = '../assets/images/matching/';
 const TOTAL_PAIRS = 6;
 
@@ -358,15 +359,6 @@ const state = {
   score:          0,
   showedCompletion: false,
   lockedLines:    [],     // [{ pairId, natEl, techEl }]
-};
-
-/* ── LAYOUT VARIANTS ── */
-const LAYOUT_VARIANTS = {
-  layout01: { natureOrder: ['pair01','pair02','pair03','pair04','pair05','pair06'], techOrder: ['pair05','pair01','pair06','pair03','pair02','pair04'] },
-  layout02: { natureOrder: ['pair03','pair04','pair05','pair06','pair01','pair02'], techOrder: ['pair02','pair06','pair04','pair01','pair05','pair03'] },
-  layout03: { natureOrder: ['pair02','pair03','pair04','pair05','pair06','pair01'], techOrder: ['pair04','pair01','pair05','pair02','pair03','pair06'] },
-  layout04: { natureOrder: ['pair06','pair05','pair04','pair03','pair02','pair01'], techOrder: ['pair01','pair04','pair02','pair06','pair03','pair05'] },
-  layout05: { natureOrder: ['pair04','pair06','pair01','pair05','pair02','pair03'], techOrder: ['pair03','pair02','pair06','pair01','pair04','pair05'] },
 };
 
 /* ── HELPERS ── */
@@ -405,13 +397,12 @@ function computeCardSize() {
 /* ── LAYOUT ── */
 function pickLayout() {
   const door = Number(ctx?.doorNumber || 0);
-  const layout = state.data.layouts.find(
-    l => Array.isArray(l.doorNumbers) && l.doorNumbers.includes(door)
-  ) || state.data.layouts[0];
+  const layout = state.data.layouts.find((l) => Number(l?.door) === door) || state.data.layouts[0];
+  const ids = Array.isArray(layout?.pairIds) ? layout.pairIds.filter(Boolean).slice(0, TOTAL_PAIRS) : [];
   state.layout = layout;
-  const variant = LAYOUT_VARIANTS[layout.id] || LAYOUT_VARIANTS.layout01;
-  state.natureOrder = [...variant.natureOrder];
-  state.techOrder   = [...variant.techOrder];
+  state.natureOrder = [...ids];
+  // deterministic shuffle for visual mismatch while preserving same experience
+  state.techOrder = [...ids].sort((a, b) => String(a).localeCompare(String(b), 'he')).reverse();
 }
 
 /* ── RENDER DIGITS ── */
@@ -728,20 +719,63 @@ window.addEventListener('resize', () => {
 
 /* ── INIT ── */
 async function init() {
-  let data;
   try {
-    const res = await fetch(MATCHING_JSON_PATH, { cache: 'no-store' });
-    if (!res.ok) throw new Error('fetch failed');
-    data = await res.json();
+    const [pairsRes, continuationRes] = await Promise.all([
+      fetch(MATCHING_GAME_JSON_PATH, { cache: 'no-store' }),
+      fetch(MATCHING_CONT_JSON_PATH, { cache: 'no-store' })
+    ]);
+    if (!pairsRes.ok || !continuationRes.ok) throw new Error('fetch failed');
+    const pairsJson = await pairsRes.json();
+    const contJson = await continuationRes.json();
+    const pairRecords = Array.isArray(pairsJson?.records) ? pairsJson.records : [];
+    const contRecords = Array.isArray(contJson?.records) ? contJson.records : [];
+
+    const pairs = pairRecords.map((row) => ({
+      id: String(row?.id || '').trim(),
+      natureLabel: String(row?.nature || ''),
+      natureImage: String(row?.nature_image || ''),
+      techLabel: String(row?.tech || ''),
+      techImage: String(row?.tech_image || ''),
+      popup: {
+        title: String(row?.explanation_title || ''),
+        lines: [
+          String(row?.seen_in_nature || ''),
+          String(row?.what_they_discovered || ''),
+          String(row?.what_they_developed || '')
+        ].filter(Boolean),
+        buttonLabel: 'המשך'
+      },
+      accentColor: '#62ff9a'
+    })).filter((p) => p.id && p.natureLabel && p.techLabel);
+
+    const layouts = contRecords.map((row) => ({
+      door: Number(row?.door),
+      pairIds: String(row?.layout || '').split(',').map((x) => String(x || '').trim()).filter(Boolean),
+      codeDigits: [Number(row?.door_code_digit_1), Number(row?.door_code_digit_2)],
+      allDigits: [0,1,2,3,4,5,6,7,8,9]
+    })).filter((l) => Number.isFinite(l.door));
+
+    state.data = {
+      pairs,
+      layouts,
+      stageCompletionPopup: {
+        title: 'כל הכבוד! סיימתם את ההתאמות.',
+        scoreLine: 'קיבלתם: {totalScore} נקודות',
+        buttonLabel: 'המשך'
+      },
+      screen: {
+        title: 'ביומימיקרי – משחק התאמה',
+        subtitle: 'לחצו על ריבוע כדי לבחור, ואז חברו לפריט המתאים בצד השני'
+      }
+    };
   } catch (err) {
     document.body.innerHTML +=
       `<div style="padding:24px;color:#ff9090;text-align:center">שגיאה בטעינת נתוני ההתאמה.<br>${err.message}</div>`;
     return;
   }
-  state.data = data;
-  data.pairs.forEach(p => state.pairsById.set(p.id, p));
-  document.getElementById('stage-title').textContent = data.screen?.title    || 'ביומימיקרי – משחק התאמה';
-  document.getElementById('stage-sub').textContent   = data.screen?.subtitle || '';
+  state.data.pairs.forEach(p => state.pairsById.set(p.id, p));
+  document.getElementById('stage-title').textContent = state.data.screen?.title    || 'ביומימיקרי – משחק התאמה';
+  document.getElementById('stage-sub').textContent   = state.data.screen?.subtitle || '';
   pickLayout();
   renderDigits();
   renderCards();

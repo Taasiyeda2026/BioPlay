@@ -2364,6 +2364,7 @@
   let habitatByNum = new Map();
   let habitatByOrganism = new Map();
   let matchingByOrganism = new Map();
+  let matchingPairsById = new Map();
   let mcqByOrganism = new Map();
   let globalStep5Data = null;
   let doorsCount = 5;
@@ -3259,13 +3260,13 @@
 
   async function loadHabitatMapping() {
     try {
-      const res = await fetch("data/generated/habitat-mapping.json", { cache: "no-store" });
+      const res = await fetch("game-data/question3.json", { cache: "no-store" });
       if (!res.ok) return;
       const rows = await res.json();
-      if (!Array.isArray(rows)) return;
-      habitatRows = rows;
-      habitatByNum = new Map(rows.map((row) => [Number(row.num), row]));
-      habitatByOrganism = new Map(rows.map((row) => [String(row.organism || "").trim(), row]));
+      const rowsArr = Array.isArray(rows?.records) ? rows.records : [];
+      habitatRows = rowsArr;
+      habitatByNum = new Map(rowsArr.map((row) => { const letter = String(row.correct_answer || "").toLowerCase(); return [Number(row.door), { ...row, habitat: String(row[`answer_${letter}`] || "") }]; }));
+      habitatByOrganism = new Map(rowsArr.map((row) => [String(row.organism || "").trim(), row]));
     } catch (_) {
       habitatRows = [];
       habitatByNum = new Map();
@@ -3288,9 +3289,10 @@
 
   async function loadDoors() {
     try {
-      const res = await fetch("data/generated/doors.json", { cache: "no-store" });
+      const res = await fetch("game-data/question1.json", { cache: "no-store" });
       const rows = await res.json();
-      doorsData = Array.isArray(rows) ? rows.map(enrichDoorWithHabitat) : [];
+      const recs = Array.isArray(rows?.records) ? rows.records : [];
+      doorsData = recs.map((r) => enrichDoorWithHabitat({ id: Number(r.door), creature: r.organism, door_code: r.door_code, steps: [], matchingTask: null, imageTask: { answer: 4 } }));
     } catch { doorsData = []; }
     const count = Array.isArray(doorsData) ? doorsData.length : 0;
     if (dbTitle) dbTitle.textContent = `מאגר אורגניזמים (${count})`;
@@ -3298,11 +3300,18 @@
 
   async function loadGuideData() {
     try {
-      const matchingRes = await fetch("data/generated/matching-tasks.json", { cache: "no-store" });
+      const [matchingRes, pairsRes] = await Promise.all([
+        fetch("game-data/matching_game_continuation.json", { cache: "no-store" }),
+        fetch("game-data/matching_game.json", { cache: "no-store" })
+      ]);
       const matchingRows = await matchingRes.json();
-      if (Array.isArray(matchingRows)) {
+      const recs = Array.isArray(matchingRows?.records) ? matchingRows.records : [];
+      const pairsJson = await pairsRes.json();
+      const pairRecs = Array.isArray(pairsJson?.records) ? pairsJson.records : [];
+      matchingPairsById = new Map(pairRecs.map((row) => [String(row.id || "").trim(), row]));
+      if (Array.isArray(recs)) {
         matchingByOrganism = new Map(
-          matchingRows.map((row) => [String(row.organismId || row.mainOrganism || "").trim(), row])
+          recs.map((row) => [String(row.organism || "").trim(), row])
         );
       } else {
         matchingByOrganism = new Map();
@@ -3312,7 +3321,7 @@
     }
 
     try {
-      const step5Res = await fetch("data/generated/step5-content.json", { cache: "no-store" });
+      const step5Res = await fetch("game-data/screens.json", { cache: "no-store" });
       const step5Json = await step5Res.json();
       globalStep5Data = step5Json && typeof step5Json === "object" ? step5Json : null;
     } catch (_) {
@@ -3320,11 +3329,12 @@
     }
 
     try {
-      const mcqRes = await fetch("data/generated/mcq-stages.json", { cache: "no-store" });
+      const mcqRes = await fetch("game-data/question2.json", { cache: "no-store" });
       const mcqRows = await mcqRes.json();
-      if (Array.isArray(mcqRows)) {
+      const recs = Array.isArray(mcqRows?.records) ? mcqRows.records : [];
+      if (Array.isArray(recs)) {
         mcqByOrganism = new Map(
-          mcqRows.map((row) => [String(row.organismId || "").trim(), row])
+          recs.map((row) => [String(row.organism || "").trim(), row])
         );
       } else {
         mcqByOrganism = new Map();
@@ -3361,7 +3371,7 @@
     if (!matchingRow) return { pairs: fallbackPairs, secretDigits: [] };
     return {
       pairs: Array.isArray(matchingRow.pairs) ? matchingRow.pairs : fallbackPairs,
-      secretDigits: Array.isArray(matchingRow.secretDigits) ? matchingRow.secretDigits : []
+      secretDigits: [matchingRow?.door_code_digit_1, matchingRow?.door_code_digit_2]
     };
   }
 
@@ -3380,15 +3390,28 @@
     if (!guideModal || !guideModalContent) return;
     if (!door) { clearGuideCards(); return; }
 
-    const steps = Array.isArray(door.steps) ? door.steps : [];
-    const step1 = findStepByGate(steps, "שער הגילוי הנסתר");
-    const step2 = findStepByGate(steps, "שער הכוח הסודי", "שער הסוד הקדום");
-    const step3 = findStepByGate(steps, "שער ממלכת החיים", "שער הרמזים הנעלמים");
-
+    const q1 = doorsData.find((d) => Number(d.id) === Number(door?.id)) || null;
+    const step1 = {
+      answer: String(q1?.creature || "").trim(),
+      options: [q1?.creature, q1?.answer_a, q1?.answer_b, q1?.answer_c, q1?.answer_d].filter(Boolean).map((x) => String(x).trim()),
+      secretDigit: ""
+    };
     const mcqRow = mcqByOrganism.get(String(door?.creature || "").trim()) || null;
-    const step1Digit = String(mcqRow?.step1?.secretDigit || "").trim() || getStepSecretDigit(step1);
-    const step2Digit = String(mcqRow?.step2?.secretDigit || "").trim() || getStepSecretDigit(step2);
-    const step3Digit = String(mcqRow?.step3?.secretDigit || "").trim() || getStepSecretDigit(step3);
+    const step2 = {
+      answer: String(mcqRow?.correct_answer || "").trim(),
+      options: [mcqRow?.answer_a, mcqRow?.answer_b, mcqRow?.answer_c, mcqRow?.answer_d].filter(Boolean).map((x) => String(x).trim()),
+      secretDigit: String(mcqRow?.door_code ?? "").trim()
+    };
+    const habitat = habitatByNum.get(Number(door?.id)) || null;
+    const step3 = {
+      answer: String(habitat?.habitat || "").trim(),
+      options: [habitat?.answer_a, habitat?.answer_b, habitat?.answer_c, habitat?.answer_d].filter(Boolean).map((x) => String(x).trim()),
+      secretDigit: String(habitat?.door_code ?? "").trim()
+    };
+
+    const step1Digit = String(q1?.door_code ?? "").trim();
+    const step2Digit = String(step2.secretDigit || "").trim();
+    const step3Digit = String(step3.secretDigit || "").trim();
     const door1Digits = [step1Digit, step2Digit, step3Digit];
     const { secretDigits: matchingSecretDigits } = getDoorMatchingData(door);
     const step5Digit = getDoorSearchCountDigit(door);
@@ -3410,6 +3433,7 @@
                 <th>שלב</th>
                 <th>שם השער</th>
                 <th>תשובה נכונה</th>
+                <th>אפשרויות</th>
                 <th>ספרה לקוד</th>
               </tr>
             </thead>
@@ -3418,18 +3442,21 @@
                 <td><span class="guide-stage-name">שלב 1:</span></td>
                 <td>שער הגילוי הנסתר</td>
                 <td>${escapeHTML(step1?.answer || "—")}</td>
+                <td>${escapeHTML((step1?.options || []).join(" | ") || "—")}</td>
                 <td>${escapeHTML(step1Digit || "—")}</td>
               </tr>
               <tr>
                 <td><span class="guide-stage-name">שלב 2:</span></td>
                 <td>שער הכוח הסודי</td>
                 <td>${escapeHTML(step2?.answer || "—")}</td>
+                <td>${escapeHTML((step2?.options || []).join(" | ") || "—")}</td>
                 <td>${escapeHTML(step2Digit || "—")}</td>
               </tr>
               <tr>
                 <td><span class="guide-stage-name">שלב 3:</span></td>
                 <td>שער ממלכת החיים</td>
                 <td>${escapeHTML(step3?.answer || "—")}</td>
+                <td>${escapeHTML((step3?.options || []).join(" | ") || "—")}</td>
                 <td>${escapeHTML(step3Digit || "—")}</td>
               </tr>
             </tbody>
@@ -3450,12 +3477,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr><td>פנגולין</td><td>שריון</td></tr>
-              <tr><td>חיפושית</td><td>מתקן לאיסוף מים</td></tr>
-              <tr><td>תמנון</td><td>וו תליה בוואקום</td></tr>
-              <tr><td>דב קוטב</td><td>מעיל מבודד קור</td></tr>
-              <tr><td>חתול</td><td>מדבקות זוהרות</td></tr>
-              <tr><td>שן הארי</td><td>מצנח רחיפה</td></tr>
+${(() => { const ids = String(matchingByOrganism.get(String(door?.creature||""))?.layout || "").split(",").map((x)=>x.trim()).filter(Boolean); const rows = ids.map((id)=> matchingPairsById.get(id)).filter(Boolean); return rows.map((row)=>`<tr><td>${escapeHTML(row.nature || "—")}</td><td>${escapeHTML(row.tech || "—")}</td></tr>`).join("") || `<tr><td>—</td><td>—</td></tr>`; })()}
             </tbody>
           </table>
           <div class="guide-code-row">
@@ -3469,21 +3491,13 @@
           <div class="guide-hint-columns">
             <div class="guide-hint-column">
               <span class="guide-hint-column-title">תמונת היער</span>
-              <div>פריט 01. מעל העצלן המטפס</div>
-              <div>פריט 02. על האבנים ליד הצבים</div>
-              <div>פריט 03. במים מול חזיר הבר</div>
-              <div>פריט 04. בצמחים מאחורי הפיל</div>
-              <div>פריט 05. ליד הינשוף שעל העץ</div>
-              <div>פריט 06. בצמח הוורוד שבפינה</div>
+              <div>6 פריטים נעלמים</div>
+              <div>השלב מסתיים ב-4 פריטים</div>
             </div>
             <div class="guide-hint-column">
               <span class="guide-hint-column-title">תמונת המדבר</span>
-              <div>פריט 01. בסלעים מתחת לנשר</div>
-              <div>פריט 02. מתחת ללטאה בצד ימין</div>
-              <div>פריט 03. בדשא ליד עדר הזברות</div>
-              <div>פריט 04. על החול מאחורי הגמל</div>
-              <div>פריט 05. בדשא מתחת לצבי</div>
-              <div>פריט 06. במים ליד ההיפופוטם</div>
+              <div>6 פריטים נעלמים</div>
+              <div>השלב מסתיים ב-4 פריטים</div>
             </div>
           </div>
           <div class="guide-code-row">

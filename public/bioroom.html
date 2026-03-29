@@ -1593,9 +1593,9 @@
     }
     .dyk-image {
       width: 100%;
-      max-width: 280px;
-      max-height: min(180px, 26vh);
-      aspect-ratio: 1 / 1;
+      max-width: 560px;
+      max-height: min(360px, 52vh);
+      aspect-ratio: unset;
       display: block;
       margin-inline: auto;
       border-radius: 18px;
@@ -1755,15 +1755,21 @@
       margin-bottom: 2px;
     }
     .step6-zoom-toggle {
-      border: 1px solid rgba(136, 227, 255, .45);
-      background: rgba(6, 24, 52, .78);
+      border: 1.5px solid rgba(136, 227, 255, .65);
+      background: rgba(6, 24, 52, .88);
       color: #d8f4ff;
       border-radius: 999px;
-      padding: 6px 11px;
-      font-size: .78rem;
+      padding: 10px 22px;
+      font-size: .92rem;
       font-weight: 700;
       line-height: 1;
       cursor: pointer;
+      transition: background .15s, border-color .15s, transform .12s;
+    }
+    .step6-zoom-toggle:hover {
+      background: rgba(20, 60, 100, .95);
+      border-color: rgba(136, 243, 185, .8);
+      transform: scale(1.04);
     }
     .step6-image-lightbox {
       position: fixed;
@@ -4254,7 +4260,7 @@ function applyScreensCopyToRuntime() {
   { const v=getConcreteCopy(s2t,'כפתור'); if (v) UI_COPY.step2TransitionBtn=v; }
   { const v=getConcreteCopy(s2t,'שורת קוד'); if (v) UI_COPY.step2ScoreLine=v; }
 
-  { const v=getConcreteCopy(s2d,'כותרת'); if (v) UI_COPY.step2DykTitle=v; }
+  { const v=getConcreteCopy(s2d,'כותרת'); if (v && !v.includes('ללא') && !v.includes('אין')) UI_COPY.step2DykTitle=v; }
   { const v=getConcreteCopy(s2d,'כפתור'); if (v) UI_COPY.step2DykBtn=v; }
   { const v=getConcreteCopy(s3d,'כותרת'); if (v) UI_COPY.step3DykTitle=v; }
   { const v=getConcreteCopy(s3d,'כפתור'); if (v) UI_COPY.step3DykBtn=v; }
@@ -4303,7 +4309,7 @@ function applyScreensCopyToRuntime() {
   if (step5Completion['שורת קוד']) UI_COPY.step5CompletionCodeLabel = step5Completion['שורת קוד'];
   if (step5Intro['כפתור']) UI_COPY.step5FlowIntroBtnLabel = step5Intro['כפתור'];
   if (step5Completion['כפתור']) UI_COPY.step5SuccessBtnLabel = step5Completion['כפתור'];
-  if (step4Task['טקסט']) { UI_COPY.step5ZoomInLabel = step4Task['טקסט']; UI_COPY.step5ZoomOutLabel = step4Task['טקסט']; }
+  if (step4Task['טקסט']) UI_COPY.step5ZoomInLabel = step4Task['טקסט'];
 
   { const v=getConcreteCopy(endingVideo,'כותרת'); if (v) UI_COPY.finalEyebrow=v; }
   if (finalSummary['כותרת']) UI_COPY.finalTitle = finalSummary['כותרת'];
@@ -5013,6 +5019,7 @@ function solveStep1(selectedAnswer) {
   if (selectedAnswer !== gameData.step1.correctAnswer) {
     gameState._attempts.step1++;
     showError(attemptsErrorMsg('step1'));
+    renderCurrentScreen();
     return;
   }
   gameState.progress.step1Solved            = true;
@@ -5042,6 +5049,7 @@ function solveStep2(selectedAnswer) {
   if (selectedAnswer !== gameData.step2.correctAnswer) {
     gameState._attempts.step2++;
     showError(attemptsErrorMsg('step2'));
+    renderCurrentScreen();
     return;
   }
   gameState.progress.step2Solved            = true;
@@ -5071,6 +5079,7 @@ function solveStep3(selectedAnswer) {
   if (selectedAnswer !== gameData.step3.correctAnswer) {
     gameState._attempts.step3++;
     showError(attemptsErrorMsg('step3'));
+    renderCurrentScreen();
     return;
   }
   gameState.progress.step3Solved            = true;
@@ -6517,10 +6526,10 @@ function renderStep5() {
         <div class="step5-victory-copy">
           ${escapeHTML(UI_COPY.step4VictoryText)}<br/><br/>
           ${escapeHTML((UI_COPY.step4ScoreLineTemplate || "קיבלתם: {totalScore} נקודות").replace("{totalScore}", String(ptsLine)))}<br/>
-          ${escapeHTML(UI_COPY.step4VictoryCodeLabel)}
+          ${escapeHTML((UI_COPY.step4VictoryCodeLabel || '').replace('{digit1}', d1 || '—').replace('{digit2}', d2 || '—'))}
         </div>
         <div class="step5-victory-score">ניקוד מהשלב: <strong>${escapeHTML((UI_COPY.step4ScoreLineTemplate || "קיבלתם: {totalScore} נקודות").replace("{totalScore}", String(ptsLine)))}</strong></div>
-        <div class="screen-body" style="margin-bottom:4px;font-weight:700;color:var(--accent)">${escapeHTML(UI_COPY.step4VictoryCodeLabel)}</div>
+        <div class="screen-body" style="margin-bottom:4px;font-weight:700;color:var(--accent)">${escapeHTML((UI_COPY.step4VictoryCodeLabel || '').replace('{digit1}', d1 || '—').replace('{digit2}', d2 || '—'))}</div>
         <div class="step5-victory-code" dir="ltr">${escapeHTML(codeLine)}</div>
         <div class="btn-row" style="justify-content:center;margin-top:16px">
           <button type="button" class="btn btn-primary" onclick="window.step5VictoryContinue()">${escapeHTML(UI_COPY.step4ContinueBtnLabel)}</button>
@@ -6960,7 +6969,6 @@ function renderDoor2DykScreen() {
   setScreen(`
     <div class="card dyk-card">
       <span class="dyk-badge">${escapeHTML(UI_COPY.step3DykTitle)}</span>
-      <h2 class="screen-title">${escapeHTML(dykEntry?.title || 'לפני הסיום')}</h2>
       ${dykEntry?.image ? `<img class="dyk-image" src="${escapeHTML(dykEntry.image)}" alt="הידעת?" onerror="this.style.display='none'" />` : ''}
       <p class="dyk-text">${escapeHTML(dykEntry?.text || 'עוד רגע מגיעים לפענוח האחרון!')}</p>
       <button class="btn btn-primary" onclick="window.continueFromDoor2Dyk()">${escapeHTML(UI_COPY.step3DykBtn)}</button>

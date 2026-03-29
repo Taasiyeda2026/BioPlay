@@ -7361,8 +7361,12 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   })();
 
-  await loadScreensCopy();
-  applyScreensCopyToRuntime();
+  try {
+    await loadScreensCopy();
+    applyScreensCopyToRuntime();
+  } catch (_) {
+    // keep opening flow stable even if screens copy fails
+  }
   await loadStage3Habitats();
   await loadStep6HiddenGames();
   enrichDoorMappingData();

@@ -3932,7 +3932,7 @@ function applySelectedDoorContent() {
     gameData.step2.hint = s2.hint || '';
     gameData.step2.didYouKnow = door.organismDidYouKnow || s2.didYouKnow || '';
     gameData.step2.image = s2.questionImage ? assetPath('organism', s2.questionImage) : getOrganismImagePath(door.organism);
-    gameData.step2.didYouKnowImage = s2.didYouKnowImage ? assetPath('ui', s2.didYouKnowImage) : assetPath('ui', _bgSupportsWebP ? 'did.webp' : 'did.png');
+    gameData.step2.didYouKnowImage = s2.didYouKnowImage ? assetPath('ui', s2.didYouKnowImage) : assetPath('ui', 'did.webp');
   }
 
   const stage3DoorData = getStage3DoorEntry(door.num);
@@ -4339,7 +4339,7 @@ const gameData = {
     subtitle: "",
     image: assetPath('organism', 'gecko.webp'),
     didYouKnow: "לשממית יש מיליוני שערות זעירות בכפות הרגליים, שעוזרות לה להיצמד גם למשטחים חלקים.",
-    didYouKnowImage: assetPath('ui', _bgSupportsWebP ? 'did.webp' : 'did.png')
+    didYouKnowImage: assetPath('ui', 'did.webp')
   },
   step3: {
     question: "באיזה עולם חי בעל החיים?",
@@ -6953,7 +6953,7 @@ window.submitDoor2 = function() {
 /* ---- DYK Screens ---- */
 function renderDoor1DykScreen() {
   const dykText = (gameState.selectedDoor ? gameState.selectedDoor.organismDidYouKnow : null) || gameData.step2.didYouKnow || '';
-  const dykImg = gameData.step2.didYouKnowImage || assetPath('ui', _bgSupportsWebP ? 'did.webp' : 'did.png');
+  const dykImg = gameData.step2.didYouKnowImage || assetPath('ui', 'did.webp');
   setScreen(`
     <div class="card dyk-card">
       <span class="dyk-badge">${escapeHTML(UI_COPY.step2DykTitle)}</span>

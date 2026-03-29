@@ -258,7 +258,10 @@
       padding: 18px 16px; text-align: center;
     }
     .modal h3 { margin: 0 0 8px; font-size: clamp(1.05rem,2vw,1.35rem); color: var(--sky); line-height: 1.35; }
-    .modal p  { margin: 6px 0; line-height: 1.7; color: rgba(228,245,232,.9); font-size: .92rem; }
+    .modal p  { margin: 6px 0; line-height: 1.7; color: rgba(228,245,232,.9); font-size: .92rem; text-align: right; }
+    .modal-line { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; border-right: 3px solid rgba(57,224,122,.45); padding-right: 10px; margin: 8px 0; }
+    .modal-line-label { font-size: .72rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #62ff9a; opacity: .8; }
+    .modal-line-text  { font-size: .9rem; line-height: 1.6; color: rgba(228,245,232,.92); }
     .modal .actions { margin-top: 14px; display: flex; justify-content: center; }
     .btn {
       border: 1px solid rgba(0,200,140,.55);
@@ -667,10 +670,14 @@ function openPairPopup(pair) {
   const modal   = document.getElementById('pair-modal');
   const popup   = pair.popup || {};
   const lines   = Array.isArray(popup.lines) ? popup.lines : [];
+  const LABELS  = ['רואים בטבע', 'מה גילו', 'מה פיתחו'];
   modal.style.borderColor = `${pair.accentColor || '#00c88c'}88`;
   modal.innerHTML = `
     <h3 style="color:${pair.accentColor || '#62ff9a'}">${escapeHTML(popup.title || pair.natureLabel + ' ↔ ' + pair.techLabel)}</h3>
-    ${lines.map(l => `<p>${escapeHTML(l)}</p>`).join('')}
+    ${lines.map((l, i) => `<div class="modal-line">
+      <span class="modal-line-label">${escapeHTML(LABELS[i] || '')}</span>
+      <span class="modal-line-text">${escapeHTML(l)}</span>
+    </div>`).join('')}
     <div class="actions"><button class="btn" id="pair-close">${escapeHTML(popup.buttonLabel || 'המשך')}</button></div>
   `;
   overlay.classList.add('open');

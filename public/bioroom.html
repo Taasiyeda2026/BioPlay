@@ -3654,7 +3654,13 @@ let STEP6_CONFIG = null;
 let STEP6_GAMES = {};
 let MCQ_BY_ORGANISM = new Map();
 let MATCHING_BY_ORGANISM = new Map();
-const GAME_DATA_BASE = '/gd';
+const GAME_DATA_BASE = (() => {
+  if (window.location.hostname.endsWith('github.io')) {
+    const m = window.location.pathname.match(/^\/([^/]+)\//);
+    return m ? `/${m[1]}/game-data` : '/game-data';
+  }
+  return '/gd';
+})();
 const gameDataUrl = (name) => `${GAME_DATA_BASE}/${name}`;
 
 

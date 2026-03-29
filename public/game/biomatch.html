@@ -332,8 +332,15 @@
 "use strict";
 
 /* ── CONFIG ── */
-const MATCHING_GAME_JSON_PATH = '/gd/matching_game.json';
-const MATCHING_CONT_JSON_PATH = '/gd/matching_game_continuation.json';
+const _GD_BASE = (() => {
+  if (window.location.hostname.endsWith('github.io')) {
+    const m = window.location.pathname.match(/^\/([^/]+)\//);
+    return m ? `/${m[1]}/game-data` : '/game-data';
+  }
+  return '/gd';
+})();
+const MATCHING_GAME_JSON_PATH = `${_GD_BASE}/matching_game.json`;
+const MATCHING_CONT_JSON_PATH = `${_GD_BASE}/matching_game_continuation.json`;
 const MATCHING_IMAGE_BASE = '../assets/images/matching/';
 const TOTAL_PAIRS = 6;
 

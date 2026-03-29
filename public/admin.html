@@ -3445,7 +3445,6 @@
                 <th>שם השער</th>
                 <th>שאלה</th>
                 <th>תשובה נכונה</th>
-                <th>אפשרויות</th>
                 <th>ספרה לקוד</th>
               </tr>
             </thead>
@@ -3455,7 +3454,6 @@
                 <td>שער הגילוי הנסתר</td>
                 <td>${escapeHTML(step1?.question || "—")}</td>
                 <td>${escapeHTML(step1?.answer || "—")}</td>
-                <td>${escapeHTML((step1?.options || []).join(" | ") || "—")}</td>
                 <td>${escapeHTML(step1Digit || "—")}</td>
               </tr>
               <tr>
@@ -3463,7 +3461,6 @@
                 <td>שער הכוח הסודי</td>
                 <td>${escapeHTML(step2?.question || "—")}</td>
                 <td>${escapeHTML(step2?.answer || "—")}</td>
-                <td>${escapeHTML((step2?.options || []).join(" | ") || "—")}</td>
                 <td>${escapeHTML(step2Digit || "—")}</td>
               </tr>
               <tr>
@@ -3471,7 +3468,6 @@
                 <td>שער ממלכת החיים</td>
                 <td>${escapeHTML(step3?.question || "—")}</td>
                 <td>${escapeHTML(step3?.answer || "—")}</td>
-                <td>${escapeHTML((step3?.options || []).join(" | ") || "—")}</td>
                 <td>${escapeHTML(step3Digit || "—")}</td>
               </tr>
             </tbody>

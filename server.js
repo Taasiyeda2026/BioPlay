@@ -196,6 +196,28 @@ const server = http.createServer(async (req, res) => {
   }
 
   /* ============================================================
+     GAME-DATA EXPLICIT ROUTE — serve game-data/*.json directly
+     ============================================================ */
+  if (method === 'GET' && (urlPath === '/game-data' || urlPath.startsWith('/game-data/')) ) {
+    const safeName = path.basename(urlPath);
+    const filePath = path.join(ROOT, 'game-data', safeName);
+    if (!filePath.startsWith(path.join(ROOT, 'game-data'))) {
+      res.writeHead(403); return res.end('Forbidden');
+    }
+    fs.readFile(filePath, (err, data) => {
+      if (err) { res.writeHead(404, { 'Content-Type': 'text/plain' }); return res.end('Not found'); }
+      res.writeHead(200, {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store',
+        'Access-Control-Allow-Origin': '*',
+        'Content-Length': Buffer.byteLength(data),
+      });
+      res.end(data);
+    });
+    return;
+  }
+
+  /* ============================================================
      STATIC FILE SERVING
      ============================================================ */
   // Serve:

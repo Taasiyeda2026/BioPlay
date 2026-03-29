@@ -3956,130 +3956,102 @@ function applySelectedDoorContent() {
 
 async function hydrateDoorMappingFromJson() {
   try {
-    const [doorsRes, matchingStageRes, mcqStagesRes, matchingTasksRes] = await Promise.all([
-      fetch('data/generated/doors.json', { cache: 'no-store' }),
-      fetch('data/matching-stage.json', { cache: 'no-store' }),
-      fetch('data/generated/mcq-stages.json', { cache: 'no-store' }),
-      fetch('data/generated/matching-tasks.json', { cache: 'no-store' })
+    const [q1Res, q2Res, matchingRes, matchingContRes] = await Promise.all([
+      fetch(gameDataUrl('question1.json'), { cache: 'no-store' }),
+      fetch(gameDataUrl('question2.json'), { cache: 'no-store' }),
+      fetch(gameDataUrl('matching_game.json'), { cache: 'no-store' }),
+      fetch(gameDataUrl('matching_game_continuation.json'), { cache: 'no-store' })
     ]);
 
-    if (!doorsRes.ok) {
-      showError('⚠️ לא ניתן לטעון את doors.json. המשחק ממשיך עם תוכן ברירת מחדל.');
+    if (!q1Res.ok || !q2Res.ok || !matchingRes.ok || !matchingContRes.ok) {
+      showError('⚠️ לא ניתן לטעון את קבצי game-data. המשחק ממשיך עם תוכן ברירת מחדל.');
       return;
     }
 
-    const rows = await doorsRes.json();
-    if (!Array.isArray(rows) || !rows.length) {
-      showError('⚠️ doors.json נטען אך חסר/פגום. המשחק ממשיך עם תוכן ברירת מחדל.');
-      return;
-    }
+    const q1Payload = await q1Res.json();
+    const q2Payload = await q2Res.json();
+    const matchingPayload = await matchingRes.json();
+    const matchingContPayload = await matchingContRes.json();
 
-    if (matchingStageRes.ok) {
-      const matchingStage = await matchingStageRes.json();
-      gameData.step5.instructions = 'מה גילו בטבע ומה פיתחו בעקבותיו?';
-      gameData.step5.preStagePopup = matchingStage?.preStagePopup || null;
-    } else {
-      showError('⚠️ לא ניתן לטעון את matching-stage.json. שלב ההתאמה לא יוצג כראוי.');
-    }
+    const q1ByDoor = new Map((q1Payload.records || []).map((r) => [Number(r.door), r]));
+    const q2ByDoor = new Map((q2Payload.records || []).map((r) => [Number(r.door), r]));
+    const matchingById = new Map((matchingPayload.records || []).map((r) => [String(r.id || '').trim(), r]));
+    const contByDoor = new Map((matchingContPayload.records || []).map((r) => [Number(r.door), r]));
 
-    if (mcqStagesRes.ok) {
-      const mcqStages = await mcqStagesRes.json();
-      MCQ_BY_ORGANISM = new Map(
-        (Array.isArray(mcqStages) ? mcqStages : [])
-          .map((item) => [String(item?.organismId || '').trim(), item])
-          .filter(([organism]) => organism)
-      );
-    } else {
-      MCQ_BY_ORGANISM = new Map();
-      showError('⚠️ לא ניתן לטעון mcq-stages.json. ספרות שלבים 1–3 יחושבו לפי מיקום תשובה.');
-    }
+    const mapped = DOOR_MAPPING.map((door) => {
+      const num = Number(door.num);
+      const q1 = q1ByDoor.get(num) || null;
+      const q2 = q2ByDoor.get(num) || null;
+      const q3 = getStage3DoorEntry(num) || null;
+      const cont = contByDoor.get(num) || null;
+      if (!q1 || !q2 || !cont) return door;
 
-    if (matchingTasksRes.ok) {
-      const matchingTasks = await matchingTasksRes.json();
-      MATCHING_BY_ORGANISM = new Map(
-        (Array.isArray(matchingTasks) ? matchingTasks : [])
-          .map((item) => [String(item?.organismId || '').trim(), item])
-          .filter(([organism]) => organism)
-      );
-    } else {
-      MATCHING_BY_ORGANISM = new Map();
-      showError('⚠️ לא ניתן לטעון matching-tasks.json. ספרות שלב 5 יגיעו מברירת המחדל.');
-    }
+      const layoutIds = String(cont.layout || '').split(',').map((x) => String(x || '').trim()).filter(Boolean).slice(0, 6);
+      const pairs = layoutIds.map((id, idx) => {
+        const pair = matchingById.get(id);
+        if (!pair) return null;
+        return {
+          id: idx + 1,
+          nature: { image: `assets/images/${pair.nature_image}`, label: String(pair.nature || '') },
+          tech: { image: `assets/images/${pair.tech_image}`, label: String(pair.tech || '') },
+          info: String(pair.what_they_discovered || '')
+        };
+      }).filter(Boolean);
 
-    const mapped = rows.map((row, idx) => {
-      const num = Number(row.id || idx + 1);
-      const steps = Array.isArray(row.steps) ? row.steps : [];
-      const stepByTitle = (t) => steps.find(x => x?.title === t) || null;
-      const organism = String(row.creature || `אורגניזם ${num}`).trim();
-      const mcqRow = MCQ_BY_ORGANISM.get(organism) || null;
-      const matchingRow = MATCHING_BY_ORGANISM.get(organism) || null;
-      const legacyStep1 = stepByTitle('שער הגילוי הנסתר');
-      const legacyStep2 = stepByTitle('שער הכוח הסודי');
-      const legacyStep3 = stepByTitle('שער ממלכת החיים');
-      const step1 = mcqRow?.step1 ? {
-        ...legacyStep1,
-        question: mcqRow.step1.question,
-        options: mcqRow.step1.options,
-        answer: mcqRow.step1.correctAnswer,
-        hint: mcqRow.step1.hint,
-        didYouKnow: mcqRow.step1.didYouKnow,
-        secretDigit: String(mcqRow.step1.secretDigit || '').trim()
-      } : legacyStep1;
-      const step2 = mcqRow?.step2 ? {
-        ...legacyStep2,
-        question: mcqRow.step2.question,
-        options: mcqRow.step2.options,
-        answer: mcqRow.step2.correctAnswer,
-        hint: mcqRow.step2.hint,
-        didYouKnow: mcqRow.step2.didYouKnow,
-        secretDigit: String(mcqRow.step2.secretDigit || '').trim()
-      } : legacyStep2;
-      const step3 = mcqRow?.step3 ? {
-        ...legacyStep3,
-        question: mcqRow.step3.question,
-        options: mcqRow.step3.options,
-        answer: mcqRow.step3.correctAnswer,
-        hint: mcqRow.step3.hint,
-        didYouKnow: mcqRow.step3.didYouKnow,
-        secretDigit: String(mcqRow.step3.secretDigit || '').trim()
-      } : legacyStep3;
-      const step4 = stepByTitle('שער ההשראה החכמה');
-      const stage3DoorData = getStage3DoorEntry(num);
-      const correctHabitatKey = String(stage3DoorData?.correctHabitat || '').trim();
-      const doorCodeDigit = calcStepCode(step3) || STEP_3_CODE;
+      const step1Data = {
+        question: String(q1.question || ''),
+        options: [q1.answer_a, q1.answer_b, q1.answer_c, q1.answer_d].map((x) => String(x || '')),
+        answer: String(q1.correct_answer || ''),
+        hint: String(q1.hint || ''),
+        secretDigit: String(q1.door_code ?? '')
+      };
+      const step2Data = {
+        question: String(q2.question || ''),
+        options: [q2.answer_a, q2.answer_b, q2.answer_c, q2.answer_d].map((x) => String(x || '')),
+        answer: String(q2.correct_answer || ''),
+        hint: String(q2.hint || ''),
+        didYouKnow: String(q2.did_you_know || ''),
+        secretDigit: String(q2.door_code ?? '')
+      };
+      const step3Data = q3 ? {
+        question: 'באיזה עולם חי בעל החיים?',
+        options: Array.isArray(q3.options) && q3.options.length ? q3.options : [q3.correctHabitat, ...(STAGE3_FIXED_OPTIONS.filter((o) => o !== q3.correctHabitat))].slice(0, 4),
+        answer: String(q3.correctHabitat || ''),
+        hint: '',
+        didYouKnow: String(q3.didYouKnowText || ''),
+        secretDigit: String(q3.doorCode || '')
+      } : null;
 
       return {
-        num,
-        organism,
-        doorImg: assetFile('door', 'door', num),
-        prdImg: assetFile('product', 'prd', num),
-        doorCodeDigit: String(doorCodeDigit),
-        correctHabitatName: correctHabitatKey,
-        fact: step4?.didYouKnow || '',
-        organismDidYouKnow: step2?.didYouKnow || '',
-        productDidYouKnow: step4?.didYouKnow || '',
-        matchingTask: row.matchingTask || null,
-        matchingSecretDigits: normalizeTwoSecretDigits(matchingRow?.secretDigits),
-        imageTask: row.imageTask || null,
-        stepData: { step1, step2, step3, step4 }
+        ...door,
+        organism: String(q1.organism || door.organism || '').trim(),
+        fact: String(cont.did_you_know_products || door.fact || '').trim(),
+        organismDidYouKnow: String(q2.did_you_know || '').trim(),
+        matchingTask: { pairs },
+        matchingSecretDigits: normalizeTwoSecretDigits([cont.door_code_digit_1, cont.door_code_digit_2]),
+        imageTask: { answer: 4 },
+        stepData: {
+          step1: step1Data,
+          step2: step2Data,
+          step3: step3Data,
+          step4: { didYouKnow: String(cont.did_you_know_products || '') }
+        }
       };
     });
 
-    if (mapped.length) {
-      DOOR_MAPPING.splice(0, DOOR_MAPPING.length, ...mapped);
-      enrichDoorMappingData();
-      rebuildDykByOrganism();
-      if (gameState.selectedDoor?.num) {
-        const updated = DOOR_MAPPING.find(d => d.num === gameState.selectedDoor.num);
-        if (updated) {
-          gameState.selectedDoor = updated;
-          applySelectedDoorContent();
-          saveGameState();
-        }
+    DOOR_MAPPING.splice(0, DOOR_MAPPING.length, ...mapped);
+    enrichDoorMappingData();
+    rebuildDykByOrganism();
+    if (gameState.selectedDoor?.num) {
+      const updated = DOOR_MAPPING.find((d) => d.num === gameState.selectedDoor.num);
+      if (updated) {
+        gameState.selectedDoor = updated;
+        applySelectedDoorContent();
+        saveGameState();
       }
-      if (gameState.currentScreen === 'door_selection') renderDoorSelection();
     }
-  } catch (err) {
+    if (gameState.currentScreen === 'door_selection') renderDoorSelection();
+  } catch (_) {
     showError('⚠️ אירעה שגיאה בטעינת נתוני המשחק. ממשיכים עם תוכן ברירת מחדל.');
   }
 }

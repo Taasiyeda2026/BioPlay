@@ -6081,7 +6081,7 @@ function renderMCQ({ eyebrow, title, question, options, optionImages, image, hin
     optionsWrapper = `<div class="options-grid">${optionsHTML}</div>`;
   }
 
-  const hintHTML = hint ? `
+  const hintHTML = (hint && gameState._attempts.step3 > 0) ? `
     <div style="margin-top:14px">
       <button class="btn btn-secondary btn-sm" onclick="toggleHint()">
         ${gameState.ui.hintOpen ? "🙈 הסתר רמז" : "💡 קבלו רמז"}
@@ -6233,7 +6233,7 @@ function renderStep1() {
     </button>`;
   }).join('');
 
-  const hintHTML = d.hint ? `
+  const hintHTML = (d.hint && gameState._attempts.step1 > 0) ? `
     <div style="margin-top:16px">
       <button class="btn btn-secondary btn-sm" onclick="toggleHint()">
         ${gameState.ui.hintOpen ? '🙈 הסתר רמז' : '💡 קבלו רמז'}
@@ -6270,7 +6270,7 @@ function renderStep2() {
     </button>`;
   }).join('');
 
-  const hintHTML = d.hint ? `
+  const hintHTML = (d.hint && gameState._attempts.step2 > 0) ? `
     <div style="margin-top:16px">
       <button class="btn btn-secondary btn-sm" onclick="toggleHint()">
         ${gameState.ui.hintOpen ? '🙈 הסתר רמז' : '💡 קבלו רמז'}

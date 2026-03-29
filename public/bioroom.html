@@ -7361,12 +7361,6 @@ document.addEventListener("DOMContentLoaded", async function() {
     });
   })();
 
-  try {
-    await loadScreensCopy();
-    applyScreensCopyToRuntime();
-  } catch (_) {
-    // keep opening flow stable even if screens copy fails
-  }
   await loadStage3Habitats();
   await loadStep6HiddenGames();
   enrichDoorMappingData();
@@ -7393,6 +7387,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   updateHeader();
   renderCurrentScreen();
   hydrateDoorMappingFromJson();
+  loadScreensCopy().then(() => { try { applyScreensCopyToRuntime(); } catch (_) {} }).catch(() => {});
 });
 
 /* ============================================================

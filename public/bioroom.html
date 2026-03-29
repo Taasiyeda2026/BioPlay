@@ -3909,6 +3909,7 @@ function applySelectedDoorContent() {
     gameData.step1.options = Array.isArray(s1.options) ? s1.options : gameData.step1.options;
     gameData.step1.correctAnswer = s1.answer || gameData.step1.correctAnswer;
     gameData.step1.hint = s1.hint || '';
+    gameData.step1.image = s1.questionImage ? assetPath('ui', s1.questionImage) : assetQ();
   }
 
   if (s2) {
@@ -3918,6 +3919,8 @@ function applySelectedDoorContent() {
     gameData.step2.correctAnswer = s2.answer || gameData.step2.correctAnswer;
     gameData.step2.hint = s2.hint || '';
     gameData.step2.didYouKnow = door.organismDidYouKnow || s2.didYouKnow || '';
+    gameData.step2.image = s2.questionImage ? assetPath('organism', s2.questionImage) : getOrganismImagePath(door.organism);
+    gameData.step2.didYouKnowImage = s2.didYouKnowImage ? assetPath('ui', s2.didYouKnowImage) : assetPath('ui', 'did.png');
   }
 
   const stage3DoorData = getStage3DoorEntry(door.num);
@@ -3932,12 +3935,8 @@ function applySelectedDoorContent() {
   gameData.step3.hint = (s3 && s3.hint) || '';
   gameData.step3.didYouKnowImage = String(stage3DoorData.didYouKnowImage || '').trim();
   gameData.step3.didYouKnowText = String(stage3DoorData.didYouKnowText || '').trim();
-  gameData.step3.image = assetPath('ui', 'habitat.webp');
+  gameData.step3.image = assetPath('ui', 'habitat.png');
   HABITAT_CARDS = createHabitatCards();
-
-  if (door.organism) {
-    gameData.step2.image = getOrganismImagePath(door.organism);
-  }
 
   if (door.imageTask) {
     const dynamicCount = Number(door.imageTask.answer);
@@ -4007,7 +4006,8 @@ async function hydrateDoorMappingFromJson() {
         options: [q1.answer_a, q1.answer_b, q1.answer_c, q1.answer_d].map((x) => String(x || '')),
         answer: String(q1.correct_answer || ''),
         hint: String(q1.hint || ''),
-        secretDigit: String(q1.door_code ?? '')
+        secretDigit: String(q1.door_code ?? ''),
+        questionImage: String(q1.question_image || '')
       };
       const step2Data = {
         question: String(q2.question || ''),
@@ -4015,7 +4015,9 @@ async function hydrateDoorMappingFromJson() {
         answer: String(q2.correct_answer || ''),
         hint: String(q2.hint || ''),
         didYouKnow: String(q2.did_you_know || ''),
-        secretDigit: String(q2.door_code ?? '')
+        secretDigit: String(q2.door_code ?? ''),
+        questionImage: String(q2.question_image || ''),
+        didYouKnowImage: String(q2.did_you_know_image || '')
       };
       const step3Data = q3 ? {
         question: 'באיזה עולם חי בעל החיים?',
@@ -4229,7 +4231,8 @@ const gameData = {
     title: "שער הכוח הסודי",
     subtitle: "",
     image: assetPath('organism', 'gecko.webp'),
-    didYouKnow: "לשממית יש מיליוני שערות זעירות בכפות הרגליים, שעוזרות לה להיצמד גם למשטחים חלקים."
+    didYouKnow: "לשממית יש מיליוני שערות זעירות בכפות הרגליים, שעוזרות לה להיצמד גם למשטחים חלקים.",
+    didYouKnowImage: assetPath('ui', 'did.png')
   },
   step3: {
     question: "באיזה עולם חי בעל החיים?",
@@ -6161,7 +6164,7 @@ function renderStep1() {
       <p class="screen-body" style="margin-bottom:6px"><span class="question-highlight">${escapeHTML(d.question)}</span></p>
       <div class="s1-split">
         <div class="s1-img-wrap">
-          <img src="${escapeHTML(assetPath('ui', 'q.webp'))}" alt="יצור סודי" onerror="this.style.display='none'" />
+          <img src="${escapeHTML(d.image || assetQ())}" alt="יצור סודי" onerror="this.style.display='none'" />
         </div>
         <div class="s1-options">${optionsHTML}</div>
       </div>
@@ -6816,8 +6819,7 @@ window.submitDoor2 = function() {
 /* ---- DYK Screens ---- */
 function renderDoor1DykScreen() {
   const dykText = (gameState.selectedDoor ? gameState.selectedDoor.organismDidYouKnow : null) || gameData.step2.didYouKnow || '';
-  const doorNum = Number(gameState.selectedDoor?.num || 0);
-  const dykImg = doorNum > 0 ? assetProduct(doorNum) : (gameState.selectedDoor?.prdImg || '');
+  const dykImg = gameData.step2.didYouKnowImage || assetPath('ui', 'did.png');
   setScreen(`
     <div class="card dyk-card">
       <span class="dyk-badge">✨ הידעת?</span>

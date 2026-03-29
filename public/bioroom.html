@@ -3922,13 +3922,17 @@ function applySelectedDoorContent() {
 
   const stage3DoorData = getStage3DoorEntry(door.num);
   if (!stage3DoorData) throw new Error(`Missing Stage 3 JSON mapping for door ${door.num}`);
-  gameData.step3.question = 'באיזה עולם חי בעל החיים?';
-  gameData.step3.options = [...STAGE3_FIXED_OPTIONS];
-  gameData.step3.correctAnswer = String(stage3DoorData.correctHabitat || '').trim();
+  gameData.step3.question = (s3 && s3.question) || 'באיזה עולם חי בעל החיים?';
+  gameData.step3.options = (s3 && Array.isArray(s3.options) && s3.options.length)
+    ? s3.options
+    : (Array.isArray(stage3DoorData.options) && stage3DoorData.options.length
+        ? stage3DoorData.options
+        : [...STAGE3_FIXED_OPTIONS]);
+  gameData.step3.correctAnswer = String((s3 && s3.answer) || stage3DoorData.correctHabitat || '').trim();
+  gameData.step3.hint = (s3 && s3.hint) || '';
   gameData.step3.didYouKnowImage = String(stage3DoorData.didYouKnowImage || '').trim();
   gameData.step3.didYouKnowText = String(stage3DoorData.didYouKnowText || '').trim();
   gameData.step3.image = assetPath('ui', 'habitat.webp');
-  gameData.step3.hint = '';
   HABITAT_CARDS = createHabitatCards();
 
   if (door.organism) {
@@ -6204,6 +6208,7 @@ function renderStep2() {
 
 /* ---- Step 3 ---- */
 function renderStep3() {
+  window._answerStep3 = function(answer) { window.answerStep3(answer); };
   const d = gameData.step3;
 
   if (gameState.progress.step3Solved) {
@@ -6216,25 +6221,36 @@ function renderStep3() {
     return;
   }
 
-  const optionsHTML = STAGE3_FIXED_OPTIONS.map((option, i) => `
-    <button class="s1-option-btn" onclick="window.answerStep3('${escapeHtmlAttr(option)}')">
+  const options = Array.isArray(d.options) && d.options.length ? d.options : STAGE3_FIXED_OPTIONS;
+  const optionsHTML = options.map((option, i) => {
+    const safe = String(option).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    return `<button class="s1-option-btn" onclick="window._answerStep3('${safe}')">
       <span class="s1-opt-num">${i + 1}</span> ${escapeHTML(option)}
-    </button>
-  `).join('');
+    </button>`;
+  }).join('');
+
+  const hintHTML = d.hint ? `
+    <div style="margin-top:16px">
+      <button class="btn btn-secondary btn-sm" onclick="toggleHint()">
+        ${gameState.ui.hintOpen ? '🙈 הסתר רמז' : '💡 קבלו רמז'}
+      </button>
+      <div id="hint-box" class="hint-box" style="display:${gameState.ui.hintOpen ? 'block' : 'none'};margin-top:8px">
+        ${escapeHTML(d.hint)}
+      </div>
+    </div>` : '';
 
   setScreen(`
     <div class="card">
       <div class="screen-eyebrow">${escapeHTML(d.eyebrow)}</div>
-      <h2 class="screen-title">🌍 ${escapeHTML(d.title)}</h2>
+      <h2 class="screen-title">🔒 ${escapeHTML(d.title)}</h2>
       <p class="screen-body" style="margin-bottom:6px"><span class="question-highlight">${escapeHTML(d.question)}</span></p>
       <div class="s1-split">
         <div class="s1-img-wrap">
           <img src="${escapeHTML(d.image)}" alt="בית גידול" onerror="this.style.display='none'" style="object-fit:cover" />
         </div>
-        <div class="s1-options">
-          ${optionsHTML}
-        </div>
+        <div class="s1-options">${optionsHTML}</div>
       </div>
+      ${hintHTML}
     </div>`);
 }
 

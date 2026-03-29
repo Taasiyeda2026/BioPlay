@@ -4061,7 +4061,7 @@ async function loadScreensCopy() {
     const records = Array.isArray(payload?.records) ? payload.records : [];
     SCREENS_COPY_BY_ID = new Map(
       records
-        .filter((row) => row?.screen_id)
+        .filter((row) => row?.screen_id && typeof row?.screen_text === 'string' && row.screen_text.trim())
         .map((row) => [String(row.screen_id), parseScreenText(row.screen_text)])
     );
   } catch (_) {
@@ -4071,6 +4071,15 @@ async function loadScreensCopy() {
 
 function screenCopy(screenId) {
   return SCREENS_COPY_BY_ID.get(String(screenId || '')) || {};
+}
+
+
+function getConcreteCopy(copyObj, key) {
+  const raw = String(copyObj?.[key] ?? '').trim();
+  if (!raw) return null;
+  if (raw === 'null' || raw === 'undefined') return null;
+  if (/\{[^}]+\}/.test(raw)) return null;
+  return raw;
 }
 
 const UI_COPY = {
@@ -4130,22 +4139,22 @@ function applyScreensCopyToRuntime() {
   const endingVideo = screenCopy('ending_video');
   const finalSummary = screenCopy('final_summary');
 
-  if (s1['כותרת']) gameData.step1.title = s1['כותרת'];
-  if (s1['טקסט רמז בלחיצה']) gameData.step1.hint = s1['טקסט רמז בלחיצה'];
-  if (s2['כותרת']) gameData.step2.title = s2['כותרת'];
-  if (s2['טקסט רמז בלחיצה']) gameData.step2.hint = s2['טקסט רמז בלחיצה'];
-  if (s3['כותרת']) gameData.step3.title = s3['כותרת'];
-  if (s3['שאלה']) gameData.step3.question = s3['שאלה'];
+  { const v=getConcreteCopy(s1,'כותרת'); if (v) gameData.step1.title=v; }
+  { const v=getConcreteCopy(s1,'טקסט רמז בלחיצה'); if (v) gameData.step1.hint=v; }
+  { const v=getConcreteCopy(s2,'כותרת'); if (v) gameData.step2.title=v; }
+  { const v=getConcreteCopy(s2,'טקסט רמז בלחיצה'); if (v) gameData.step2.hint=v; }
+  { const v=getConcreteCopy(s3,'כותרת'); if (v) gameData.step3.title=v; }
+  { const v=getConcreteCopy(s3,'שאלה'); if (v) gameData.step3.question=v; }
 
-  if (d1['כותרת']) UI_COPY.door1Title = d1['כותרת'];
-  if (d1['טקסט']) UI_COPY.door1Subtitle = d1['טקסט'];
-  if (d1['הודעת שגיאה']) UI_COPY.door1Error = d1['הודעת שגיאה'];
-  if (d2['כותרת']) UI_COPY.door2Title = d2['כותרת'];
-  if (d2['טקסט']) UI_COPY.door2Subtitle = d2['טקסט'];
-  if (d2['הודעת שגיאה']) UI_COPY.door2Error = d2['הודעת שגיאה'];
+  { const v=getConcreteCopy(d1,'כותרת'); if (v) UI_COPY.door1Title=v; }
+  { const v=getConcreteCopy(d1,'טקסט'); if (v) UI_COPY.door1Subtitle=v; }
+  { const v=getConcreteCopy(d1,'הודעת שגיאה'); if (v) UI_COPY.door1Error=v; }
+  { const v=getConcreteCopy(d2,'כותרת'); if (v) UI_COPY.door2Title=v; }
+  { const v=getConcreteCopy(d2,'טקסט'); if (v) UI_COPY.door2Subtitle=v; }
+  { const v=getConcreteCopy(d2,'הודעת שגיאה'); if (v) UI_COPY.door2Error=v; }
 
-  if (s6['כותרת']) gameData.step8.title = s6['כותרת'];
-  if (s6['טקסט']) gameData.step8.instructions = s6['טקסט'];
+  { const v=getConcreteCopy(s6,'כותרת'); if (v) gameData.step8.title=v; }
+  { const v=getConcreteCopy(s6,'טקסט'); if (v) gameData.step8.instructions=v; }
 
 
   if (step4Intro['כותרת']) { UI_COPY.step4IntroEyebrow = step4Intro['כותרת']; UI_COPY.step4VictoryEyebrow = step4Intro['כותרת']; }
@@ -4161,7 +4170,7 @@ function applyScreensCopyToRuntime() {
 
   if (step5Selection['כותרת']) UI_COPY.step5SelectionTitle = step5Selection['כותרת'];
   if (step5Selection['טקסט']) UI_COPY.step5SelectionSubtitle = step5Selection['טקסט'];
-  if (step5Search['כותרת']) UI_COPY.step5FlowEyebrow = step5Search['כותרת'];
+  { const v=getConcreteCopy(step5Search,'כותרת'); if (v) UI_COPY.step5FlowEyebrow=v; }
   if (step5Search['טקסט']) UI_COPY.step5FlowIntroText1 = step5Search['טקסט'];
   if (step5Completion['כותרת']) UI_COPY.step5CompletionTitle = step5Completion['כותרת'];
   if (step5Completion['טקסט']) UI_COPY.step5CompletionText = step5Completion['טקסט'];
@@ -4170,7 +4179,7 @@ function applyScreensCopyToRuntime() {
   if (step5Completion['כפתור']) UI_COPY.step5SuccessBtnLabel = step5Completion['כפתור'];
   if (step4Task['טקסט']) { UI_COPY.step5ZoomInLabel = step4Task['טקסט']; UI_COPY.step5ZoomOutLabel = step4Task['טקסט']; }
 
-  if (endingVideo['כותרת']) UI_COPY.finalEyebrow = endingVideo['כותרת'];
+  { const v=getConcreteCopy(endingVideo,'כותרת'); if (v) UI_COPY.finalEyebrow=v; }
 
   if (finalSummary['כותרת']) UI_COPY.finalTitle = finalSummary['כותרת'];
   if (finalSummary['טקסט']) UI_COPY.finalText = finalSummary['טקסט'];

@@ -3292,7 +3292,15 @@
       const res = await fetch("game-data/question1.json", { cache: "no-store" });
       const rows = await res.json();
       const recs = Array.isArray(rows?.records) ? rows.records : [];
-      doorsData = recs.map((r) => enrichDoorWithHabitat({ id: Number(r.door), creature: r.organism, door_code: r.door_code, steps: [], matchingTask: null, imageTask: { answer: 4 } }));
+      doorsData = recs.map((r) => enrichDoorWithHabitat({
+        id: Number(r.door),
+        creature: r.organism,
+        door_code: r.door_code,
+        question: String(r.question || ""),
+        answer_a: r.answer_a, answer_b: r.answer_b, answer_c: r.answer_c, answer_d: r.answer_d,
+        correct_answer: r.correct_answer,
+        steps: [], matchingTask: null, imageTask: { answer: 4 }
+      }));
     } catch { doorsData = []; }
     const count = Array.isArray(doorsData) ? doorsData.length : 0;
     if (dbTitle) dbTitle.textContent = `מאגר אורגניזמים (${count})`;
@@ -3392,18 +3400,21 @@
 
     const q1 = doorsData.find((d) => Number(d.id) === Number(door?.id)) || null;
     const step1 = {
-      answer: String(q1?.creature || "").trim(),
-      options: [q1?.creature, q1?.answer_a, q1?.answer_b, q1?.answer_c, q1?.answer_d].filter(Boolean).map((x) => String(x).trim()),
-      secretDigit: ""
+      question: String(q1?.question || "").trim(),
+      answer: String(q1?.correct_answer || q1?.creature || "").trim(),
+      options: [q1?.answer_a, q1?.answer_b, q1?.answer_c, q1?.answer_d].filter(Boolean).map((x) => String(x).trim()),
+      secretDigit: String(q1?.door_code ?? "").trim()
     };
     const mcqRow = mcqByOrganism.get(String(door?.creature || "").trim()) || null;
     const step2 = {
+      question: String(mcqRow?.question || "").trim(),
       answer: String(mcqRow?.correct_answer || "").trim(),
       options: [mcqRow?.answer_a, mcqRow?.answer_b, mcqRow?.answer_c, mcqRow?.answer_d].filter(Boolean).map((x) => String(x).trim()),
       secretDigit: String(mcqRow?.door_code ?? "").trim()
     };
     const habitat = habitatByNum.get(Number(door?.id)) || null;
     const step3 = {
+      question: "באיזה עולם חי בעל החיים?",
       answer: String(habitat?.habitat || "").trim(),
       options: [habitat?.answer_a, habitat?.answer_b, habitat?.answer_c, habitat?.answer_d].filter(Boolean).map((x) => String(x).trim()),
       secretDigit: String(habitat?.door_code ?? "").trim()
@@ -3432,6 +3443,7 @@
               <tr>
                 <th>שלב</th>
                 <th>שם השער</th>
+                <th>שאלה</th>
                 <th>תשובה נכונה</th>
                 <th>אפשרויות</th>
                 <th>ספרה לקוד</th>
@@ -3441,6 +3453,7 @@
               <tr>
                 <td><span class="guide-stage-name">שלב 1:</span></td>
                 <td>שער הגילוי הנסתר</td>
+                <td>${escapeHTML(step1?.question || "—")}</td>
                 <td>${escapeHTML(step1?.answer || "—")}</td>
                 <td>${escapeHTML((step1?.options || []).join(" | ") || "—")}</td>
                 <td>${escapeHTML(step1Digit || "—")}</td>
@@ -3448,6 +3461,7 @@
               <tr>
                 <td><span class="guide-stage-name">שלב 2:</span></td>
                 <td>שער הכוח הסודי</td>
+                <td>${escapeHTML(step2?.question || "—")}</td>
                 <td>${escapeHTML(step2?.answer || "—")}</td>
                 <td>${escapeHTML((step2?.options || []).join(" | ") || "—")}</td>
                 <td>${escapeHTML(step2Digit || "—")}</td>
@@ -3455,6 +3469,7 @@
               <tr>
                 <td><span class="guide-stage-name">שלב 3:</span></td>
                 <td>שער ממלכת החיים</td>
+                <td>${escapeHTML(step3?.question || "—")}</td>
                 <td>${escapeHTML(step3?.answer || "—")}</td>
                 <td>${escapeHTML((step3?.options || []).join(" | ") || "—")}</td>
                 <td>${escapeHTML(step3Digit || "—")}</td>

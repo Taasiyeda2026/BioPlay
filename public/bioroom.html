@@ -136,8 +136,9 @@
 
     #app {
       width: min(720px, calc(100vw - 24px));
-      max-height: calc(100vh - 24px);
+      max-height: none;
       margin-inline: auto;
+      transform-origin: top center;
       font-size: 75%;
       background: transparent;
       background-image: none;
@@ -4953,6 +4954,35 @@ function shuffle(arr) {
 function setScreen(html) {
   const el = document.getElementById("game-screen");
   if (el) el.innerHTML = html;
+  requestAnimationFrame(applyAutoScale);
+}
+
+function applyAutoScale() {
+  const app = document.getElementById('app');
+  const gs  = document.getElementById('game-screen');
+  if (!app || !gs) return;
+
+  if (app.classList.contains('screen-step6-wide')) {
+    app.style.zoom = '';
+    gs.style.overflow = '';
+    gs.style.overflowX = '';
+    gs.style.maxHeight = '';
+    return;
+  }
+
+  app.style.zoom = '';
+  app.style.maxHeight = 'none';
+  gs.style.maxHeight  = 'none';
+  gs.style.overflow   = 'visible';
+  gs.style.overflowX  = 'hidden';
+
+  requestAnimationFrame(() => {
+    const availH = window.innerHeight - 24;
+    const appH   = app.offsetHeight;
+    if (appH <= availH) return;
+    const scale = Math.max(0.45, availH / appH);
+    app.style.zoom = scale;
+  });
 }
 
 function applyScreenScaleClass(screenName) {
@@ -7562,6 +7592,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   renderCurrentScreen();
   hydrateDoorMappingFromJson();
   loadScreensCopy().then(() => { try { applyScreensCopyToRuntime(); } catch (_) {} }).catch(() => {});
+  window.addEventListener('resize', () => requestAnimationFrame(applyAutoScale));
 });
 
 /* ============================================================

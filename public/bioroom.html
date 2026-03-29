@@ -4067,12 +4067,20 @@ let SCREENS_COPY_BY_ID = new Map();
 
 function parseScreenText(screenText) {
   const map = {};
+  const counts = {};
   String(screenText || '').split('\n').forEach((line) => {
     const idx = line.indexOf(':');
     if (idx <= 0) return;
     const key = line.slice(0, idx).trim();
     const value = line.slice(idx + 1).trim();
-    if (key) map[key] = value;
+    if (!key) return;
+    if (!(key in map)) {
+      map[key] = value;
+      counts[key] = 1;
+    } else {
+      counts[key]++;
+      map[`${key}_${counts[key]}`] = value;
+    }
   });
   return map;
 }
@@ -4139,58 +4147,122 @@ const UI_COPY = {
   step4ScoreLineTemplate: 'קיבלתם: {totalScore} נקודות',
   step4ContinueBtnLabel: 'המשיכו לשלב הבא ←',
   step4IntroBtnLabel: 'הבנתי, אפשר להתחיל',
+  step4Card1Title: 'איך משחקים?',
+  step4Card1Text: 'מתחו קו בין כל אורגניזם לבין המוצר שקיבל ממנו השראה.',
+  step4Card2Title: 'מה מקבלים בסוף?',
+  step4Card2Text: 'כשתשלימו את שלב ההתאמה, תקבלו שתי ספרות נוספות לקוד.',
   step5FlowIntroBtnLabel: 'הבנתי, ממשיכים',
   step5SuccessBtnLabel: 'המשיכו',
   step5ZoomInLabel: 'הגדל תמונה',
-  step5ZoomOutLabel: 'סגור הגדלה'
+  step5ZoomOutLabel: 'סגור הגדלה',
+  step1WinTitle: 'כל הכבוד!',
+  step1WinText: 'זיהיתם נכון את האורגניזם וחשפתם את הסוד הראשון בדרך אל השער הקסום.',
+  step1ScoreLine: 'הספרה שקיבלתם למפתח הקסום היא: {secretDigit}',
+  step1TransitionBtn: 'לשלב 2',
+  step2WinTitle: 'מצוין!',
+  step2WinText: 'גיליתם עוד חלק מן הקסם.',
+  step2ScoreLine: 'הספרה שקיבלתם למפתח הקסום היא: {secretDigit}',
+  step2TransitionBtn: 'לשלב 3',
+  step2DykTitle: 'הידעת?',
+  step2DykBtn: 'המשך',
+  step3DykTitle: 'הידעת?',
+  step3DykBtn: 'המשך',
+  door1SuccessTitle: 'הדלת נפתחה!',
+  door1SuccessSubtitle: 'המעבר נפתח. שער ההשראה החכמה מחכה לכם.',
+  door2SuccessTitle: 'הצלחתם! השער השני נכנע לכם',
+  door2SuccessSubtitle: 'המעבר נפתח, והשלב האחרון מחכה לכם ממש מעבר לדלת.',
+  step6IntroTitle: 'כתב הסתרים',
+  step6IntroText: 'הגעתם לשלב האחרון במסע. פענחו את הצופן וגלו את שלוש המילים שיפתחו את הדרך.',
+  step6IntroBtnLabel: 'התחל',
+  step6WinTitle: 'כתב הסתרים נפתר!',
+  step6WinText: 'הצלחתם לפענח את כתב הסתרים ולגלות את מילות המפתח.',
+  step6WinBtn: 'פתח שער'
 };
 
 function applyScreensCopyToRuntime() {
-  const s1 = screenCopy('step1_question');
-  const s2 = screenCopy('step2_question');
-  const s3 = screenCopy('step3_question');
-  const d1 = screenCopy('door1_code');
-  const d2 = screenCopy('door2_code');
-  const s6 = screenCopy('step6_question');
-  const step4Intro = screenCopy('step4_intro');
+  const s1q = screenCopy('step1_question');
+  const s2q = screenCopy('step2_question');
+  const s3q = screenCopy('step3_question');
+  const s1w = screenCopy('step1_win');
+  const s2w = screenCopy('step2_win');
+  const s1t = screenCopy('step1_transition');
+  const s2t = screenCopy('step2_transition');
+  const s2d = screenCopy('step2_didyouknow');
+  const s3d = screenCopy('step3_didyouknow');
+  const d1c = screenCopy('door1_code');
+  const d2c = screenCopy('door2_code');
+  const d1s = screenCopy('door1_success');
+  const d2s = screenCopy('door2_success');
+  const s6q = screenCopy('step6_question');
+  const s6i = screenCopy('step6_intro');
+  const s6w = screenCopy('step6_win');
+  const step4Intro      = screenCopy('step4_intro');
   const step4Completion = screenCopy('step4_completion');
-  const step4Prestage = screenCopy('step4_prestage_popup');
-  const step5Intro = screenCopy('step5_intro');
-  const step5Selection = screenCopy('step5_selection');
-  const step5Search = screenCopy('step5_search_game');
+  const step4Prestage   = screenCopy('step4_prestage_popup');
+  const step5Intro      = screenCopy('step5_intro');
+  const step5Selection  = screenCopy('step5_selection');
+  const step5Search     = screenCopy('step5_search_game');
   const step5Completion = screenCopy('step5_completion');
-  const step4Task = screenCopy('step4_task');
-  const endingVideo = screenCopy('ending_video');
-  const finalSummary = screenCopy('final_summary');
+  const step4Task       = screenCopy('step4_task');
+  const endingVideo     = screenCopy('ending_video');
+  const finalSummary    = screenCopy('final_summary');
 
-  { const v=getConcreteCopy(s1,'כותרת'); if (v) gameData.step1.title=v; }
-  { const v=getConcreteCopy(s1,'טקסט רמז בלחיצה'); if (v) gameData.step1.hint=v; }
-  { const v=getConcreteCopy(s2,'כותרת'); if (v) gameData.step2.title=v; }
-  { const v=getConcreteCopy(s2,'טקסט רמז בלחיצה'); if (v) gameData.step2.hint=v; }
-  { const v=getConcreteCopy(s3,'כותרת'); if (v) gameData.step3.title=v; }
-  { const v=getConcreteCopy(s3,'שאלה'); if (v) gameData.step3.question=v; }
+  { const v=getConcreteCopy(s1q,'כותרת'); if (v) gameData.step1.title=v; }
+  { const v=getConcreteCopy(s1q,'טקסט רמז בלחיצה'); if (v) gameData.step1.hint=v; }
+  { const v=getConcreteCopy(s2q,'כותרת'); if (v) gameData.step2.title=v; }
+  { const v=getConcreteCopy(s2q,'טקסט רמז בלחיצה'); if (v) gameData.step2.hint=v; }
+  { const v=getConcreteCopy(s3q,'כותרת'); if (v) gameData.step3.title=v; }
+  { const v=getConcreteCopy(s3q,'שאלה'); if (v) gameData.step3.question=v; }
 
-  { const v=getConcreteCopy(d1,'כותרת'); if (v) UI_COPY.door1Title=v; }
-  { const v=getConcreteCopy(d1,'טקסט'); if (v) UI_COPY.door1Subtitle=v; }
-  { const v=getConcreteCopy(d1,'הודעת שגיאה'); if (v) UI_COPY.door1Error=v; }
-  { const v=getConcreteCopy(d2,'כותרת'); if (v) UI_COPY.door2Title=v; }
-  { const v=getConcreteCopy(d2,'טקסט'); if (v) UI_COPY.door2Subtitle=v; }
-  { const v=getConcreteCopy(d2,'הודעת שגיאה'); if (v) UI_COPY.door2Error=v; }
+  { const v=getConcreteCopy(s1w,'כותרת'); if (v) UI_COPY.step1WinTitle=v; }
+  { const v=getConcreteCopy(s1w,'טקסט');  if (v) UI_COPY.step1WinText=v; }
+  { const v=getConcreteCopy(s1t,'כפתור'); if (v) UI_COPY.step1TransitionBtn=v; }
+  { const v=getConcreteCopy(s1t,'שורת קוד'); if (v) UI_COPY.step1ScoreLine=v; }
 
-  { const v=getConcreteCopy(s6,'כותרת'); if (v) gameData.step8.title=v; }
-  { const v=getConcreteCopy(s6,'טקסט'); if (v) gameData.step8.instructions=v; }
+  { const v=getConcreteCopy(s2w,'כותרת'); if (v) UI_COPY.step2WinTitle=v; }
+  { const v=getConcreteCopy(s2w,'טקסט');  if (v) UI_COPY.step2WinText=v; }
+  { const v=getConcreteCopy(s2t,'כפתור'); if (v) UI_COPY.step2TransitionBtn=v; }
+  { const v=getConcreteCopy(s2t,'שורת קוד'); if (v) UI_COPY.step2ScoreLine=v; }
 
+  { const v=getConcreteCopy(s2d,'כותרת'); if (v) UI_COPY.step2DykTitle=v; }
+  { const v=getConcreteCopy(s2d,'כפתור'); if (v) UI_COPY.step2DykBtn=v; }
+  { const v=getConcreteCopy(s3d,'כותרת'); if (v) UI_COPY.step3DykTitle=v; }
+  { const v=getConcreteCopy(s3d,'כפתור'); if (v) UI_COPY.step3DykBtn=v; }
+
+  { const v=getConcreteCopy(d1c,'כותרת');     if (v) UI_COPY.door1Title=v; }
+  { const v=getConcreteCopy(d1c,'טקסט');      if (v) UI_COPY.door1Subtitle=v; }
+  { const v=getConcreteCopy(d1c,'הודעת שגיאה'); if (v) UI_COPY.door1Error=v; }
+  { const v=getConcreteCopy(d2c,'כותרת');     if (v) UI_COPY.door2Title=v; }
+  { const v=getConcreteCopy(d2c,'טקסט');      if (v) UI_COPY.door2Subtitle=v; }
+  { const v=getConcreteCopy(d2c,'הודעת שגיאה'); if (v) UI_COPY.door2Error=v; }
+
+  { const v=getConcreteCopy(d1s,'כותרת'); if (v) { UI_COPY.door1SuccessTitle=v; DOOR_SUCCESS_THEMES.door1.title=v; } }
+  { const v=getConcreteCopy(d1s,'טקסט');  if (v) { UI_COPY.door1SuccessSubtitle=v; DOOR_SUCCESS_THEMES.door1.subtitle=v; } }
+  { const v=getConcreteCopy(d2s,'כותרת'); if (v) { UI_COPY.door2SuccessTitle=v; DOOR_SUCCESS_THEMES.door2.title=v; } }
+  { const v=getConcreteCopy(d2s,'טקסט');  if (v) { UI_COPY.door2SuccessSubtitle=v; DOOR_SUCCESS_THEMES.door2.subtitle=v; } }
+
+  { const v=getConcreteCopy(s6q,'כותרת'); if (v) gameData.step8.title=v; }
+  { const v=getConcreteCopy(s6q,'טקסט');  if (v) gameData.step8.instructions=v; }
+  { const v=getConcreteCopy(s6i,'כותרת'); if (v) UI_COPY.step6IntroTitle=v; }
+  { const v=getConcreteCopy(s6i,'טקסט');  if (v) UI_COPY.step6IntroText=v; }
+  { const v=getConcreteCopy(s6i,'כפתור'); if (v) UI_COPY.step6IntroBtnLabel=v; }
+  { const v=getConcreteCopy(s6w,'כותרת'); if (v) UI_COPY.step6WinTitle=v; }
+  { const v=getConcreteCopy(s6w,'טקסט');  if (v) UI_COPY.step6WinText=v; }
+  { const v=getConcreteCopy(s6w,'כפתור'); if (v) UI_COPY.step6WinBtn=v; }
 
   if (step4Intro['כותרת']) { UI_COPY.step4IntroEyebrow = step4Intro['כותרת']; UI_COPY.step4VictoryEyebrow = step4Intro['כותרת']; }
   if (step4Intro['כותרת משנה']) UI_COPY.step4IntroTitle = step4Intro['כותרת משנה'];
   if (step4Intro['טקסט']) UI_COPY.step4IntroText1 = step4Intro['טקסט'];
-  if (step4Prestage['טקסט']) { UI_COPY.step4IntroText2 = step4Prestage['טקסט']; UI_COPY.step4IntroText3 = step4Prestage['טקסט']; }
-  if (step4Completion['כותרת']) UI_COPY.step4VictoryTitle = step4Completion['כותרת'];
-  if (step4Completion['טקסט']) UI_COPY.step4VictoryText = step4Completion['טקסט'];
-  if (step4Completion['שורת קוד']) UI_COPY.step4VictoryCodeLabel = step4Completion['שורת קוד'];
+  if (step4Prestage['כרטיס 1']) UI_COPY.step4Card1Title = step4Prestage['כרטיס 1'];
+  if (step4Prestage['טקסט'])    UI_COPY.step4Card1Text  = step4Prestage['טקסט'];
+  if (step4Prestage['כרטיס 2']) UI_COPY.step4Card2Title = step4Prestage['כרטיס 2'];
+  if (step4Prestage['טקסט_2'])  UI_COPY.step4Card2Text  = step4Prestage['טקסט_2'];
+  if (step4Completion['כותרת'])     UI_COPY.step4VictoryTitle     = step4Completion['כותרת'];
+  if (step4Completion['טקסט'])      UI_COPY.step4VictoryText      = step4Completion['טקסט'];
+  if (step4Completion['שורת קוד'])  UI_COPY.step4VictoryCodeLabel = step4Completion['שורת קוד'];
   if (step4Completion['שורת ניקוד']) UI_COPY.step4ScoreLineTemplate = step4Completion['שורת ניקוד'];
-  if (step4Completion['כפתור']) UI_COPY.step4ContinueBtnLabel = step4Completion['כפתור'];
-  if (step4Prestage['כפתור']) UI_COPY.step4IntroBtnLabel = step4Prestage['כפתור'];
+  if (step4Completion['כפתור'])     UI_COPY.step4ContinueBtnLabel = step4Completion['כפתור'];
+  if (step4Prestage['כפתור'])       UI_COPY.step4IntroBtnLabel    = step4Prestage['כפתור'];
 
   if (step5Selection['כותרת']) UI_COPY.step5SelectionTitle = step5Selection['כותרת'];
   if (step5Selection['טקסט']) UI_COPY.step5SelectionSubtitle = step5Selection['טקסט'];
@@ -4204,9 +4276,8 @@ function applyScreensCopyToRuntime() {
   if (step4Task['טקסט']) { UI_COPY.step5ZoomInLabel = step4Task['טקסט']; UI_COPY.step5ZoomOutLabel = step4Task['טקסט']; }
 
   { const v=getConcreteCopy(endingVideo,'כותרת'); if (v) UI_COPY.finalEyebrow=v; }
-
   if (finalSummary['כותרת']) UI_COPY.finalTitle = finalSummary['כותרת'];
-  if (finalSummary['טקסט']) UI_COPY.finalText = finalSummary['טקסט'];
+  if (finalSummary['טקסט'])  UI_COPY.finalText  = finalSummary['טקסט'];
 }
 
 const gameData = {
@@ -4698,16 +4769,22 @@ function spawnDoorParticles(layer, count, tier) {
 /* פופאפ "הידעת?" — מוצג אחרי תשובה נכונה
    imgSrc   – אופציונלי: נתיב תמונה להצגה בראש הפופאפ
    factsHTML – אופציונלי: HTML מוכן להצגה במקום dykText (לפורמט עשיר) */
-function showRewardPanel({ digit, pts, title, subtitle }, onContinue) {
+function showRewardPanel({ digit, pts, title, subtitle, scoreLine, btnLabel }, onContinue) {
+  const resolvedScoreLine = scoreLine
+    ? String(scoreLine).replace('{secretDigit}', String(digit || '•'))
+    : '';
+  const resolvedBtn = btnLabel || UI_COPY.step5SuccessBtnLabel;
   const overlay = document.createElement('div');
   overlay.className = 'dyk-popup-overlay';
   overlay.innerHTML = `
     <div class="dyk-popup-card">
       <span class="dyk-popup-badge">✨ תגמול שלב</span>
       <div class="dyk-popup-success">${escapeHTML(title || 'תשובה נכונה.')}</div>
+      ${subtitle ? `<div class="dyk-popup-text" style="margin-bottom:6px">${escapeHTML(subtitle)}</div>` : ''}
       <div class="code-reveal" style="margin:6px auto 2px;display:block;text-align:center">${escapeHTML(String(digit || '•'))}</div>
-      <div class="dyk-popup-text">${escapeHTML(subtitle || 'ניקוד נוסף הוענק.')} (+${Number(pts || 0)})</div>
-      <button class="dyk-popup-btn" id="reward-continue-btn">${escapeHTML(UI_COPY.step5SuccessBtnLabel)}</button>
+      ${resolvedScoreLine ? `<div class="dyk-popup-text">${escapeHTML(resolvedScoreLine)}</div>` : ''}
+      <div class="dyk-popup-text" style="font-size:.85rem;opacity:.7">(+${Number(pts || 0)} נקודות)</div>
+      <button class="dyk-popup-btn" id="reward-continue-btn">${escapeHTML(resolvedBtn)}</button>
     </div>`;
   document.body.appendChild(overlay);
   overlay.querySelector('#reward-continue-btn')?.addEventListener('click', () => {
@@ -4716,10 +4793,12 @@ function showRewardPanel({ digit, pts, title, subtitle }, onContinue) {
   });
 }
 
-function showDykPopup(dykText, successMsg, onContinue, imgSrc = null, factsHTML = null, extraHTML = null) {
+function showDykPopup(dykText, successMsg, onContinue, imgSrc = null, factsHTML = null, extraHTML = null, badgeLabel = null, btnLabel = null) {
   showSuccess(successMsg);
 
   const safeText = String(dykText || '').trim() || 'טיפ ביומימיקרי קצר מוצג כאן.';
+  const safeBadge = badgeLabel || '✨ הידעת?';
+  const safeBtn   = btnLabel   || 'המשך →';
 
   const imgTag  = imgSrc
     ? `<img src="${imgSrc}" alt="הידעת?" class="dyk-popup-img" onerror="this.style.display='none'">`
@@ -4733,12 +4812,12 @@ function showDykPopup(dykText, successMsg, onContinue, imgSrc = null, factsHTML 
   overlay.className = 'dyk-popup-overlay';
   overlay.innerHTML = `
     <div class="dyk-popup-card${wideClass}">
-      <span class="dyk-popup-badge">✨ הידעת?</span>
+      <span class="dyk-popup-badge">${escapeHTML(safeBadge)}</span>
       <div class="dyk-popup-success">${escapeHTML(successMsg)}</div>
       ${imgTag}
       ${body}
       ${extraHTML || ''}
-      <button class="dyk-popup-btn" id="dyk-continue-btn">המשך →</button>
+      <button class="dyk-popup-btn" id="dyk-continue-btn">${escapeHTML(safeBtn)}</button>
     </div>`;
   document.body.appendChild(overlay);
   overlay.querySelector('#dyk-continue-btn')?.addEventListener('click', () => {
@@ -4912,7 +4991,11 @@ function solveStep1(selectedAnswer) {
   saveGameState();
   const { pts } = scoreStep('step1', STEP_SCORES.step1);
   showRewardPanel(
-    { digit: ACTIVE_STEP_CODES.step1, pts, title: "תשובה נכונה.", subtitle: "הספרה התקבלה." },
+    { digit: ACTIVE_STEP_CODES.step1, pts,
+      title: UI_COPY.step1WinTitle,
+      subtitle: UI_COPY.step1WinText,
+      scoreLine: UI_COPY.step1ScoreLine,
+      btnLabel: UI_COPY.step1TransitionBtn },
     () => goToScreen(getNextScreen("step_1_identification"))
   );
 }
@@ -4937,7 +5020,11 @@ function solveStep2(selectedAnswer) {
   saveGameState();
   const { pts } = scoreStep('step2', STEP_SCORES.step2);
   showRewardPanel(
-    { digit: ACTIVE_STEP_CODES.step2, pts, title: "תשובה נכונה.", subtitle: "הספרה התקבלה." },
+    { digit: ACTIVE_STEP_CODES.step2, pts,
+      title: UI_COPY.step2WinTitle,
+      subtitle: UI_COPY.step2WinText,
+      scoreLine: UI_COPY.step2ScoreLine,
+      btnLabel: UI_COPY.step2TransitionBtn },
     () => goToScreen(getNextScreen("step_2_secret"))
   );
 }
@@ -4967,7 +5054,7 @@ function solveStep3(selectedAnswer) {
     <div class="code-reveal" style="margin:4px auto 2px;display:block;text-align:center">${escapeHTML(String(ACTIVE_STEP_CODES.step3 || '•'))}</div>
     <div class="dyk-popup-text" style="margin:0">הספרה התקבלה. (+${pts})</div>
   </div>`;
-  showDykPopup(dykText, "תשובה נכונה.", () => goToScreen(getNextScreen("step_3_habitat")), dykImg, null, rewardExtra);
+  showDykPopup(dykText, "תשובה נכונה.", () => goToScreen(getNextScreen("step_3_habitat")), dykImg, null, rewardExtra, UI_COPY.step3DykTitle, UI_COPY.step3DykBtn);
 }
 
 /* ============================================================
@@ -6420,8 +6507,16 @@ function renderStep5() {
         <h2 class="screen-title">${escapeHTML(UI_COPY.step4IntroTitle)}</h2>
         <div class="step5-instructions-body">
           <p>${escapeHTML(UI_COPY.step4IntroText1)}</p>
-          <p>${escapeHTML(UI_COPY.step4IntroText2)}</p>
-          <p>${escapeHTML(UI_COPY.step4IntroText3)}</p>
+          <div style="display:flex;gap:10px;margin-top:8px;flex-wrap:wrap">
+            <div style="flex:1;min-width:120px;background:rgba(0,232,180,.08);border:1px solid rgba(0,232,180,.2);border-radius:10px;padding:10px 12px">
+              <strong style="display:block;margin-bottom:4px;color:var(--accent)">${escapeHTML(UI_COPY.step4Card1Title)}</strong>
+              <span style="font-size:.9rem">${escapeHTML(UI_COPY.step4Card1Text)}</span>
+            </div>
+            <div style="flex:1;min-width:120px;background:rgba(0,232,180,.08);border:1px solid rgba(0,232,180,.2);border-radius:10px;padding:10px 12px">
+              <strong style="display:block;margin-bottom:4px;color:var(--accent)">${escapeHTML(UI_COPY.step4Card2Title)}</strong>
+              <span style="font-size:.9rem">${escapeHTML(UI_COPY.step4Card2Text)}</span>
+            </div>
+          </div>
         </div>
         <div class="btn-row" style="justify-content:flex-end;margin-top:8px">
           <button type="button" class="btn btn-primary" onclick="window.confirmStep5Intro()">${escapeHTML(UI_COPY.step4IntroBtnLabel)}</button>
@@ -6822,11 +6917,10 @@ function renderDoor1DykScreen() {
   const dykImg = gameData.step2.didYouKnowImage || assetPath('ui', 'did.png');
   setScreen(`
     <div class="card dyk-card">
-      <span class="dyk-badge">✨ הידעת?</span>
-      <h2 class="screen-title">לפני שממשיכים...</h2>
+      <span class="dyk-badge">${escapeHTML(UI_COPY.step2DykTitle)}</span>
       ${dykImg ? `<img class="dyk-image" src="${escapeHTML(dykImg)}" alt="הידעת?" onerror="this.style.display='none'" />` : ''}
       <p class="dyk-text">${escapeHTML(dykText || 'גם בטבע כל פרט קטן מוביל לתגלית גדולה.')}</p>
-      <button class="btn btn-primary" onclick="window.continueFromDoor1Dyk()">המשך לשלב הבא</button>
+      <button class="btn btn-primary" onclick="window.continueFromDoor1Dyk()">${escapeHTML(UI_COPY.step2DykBtn)}</button>
     </div>
   `);
 }
@@ -6835,11 +6929,11 @@ function renderDoor2DykScreen() {
   const dykEntry = getStep5DykEntry();
   setScreen(`
     <div class="card dyk-card">
-      <span class="dyk-badge">✨ הידעת?</span>
+      <span class="dyk-badge">${escapeHTML(UI_COPY.step3DykTitle)}</span>
       <h2 class="screen-title">${escapeHTML(dykEntry?.title || 'לפני הסיום')}</h2>
       ${dykEntry?.image ? `<img class="dyk-image" src="${escapeHTML(dykEntry.image)}" alt="הידעת?" onerror="this.style.display='none'" />` : ''}
       <p class="dyk-text">${escapeHTML(dykEntry?.text || 'עוד רגע מגיעים לפענוח האחרון!')}</p>
-      <button class="btn btn-primary" onclick="window.continueFromDoor2Dyk()">המשיכו לכתב הסתרים</button>
+      <button class="btn btn-primary" onclick="window.continueFromDoor2Dyk()">${escapeHTML(UI_COPY.step3DykBtn)}</button>
     </div>
   `);
 }
@@ -6923,7 +7017,7 @@ function renderStep8() {
     <div class="card s8-wrapper">
       <div class="screen-eyebrow">${escapeHTML(d.eyebrow)}</div>
       <h2 class="screen-title">🗝️ ${escapeHTML(d.title)}</h2>
-      <p class="screen-body">פענחו את כתב הסתרים האחרון</p>
+      <p class="screen-body">${escapeHTML(gameData.step8.instructions || UI_COPY.step6IntroText)}</p>
 
       <div class="s8-puzzle-grid">
         <div>
@@ -6965,10 +7059,10 @@ function renderStep8() {
 
     <div class="s8-modal" id="s8-modal" aria-hidden="true">
       <div class="s8-modal-card" role="dialog" aria-modal="true">
-        <div class="s8-modal-title">כל הכבוד! פיענחתם את כתב הסתרים! 🎉</div>
-        <div class="s8-modal-quote">הטבע כבר גילה הכול — לנו נותר להתבונן וללמוד.</div>
+        <div class="s8-modal-title">${escapeHTML(UI_COPY.step6WinTitle)} 🎉</div>
+        <div class="s8-modal-quote">${escapeHTML(UI_COPY.step6WinText)}</div>
         <div class="s8-modal-actions">
-          <button class="s8-btn s8-btn-primary" id="s8-continue-btn">המשך לסיום</button>
+          <button class="s8-btn s8-btn-primary" id="s8-continue-btn">${escapeHTML(UI_COPY.step6WinBtn)}</button>
         </div>
       </div>
     </div>

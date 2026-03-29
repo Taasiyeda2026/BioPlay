@@ -6198,7 +6198,7 @@ function renderMCQ({ eyebrow, title, question, options, optionImages, image, hin
 
   const hintHTML = (hint && gameState._attempts.step3 > 0) ? `
     <div style="margin-top:14px">
-      <button class="btn btn-secondary btn-sm" onclick="toggleHint()">
+      <button class="btn btn-secondary btn-sm hint-toggle-btn" onclick="toggleHint()">
         ${gameState.ui.hintOpen ? "🙈 הסתר רמז" : "💡 קבלו רמז"}
       </button>
       <div id="hint-box" class="hint-box" style="display:${gameState.ui.hintOpen ? "block" : "none"}; margin-top:8px">
@@ -6233,7 +6233,10 @@ function renderMCQ({ eyebrow, title, question, options, optionImages, image, hin
 
 window.toggleHint = function() {
   gameState.ui.hintOpen = !gameState.ui.hintOpen;
-  renderCurrentScreen();
+  const box = document.getElementById('hint-box');
+  const btn = document.querySelector('.hint-toggle-btn');
+  if (box) box.style.display = gameState.ui.hintOpen ? 'block' : 'none';
+  if (btn) btn.textContent = gameState.ui.hintOpen ? '🙈 הסתר רמז' : '💡 קבלו רמז';
 };
 
 /* ---- Step 1 ---- */
@@ -6342,7 +6345,7 @@ function renderStep1() {
 
   const hintHTML = (d.hint && gameState._attempts.step1 > 0) ? `
     <div style="margin-top:16px">
-      <button class="btn btn-secondary btn-sm" onclick="toggleHint()">
+      <button class="btn btn-secondary btn-sm hint-toggle-btn" onclick="toggleHint()">
         ${gameState.ui.hintOpen ? '🙈 הסתר רמז' : '💡 קבלו רמז'}
       </button>
       <div id="hint-box" class="hint-box" style="display:${gameState.ui.hintOpen ? 'block' : 'none'};margin-top:8px">
@@ -6379,7 +6382,7 @@ function renderStep2() {
 
   const hintHTML = (d.hint && gameState._attempts.step2 > 0) ? `
     <div style="margin-top:16px">
-      <button class="btn btn-secondary btn-sm" onclick="toggleHint()">
+      <button class="btn btn-secondary btn-sm hint-toggle-btn" onclick="toggleHint()">
         ${gameState.ui.hintOpen ? '🙈 הסתר רמז' : '💡 קבלו רמז'}
       </button>
       <div id="hint-box" class="hint-box" style="display:${gameState.ui.hintOpen ? 'block' : 'none'};margin-top:8px">
@@ -6428,7 +6431,7 @@ function renderStep3() {
 
   const hintHTML = d.hint ? `
     <div style="margin-top:16px">
-      <button class="btn btn-secondary btn-sm" onclick="toggleHint()">
+      <button class="btn btn-secondary btn-sm hint-toggle-btn" onclick="toggleHint()">
         ${gameState.ui.hintOpen ? '🙈 הסתר רמז' : '💡 קבלו רמז'}
       </button>
       <div id="hint-box" class="hint-box" style="display:${gameState.ui.hintOpen ? 'block' : 'none'};margin-top:8px">

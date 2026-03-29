@@ -200,8 +200,9 @@ const server = http.createServer(async (req, res) => {
      ============================================================ */
   // Serve:
   // - `/` and all web pages/assets from `public/`
-  // - `/data/**` from repo root, so JSON under `data/generated/` is accessible
+  // - `/data/**` and `/game-data/**` from repo root
   const isDataRoute = urlPath === '/data' || urlPath.startsWith('/data/');
+  const isGameDataRoute = urlPath === '/game-data' || urlPath.startsWith('/game-data/');
   const defaultPath = '/index.html';
 
   const resolveStaticFile = (rootDir) => {
@@ -210,8 +211,9 @@ const server = http.createServer(async (req, res) => {
     return p;
   };
 
-  const primaryRoot = isDataRoute ? ROOT : PUBLIC_ROOT;
-  const fallbackRoot = isDataRoute ? PUBLIC_ROOT : null;
+  const useRootStatic = isDataRoute || isGameDataRoute;
+  const primaryRoot = useRootStatic ? ROOT : PUBLIC_ROOT;
+  const fallbackRoot = useRootStatic ? PUBLIC_ROOT : null;
 
   const primaryPath = resolveStaticFile(primaryRoot);
   const fallbackPath = fallbackRoot ? resolveStaticFile(fallbackRoot) : null;

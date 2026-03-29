@@ -747,6 +747,14 @@
       from { opacity: 0; }
       to { opacity: 1; }
     }
+    @keyframes videoOverlayFadeOut {
+      from { opacity: 1; }
+      to   { opacity: 0; pointer-events: none; }
+    }
+    .narration-overlay--fadeout {
+      animation: videoOverlayFadeOut .5s ease forwards;
+      pointer-events: none;
+    }
 
     @keyframes videoDialogIn {
       from { opacity: 0; transform: translateY(16px) scale(.975); }
@@ -3350,7 +3358,9 @@ function showIframe(src) {
   const currentSrc = String(frame.getAttribute('src') || '');
   if (overlay.style.display === 'block' && currentSrc === normalizedSrc) return;
   frame.src     = normalizedSrc;
-  overlay.style.display = 'block';
+  overlay.style.opacity    = '1';
+  overlay.style.transition = '';
+  overlay.style.display    = 'block';
 }
 
 const STEP5_CTX_KEY = 'bioplay_step5_context_v1';
@@ -3414,8 +3424,15 @@ window.addEventListener('message', (event) => {
   }
 
   if (event.data.type === 'cipherComplete') {
-    hideIframe();
-    showActualFinalScreen();
+    const iframeOverlay = document.getElementById('iframe-overlay');
+    if (iframeOverlay) {
+      iframeOverlay.style.transition = 'opacity 0.45s ease';
+      iframeOverlay.style.opacity = '0';
+      setTimeout(() => { hideIframe(); showActualFinalScreen(); }, 440);
+    } else {
+      hideIframe();
+      showActualFinalScreen();
+    }
   }
 });
 
@@ -7354,7 +7371,13 @@ function showActualFinalScreen() {
     try {
       if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
     } catch (_) {}
-    renderFinalSummary();
+    const overlayEl = document.getElementById('opendoor-overlay');
+    if (overlayEl) {
+      overlayEl.classList.add('narration-overlay--fadeout');
+      setTimeout(renderFinalSummary, 480);
+    } else {
+      renderFinalSummary();
+    }
   };
 
   const startSummaryFallbackTimer = (ms = 18000) => {

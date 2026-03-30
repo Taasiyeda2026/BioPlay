@@ -3817,13 +3817,13 @@ window.addEventListener('message', (event) => {
    ============================================================ */
 
 const STEP_1_CORRECT_ANSWER = "";
-const STEP_1_CODE            = "2";   /* fallback — overridden per door from JSON */
+const STEP_1_CODE            = "2";
 
 const STEP_2_CORRECT_ANSWER = "";
-const STEP_2_CODE            = "1";   /* fallback — overridden per door from JSON */
+const STEP_2_CODE            = "1";
 
 const STEP_3_CORRECT_ANSWER = "";
-const STEP_3_CODE            = "3";   /* fallback — overridden per door from JSON */
+const STEP_3_CODE            = "3";
 
 const STEP_5_SECRET_DIGIT_1  = "4";
 const STEP_5_SECRET_DIGIT_2  = "2";
@@ -8166,12 +8166,12 @@ document.addEventListener("DOMContentLoaded", async function() {
       }
     }
   } catch (_) {}
+  try { await hydrateDoorMappingFromJson(); } catch (_) {}
+  try { await loadScreensCopy(); applyScreensCopyToRuntime(); } catch (_) {}
   applySelectedDoorContent();
   applyScreenBackground(gameState.currentScreen);
   updateHeader();
   renderCurrentScreen();
-  hydrateDoorMappingFromJson();
-  loadScreensCopy().then(() => { try { applyScreensCopyToRuntime(); } catch (_) {} }).catch(() => {});
   window.addEventListener('resize', () => requestAnimationFrame(applyAutoScale));
 });
 

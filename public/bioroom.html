@@ -4918,6 +4918,7 @@ const gameState = {
     step123IntroShown: false,
     step5IntroShown: false,
     step5VictoryPts: null,
+    step6VictoryPts: null,
     step6FlowIntroShown: false,
     animationBusy: false,
     door1DigitsOpen: false,
@@ -4996,6 +4997,7 @@ function saveGameState() {
       step123IntroShown: Boolean(gameState.ui.step123IntroShown),
       step5IntroShown: Boolean(gameState.ui.step5IntroShown),
       step5VictoryPts: Number.isFinite(Number(gameState.ui.step5VictoryPts)) ? Number(gameState.ui.step5VictoryPts) : null,
+      step6VictoryPts: Number.isFinite(Number(gameState.ui.step6VictoryPts)) ? Number(gameState.ui.step6VictoryPts) : null,
       step6FlowIntroShown: Boolean(gameState.ui.step6FlowIntroShown),
     },
   };
@@ -5021,6 +5023,8 @@ function loadGameState() {
       gameState.ui.step5IntroShown = Boolean(parsed.ui.step5IntroShown);
       const v5 = Number(parsed.ui.step5VictoryPts);
       gameState.ui.step5VictoryPts = Number.isFinite(v5) ? v5 : null;
+      const v6 = Number(parsed.ui.step6VictoryPts);
+      gameState.ui.step6VictoryPts = Number.isFinite(v6) ? v6 : null;
       gameState.ui.step6FlowIntroShown = Boolean(parsed.ui.step6FlowIntroShown);
     }
     if (parsed._step6) {
@@ -5724,12 +5728,12 @@ function solveStep6(onContinue = null) {
   gameState._step6.successShown          = true;
   gameState._step6.zoom90                = false;
   closeStep6ZoomCleanup();
-  saveGameState();
   const { pts: p6 } = scoreStep('step6', STEP_SCORES.step6);
+  gameState.ui.step6VictoryPts           = p6;
+  saveGameState();
   const done = typeof onContinue === 'function'
     ? onContinue
-    : () => goToScreen(getNextScreen('step_6_count_elements'));
-  // ה-DYK מוצג פעם אחת בלבד — במסך door_2_dyk שבא אחרי דלת 2.
+    : renderCurrentScreen;
   done();
 }
 
@@ -7183,6 +7187,34 @@ window.step5SelectCard = function(pairId, side) {
 
 function renderStep6() {
   const s6 = gameState._step6;
+
+  /* מסך ניצחון – מוצג לאחר שכל הפריטים נמצאו */
+  if (gameState.progress.step6Solved && s6.successShown) {
+    const digit   = String(gameState.codes.step6ElementCount ?? getStep6SuccessCode());
+    const pts     = Number(gameState.ui.step6VictoryPts);
+    const ptsLine = Number.isFinite(pts) ? pts : 0;
+    const scoreText = (UI_COPY.step4ScoreLineTemplate || 'קיבלתם: {totalScore} נקודות').replace('{totalScore}', String(ptsLine));
+    const codeText  = (UI_COPY.step5CompletionCodeLabel || 'הספרה שקיבלתם היא: {digit}').replace('{digit}', digit);
+    setScreen(`
+      <div class="step6-shell">
+        <div class="card step5-victory-card" style="text-align:center;max-width:520px;margin:0 auto">
+          <div class="screen-eyebrow">${escapeHTML(UI_COPY.step5FlowEyebrow)}</div>
+          <h2 class="screen-title">${escapeHTML(UI_COPY.step5CompletionTitle)}</h2>
+          <div class="step5-victory-copy">
+            ${escapeHTML(UI_COPY.step5CompletionText)}
+          </div>
+          <div class="step5-victory-score">ניקוד מהשלב: <strong>${escapeHTML(scoreText)}</strong></div>
+          <div class="screen-body" style="margin-bottom:4px;font-weight:700;color:var(--accent)">${escapeHTML(codeText)}</div>
+          <div class="step5-victory-code" dir="ltr">${escapeHTML(digit)}</div>
+          <div class="btn-row" style="justify-content:center;margin-top:16px">
+            <button type="button" class="btn btn-primary" onclick="window.step6VictoryContinue()">${escapeHTML(UI_COPY.step4ContinueBtnLabel)}</button>
+          </div>
+        </div>
+      </div>
+    `);
+    return;
+  }
+
   const games = Object.values(STEP6_GAMES);
   const ui = STEP6_CONFIG?.ui || getStep6DefaultConfig().ui;
   if (s6.selectedGame && !STEP6_GAMES[s6.selectedGame]) {
@@ -7407,10 +7439,14 @@ window.step6MissTap = function(event) {
 window.step6Complete = function() {
   document.getElementById('step6-fs-overlay')?.remove();
   if (gameState.progress.step6Solved) {
-    goToScreen(getNextScreen("step_6_count_elements"));
+    renderCurrentScreen();
     return;
   }
-  solveStep6(() => goToScreen(getNextScreen("step_6_count_elements")));
+  solveStep6(renderCurrentScreen);
+};
+
+window.step6VictoryContinue = function() {
+  goToScreen(getNextScreen('step_6_count_elements'));
 };
 
 /* ---- Step6 fullscreen overlay ---- */

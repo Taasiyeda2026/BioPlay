@@ -3816,14 +3816,14 @@ window.addEventListener('message', (event) => {
    קבועים – תוכן המשחק
    ============================================================ */
 
-const STEP_1_CORRECT_ANSWER = "שממית";
-const STEP_1_CODE            = "2";   /* תשובה נכונה = אפשרות מספר 2 */
+const STEP_1_CORRECT_ANSWER = "";
+const STEP_1_CODE            = "2";   /* fallback — overridden per door from JSON */
 
-const STEP_2_CORRECT_ANSWER = "שערות זעירות";
-const STEP_2_CODE            = "1";   /* תשובה נכונה = אפשרות מספר 1 */
+const STEP_2_CORRECT_ANSWER = "";
+const STEP_2_CODE            = "1";   /* fallback — overridden per door from JSON */
 
-const STEP_3_CORRECT_ANSWER = "ליד בתים, קירות וסדקים חמים";
-const STEP_3_CODE            = "3";   /* תשובה נכונה = קלף מספר 3 */
+const STEP_3_CORRECT_ANSWER = "";
+const STEP_3_CODE            = "3";   /* fallback — overridden per door from JSON */
 
 const STEP_5_SECRET_DIGIT_1  = "4";
 const STEP_5_SECRET_DIGIT_2  = "2";
@@ -4777,33 +4777,33 @@ function applyScreensCopyToRuntime() {
 
 const gameData = {
   step1: {
-    question: "מי מסתתר מאחורי ההשראה?",
-    options: ["צפרדע", "שממית", "עכביש", "נחש"],
-    correctAnswer: STEP_1_CORRECT_ANSWER,
+    question: "",
+    options: [],
+    correctAnswer: "",
     code: STEP_1_CODE,
-    hint: "היצור הזה יכול להיצמד לקירות ולתקרות בלי ליפול.",
+    hint: "",
     eyebrow: "שלב 1 – שער הגילוי הנסתר",
     title: "שער הגילוי הנסתר",
     subtitle: "",
     image: assetPath('ui', 'q.webp')
   },
   step2: {
-    question: "איזו יכולת קסומה הועתקה מן הטבע?",
-    options: ["שערות זעירות", "עור חלק", "רגליים חזקות", "עור מחוספס"],
-    correctAnswer: STEP_2_CORRECT_ANSWER,
+    question: "",
+    options: [],
+    correctAnswer: "",
     code: STEP_2_CODE,
-    hint: "חפשו תכונה זעירה שנמצאת בכפות הרגליים ועוזרת להיצמד.",
+    hint: "",
     eyebrow: "שלב 2 – שער הכוח הסודי",
     title: "שער הכוח הסודי",
     subtitle: "",
-    image: assetPath('organism', 'gecko.webp'),
-    didYouKnow: "לשממית יש מיליוני שערות זעירות בכפות הרגליים, שעוזרות לה להיצמד גם למשטחים חלקים.",
+    image: assetPath('ui', 'q.webp'),
+    didYouKnow: "",
     didYouKnowImage: assetPath('ui', 'did.webp')
   },
   step3: {
-    question: "באיזה עולם חי בעל החיים?",
-    options: [...STAGE3_FIXED_OPTIONS],
-    correctAnswer: STEP_3_CORRECT_ANSWER,
+    question: "",
+    options: [],
+    correctAnswer: "",
     code: STEP_3_CODE,
     hint: "",
     eyebrow: "שלב 3 – שער ממלכת החיים",

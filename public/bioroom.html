@@ -2245,6 +2245,88 @@
     }
     .step6-open-fs-btn:hover { background: rgba(57,224,122,.22); }
 
+    /* --- found-item toast popup --- */
+    .step6-found-popup {
+      position: fixed;
+      inset: 0;
+      z-index: 9200;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(4,10,30,.55);
+      animation: step6FsIn .22s ease both;
+    }
+    .step6-found-card {
+      background: linear-gradient(145deg, #0e1f3d, #091425);
+      border: 1.5px solid rgba(136,243,185,.45);
+      border-radius: 18px;
+      padding: 22px 26px 18px;
+      max-width: 280px;
+      width: 86%;
+      text-align: center;
+      box-shadow: 0 0 40px rgba(136,243,185,.22), 0 8px 32px rgba(0,0,0,.55);
+      animation: step6FoundCardIn .32s cubic-bezier(.16,1.08,.48,1) both;
+    }
+    @keyframes step6FoundCardIn {
+      from { transform: scale(.82) translateY(18px); opacity: 0; }
+      to   { transform: scale(1) translateY(0);      opacity: 1; }
+    }
+    .step6-found-badge {
+      font-size: 1.85rem;
+      margin-bottom: 6px;
+    }
+    .step6-found-img {
+      width: 72px; height: 72px;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 1.5px solid rgba(136,243,185,.4);
+      margin-bottom: 8px;
+      display: block;
+      margin-inline: auto;
+    }
+    .step6-found-label {
+      font-size: .72rem;
+      color: #88f3b9;
+      letter-spacing: .06em;
+      margin-bottom: 2px;
+      text-transform: uppercase;
+    }
+    .step6-found-name {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #e0f8ff;
+      margin-bottom: 14px;
+    }
+    .step6-found-continue {
+      display: block;
+      width: 100%;
+      padding: 10px 0;
+      background: linear-gradient(90deg,#39e07a,#00d4aa);
+      color: #061418;
+      font-weight: 800;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 4px;
+    }
+    .step6-found-continue:hover { filter: brightness(1.08); }
+    .step6-found-keep {
+      display: block;
+      width: 100%;
+      padding: 8px 0;
+      background: transparent;
+      color: #88c3d8;
+      font-size: .88rem;
+      border: 1px solid rgba(136,195,216,.22);
+      border-radius: 9px;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 8px;
+    }
+    .step6-found-keep:hover { background: rgba(136,195,216,.09); }
+
     .step6-success-overlay {
       position: absolute;
       inset: 0;
@@ -6889,15 +6971,7 @@ function renderStep6() {
     return `<button class="step6-hotspot ${found ? 'found' : ''}" style="left:${hotspot.x}%; top:${hotspot.y}%; width:${hitW}%; height:${hitH}%;" onclick="window.step6FindItem(event,'${item.id}')" aria-label="${ariaLabel}"></button>`;
   }).join('');
 
-  const successOverlayHtml = (canFinish && !gameState.progress.step6Solved) ? `
-                <div class="step6-success-overlay">
-                  <div class="step6-success-card">
-                    <h3>${escapeHTML(ui.successTitle)}</h3>
-                    <p>${escapeHTML(ui.successBody)}</p>
-                    <div class="btn-row"><button class="btn btn-primary" onclick="window.step6Complete()">${escapeHTML(UI_COPY.step5SuccessBtnLabel)}</button></div>
-                  </div>
-                </div>
-              ` : '';
+  const successOverlayHtml = '';
 
 
   const progressText = escapeHTML(
@@ -6955,17 +7029,75 @@ window.step6SelectGame = function(gameId) {
   renderStep6();
 };
 
+function _step6ShowFoundPopup(item, isLast, afterClose) {
+  const existing = document.getElementById('step6-found-popup');
+  if (existing) existing.remove();
+
+  const popup = document.createElement('div');
+  popup.id        = 'step6-found-popup';
+  popup.className = 'step6-found-popup';
+
+  const imgHtml = item.image
+    ? `<img class="step6-found-img" src="${escapeHTML(item.image)}" alt="${escapeHTML(item.name)}" />`
+    : `<div class="step6-found-badge">✅</div>`;
+
+  const continueBtn = isLast ? `
+    <button class="step6-found-continue" id="step6-found-continue-btn">המשיכו →</button>` : '';
+  const keepBtn = !isLast ? `
+    <button class="step6-found-keep" id="step6-found-keep-btn">המשיכו לחפש</button>` : '';
+
+  popup.innerHTML = `
+    <div class="step6-found-card">
+      ${imgHtml}
+      <div class="step6-found-label">נמצא!</div>
+      <div class="step6-found-name">${escapeHTML(item.name)}</div>
+      ${continueBtn}
+      ${keepBtn}
+    </div>
+  `;
+
+  document.body.appendChild(popup);
+
+  function _closePopup() {
+    popup.style.animation = 'step6FsIn .18s ease reverse forwards';
+    setTimeout(() => { popup.remove(); if (afterClose) afterClose(); }, 170);
+  }
+
+  if (isLast) {
+    const btn = document.getElementById('step6-found-continue-btn');
+    if (btn) btn.addEventListener('click', () => {
+      popup.remove();
+      window.step6Complete();
+    });
+  } else {
+    const btn = document.getElementById('step6-found-keep-btn');
+    if (btn) btn.addEventListener('click', _closePopup);
+    setTimeout(_closePopup, 2000);
+  }
+
+  popup.addEventListener('click', (e) => {
+    if (e.target === popup) _closePopup();
+  });
+}
+
 window.step6FindItem = function(event, itemId) {
   event.stopPropagation();
   const s6 = gameState._step6;
   const game = STEP6_GAMES[s6.selectedGame];
   if (!game) return;
   if (!game.items.some((item) => item.id === itemId)) return;
-  if (!s6.foundItemIds.includes(itemId)) {
+  const alreadyFound = s6.foundItemIds.includes(itemId);
+  if (!alreadyFound) {
     s6.foundItemIds.push(itemId);
     saveGameState();
   }
   renderStep6();
+  if (!alreadyFound) {
+    const foundItem = game.items.find((it) => it.id === itemId);
+    const required  = getStep6TargetToFind(game);
+    const isLast    = s6.foundItemIds.length >= required;
+    if (foundItem) _step6ShowFoundPopup(foundItem, isLast, null);
+  }
 };
 
 window.step6MissTap = function(event) {
@@ -7021,14 +7153,7 @@ function _step6BuildFsHtml() {
     </div>`;
   }).join('');
 
-  const successHtml = (canFinish && !gameState.progress.step6Solved) ? `
-    <div class="step6-success-overlay">
-      <div class="step6-success-card">
-        <h3>${escapeHTML(ui.successTitle || 'כל הכבוד!')}</h3>
-        <p>${escapeHTML(ui.successBody || '')}</p>
-        <div class="btn-row"><button class="btn btn-primary" onclick="window.step6Complete()">${escapeHTML(UI_COPY.step5SuccessBtnLabel || 'המשיכו')}</button></div>
-      </div>
-    </div>` : '';
+  const successHtml = '';
 
   return `
     <div class="step6-fs-topbar">
@@ -7069,12 +7194,19 @@ window.step6FindItemFS = function(event, itemId) {
   const s6   = gameState._step6;
   const game = STEP6_GAMES[s6.selectedGame];
   if (!game || !game.items.some((it) => it.id === itemId)) return;
-  if (!s6.foundItemIds.includes(itemId)) {
+  const alreadyFound = s6.foundItemIds.includes(itemId);
+  if (!alreadyFound) {
     s6.foundItemIds.push(itemId);
     saveGameState();
   }
   window.step6OpenFullscreen();
   renderStep6();
+  if (!alreadyFound) {
+    const foundItem = game.items.find((it) => it.id === itemId);
+    const required  = getStep6TargetToFind(game);
+    const isLast    = s6.foundItemIds.length >= required;
+    if (foundItem) _step6ShowFoundPopup(foundItem, isLast, null);
+  }
 };
 
 window.step6MissTapFS = function(event) {

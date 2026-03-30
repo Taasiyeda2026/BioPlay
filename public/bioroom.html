@@ -7086,7 +7086,7 @@ function renderStep5() {
   }
   /* הצג פעילות ההתאמה המלאה כ-iframe */
   persistStep5Context();
-  showIframe(`game/biomatch.html?ctx=${encodeURIComponent(STEP5_CTX_KEY)}`);
+  showIframe(`game/biomatch.html?ctx=${encodeURIComponent(STEP5_CTX_KEY)}&d=${Number(gameState.selectedDoor?.num || 0)}`);
 }
 
 window.step5SelectCard = function(pairId, side) {

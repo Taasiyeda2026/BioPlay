@@ -4914,6 +4914,7 @@ const gameState = {
     errorMessage:  "",
     successMessage: "",
     hintOpen:      false,
+    hintsUsed:     0,
     step123IntroShown: false,
     step5IntroShown: false,
     step5VictoryPts: null,
@@ -5977,8 +5978,9 @@ async function apiPost(action, data) {
       pl.name = name;
       const sc = Number(payload.score);
       if (Number.isFinite(sc)) pl.score = sc;
-      pl.lastStep = String(payload.step || pl.lastStep || '');
+      if (payload.step && payload.step !== 'hint_used') pl.lastStep = String(payload.step);
       if (payload.door) pl.door = String(payload.door);
+      if (payload.hintsUsed != null) pl.hintsUsed = Math.max(pl.hintsUsed || 0, Number(payload.hintsUsed) || 0);
       if (String(payload.completed || '').toLowerCase() === 'true') pl.completed = true;
       if (pl.completed && !pl.completedAt) pl.completedAt = new Date().toISOString();
       _internalSave(st);
@@ -6700,7 +6702,8 @@ function renderMCQ({ eyebrow, title, question, options, optionImages, image, hin
 }
 
 window.toggleHint = function() {
-  gameState.ui.hintOpen = !gameState.ui.hintOpen;
+  const wasOpen = gameState.ui.hintOpen;
+  gameState.ui.hintOpen = !wasOpen;
   const box = document.getElementById('hint-box');
   const btn = document.querySelector('.hint-toggle-btn');
   if (box) {
@@ -6710,6 +6713,15 @@ window.toggleHint = function() {
     }
   }
   if (btn) btn.textContent = gameState.ui.hintOpen ? '🙈 הסתר רמז' : '💡 קבלו רמז';
+  if (!wasOpen) {
+    gameState.ui.hintsUsed = (gameState.ui.hintsUsed || 0) + 1;
+    apiPost('gamescore', {
+      name:       gameState.player.name,
+      score:      String(gameState.player.score),
+      step:       'hint_used',
+      hintsUsed:  String(gameState.ui.hintsUsed),
+    });
+  }
 };
 
 /* ---- Step 1 ---- */

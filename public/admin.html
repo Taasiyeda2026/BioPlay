@@ -1770,11 +1770,12 @@
                   <th style="padding:8px 12px;text-align:right;font-weight:700;color:var(--text-main,#17324d);border-bottom:2px solid var(--border,#c8d8e8)">שם</th>
                   <th style="padding:8px 12px;text-align:right;font-weight:700;color:var(--text-main,#17324d);border-bottom:2px solid var(--border,#c8d8e8)">סטטוס</th>
                   <th style="padding:8px 12px;text-align:center;font-weight:700;color:var(--text-main,#17324d);border-bottom:2px solid var(--border,#c8d8e8)">דלת</th>
+                  <th style="padding:8px 12px;text-align:center;font-weight:700;color:var(--text-main,#17324d);border-bottom:2px solid var(--border,#c8d8e8)">רמזים</th>
                   <th style="padding:8px 12px;text-align:center;font-weight:700;color:var(--text-main,#17324d);border-bottom:2px solid var(--border,#c8d8e8)">ניקוד</th>
                 </tr>
               </thead>
               <tbody id="ls-tbody">
-                <tr><td colspan="5" style="padding:18px;text-align:center;color:#aaa">טוען נתונים...</td></tr>
+                <tr><td colspan="6" style="padding:18px;text-align:center;color:#aaa">טוען נתונים...</td></tr>
               </tbody>
             </table>
           </div>
@@ -1927,6 +1928,8 @@
         completed: p.completed,
         completedAt: p.completedAt,
         startTime: p.startTime,
+        door: p.door,
+        hintsUsed: p.hintsUsed,
       }));
       const done = rows.filter((r) => r.completed && r.completedAt)
         .sort((a, b) => Date.parse(a.completedAt) - Date.parse(b.completedAt));
@@ -1997,6 +2000,7 @@
         startTime: player?.startTime != null && player?.startTime !== '' ? String(player.startTime) : '',
         codes: normalizeCodes(player?.codes || player?.collectedCodes || player?.code),
         door: player?.door ?? player?.doorId ?? player?.currentDoor ?? '—',
+        hintsUsed: Number.isFinite(Number(player?.hintsUsed)) ? Number(player.hintsUsed) : 0,
         details: player?.details || player?.note || player?.notes || '',
       };
     }
@@ -2131,7 +2135,7 @@
             statusEl.style.background = '#eee';
             statusEl.style.color = '#555';
           }
-          tbody.innerHTML = '<tr><td colspan="5" style="padding:18px;text-align:center;color:#aaa">אין חדר פעיל — השתמשו ב"צור חדר" ואז PLAY.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="padding:18px;text-align:center;color:#aaa">אין חדר פעיל — השתמשו ב"צור חדר" ואז PLAY.</td></tr>';
           return;
         }
         const [statusDataRaw, scoresDataRaw] = await Promise.all([
@@ -2226,7 +2230,7 @@
       _lastNormalizedRows = rows;
 
       if (!rows.length) {
-        tbody.innerHTML = '<tr><td colspan="5" style="padding:18px;text-align:center;color:#aaa">אין שחקנים רשומים עדיין</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="padding:18px;text-align:center;color:#aaa">אין שחקנים רשומים עדיין</td></tr>';
         return;
       }
 
@@ -2254,12 +2258,15 @@
         const m = _teacherRankMeta ? _teacherRankMeta.get(p.name) : null;
         const elapsedText = m ? fmtElapsedMs(m.elapsedMs) : '—';
         const doorLabel = p.door && p.door !== '—' ? `דלת ${escLs(p.door)}` : '—';
+        const hintsLabel = p.hintsUsed > 0 ? String(p.hintsUsed) : '—';
+        const hintsColor = p.hintsUsed > 0 ? '#d97706' : 'var(--text-faint,#8fa5b7)';
         return `
         <tr style="background:${i % 2 === 0 ? 'transparent' : 'rgba(0,0,0,.03)'}">
           <td style="padding:8px 12px;font-weight:700;color:${col}">${escLs(place)}</td>
           <td style="padding:8px 12px;font-weight:600;color:var(--text-main,#17324d)">${escLs(p.name)}</td>
           <td style="padding:8px 12px;color:var(--text-soft,#5f7f99);font-weight:700">${escLs(p.status || 'ממתין')}</td>
           <td style="padding:8px 12px;text-align:center;font-weight:700;color:var(--text-main,#17324d)">${doorLabel}</td>
+          <td style="padding:8px 12px;text-align:center;font-weight:700;color:${hintsColor}">${escLs(hintsLabel)}</td>
           <td style="padding:8px 12px;text-align:center">
             <span style="display:inline-block;background:linear-gradient(135deg,#7c3aed,#2563eb);color:#fff;border-radius:999px;padding:3px 14px;font-weight:800;font-size:.9rem">${p.score}${_teacherRankByName ? ` | ${elapsedText}` : ''}</span>
           </td>

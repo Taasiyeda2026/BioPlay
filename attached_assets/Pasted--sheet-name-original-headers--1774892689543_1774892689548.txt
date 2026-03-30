@@ -1,0 +1,315 @@
+{
+  "sheet_name": "משחק התאמה-המשך",
+  "original_headers": [
+    "דלת",
+    "אורגניזמים",
+    "LAYOUT",
+    "קוד לדלת - ספרה 1",
+    "קוד לדלת - ספרה 2",
+    "מוצר בהשראה",
+    "הידעת מוצרים",
+    "תמונה - הידעת"
+  ],
+  "records": [
+    {
+      "door": 1,
+      "organism": "שממית",
+      "layout": "pair04,pair13,pair12,pair08,pair02,pair05",
+      "door_code_digit_1": 4,
+      "door_code_digit_2": 9,
+      "inspired_product": "כפפות טיפוס",
+      "did_you_know_products": "כפות הרגליים של השממית נתנו השראה לפיתוח כפפות טיפוס שנצמדות טוב למשטח.",
+      "did_you_know_image": "prd1.png"
+    },
+    {
+      "door": 2,
+      "organism": "פרח הלוטוס",
+      "layout": "pair06,pair03,pair11,pair09,pair01,pair10",
+      "door_code_digit_1": 7,
+      "door_code_digit_2": 1,
+      "inspired_product": "חולצה דוחה כתמים",
+      "did_you_know_products": "העלים של פרח הלוטוס נתנו השראה לפיתוח חולצה דוחה כתמים, שמרחיקה מים ולכלוך.",
+      "did_you_know_image": "prd2.png"
+    },
+    {
+      "door": 3,
+      "organism": "כריש",
+      "layout": "pair14,pair07,pair06,pair05,pair13,pair08",
+      "door_code_digit_1": 0,
+      "door_code_digit_2": 5,
+      "inspired_product": "בגד ים תחרותי",
+      "did_you_know_products": "מבנה העור של הכריש נתן השראה לפיתוח בגד ים תחרותי שמפחית חיכוך במים.",
+      "did_you_know_image": "prd3.png"
+    },
+    {
+      "door": 4,
+      "organism": "דבורה",
+      "layout": "pair02,pair14,pair04,pair11,pair09,pair01",
+      "door_code_digit_1": 6,
+      "door_code_digit_2": 2,
+      "inspired_product": "קרטון ביצים",
+      "did_you_know_products": "המבנה של חלת הדבש נתן השראה לעיצוב קרטון ביצים חזק, מסודר וחסכוני במקום.",
+      "did_you_know_image": "prd4.png"
+    },
+    {
+      "door": 5,
+      "organism": "פינגווין",
+      "layout": "pair12,pair07,pair10,pair03,pair14,pair13",
+      "door_code_digit_1": 8,
+      "door_code_digit_2": 4,
+      "inspired_product": "שק שינה מחמם",
+      "did_you_know_products": "הגוף והנוצות של הפינגווין נתנו השראה לפיתוח שק שינה מחמם ששומר על חום הגוף.",
+      "did_you_know_image": "prd5.png"
+    },
+    {
+      "door": 6,
+      "organism": "נשר",
+      "layout": "pair08,pair06,pair09,pair02,pair05,pair12",
+      "door_code_digit_1": 3,
+      "door_code_digit_2": 0,
+      "inspired_product": "דאון",
+      "did_you_know_products": "הדרך שבה הנשר דואה באוויר נתנה השראה לפיתוח דאון שמנצל היטב את זרמי האוויר.",
+      "did_you_know_image": "prd6.png"
+    },
+    {
+      "door": 7,
+      "organism": "ברקן",
+      "layout": "pair11,pair01,pair07,pair04,pair03,pair09",
+      "door_code_digit_1": 1,
+      "door_code_digit_2": 7,
+      "inspired_product": "סקוץ' לנעליים",
+      "did_you_know_products": "הקוצים של הברקן נתנו השראה להמצאת סקוץ' לנעליים, שמתחבר בקלות ונפתח שוב ושוב.",
+      "did_you_know_image": "prd7.png"
+    },
+    {
+      "door": 8,
+      "organism": "שפירית",
+      "layout": "pair10,pair11,pair13,pair06,pair08,pair07",
+      "door_code_digit_1": 9,
+      "door_code_digit_2": 3,
+      "inspired_product": "רחפן",
+      "did_you_know_products": "התעופה המדויקת של השפירית נתנה השראה לפיתוח רחפן יציב וזריז.",
+      "did_you_know_image": "prd8.png"
+    },
+    {
+      "door": 9,
+      "organism": "ברדלס (צ'יטה)",
+      "layout": "pair05,pair04,pair14,pair01,pair12,pair02",
+      "door_code_digit_1": 2,
+      "door_code_digit_2": 8,
+      "inspired_product": "נעלי פקקים",
+      "did_you_know_products": "לצ'יטה יש ציפורניים בולטות שנאחזות בקרקע ועוזרות לה לא להחליק. בהשראתן פיתחו נעלי פקקים לאחיזה טובה יותר.",
+      "did_you_know_image": "prd9.png"
+    },
+    {
+      "door": 10,
+      "organism": "עכביש",
+      "layout": "pair03,pair10,pair02,pair12,pair06,pair04",
+      "door_code_digit_1": 5,
+      "door_code_digit_2": 6,
+      "inspired_product": "גשר מיתרים",
+      "did_you_know_products": "הקורים של העכביש דקים מאוד אבל חזקים מאוד. בהשראתם בונים כבלים חזקים שמחזיקים גשרים תלויים.",
+      "did_you_know_image": "prd10.png"
+    },
+    {
+      "door": 11,
+      "organism": "טרמיטים",
+      "layout": "pair09,pair05,pair01,pair13,pair07,pair11",
+      "door_code_digit_1": 7,
+      "door_code_digit_2": 2,
+      "inspired_product": "בניין עם קירור טבעי",
+      "did_you_know_products": "בהשראת הטרמיטים נבנו מבנים שמנצלים אוורור טבעי כדי לקרר חללים בלי לבזבז הרבה אנרגיה.",
+      "did_you_know_image": "prd11.png"
+    },
+    {
+      "door": 12,
+      "organism": "לווייתן",
+      "layout": "pair14,pair08,pair03,pair10,pair11,pair06",
+      "door_code_digit_1": 4,
+      "door_code_digit_2": 0,
+      "inspired_product": "טורבינת רוח",
+      "did_you_know_products": "צורת הסנפירים של הלווייתן נתנה השראה לפיתוח טורבינת רוח יעילה יותר.",
+      "did_you_know_image": "prd12.png"
+    },
+    {
+      "door": 13,
+      "organism": "יתוש",
+      "layout": "pair01,pair09,pair08,pair07,pair04,pair14",
+      "door_code_digit_1": 6,
+      "door_code_digit_2": 9,
+      "inspired_product": "מזרק עדין",
+      "did_you_know_products": "הדרך העדינה שבה היתוש חודר לעור נתנה השראה לפיתוח מזרק עדין יותר.",
+      "did_you_know_image": "prd13.png"
+    },
+    {
+      "door": 14,
+      "organism": "זבוב",
+      "layout": "pair13,pair12,pair05,pair02,pair10,pair03",
+      "door_code_digit_1": 1,
+      "door_code_digit_2": 5,
+      "inspired_product": "מצלמה מרובת עדשות",
+      "did_you_know_products": "מבנה העין של הזבוב נתן השראה לפיתוח מצלמה מרובת עדשות שקולטת מידע מזוויות רבות.",
+      "did_you_know_image": "prd14.png"
+    },
+    {
+      "door": 15,
+      "organism": "גחלילית",
+      "layout": "pair07,pair02,pair11,pair14,pair04,pair05",
+      "door_code_digit_1": 8,
+      "door_code_digit_2": 2,
+      "inspired_product": "נורת LED",
+      "did_you_know_products": "האור היעיל של הגחלילית נתן השראה לפיתוח נורת LED חסכונית ובהירה.",
+      "did_you_know_image": "prd15.png"
+    },
+    {
+      "door": 16,
+      "organism": "שלדג",
+      "layout": "pair08,pair12,pair13,pair09,pair06,pair01",
+      "door_code_digit_1": 0,
+      "door_code_digit_2": 7,
+      "inspired_product": "רכבת מהירה",
+      "did_you_know_products": "השלדג נתן השראה לעיצוב רכבות מהירות שנעות בצורה חלקה ושקטה יותר.",
+      "did_you_know_image": "prd16.png"
+    },
+    {
+      "door": 17,
+      "organism": "דיונון",
+      "layout": "pair10,pair03,pair09,pair13,pair14,pair07",
+      "door_code_digit_1": 3,
+      "door_code_digit_2": 1,
+      "inspired_product": "בגדי הסוואה חכמים",
+      "did_you_know_products": "יכולת ההסוואה של הדיונון נתנה השראה לפיתוח בגדי הסוואה חכמים שמשנים מראה.",
+      "did_you_know_image": "prd17.png"
+    },
+    {
+      "door": 18,
+      "organism": "פרפר מורפו",
+      "layout": "pair04,pair05,pair02,pair01,pair08,pair12",
+      "door_code_digit_1": 9,
+      "door_code_digit_2": 4,
+      "inspired_product": "לק מחליף צבע",
+      "did_you_know_products": "הכנפיים של פרפר מורפו נתנו השראה לפיתוח לק מחליף צבע שנראה שונה באור שונה.",
+      "did_you_know_image": "prd18.png"
+    },
+    {
+      "door": 19,
+      "organism": "עטלף",
+      "layout": "pair11,pair06,pair03,pair10,pair01,pair04",
+      "door_code_digit_1": 5,
+      "door_code_digit_2": 8,
+      "inspired_product": "מקל נחייה חכם",
+      "did_you_know_products": "שיטת ההתמצאות של העטלף נתנה השראה לפיתוח מקל נחייה חכם שמסייע לזהות מכשולים.",
+      "did_you_know_image": "prd19.png"
+    },
+    {
+      "door": 20,
+      "organism": "היפופוטם",
+      "layout": "pair13,pair09,pair05,pair11,pair12,pair02",
+      "door_code_digit_1": 2,
+      "door_code_digit_2": 6,
+      "inspired_product": "קרם הגנה מהשמש",
+      "did_you_know_products": "החומר שמגן על עור ההיפופוטם מהשמש נתן השראה למחקר על מוצרים כמו קרם הגנה מהשמש.",
+      "did_you_know_image": "prd20.png"
+    },
+    {
+      "door": 21,
+      "organism": "פיל",
+      "layout": "pair07,pair14,pair06,pair08,pair10,pair03",
+      "door_code_digit_1": 7,
+      "door_code_digit_2": 3,
+      "inspired_product": "זרוע רובוטית",
+      "did_you_know_products": "החדק של הפיל נתן השראה לפיתוח זרוע רובוטית גמישה, מדויקת ועדינה.",
+      "did_you_know_image": "prd21.png"
+    },
+    {
+      "door": 22,
+      "organism": "ינשוף",
+      "layout": "pair06,pair02,pair01,pair04,pair13,pair11",
+      "door_code_digit_1": 4,
+      "door_code_digit_2": 1,
+      "inspired_product": "מאוורר שקט",
+      "did_you_know_products": "התעופה השקטה של הינשוף נתנה השראה לפיתוח מאוורר שקט שפועל בפחות רעש.",
+      "did_you_know_image": "prd22.png"
+    },
+    {
+      "door": 23,
+      "organism": "דג קופסה",
+      "layout": "pair12,pair08,pair07,pair14,pair09,pair05",
+      "door_code_digit_1": 8,
+      "door_code_digit_2": 9,
+      "inspired_product": "מכונית בטיחותית",
+      "did_you_know_products": "מבנה הגוף של דג הקופסה נתן השראה לעיצוב מכונית בטיחותית, יציבה ויעילה יותר.",
+      "did_you_know_image": "prd23.png"
+    },
+    {
+      "door": 24,
+      "organism": "ג'ירפה",
+      "layout": "pair03,pair10,pair04,pair12,pair02,pair09",
+      "door_code_digit_1": 0,
+      "door_code_digit_2": 2,
+      "inspired_product": "חליפת אסטרונאוט",
+      "did_you_know_products": "העור ההדוק של הג'ירפה עוזר לשמור על לחץ דם תקין בגוף הארוך שלה. בהשראתו פותחו חליפות מיוחדות שעוזרות לתמוך בגוף.",
+      "did_you_know_image": "prd24.png"
+    },
+    {
+      "door": 25,
+      "organism": "נחש",
+      "layout": "pair05,pair01,pair08,pair07,pair11,pair14",
+      "door_code_digit_1": 6,
+      "door_code_digit_2": 7,
+      "inspired_product": "רובוט חילוץ גמיש",
+      "did_you_know_products": "הדרך שבה הנחש נע נתנה השראה לפיתוח רובוט חילוץ גמיש שנכנס למקומות צרים.",
+      "did_you_know_image": "prd25.png"
+    },
+    {
+      "door": 26,
+      "organism": "דוריאן",
+      "layout": "pair06,pair13,pair10,pair03,pair05,pair08",
+      "door_code_digit_1": 3,
+      "door_code_digit_2": 5,
+      "inspired_product": "גג בניין חכם",
+      "did_you_know_products": "הקליפה הקוצנית של הדוריאן נתנה השראה לגג עם \"קוצים\" שיוצרים צל ומאפשרים לאוויר לזרום וכך עוזרים לקרר את הבניין.",
+      "did_you_know_image": "prd26.png"
+    },
+    {
+      "door": 27,
+      "organism": "בז",
+      "layout": "pair02,pair04,pair14,pair06,pair07,pair13",
+      "door_code_digit_1": 1,
+      "door_code_digit_2": 0,
+      "inspired_product": "מטוס מהיר",
+      "did_you_know_products": "המהירות והזריזות של הבז נתנו השראה לכלי טיס מהירים ויעילים יותר.",
+      "did_you_know_image": "prd27.png"
+    },
+    {
+      "door": 28,
+      "organism": "סנאי דואה",
+      "layout": "pair01,pair11,pair12,pair09,pair03,pair10",
+      "door_code_digit_1": 9,
+      "door_code_digit_2": 6,
+      "inspired_product": "חליפת דאייה",
+      "did_you_know_products": "הריחוף של סנאי הדואה נתן השראה לפיתוח חליפות דאייה וציוד גלישה באוויר.",
+      "did_you_know_image": "prd28.png"
+    },
+    {
+      "door": 29,
+      "organism": "נקר",
+      "layout": "pair09,pair11,pair02,pair05,pair04,pair06",
+      "door_code_digit_1": 5,
+      "door_code_digit_2": 4,
+      "inspired_product": "גרזן טיפוס קרח",
+      "did_you_know_products": "לנקר יש מנגנון מיוחד בראש שסופג זעזועים בזמן נקישה. בהשראתו פותחו כלים וידיות שמפחיתים את עוצמת המכה על הגוף.",
+      "did_you_know_image": "prd29.png"
+    },
+    {
+      "door": 30,
+      "organism": "קרנף",
+      "layout": "pair07,pair08,pair14,pair12,pair13,pair01",
+      "door_code_digit_1": 2,
+      "door_code_digit_2": 8,
+      "inspired_product": "אפוד מגן",
+      "did_you_know_products": "העור של הקרנף בנוי משכבות חזקות שמגינות עליו מפגיעות. בהשראתו פותחו אפודי מגן חזקים ועמידים.",
+      "did_you_know_image": "prd30.png"
+    }
+  ]
+}

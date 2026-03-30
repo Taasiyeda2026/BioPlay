@@ -4384,7 +4384,7 @@ function applySelectedDoorContent() {
   }
 
   const stage3DoorData = getStage3DoorEntry(door.num);
-  if (!stage3DoorData) throw new Error(`Missing Stage 3 JSON mapping for door ${door.num}`);
+  if (!stage3DoorData) { console.warn(`[BioPlay] Missing Stage 3 JSON mapping for door ${door.num}`); return; }
   gameData.step3.question = (s3 && s3.question) || 'באיזה עולם חי בעל החיים?';
   gameData.step3.options = (s3 && Array.isArray(s3.options) && s3.options.length)
     ? s3.options
@@ -4464,7 +4464,7 @@ async function hydrateDoorMappingFromJson() {
       const q2 = q2ByDoor.get(num) || null;
       const q3 = getStage3DoorEntry(num) || null;
       const cont = contByDoor.get(num) || null;
-      if (!q1 || !q2 || !cont) return door;
+      if (!q1 || !cont) return door;
 
       const layoutIds = String(cont.layout || '').split(',').map((x) => String(x || '').trim()).filter(Boolean).slice(0, 6);
       const pairs = layoutIds.map((id, idx) => {
@@ -4486,7 +4486,7 @@ async function hydrateDoorMappingFromJson() {
         secretDigit: String(q1.door_code ?? ''),
         questionImage: String(q1.question_image || '')
       };
-      const step2Data = {
+      const step2Data = q2 ? {
         question: String(q2.question || ''),
         options: [q2.answer_a, q2.answer_b, q2.answer_c, q2.answer_d].map((x) => String(x || '')),
         answer: String(q2.correct_answer || ''),
@@ -4495,7 +4495,7 @@ async function hydrateDoorMappingFromJson() {
         secretDigit: String(q2.door_code ?? ''),
         questionImage: String(q2.question_image || ''),
         didYouKnowImage: String(q2.did_you_know_image || '')
-      };
+      } : null;
       const step3Data = q3 ? {
         question: 'באיזה עולם חי בעל החיים?',
         options: Array.isArray(q3.options) && q3.options.length ? q3.options : [q3.correctHabitat, ...(STAGE3_FIXED_OPTIONS.filter((o) => o !== q3.correctHabitat))].slice(0, 4),

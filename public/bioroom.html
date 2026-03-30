@@ -7334,6 +7334,11 @@ function _step6ShowFoundPopup(item, isLast, afterClose) {
 
   document.body.appendChild(popup);
 
+  /* מניעת "tap-through": ה-popup מופיע בזמן שהלחיצה עדיין מוחזקת.
+     בלי עיכוב, שחרור האצבע מופעל כ-click על הכפתור שנמצא שם. */
+  popup.style.pointerEvents = 'none';
+  setTimeout(() => { popup.style.pointerEvents = ''; }, 420);
+
   function _closePopup() {
     popup.style.animation = 'step6FsIn .18s ease reverse forwards';
     setTimeout(() => { popup.remove(); if (afterClose) afterClose(); }, 170);

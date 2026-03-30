@@ -2087,10 +2087,7 @@
     .step6-hotspot {
       position: absolute;
       z-index: 2;
-      transform: translate(-50%, -50%);
       border-radius: 50%;
-      width: clamp(48px, 10%, 72px);
-      height: clamp(48px, 10%, 72px);
       border: none;
       background: transparent;
       box-shadow: none;
@@ -2098,27 +2095,9 @@
       padding: 0;
       transition: opacity .16s ease, box-shadow .16s ease;
     }
-    /* לפני מציאה: מעגל פולסינג עמום — מקל על מציאה בלי לתת את המיקום מיד */
-    .step6-hotspot:not(.found)::after {
-      content: '';
-      position: absolute;
-      inset: 20%;
-      border-radius: 50%;
-      border: 1.5px solid rgba(200, 240, 255, 0.28);
-      animation: step6HotPulse 2.4s ease-in-out infinite;
-      pointer-events: none;
-    }
-    @keyframes step6HotPulse {
-      0%,100% { opacity: .18; transform: scale(.82); }
-      50%      { opacity: .55; transform: scale(1.1);  }
-    }
     .step6-hotspot:not(.found):focus-visible {
       outline: 2px solid rgba(130, 244, 255, 0.65);
       outline-offset: 2px;
-    }
-    .step6-hotspot:not(.found):active::after {
-      opacity: .85;
-      border-color: rgba(200, 240, 255, .75);
     }
     .step6-hotspot.found:hover {
       filter: brightness(1.05);
@@ -2131,9 +2110,9 @@
       animation: step6Sparkle .85s ease;
     }
     @keyframes step6Sparkle {
-      0% { transform: translate(-50%, -50%) scale(.85); }
-      70% { transform: translate(-50%, -50%) scale(1.16); }
-      100% { transform: translate(-50%, -50%) scale(1); }
+      0% { transform: scale(.85); }
+      70% { transform: scale(1.16); }
+      100% { transform: scale(1); }
     }
     .step6-scene.miss-pulse { animation: step6Miss .35s ease; }
     @keyframes step6Miss {
@@ -6696,7 +6675,12 @@ window.toggleHint = function() {
   gameState.ui.hintOpen = !gameState.ui.hintOpen;
   const box = document.getElementById('hint-box');
   const btn = document.querySelector('.hint-toggle-btn');
-  if (box) box.style.display = gameState.ui.hintOpen ? 'block' : 'none';
+  if (box) {
+    box.style.display = gameState.ui.hintOpen ? 'block' : 'none';
+    if (gameState.ui.hintOpen) {
+      requestAnimationFrame(() => box.scrollIntoView({ behavior: 'smooth', block: 'nearest' }));
+    }
+  }
   if (btn) btn.textContent = gameState.ui.hintOpen ? '🙈 הסתר רמז' : '💡 קבלו רמז';
 };
 
@@ -7223,11 +7207,15 @@ function renderStep6() {
   const instrHtml = escapeHTML(String(ui.instructions || '').trim()).replace(/\n/g, '<br>');
   const hotspotsHtml = game.items.map((item, hi) => {
     const found = foundSet.has(item.id);
-    const hotspot = item.hotspot || { x: 50, y: 50 };
-    const cx = Math.min(Math.max(Number(hotspot.x) || 50, 4), 96);
-    const cy = Math.min(Math.max(Number(hotspot.y) || 50, 4), 96);
+    const hotspot = item.hotspot || { x: 50, y: 50, w: 6, h: 6 };
+    const cx = Math.min(Math.max(Number(hotspot.x) || 50, 0), 100);
+    const cy = Math.min(Math.max(Number(hotspot.y) || 50, 0), 100);
+    const cw = Math.min(Math.max(Number(hotspot.w) || 6, 2), 40);
+    const ch = Math.min(Math.max(Number(hotspot.h) || 6, 2), 40);
+    const left = cx - cw / 2;
+    const top  = cy - ch / 2;
     const ariaLabel = found ? escapeHTML(item.name) : `אזור חיפוש ${hi + 1}`;
-    return `<button class="step6-hotspot ${found ? 'found' : ''}" style="left:${cx}%;top:${cy}%;" onclick="window.step6FindItem(event,'${item.id}')" aria-label="${ariaLabel}"></button>`;
+    return `<button class="step6-hotspot ${found ? 'found' : ''}" style="left:${left}%;top:${top}%;width:${cw}%;height:${ch}%;" onclick="window.step6FindItem(event,'${item.id}')" aria-label="${ariaLabel}"></button>`;
   }).join('');
 
   const successOverlayHtml = '';
@@ -7323,14 +7311,16 @@ function _step6ShowFoundPopup(item, isLast, afterClose) {
   }
 
   if (isLast) {
-    const btn = document.getElementById('step6-found-continue-btn');
-    if (btn) btn.addEventListener('click', () => {
-      popup.remove();
-      window.step6Complete();
-    });
+    const continueEl = popup.querySelector('#step6-found-continue-btn');
+    if (continueEl) {
+      continueEl.addEventListener('click', function() {
+        popup.remove();
+        window.step6Complete();
+      });
+    }
   } else {
-    const btn = document.getElementById('step6-found-keep-btn');
-    if (btn) btn.addEventListener('click', _closePopup);
+    const keepEl = popup.querySelector('#step6-found-keep-btn');
+    if (keepEl) keepEl.addEventListener('click', _closePopup);
     setTimeout(_closePopup, 2000);
   }
 
@@ -7397,11 +7387,15 @@ function _step6BuildFsHtml() {
 
   const hotspotsHtml = items.map((item, hi) => {
     const found   = foundSet.has(item.id);
-    const hotspot = item.hotspot || { x: 50, y: 50 };
-    const cx = Math.min(Math.max(Number(hotspot.x) || 50, 4), 96);
-    const cy = Math.min(Math.max(Number(hotspot.y) || 50, 4), 96);
+    const hotspot = item.hotspot || { x: 50, y: 50, w: 6, h: 6 };
+    const cx = Math.min(Math.max(Number(hotspot.x) || 50, 0), 100);
+    const cy = Math.min(Math.max(Number(hotspot.y) || 50, 0), 100);
+    const cw = Math.min(Math.max(Number(hotspot.w) || 6, 2), 40);
+    const ch = Math.min(Math.max(Number(hotspot.h) || 6, 2), 40);
+    const left = cx - cw / 2;
+    const top  = cy - ch / 2;
     const aria    = found ? escapeHTML(item.name) : `אזור חיפוש ${hi + 1}`;
-    return `<button class="step6-hotspot ${found ? 'found' : ''}" style="left:${cx}%;top:${cy}%;" onclick="window.step6FindItemFS(event,'${item.id}')" aria-label="${aria}"></button>`;
+    return `<button class="step6-hotspot ${found ? 'found' : ''}" style="left:${left}%;top:${top}%;width:${cw}%;height:${ch}%;" onclick="window.step6FindItemFS(event,'${item.id}')" aria-label="${aria}"></button>`;
   }).join('');
 
   const itemsHtml = items.map((item) => {

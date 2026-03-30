@@ -642,6 +642,20 @@
       color: var(--text);
     }
     .btn-secondary:hover { background: rgba(57,224,122,.1); border-color: rgba(0,232,180,.4); }
+
+    @keyframes hintNeonAttract {
+      0%   { box-shadow: none;                                                                          border-color: rgba(0,200,140,.22); }
+      10%  { box-shadow: 0 0 10px rgba(57,255,140,.95), 0 0 26px rgba(57,255,140,.55), 0 0 48px rgba(57,255,140,.22); border-color: rgba(57,255,140,.95); }
+      20%  { box-shadow: none;                                                                          border-color: rgba(0,200,140,.22); }
+      32%  { box-shadow: 0 0 8px rgba(57,255,140,.75), 0 0 20px rgba(57,255,140,.38);                  border-color: rgba(57,255,140,.78); }
+      42%  { box-shadow: none;                                                                          border-color: rgba(0,200,140,.22); }
+      52%  { box-shadow: 0 0 6px rgba(57,255,140,.5),  0 0 14px rgba(57,255,140,.22);                  border-color: rgba(57,255,140,.55); }
+      66%  { box-shadow: none;                                                                          border-color: rgba(0,200,140,.22); }
+      100% { box-shadow: none;                                                                          border-color: rgba(0,200,140,.22); }
+    }
+    .hint-toggle-btn {
+      animation: hintNeonAttract 2.6s ease both;
+    }
     .btn-success {
       background: linear-gradient(135deg, #62ff9a, #2eb860);
       color: #010803;

@@ -5311,11 +5311,23 @@ function setUiBusy(isBusy, text = 'בודקים...') {
    STEP 1 LOGIC
    ============================================================ */
 
+function _wrongAnswerFeedback(hint) {
+  document.querySelectorAll('.s1-option-btn, .option-btn, .option-img-card').forEach(function(btn) {
+    btn.classList.add('vault-shake');
+    setTimeout(function() { btn.classList.remove('vault-shake'); }, 600);
+  });
+  const area = document.getElementById('step-hint-area');
+  if (area && hint && !area.querySelector('.hint-toggle-btn')) {
+    area.style.marginTop = '16px';
+    area.innerHTML = `<button class="btn btn-secondary btn-sm hint-toggle-btn" onclick="toggleHint()">💡 קבלו רמז</button><div id="hint-box" class="hint-box" style="display:none;margin-top:8px">${escapeHTML(hint)}</div>`;
+  }
+}
+
 function solveStep1(selectedAnswer) {
   if (selectedAnswer !== gameData.step1.correctAnswer) {
     gameState._attempts.step1++;
     showError(attemptsErrorMsg('step1'));
-    renderCurrentScreen();
+    _wrongAnswerFeedback(gameData.step1.hint);
     return;
   }
   gameState.progress.step1Solved            = true;
@@ -5345,7 +5357,7 @@ function solveStep2(selectedAnswer) {
   if (selectedAnswer !== gameData.step2.correctAnswer) {
     gameState._attempts.step2++;
     showError(attemptsErrorMsg('step2'));
-    renderCurrentScreen();
+    _wrongAnswerFeedback(gameData.step2.hint);
     return;
   }
   gameState.progress.step2Solved            = true;
@@ -5375,7 +5387,7 @@ function solveStep3(selectedAnswer) {
   if (selectedAnswer !== gameData.step3.correctAnswer) {
     gameState._attempts.step3++;
     showError(attemptsErrorMsg('step3'));
-    renderCurrentScreen();
+    _wrongAnswerFeedback(gameData.step3.hint);
     return;
   }
   gameState.progress.step3Solved            = true;
@@ -6563,15 +6575,13 @@ function renderStep1() {
     </button>`;
   }).join('');
 
-  const hintHTML = (d.hint && gameState._attempts.step1 > 0) ? `
-    <div style="margin-top:16px">
+  const hintInner = (d.hint && gameState._attempts.step1 > 0) ? `
       <button class="btn btn-secondary btn-sm hint-toggle-btn" onclick="toggleHint()">
         ${gameState.ui.hintOpen ? '🙈 הסתר רמז' : '💡 קבלו רמז'}
       </button>
       <div id="hint-box" class="hint-box" style="display:${gameState.ui.hintOpen ? 'block' : 'none'};margin-top:8px">
         ${escapeHTML(d.hint)}
-      </div>
-    </div>` : '';
+      </div>` : '';
 
   setScreen(`
     <div class="card">
@@ -6585,7 +6595,7 @@ function renderStep1() {
         </div>
         <div class="s1-options">${optionsHTML}</div>
       </div>
-      ${hintHTML}
+      <div id="step-hint-area" style="${hintInner ? 'margin-top:16px' : ''}">${hintInner}</div>
     </div>`);
 }
 
@@ -6600,15 +6610,13 @@ function renderStep2() {
     </button>`;
   }).join('');
 
-  const hintHTML = (d.hint && gameState._attempts.step2 > 0) ? `
-    <div style="margin-top:16px">
+  const hintInner = (d.hint && gameState._attempts.step2 > 0) ? `
       <button class="btn btn-secondary btn-sm hint-toggle-btn" onclick="toggleHint()">
         ${gameState.ui.hintOpen ? '🙈 הסתר רמז' : '💡 קבלו רמז'}
       </button>
       <div id="hint-box" class="hint-box" style="display:${gameState.ui.hintOpen ? 'block' : 'none'};margin-top:8px">
         ${escapeHTML(d.hint)}
-      </div>
-    </div>` : '';
+      </div>` : '';
 
   setScreen(`
     <div class="card">
@@ -6622,7 +6630,7 @@ function renderStep2() {
         </div>
         <div class="s1-options">${optionsHTML}</div>
       </div>
-      ${hintHTML}
+      <div id="step-hint-area" style="${hintInner ? 'margin-top:16px' : ''}">${hintInner}</div>
     </div>`);
 }
 
@@ -6649,15 +6657,13 @@ function renderStep3() {
     </button>`;
   }).join('');
 
-  const hintHTML = d.hint ? `
-    <div style="margin-top:16px">
+  const hintInner = d.hint ? `
       <button class="btn btn-secondary btn-sm hint-toggle-btn" onclick="toggleHint()">
         ${gameState.ui.hintOpen ? '🙈 הסתר רמז' : '💡 קבלו רמז'}
       </button>
       <div id="hint-box" class="hint-box" style="display:${gameState.ui.hintOpen ? 'block' : 'none'};margin-top:8px">
         ${escapeHTML(d.hint)}
-      </div>
-    </div>` : '';
+      </div>` : '';
 
   setScreen(`
     <div class="card">
@@ -6670,7 +6676,7 @@ function renderStep3() {
         </div>
         <div class="s1-options">${optionsHTML}</div>
       </div>
-      ${hintHTML}
+      <div id="step-hint-area" style="${hintInner ? 'margin-top:16px' : ''}">${hintInner}</div>
     </div>`);
 }
 

@@ -127,7 +127,7 @@ function doPost(e) {
       const eff = getEffectiveRoomState_(room);
       if (normalize_(eff.status) !== 'started') throw new Error('Room is not active');
 
-      upsertScore_(roomId, participantId, name, 0, 'joined', false, door);
+      upsertScore_(roomId, participantId, name, 0, 'joined', false, door, 0);
       logAuditSafe_({ roomId, action: 'gameJoin', actor: name, result: 'success', details: '' });
       return jsonOutput_({ ok: true });
     }
@@ -141,6 +141,7 @@ function doPost(e) {
       const step          = normalize_(params.step || '');
       const door          = normalize_(params.door || '');
       const completed     = normalize_(params.completed || '') === 'true';
+      const hintsUsed     = toNumberSafe_(params.hintsUsed, 0);
 
       if (!participantId) throw new Error('Missing participantId');
       if (!name) throw new Error('Missing name');
@@ -148,10 +149,10 @@ function doPost(e) {
       const eff = getEffectiveRoomState_(room);
       if (normalize_(eff.status) !== 'started') throw new Error('Room is closed for score updates');
 
-      upsertScore_(roomId, participantId, name, score, step, completed, door);
+      upsertScore_(roomId, participantId, name, score, step, completed, door, hintsUsed);
       logAuditSafe_({
         roomId, action: 'gameScore', actor: name,
-        result: 'success', details: `pid=${participantId} step=${step} score=${score} door=${door} completed=${completed}`
+        result: 'success', details: `pid=${participantId} step=${step} score=${score} door=${door} hints=${hintsUsed} completed=${completed}`
       });
       return jsonOutput_({ ok: true });
     }
@@ -292,10 +293,10 @@ function doPost(e) {
 ========================= */
 
 function getRequiredScoresHeaders_() {
-  return ['roomId', 'participantId', 'name', 'score', 'lastStep', 'door', 'completed', 'completedAt', 'updatedAt', 'startTime'];
+  return ['roomId', 'participantId', 'name', 'score', 'lastStep', 'door', 'hintsUsed', 'completed', 'completedAt', 'updatedAt', 'startTime'];
 }
 
-function upsertScore_(roomId, participantId, name, score, step, completed, door) {
+function upsertScore_(roomId, participantId, name, score, step, completed, door, hintsUsed) {
   const ss    = getSpreadsheet_();
   let sheet   = ss.getSheetByName(SCORES_SHEET_NAME);
 
@@ -304,10 +305,12 @@ function upsertScore_(roomId, participantId, name, score, step, completed, door)
     sheet.appendRow(getRequiredScoresHeaders_());
   }
 
-  const headerMap = getHeaderMap_(sheet);
-  const lastRow   = sheet.getLastRow();
-  const nowIso    = new Date().toISOString();
-  const nowMs     = Date.now();
+  const headerMap  = getHeaderMap_(sheet);
+  const lastRow    = sheet.getLastRow();
+  const nowIso     = new Date().toISOString();
+  const nowMs      = Date.now();
+  const hintsNum   = Number(hintsUsed) || 0;
+  const isHintStep = step === 'hint_used';
 
   if (lastRow >= 2) {
     const values = sheet.getRange(2, 1, lastRow, sheet.getLastColumn()).getValues();
@@ -320,12 +323,20 @@ function upsertScore_(roomId, participantId, name, score, step, completed, door)
         const existingCompletedAt = headerMap.completedAt ? String(values[i][headerMap.completedAt - 1] || '').trim() : '';
         const nowCompleted = completed || wasCompleted;
         const completedAt = (!existingCompletedAt && nowCompleted) ? nowIso : existingCompletedAt;
-        sheet.getRange(rowNum, headerMap.score,     1, 1).setValue(score);
-        sheet.getRange(rowNum, headerMap.lastStep,  1, 1).setValue(step);
+        if (!isHintStep) {
+          sheet.getRange(rowNum, headerMap.score,    1, 1).setValue(score);
+          sheet.getRange(rowNum, headerMap.lastStep, 1, 1).setValue(step);
+        }
         if (headerMap.door && door) sheet.getRange(rowNum, headerMap.door, 1, 1).setValue(door);
         if (headerMap.name) sheet.getRange(rowNum, headerMap.name, 1, 1).setValue(name);
-        sheet.getRange(rowNum, headerMap.completed, 1, 1).setValue(nowCompleted ? 'true' : 'false');
-        if (headerMap.completedAt) sheet.getRange(rowNum, headerMap.completedAt, 1, 1).setValue(completedAt);
+        if (headerMap.hintsUsed && hintsNum > 0) {
+          const existingHints = Number(values[i][headerMap.hintsUsed - 1]) || 0;
+          sheet.getRange(rowNum, headerMap.hintsUsed, 1, 1).setValue(Math.max(existingHints, hintsNum));
+        }
+        if (!isHintStep) {
+          sheet.getRange(rowNum, headerMap.completed, 1, 1).setValue(nowCompleted ? 'true' : 'false');
+          if (headerMap.completedAt) sheet.getRange(rowNum, headerMap.completedAt, 1, 1).setValue(completedAt);
+        }
         sheet.getRange(rowNum, headerMap.updatedAt, 1, 1).setValue(nowIso);
         if (headerMap.startTime) {
           const prevSt = sheet.getRange(rowNum, headerMap.startTime, 1, 1).getValue();
@@ -349,8 +360,9 @@ function upsertScore_(roomId, participantId, name, score, step, completed, door)
   setCell('participantId', participantId);
   setCell('name', name);
   setCell('score', score);
-  setCell('lastStep', step);
+  setCell('lastStep', isHintStep ? '' : step);
   setCell('door', door || '');
+  setCell('hintsUsed', hintsNum || 0);
   setCell('completed', completed ? 'true' : 'false');
   setCell('completedAt', completedAt);
   setCell('updatedAt', nowIso);
@@ -378,6 +390,7 @@ function getScoresForRoom_(roomId) {
       score:     toNumberSafe_(row[headerMap.score - 1], 0),
       lastStep:  String(row[headerMap.lastStep  - 1]).trim(),
       door:      headerMap.door ? String(row[headerMap.door - 1]).trim() : '',
+      hintsUsed: headerMap.hintsUsed ? (Number(row[headerMap.hintsUsed - 1]) || 0) : 0,
       completed: String(row[headerMap.completed - 1]).trim() === 'true',
       completedAt: headerMap.completedAt ? String(row[headerMap.completedAt - 1]).trim() : '',
       updatedAt: String(row[headerMap.updatedAt - 1]).trim(),

@@ -2072,23 +2072,36 @@
       z-index: 2;
       transform: translate(-50%, -50%);
       border-radius: 50%;
-      width: clamp(34px, 4vw, 58px);
-      height: clamp(34px, 4vw, 58px);
-      transition: opacity .16s ease, box-shadow .16s ease;
-      cursor: inherit;
-    }
-    /* לפני מציאה: בלי חיווי ויזואלי — רק לחיצה (נגישות מקלדת: מתווה עדין ב-focus) */
-    .step6-hotspot:not(.found) {
-      opacity: 0;
+      width: clamp(48px, 10%, 72px);
+      height: clamp(48px, 10%, 72px);
       border: none;
       background: transparent;
       box-shadow: none;
+      cursor: inherit;
+      padding: 0;
+      transition: opacity .16s ease, box-shadow .16s ease;
+    }
+    /* לפני מציאה: מעגל פולסינג עמום — מקל על מציאה בלי לתת את המיקום מיד */
+    .step6-hotspot:not(.found)::after {
+      content: '';
+      position: absolute;
+      inset: 20%;
+      border-radius: 50%;
+      border: 1.5px solid rgba(200, 240, 255, 0.28);
+      animation: step6HotPulse 2.4s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes step6HotPulse {
+      0%,100% { opacity: .18; transform: scale(.82); }
+      50%      { opacity: .55; transform: scale(1.1);  }
     }
     .step6-hotspot:not(.found):focus-visible {
-      opacity: 1;
       outline: 2px solid rgba(130, 244, 255, 0.65);
       outline-offset: 2px;
-      background: rgba(95, 210, 255, 0.12);
+    }
+    .step6-hotspot:not(.found):active::after {
+      opacity: .85;
+      border-color: rgba(200, 240, 255, .75);
     }
     .step6-hotspot.found:hover {
       filter: brightness(1.05);
@@ -6965,10 +6978,10 @@ function renderStep6() {
   const hotspotsHtml = game.items.map((item, hi) => {
     const found = foundSet.has(item.id);
     const hotspot = item.hotspot || { x: 50, y: 50 };
-    const hitW = Math.min(14, (Number(hotspot.w) || 6) * 1.22);
-    const hitH = Math.min(14, (Number(hotspot.h) || 6) * 1.22);
+    const cx = Math.min(Math.max(Number(hotspot.x) || 50, 4), 96);
+    const cy = Math.min(Math.max(Number(hotspot.y) || 50, 4), 96);
     const ariaLabel = found ? escapeHTML(item.name) : `אזור חיפוש ${hi + 1}`;
-    return `<button class="step6-hotspot ${found ? 'found' : ''}" style="left:${hotspot.x}%; top:${hotspot.y}%; width:${hitW}%; height:${hitH}%;" onclick="window.step6FindItem(event,'${item.id}')" aria-label="${ariaLabel}"></button>`;
+    return `<button class="step6-hotspot ${found ? 'found' : ''}" style="left:${cx}%;top:${cy}%;" onclick="window.step6FindItem(event,'${item.id}')" aria-label="${ariaLabel}"></button>`;
   }).join('');
 
   const successOverlayHtml = '';
@@ -7139,10 +7152,10 @@ function _step6BuildFsHtml() {
   const hotspotsHtml = items.map((item, hi) => {
     const found   = foundSet.has(item.id);
     const hotspot = item.hotspot || { x: 50, y: 50 };
-    const hitW    = Math.min(14, (Number(hotspot.w) || 6) * 1.22);
-    const hitH    = Math.min(14, (Number(hotspot.h) || 6) * 1.22);
+    const cx = Math.min(Math.max(Number(hotspot.x) || 50, 4), 96);
+    const cy = Math.min(Math.max(Number(hotspot.y) || 50, 4), 96);
     const aria    = found ? escapeHTML(item.name) : `אזור חיפוש ${hi + 1}`;
-    return `<button class="step6-hotspot ${found ? 'found' : ''}" style="left:${hotspot.x}%;top:${hotspot.y}%;width:${hitW}%;height:${hitH}%;" onclick="window.step6FindItemFS(event,'${item.id}')" aria-label="${aria}"></button>`;
+    return `<button class="step6-hotspot ${found ? 'found' : ''}" style="left:${cx}%;top:${cy}%;" onclick="window.step6FindItemFS(event,'${item.id}')" aria-label="${aria}"></button>`;
   }).join('');
 
   const itemsHtml = items.map((item) => {

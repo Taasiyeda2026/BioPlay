@@ -2388,6 +2388,16 @@
     @media (max-width: 640px) {
       .step6-search-layout { grid-template-columns: 1fr; }
       .step6-items-side { position: static; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .step6-main-layout { grid-template-columns: 1fr clamp(72px, 18vw, 96px); gap: 6px; }
+      .step6-items-strip .step6-item-box img { width: 28px; height: 28px; }
+    }
+    @media (max-width: 420px) {
+      .step6-main-layout { grid-template-columns: 1fr; }
+      .step6-items-strip { flex-direction: row; flex-wrap: wrap; justify-content: center; max-height: 80px; }
+      .step6-items-strip .step6-item-box { width: clamp(56px, 15vw, 76px); }
+      .step6-fs-content { flex-direction: column; }
+      .step6-fs-strip { width: 100%; flex-direction: row; flex-wrap: wrap; max-height: 72px; justify-content: center; }
+      .step6-fs-strip .step6-item-box { width: clamp(52px, 12vw, 68px); }
     }
 
     .name-entry-shell {

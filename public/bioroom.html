@@ -2162,6 +2162,89 @@
       width: 34px;
       height: 34px;
     }
+
+    /* ---- step6 fullscreen overlay ---- */
+    .step6-fs-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 450;
+      background: rgba(2, 7, 16, 0.97);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      animation: step6FsIn .26s ease both;
+    }
+    @keyframes step6FsIn {
+      from { opacity: 0; transform: scale(.98); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+    .step6-fs-topbar {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .step6-fs-scene {
+      position: relative;
+      width: min(100%, calc((100dvh - 155px) * 16 / 9));
+      aspect-ratio: 16 / 9;
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      background-position: center;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,.65);
+      cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Ccircle cx='14' cy='14' r='8' fill='none' stroke='%23B8F4FF' stroke-width='2'/%3E%3Cpath d='M14 3v5M14 20v5M3 14h5M20 14h5' stroke='%236EF3C7' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") 14 14, crosshair;
+    }
+    .step6-fs-scene.miss-pulse { animation: step6Miss .35s ease; }
+    .step6-fs-strip {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 6px;
+      justify-content: center;
+      flex-shrink: 0;
+      width: 100%;
+      max-height: 90px;
+      overflow-y: auto;
+    }
+    .step6-fs-strip .step6-item-box {
+      width: clamp(52px, 8vw, 74px);
+      min-height: 0;
+      padding: 5px 4px;
+      gap: 3px;
+    }
+    .step6-fs-strip .step6-item-box img { width: 28px; height: 28px; }
+    .step6-fs-close-btn {
+      background: rgba(255,70,70,.14);
+      border: 1px solid rgba(255,100,100,.38);
+      color: #ffb8b8;
+      border-radius: 8px;
+      padding: 5px 14px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      font-family: inherit;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .step6-open-fs-btn {
+      background: rgba(57,224,122,.12);
+      border: 1px solid rgba(57,224,122,.35);
+      color: #88f3b9;
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .step6-open-fs-btn:hover { background: rgba(57,224,122,.22); }
+
     .step6-success-overlay {
       position: absolute;
       inset: 0;
@@ -6830,6 +6913,7 @@ function renderStep6() {
         <div class="step6-header-bar">
           <span style="font-weight:700;color:#bdeaff">${escapeHTML(UI_COPY.step5TopBarTitle || ui.topBarTitle)}</span>
           <span class="step6-progress-pill">${progressText}</span>
+          <button class="step6-open-fs-btn" onclick="window.step6OpenFullscreen()">🔍 מסך מלא</button>
         </div>
         <p class="step6-instructions" style="margin:0 0 4px">${instrHtml}</p>
 
@@ -6894,11 +6978,111 @@ window.step6MissTap = function(event) {
 };
 
 window.step6Complete = function() {
+  document.getElementById('step6-fs-overlay')?.remove();
   if (gameState.progress.step6Solved) {
     goToScreen(getNextScreen("step_6_count_elements"));
     return;
   }
   solveStep6(() => goToScreen(getNextScreen("step_6_count_elements")));
+};
+
+/* ---- Step6 fullscreen overlay ---- */
+function _step6BuildFsHtml() {
+  const s6      = gameState._step6;
+  const game    = STEP6_GAMES[s6.selectedGame];
+  if (!game) return '';
+  const items     = Array.isArray(game.items) ? game.items : [];
+  const required  = getStep6TargetToFind(game);
+  const foundSet  = new Set(s6.foundItemIds || []);
+  const foundCount = foundSet.size;
+  const canFinish = foundCount >= required;
+  const ui        = gameData.step6.ui || {};
+
+  const progressText = escapeHTML(
+    (UI_COPY.step5ProgressTemplate || 'נמצאו: {found} מתוך {required}')
+      .replace('{found}', String(Math.min(foundCount, required)))
+      .replace('{required}', String(required))
+  );
+
+  const hotspotsHtml = items.map((item, hi) => {
+    const found   = foundSet.has(item.id);
+    const hotspot = item.hotspot || { x: 50, y: 50 };
+    const hitW    = Math.min(14, (Number(hotspot.w) || 6) * 1.22);
+    const hitH    = Math.min(14, (Number(hotspot.h) || 6) * 1.22);
+    const aria    = found ? escapeHTML(item.name) : `אזור חיפוש ${hi + 1}`;
+    return `<button class="step6-hotspot ${found ? 'found' : ''}" style="left:${hotspot.x}%;top:${hotspot.y}%;width:${hitW}%;height:${hitH}%;" onclick="window.step6FindItemFS(event,'${item.id}')" aria-label="${aria}"></button>`;
+  }).join('');
+
+  const itemsHtml = items.map((item) => {
+    const found = foundSet.has(item.id);
+    return `<div class="step6-item-box ${found ? 'found' : 'step6-item-box--pending'}">
+      ${found ? `<img src="${escapeHTML(item.image)}" alt="${escapeHTML(item.name)}" />` : `<span class="step6-item-pending-mark" aria-hidden="true"></span>`}
+      <div class="step6-item-name ${found ? '' : 'step6-item-name--placeholder'}">${escapeHTML(item.name)}</div>
+    </div>`;
+  }).join('');
+
+  const successHtml = (canFinish && !gameState.progress.step6Solved) ? `
+    <div class="step6-success-overlay">
+      <div class="step6-success-card">
+        <h3>${escapeHTML(ui.successTitle || 'כל הכבוד!')}</h3>
+        <p>${escapeHTML(ui.successBody || '')}</p>
+        <div class="btn-row"><button class="btn btn-primary" onclick="window.step6Complete()">${escapeHTML(UI_COPY.step5SuccessBtnLabel || 'המשיכו')}</button></div>
+      </div>
+    </div>` : '';
+
+  return `
+    <div class="step6-fs-topbar">
+      <span style="font-weight:700;color:#bdeaff;font-size:.9rem">${escapeHTML(UI_COPY.step5TopBarTitle || ui.topBarTitle || '')}</span>
+      <span class="step6-progress-pill">${progressText}</span>
+      <button class="step6-fs-close-btn" onclick="window.step6CloseFullscreen()">✕ סגור</button>
+    </div>
+    <div class="step6-fs-scene" style="background-image:url('${escapeHTML(game.image)}')" onclick="window.step6MissTapFS(event)">
+      ${hotspotsHtml}
+      ${successHtml}
+    </div>
+    <div class="step6-fs-strip">${itemsHtml}</div>
+  `;
+}
+
+window.step6OpenFullscreen = function() {
+  let overlay = document.getElementById('step6-fs-overlay');
+  if (overlay) {
+    overlay.innerHTML = _step6BuildFsHtml();
+    return;
+  }
+  overlay = document.createElement('div');
+  overlay.id        = 'step6-fs-overlay';
+  overlay.className = 'step6-fs-overlay';
+  overlay.innerHTML = _step6BuildFsHtml();
+  document.body.appendChild(overlay);
+};
+
+window.step6CloseFullscreen = function() {
+  const overlay = document.getElementById('step6-fs-overlay');
+  if (!overlay) return;
+  overlay.style.animation = 'step6FsIn .22s ease reverse forwards';
+  setTimeout(() => overlay.remove(), 210);
+};
+
+window.step6FindItemFS = function(event, itemId) {
+  event.stopPropagation();
+  const s6   = gameState._step6;
+  const game = STEP6_GAMES[s6.selectedGame];
+  if (!game || !game.items.some((it) => it.id === itemId)) return;
+  if (!s6.foundItemIds.includes(itemId)) {
+    s6.foundItemIds.push(itemId);
+    saveGameState();
+  }
+  window.step6OpenFullscreen();
+  renderStep6();
+};
+
+window.step6MissTapFS = function(event) {
+  if (event.target.closest('.step6-hotspot')) return;
+  const scene = event.currentTarget;
+  scene.classList.remove('miss-pulse');
+  void scene.offsetWidth;
+  scene.classList.add('miss-pulse');
 };
 
 /* ---- Door 2 ---- */

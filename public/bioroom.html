@@ -3684,7 +3684,26 @@
       width: 100%;
       height: 100%;
       pointer-events: none;
+      z-index: 1;
     }
+    #fin-dust {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 3;
+    }
+    #fin-dark {
+      position: absolute;
+      inset: 0;
+      z-index: 4;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 10s cubic-bezier(0.4, 0, 1, 1);
+    }
+    #fin-dark.darkening { opacity: 1; }
     .fin-content {
       position: relative;
       z-index: 2;
@@ -3704,24 +3723,37 @@
     .fin-img--visible {
       opacity: 1;
       transform: scale(1) translateY(0);
-      animation: finGlow 3.5s ease-in-out 1.4s infinite;
+      animation: finGlow 2.8s ease-in-out 1.4s infinite;
     }
     @keyframes finGlow {
-      0%,100% {
-        filter: drop-shadow(0 0 18px rgba(255,215,0,0.55))
-                drop-shadow(0 0 50px rgba(180,90,255,0.28));
+      0%   {
+        filter: drop-shadow(0 0 14px rgba(255,215,0,0.5))
+                drop-shadow(0 0 40px rgba(180,90,255,0.25))
+                brightness(1);
       }
-      50% {
-        filter: drop-shadow(0 0 38px rgba(255,215,0,0.95))
-                drop-shadow(0 0 90px rgba(200,110,255,0.55))
-                drop-shadow(0 0 5px rgba(255,255,255,0.7));
+      30%  {
+        filter: drop-shadow(0 0 30px rgba(255,215,0,0.85))
+                drop-shadow(0 0 70px rgba(200,110,255,0.5))
+                drop-shadow(0 0 8px rgba(255,255,255,0.9))
+                brightness(1.12);
+      }
+      60%  {
+        filter: drop-shadow(0 0 48px rgba(255,215,0,1))
+                drop-shadow(0 0 100px rgba(200,110,255,0.65))
+                drop-shadow(0 0 12px rgba(255,255,255,1))
+                brightness(1.22);
+      }
+      100% {
+        filter: drop-shadow(0 0 14px rgba(255,215,0,0.5))
+                drop-shadow(0 0 40px rgba(180,90,255,0.25))
+                brightness(1);
       }
     }
     .fin-close-btn {
       position: absolute;
       top: 14px;
       right: 14px;
-      z-index: 3;
+      z-index: 5;
       width: 46px;
       height: 46px;
       border-radius: 50%;
@@ -8094,6 +8126,8 @@ function showFinScreen() {
         draggable="false"
       >
     </div>
+    <canvas id="fin-dust"></canvas>
+    <div id="fin-dark"></div>
     <button
       class="fin-close-btn"
       aria-label="סגור"
@@ -8115,10 +8149,21 @@ function showFinScreen() {
   }
 
   _initFinSparkles();
+  _initFinDust();
+
+  /* לאחר 10 שניות — מתחילים להחשיך */
+  window._finDarkTimer = setTimeout(() => {
+    const dark = document.getElementById('fin-dark');
+    if (dark) {
+      requestAnimationFrame(() => dark.classList.add('darkening'));
+    }
+  }, 10000);
 }
 
 window._closeFin = function() {
-  if (window._finRaf) { cancelAnimationFrame(window._finRaf); window._finRaf = null; }
+  if (window._finRaf)       { cancelAnimationFrame(window._finRaf);  window._finRaf  = null; }
+  if (window._finDustRaf)   { cancelAnimationFrame(window._finDustRaf); window._finDustRaf = null; }
+  if (window._finDarkTimer) { clearTimeout(window._finDarkTimer);    window._finDarkTimer = null; }
   const el = document.getElementById('fin-overlay');
   if (el) {
     el.style.transition = 'opacity 0.5s ease';
@@ -8127,6 +8172,7 @@ window._closeFin = function() {
   }
 };
 
+/* ---- רקע: כוכבים מהבהבים + יהלומים עולים ---- */
 function _initFinSparkles() {
   const canvas = document.getElementById('fin-sparkles');
   if (!canvas) return;
@@ -8149,32 +8195,30 @@ function _initFinSparkles() {
   const rnd = (a, b) => a + Math.random() * (b - a);
   const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
-  /* ---- stars (twinkle in place) ---- */
-  const stars = Array.from({ length: 90 }, () => ({
+  const stars = Array.from({ length: 110 }, () => ({
     x: rnd(0, 1) * W,
     y: rnd(0, 1) * H,
-    r: rnd(0.4, 2.2),
+    r: rnd(0.4, 2.4),
     a: rnd(0, 1),
-    da: rnd(0.006, 0.022) * (Math.random() > 0.5 ? 1 : -1),
+    da: rnd(0.005, 0.024) * (Math.random() > 0.5 ? 1 : -1),
     color: pick(PALETTE),
   }));
 
-  /* ---- drifters (rise from bottom) ---- */
   const drifters = [];
   const spawnDrifter = () => ({
     x: rnd(0, 1) * W,
     y: H + rnd(0, 60),
-    r: rnd(1.5, 4.5),
-    vx: rnd(-0.3, 0.3),
-    vy: rnd(0.5, 1.4),
+    r: rnd(1.5, 5),
+    vx: rnd(-0.35, 0.35),
+    vy: rnd(0.5, 1.5),
     a: rnd(0.5, 0.9),
     life: 1,
-    decay: rnd(0.0025, 0.006),
+    decay: rnd(0.002, 0.005),
     color: pick(PALETTE),
     rot: rnd(0, Math.PI),
-    drot: rnd(-0.04, 0.04),
+    drot: rnd(-0.05, 0.05),
   });
-  for (let i = 0; i < 35; i++) {
+  for (let i = 0; i < 40; i++) {
     const d = spawnDrifter();
     d.y = rnd(0, 1) * H;
     drifters.push(d);
@@ -8190,10 +8234,8 @@ function _initFinSparkles() {
     ctx.clearRect(0, 0, W, H);
     frame++;
 
-    /* spawn new drifters */
-    if (frame % 6 === 0) drifters.push(spawnDrifter());
+    if (frame % 5 === 0) drifters.push(spawnDrifter());
 
-    /* draw stars */
     for (const s of stars) {
       s.a += s.da;
       if (s.a > 1) { s.a = 1; s.da *= -1; }
@@ -8202,18 +8244,18 @@ function _initFinSparkles() {
       ctx.save();
       ctx.globalAlpha = s.a;
       ctx.fillStyle = s.color;
-      ctx.shadowBlur = 8;
+      ctx.shadowBlur = 10;
       ctx.shadowColor = s.color;
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       ctx.fill();
 
       if (s.r > 1.2 && s.a > 0.4) {
-        ctx.globalAlpha = s.a * 0.6;
+        ctx.globalAlpha = s.a * 0.55;
         ctx.strokeStyle = s.color;
-        ctx.lineWidth = 0.6;
-        ctx.shadowBlur = 10;
-        const len = s.r * 3.5;
+        ctx.lineWidth = 0.7;
+        ctx.shadowBlur = 12;
+        const len = s.r * 4;
         ctx.beginPath();
         ctx.moveTo(s.x - len, s.y); ctx.lineTo(s.x + len, s.y);
         ctx.moveTo(s.x, s.y - len); ctx.lineTo(s.x, s.y + len);
@@ -8222,20 +8264,17 @@ function _initFinSparkles() {
       ctx.restore();
     }
 
-    /* draw + update drifters */
     for (let i = drifters.length - 1; i >= 0; i--) {
       const d = drifters[i];
       d.x  += d.vx;
       d.y  -= d.vy;
       d.rot += d.drot;
       d.life -= d.decay;
-
       if (d.y < -20 || d.life <= 0) { drifters.splice(i, 1); continue; }
-
       ctx.save();
       ctx.globalAlpha = d.a * d.life;
       ctx.fillStyle = d.color;
-      ctx.shadowBlur = 14;
+      ctx.shadowBlur = 16;
       ctx.shadowColor = d.color;
       ctx.translate(d.x, d.y);
       ctx.rotate(d.rot);
@@ -8247,6 +8286,153 @@ function _initFinSparkles() {
   };
 
   if (window._finRaf) cancelAnimationFrame(window._finRaf);
+  tick();
+}
+
+/* ---- אבקת פיות ממוקדת על התמונה ---- */
+function _initFinDust() {
+  const canvas = document.getElementById('fin-dust');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  let W = canvas.width  = window.innerWidth;
+  let H = canvas.height = window.innerHeight;
+
+  const onResize = () => {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  };
+  window.addEventListener('resize', onResize);
+
+  /* פלטת צבעים של אבקת פיות — לבן-זהב-ורוד-תכלת */
+  const DUST = [
+    '#FFFFFF', '#FFD700', '#FFFACD', '#FFE4E1',
+    '#E0E8FF', '#FFB6C1', '#FFEFD5', '#E8D5FF', '#B0F0FF',
+  ];
+  const rnd = (a, b) => a + Math.random() * (b - a);
+  const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+  /* מיקום מרכז התמונה — נחשב דינמית */
+  const cx = () => W / 2;
+  const cy = () => H / 2;
+
+  /* הגדרת נתיב אקראי מסביב לתמונה */
+  const imgHW = () => Math.min(W * 0.44, 340);
+  const imgHH = () => Math.min(H * 0.41, 280);
+
+  /* חלקיקי אבקת פיות */
+  const dust = [];
+
+  const spawnDust = () => {
+    /* נקודת מוצא: אקראי על פריפריית התמונה */
+    const angle = rnd(0, Math.PI * 2);
+    const ex = imgHW();
+    const ey = imgHH();
+    const px = cx() + Math.cos(angle) * ex * rnd(0.2, 1.1);
+    const py = cy() + Math.sin(angle) * ey * rnd(0.2, 1.1);
+    /* כיוון תנועה: החוצה + קצת למעלה */
+    const speed = rnd(0.3, 1.2);
+    const vx = Math.cos(angle) * speed * rnd(0.5, 1.4);
+    const vy = Math.sin(angle) * speed * rnd(0.5, 1.4) - rnd(0.2, 0.7);
+    return {
+      x: px, y: py,
+      vx, vy,
+      r: rnd(0.8, 3.2),
+      a: rnd(0.7, 1),
+      life: 1,
+      decay: rnd(0.008, 0.022),
+      color: pick(DUST),
+      rot: rnd(0, Math.PI * 2),
+      drot: rnd(-0.08, 0.08),
+      type: Math.random() > 0.55 ? 'star4' : 'circle',
+    };
+  };
+
+  /* זרע ראשוני */
+  for (let i = 0; i < 50; i++) {
+    const d = spawnDust();
+    d.life = rnd(0.3, 1);
+    dust.push(d);
+  }
+
+  /* פונקציה לציור כוכב 4 קצוות (נצנץ) */
+  const drawStar4 = (ctx, x, y, r, rot) => {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(rot);
+    ctx.beginPath();
+    for (let i = 0; i < 4; i++) {
+      const a = (i / 4) * Math.PI * 2;
+      const b = ((i + 0.5) / 4) * Math.PI * 2;
+      i === 0
+        ? ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r)
+        : ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+      ctx.lineTo(Math.cos(b) * r * 0.38, Math.sin(b) * r * 0.38);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  };
+
+  let frame = 0;
+
+  const tick = () => {
+    if (!document.getElementById('fin-dust')) {
+      window.removeEventListener('resize', onResize);
+      return;
+    }
+    ctx.clearRect(0, 0, W, H);
+    frame++;
+
+    /* spawn: הרבה יותר חלקיקים מהתמונה */
+    const spawnRate = frame < 180 ? 5 : 8;
+    if (frame % spawnRate === 0) {
+      for (let i = 0; i < 3; i++) dust.push(spawnDust());
+    }
+
+    for (let i = dust.length - 1; i >= 0; i--) {
+      const d = dust[i];
+      d.x  += d.vx;
+      d.y  += d.vy;
+      d.vy -= 0.012; /* כבידה קלה כלפי מטה */
+      d.rot += d.drot;
+      d.life -= d.decay;
+      if (d.life <= 0) { dust.splice(i, 1); continue; }
+
+      const alpha = d.a * d.life;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = d.color;
+      ctx.shadowBlur = 18;
+      ctx.shadowColor = d.color;
+
+      if (d.type === 'star4') {
+        drawStar4(ctx, d.x, d.y, d.r * 1.6, d.rot);
+      } else {
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, d.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      /* זנב זוהר קצר */
+      if (d.r > 1.8 && alpha > 0.3) {
+        ctx.globalAlpha = alpha * 0.35;
+        ctx.strokeStyle = d.color;
+        ctx.lineWidth = d.r * 0.5;
+        ctx.lineCap = 'round';
+        ctx.shadowBlur = 20;
+        ctx.beginPath();
+        ctx.moveTo(d.x - d.vx * 4, d.y - d.vy * 4);
+        ctx.lineTo(d.x, d.y);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    window._finDustRaf = requestAnimationFrame(tick);
+  };
+
+  if (window._finDustRaf) cancelAnimationFrame(window._finDustRaf);
   tick();
 }
 

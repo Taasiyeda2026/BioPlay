@@ -4349,7 +4349,18 @@ async function hydrateDoorMappingFromJson() {
         saveGameState();
       }
     }
-    if (gameState.currentScreen === 'door_selection') renderDoorSelection();
+    if (gameState.currentScreen === 'door_selection') {
+      renderDoorSelection();
+    } else {
+      const STEP_SCREENS = new Set([
+        'step_1_identification', 'step_2_secret', 'step_3_habitat',
+        'step_4_biomatch', 'step_5_matching', 'step_6_count_elements',
+        'door_1', 'door_2'
+      ]);
+      if (STEP_SCREENS.has(gameState.currentScreen)) {
+        renderCurrentScreen();
+      }
+    }
   } catch (_) {
     showError('⚠️ אירעה שגיאה בטעינת נתוני המשחק. ממשיכים עם תוכן ברירת מחדל.');
   }

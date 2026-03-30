@@ -93,7 +93,7 @@
       border: 1px solid var(--border);
       border-radius: 20px;
       box-shadow: var(--shadow);
-      overflow: hidden;
+      overflow: visible;
       display: grid;
       grid-template-areas:
         "header"
@@ -862,7 +862,7 @@
       background: #fff;
       border-radius: 10px;
       border: 1px solid var(--border-strong);
-      z-index: 20;
+      z-index: 500;
       box-shadow: 0 12px 28px rgba(17, 46, 76, 0.12);
     }
     .search-dropdown.open { display: block; }
@@ -1140,7 +1140,7 @@
       justify-content: center;
       background: rgba(8, 23, 39, 0.55);
       backdrop-filter: blur(2px);
-      z-index: 80;
+      z-index: 9999;
       padding: 24px;
     }
     .guide-modal.open { display: flex; }

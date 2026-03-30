@@ -152,6 +152,7 @@
       min-height: auto;
       backdrop-filter: none;
       position: relative;
+      transition: width 0.28s ease-out;
     }
     /* Glowing portal arch rim at top */
     #app::before {
@@ -5445,7 +5446,12 @@ function shuffle(arr) {
 function setScreen(html) {
   const el = document.getElementById("game-screen");
   if (el) el.innerHTML = html;
-  requestAnimationFrame(applyAutoScale);
+  const isStep6 = document.getElementById('app')?.classList.contains('screen-step6-wide');
+  if (isStep6) {
+    setTimeout(applyAutoScale, 300);
+  } else {
+    requestAnimationFrame(applyAutoScale);
+  }
 }
 
 function applyAutoScale() {

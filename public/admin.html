@@ -1107,6 +1107,56 @@
       font-size: .96rem;
       font-weight: 900;
     }
+    .guide-compact { display:grid; gap:10px; direction:rtl; }
+    .guide-compact-header {
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+      background:linear-gradient(135deg,#fff9d0,#fef3a0);
+      border:1px solid #e8c84a; border-radius:14px;
+      padding:10px 14px;
+    }
+    .guide-compact-door-num {
+      font-size:1.5rem; font-weight:900; color:#0d3f69;
+    }
+    .guide-compact-organism {
+      font-size:1.15rem; font-weight:800; color:#1a5f8a;
+    }
+    .guide-compact-codes {
+      display:grid; grid-template-columns:1fr 1fr; gap:10px;
+    }
+    .guide-compact-col {
+      background:#fff; border:1.5px solid #c0dff4;
+      border-radius:14px; padding:10px 12px;
+      display:grid; gap:8px;
+    }
+    .guide-compact-col.col-door2 { border-color:#f0a0a0; background:#fff8f8; }
+    .guide-compact-col-label {
+      font-size:.82rem; font-weight:900; color:#104f81;
+      text-align:center; letter-spacing:.2px;
+    }
+    .guide-compact-col.col-door2 .guide-compact-col-label { color:#a02020; }
+    .guide-compact-digits-row {
+      display:flex; gap:6px; justify-content:center; align-items:flex-end;
+    }
+    .guide-compact-dl {
+      display:flex; flex-direction:column; align-items:center; gap:3px;
+    }
+    .guide-dig {
+      width:38px; height:42px;
+      display:flex; align-items:center; justify-content:center;
+      border-radius:10px; border:2px solid #3a88c8;
+      background:linear-gradient(180deg,#e8f6ff,#c8e8fa);
+      font-size:1.35rem; font-weight:900; color:#0a3d68;
+      box-shadow:0 3px 8px rgba(20,80,130,.15);
+    }
+    .guide-compact-col.col-door2 .guide-dig {
+      border-color:#c84040;
+      background:linear-gradient(180deg,#fff0f0,#ffd8d8);
+      color:#7a0a0a;
+    }
+    .guide-dig.empty { color:#bbb; border-style:dashed; border-color:#bcd; background:#f4f8fc; }
+    .guide-dig-lbl {
+      font-size:.63rem; font-weight:700; color:#5a85a0; white-space:nowrap;
+    }
     .scores-action-btn {
       width: 114px;
       height: 38px;
@@ -1146,7 +1196,7 @@
     }
     .guide-modal.open { display: flex; }
     .guide-modal-panel {
-      width: min(520px, calc(100vw - 26px));
+      width: min(400px, calc(100vw - 24px));
       max-height: calc(100vh - 36px);
       overflow: auto;
       border-radius: 20px;
@@ -3453,114 +3503,33 @@
     const step5Digit = getDoorSearchCountDigit(door);
     const door2Digits = [String(matchingSecretDigits?.[0] ?? "").trim(), String(matchingSecretDigits?.[1] ?? "").trim(), String(step5Digit || "").trim()];
 
+    const mkDig = (val, lbl) => {
+      const v = String(val ?? "").trim();
+      return `<div class="guide-compact-dl"><div class="guide-dig${v ? "" : " empty"}">${escapeHTML(v || "?")}</div><div class="guide-dig-lbl">${lbl}</div></div>`;
+    };
+
     guideModalContent.innerHTML = `
-      <div class="guide-sheet">
-        <div class="guide-sheet-header">
-          <div>
-            <div class="guide-sheet-title">דלת ${escapeHTML(door?.id || "—")} — ${escapeHTML(door?.creature || "—")}</div>
-          </div>
+      <div class="guide-compact">
+        <div class="guide-compact-header">
+          <span class="guide-compact-door-num">דלת ${escapeHTML(String(door?.id || "—"))}</span>
+          <span class="guide-compact-organism">${escapeHTML(door?.creature || "—")}</span>
         </div>
-
-        <div class="guide-sheet-block">
-          <h4>קוד לדלת 1</h4>
-          <table class="guide-table table-door1">
-            <thead>
-              <tr>
-                <th>שלב</th>
-                <th>שם השער</th>
-                <th>שאלה</th>
-                <th>תשובה נכונה</th>
-                <th>ספרה לקוד</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><span class="guide-stage-name">שלב 1:</span></td>
-                <td>שער הגילוי הנסתר</td>
-                <td>${escapeHTML(step1?.question || "—")}</td>
-                <td>${escapeHTML(step1?.answer || "—")}</td>
-                <td>${escapeHTML(step1Digit || "—")}</td>
-              </tr>
-              <tr>
-                <td><span class="guide-stage-name">שלב 2:</span></td>
-                <td>שער הכוח הסודי</td>
-                <td>${escapeHTML(step2?.question || "—")}</td>
-                <td>${escapeHTML(step2?.answer || "—")}</td>
-                <td>${escapeHTML(step2Digit || "—")}</td>
-              </tr>
-              <tr>
-                <td><span class="guide-stage-name">שלב 3:</span></td>
-                <td>שער ממלכת החיים</td>
-                <td>${escapeHTML(step3?.question || "—")}</td>
-                <td>${escapeHTML(step3?.answer || "—")}</td>
-                <td>${escapeHTML(step3Digit || "—")}</td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="guide-code-row">
-            <strong>קוד לדלת 1:</strong>
-            ${renderDigitBoxes(door1Digits, 3)}
-          </div>
-        </div>
-
-        <div class="guide-sheet-block">
-          <h4><span class="guide-stage-name">שלב 4:</span> שער ההשראה החכמה</h4>
-          <table class="guide-table">
-            <thead>
-              <tr>
-                <th>אורגניזם</th>
-                <th>טכנולוגיה</th>
-              </tr>
-            </thead>
-            <tbody>
-${(() => { const ids = String(matchingByOrganism.get(String(door?.creature||""))?.layout || "").split(",").map((x)=>x.trim()).filter(Boolean); const rows = ids.map((id)=> matchingPairsById.get(id)).filter(Boolean); return rows.map((row)=>`<tr><td>${escapeHTML(row.nature || "—")}</td><td>${escapeHTML(row.tech || "—")}</td></tr>`).join("") || `<tr><td>—</td><td>—</td></tr>`; })()}
-            </tbody>
-          </table>
-          <div class="guide-code-row">
-            <strong>ספרות לקוד:</strong>
-            ${renderDigitBoxes(matchingSecretDigits, 2)}
-          </div>
-        </div>
-
-        <div class="guide-sheet-block">
-          <h4><span class="guide-stage-name">שלב 5:</span> שער החיפוש הקסום</h4>
-          <div class="guide-hint-columns">
-            <div class="guide-hint-column">
-              <span class="guide-hint-column-title">תמונת היער</span>
-              <div>6 פריטים נעלמים</div>
-              <div>השלב מסתיים ב-4 פריטים</div>
-            </div>
-            <div class="guide-hint-column">
-              <span class="guide-hint-column-title">תמונת המדבר</span>
-              <div>6 פריטים נעלמים</div>
-              <div>השלב מסתיים ב-4 פריטים</div>
+        <div class="guide-compact-codes">
+          <div class="guide-compact-col">
+            <div class="guide-compact-col-label">🔑 קוד דלת 1</div>
+            <div class="guide-compact-digits-row">
+              ${mkDig(step1Digit, "שלב 1")}
+              ${mkDig(step2Digit, "שלב 2")}
+              ${mkDig(step3Digit, "שלב 3")}
             </div>
           </div>
-          <div class="guide-code-row">
-            <strong>ספרה לקוד:</strong>
-            ${renderDigitBoxes([step5Digit], 1)}
-          </div>
-        </div>
-
-        <div class="guide-sheet-block">
-          <h4>קוד לדלת 2</h4>
-          <div class="guide-code-row">
-            <strong>קוד לדלת 2:</strong>
-            ${renderDigitBoxes(door2Digits, 3)}
-          </div>
-        </div>
-
-        <div class="guide-sheet-block">
-          <h4>מסך הידעת? (אחרי דלת 2)</h4>
-          <div class="guide-step-line">
-            <div class="guide-step-meta">לאחר פתיחת דלת 2 מוצג לשחקנים מסך <strong>"הידעת?"</strong> עם עובדה על <strong>${escapeHTML(door?.creature || "האורגניזם")}</strong>. השחקנים חייבים ללחוץ <strong>"המשיכו לשלב הסיום"</strong> כדי לעבור לשלב הצופן.</div>
-          </div>
-        </div>
-
-        <div class="guide-sheet-block">
-          <h4><span class="guide-stage-name">שלב 6:</span> שער הצופן הסודי</h4>
-          <div class="guide-step-line">
-            <div class="guide-step-meta">התשובה לכתב הסתרים: <strong>"השראה מן הטבע"</strong></div>
+          <div class="guide-compact-col col-door2">
+            <div class="guide-compact-col-label">🔑 קוד דלת 2</div>
+            <div class="guide-compact-digits-row">
+              ${mkDig(matchingSecretDigits?.[0], "שלב 4א")}
+              ${mkDig(matchingSecretDigits?.[1], "שלב 4ב")}
+              ${mkDig(step5Digit, "שלב 5")}
+            </div>
           </div>
         </div>
       </div>

@@ -1157,6 +1157,27 @@
     .guide-dig-lbl {
       font-size:.63rem; font-weight:700; color:#5a85a0; white-space:nowrap;
     }
+    .guide-compact-answers {
+      display:grid; gap:5px;
+    }
+    .guide-compact-ans-row {
+      display:flex; align-items:baseline; gap:7px;
+      background:#fff; border:1px solid #d6eaf5;
+      border-radius:10px; padding:6px 10px;
+      font-size:.85rem;
+    }
+    .guide-compact-ans-row.step6 {
+      background:linear-gradient(135deg,#f5fff0,#e8ffe0);
+      border-color:#90d090;
+    }
+    .guide-compact-ans-lbl {
+      font-weight:900; color:#104f81; white-space:nowrap; min-width:48px;
+    }
+    .guide-compact-ans-row.step6 .guide-compact-ans-lbl { color:#1a6b1a; }
+    .guide-compact-ans-val {
+      font-weight:700; color:#17324d; flex:1; text-align:right;
+    }
+    .guide-compact-ans-row.step6 .guide-compact-ans-val { color:#1a5a1a; }
     .scores-action-btn {
       width: 114px;
       height: 38px;
@@ -3530,6 +3551,24 @@
               ${mkDig(matchingSecretDigits?.[1], "שלב 4ב")}
               ${mkDig(step5Digit, "שלב 5")}
             </div>
+          </div>
+        </div>
+        <div class="guide-compact-answers">
+          <div class="guide-compact-ans-row">
+            <span class="guide-compact-ans-lbl">שלב 1:</span>
+            <span class="guide-compact-ans-val">${escapeHTML(step1.answer || "—")}</span>
+          </div>
+          <div class="guide-compact-ans-row">
+            <span class="guide-compact-ans-lbl">שלב 2:</span>
+            <span class="guide-compact-ans-val">${escapeHTML(step2.answer || "—")}</span>
+          </div>
+          <div class="guide-compact-ans-row">
+            <span class="guide-compact-ans-lbl">שלב 3:</span>
+            <span class="guide-compact-ans-val">${escapeHTML(step3.answer || "—")}</span>
+          </div>
+          <div class="guide-compact-ans-row step6">
+            <span class="guide-compact-ans-lbl">שלב 6:</span>
+            <span class="guide-compact-ans-val">השראה מן הטבע</span>
           </div>
         </div>
       </div>

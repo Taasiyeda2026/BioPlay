@@ -62,6 +62,7 @@
 
     body { padding: 12px; }
     html, body {
+      background-color: #000d05 !important;
       background-image: var(--screen-bg-image, linear-gradient(175deg, #000c04 0%, #001309 30%, #000b04 60%, #001208 100%)) !important;
       background-size: cover !important;
       background-position: center center !important;
@@ -493,6 +494,13 @@
       overflow-y: auto;
       position: relative;
       z-index: 1;
+    }
+    @keyframes screenFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    #game-screen.screen-transitioning {
+      animation: screenFadeIn 0.22s ease both;
     }
 
     /* ---- Cards ---- */
@@ -5571,7 +5579,12 @@ function shuffle(arr) {
 
 function setScreen(html) {
   const el = document.getElementById("game-screen");
-  if (el) el.innerHTML = html;
+  if (el) {
+    el.innerHTML = html;
+    el.classList.remove('screen-transitioning');
+    void el.offsetWidth;
+    el.classList.add('screen-transitioning');
+  }
   const isStep6 = document.getElementById('app')?.classList.contains('screen-step6-wide');
   if (isStep6) {
     setTimeout(applyAutoScale, 300);
@@ -8678,14 +8691,11 @@ window.restartGame = function() {
    ============================================================ */
 
 document.addEventListener("DOMContentLoaded", async function() {
-  /* Preload background images — high priority first (bg-1..4), then the rest */
+  /* Preload all background images eagerly to prevent white flash on screen transitions */
   (function preloadBackgrounds() {
     const ext = _bgSupportsWebP ? 'webp' : 'png';
     const load = (n) => { const img = new Image(); img.src = `assets/images/backgrounds/bg-${n}.${ext}`; };
-    load(1); load(2);
-    const rest = [3, 4, 5, 6, 7, 8, 9, 10, 11];
-    const schedFn = typeof requestIdleCallback === 'function' ? requestIdleCallback : (cb) => setTimeout(cb, 2000);
-    schedFn(() => rest.forEach(load));
+    for (let i = 1; i <= 11; i++) load(i);
   })();
 
   try { await loadStage3Habitats(); } catch (_) {}

@@ -8697,6 +8697,7 @@ document.addEventListener("DOMContentLoaded", async function() {
   if (!loaded) {
     gameState.currentScreen = "name_entry";
   }
+  let _skipToCountdown = false;
   try {
     const pending = sessionStorage.getItem('bioplay_pending_name');
     if (pending && !gameState.player.name) gameState.player.name = pending;
@@ -8707,6 +8708,7 @@ document.addEventListener("DOMContentLoaded", async function() {
         gameState.enabledSteps = Array.isArray(st.enabledSteps) && st.enabledSteps.length ? st.enabledSteps : gameState.enabledSteps;
         gameState.doorsCount = Number(st.doorsCount || gameState.doorsCount || 0);
         gameState.currentScreen = 'name_entry';
+        _skipToCountdown = true;
       }
     }
   } catch (_) {}
@@ -8716,6 +8718,16 @@ document.addEventListener("DOMContentLoaded", async function() {
   applyScreenBackground(gameState.currentScreen);
   updateHeader();
   renderCurrentScreen();
+  if (_skipToCountdown && gameState.player.name) {
+    if (_namePoll) { clearInterval(_namePoll); _namePoll = null; }
+    const participantId = ensureParticipantId();
+    const name = gameState.player.name;
+    gameState.player.score = 0;
+    saveGameState();
+    try { sessionStorage.removeItem('bioplay_pending_name'); } catch (_) {}
+    startCountdownWithNarration();
+    apiPost('gamejoin', { name, participantId }).catch(() => {});
+  }
   window.addEventListener('resize', () => requestAnimationFrame(applyAutoScale));
 });
 

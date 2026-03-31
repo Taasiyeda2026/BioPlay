@@ -3644,7 +3644,7 @@ ${(() => { const ids = String(matchingByOrganism.get(String(door?.creature||""))
       const statusEl = document.getElementById("guide-search-status");
 
       if (!q) {
-        clearGuideCards();
+        if (statusEl) { statusEl.textContent = "הכניסו שם אורגניזם או מספר דלת"; statusEl.style.color = "#587796"; }
         guideSearchDropdown.classList.remove("open");
         return;
       }
@@ -3655,20 +3655,25 @@ ${(() => { const ids = String(matchingByOrganism.get(String(door?.creature||""))
         return;
       }
 
+      if (statusEl) { statusEl.textContent = ""; }
+
       const qLower = q.toLowerCase();
-      const door = doorsData.find(d =>
+      const matches = doorsData.filter(d =>
         (d.creature || "").toLowerCase().includes(qLower) || String(d.id) === q
       );
 
-      if (!door) {
+      if (!matches.length) {
         if (statusEl) { statusEl.textContent = `לא נמצא אורגניזם התואם "${q}" — נסו שם מלא או מספר דלת`; statusEl.style.color = "#b05a00"; }
         guideSearchDropdown.classList.remove("open");
         return;
       }
 
-      if (statusEl) { statusEl.textContent = ""; }
-      renderGuideResult(door);
-      guideSearchDropdown.classList.remove("open");
+      if (matches.length === 1) {
+        renderGuideResult(matches[0]);
+        guideSearchDropdown.classList.remove("open");
+      } else {
+        buildGuideDropdown(q);
+      }
     });
 
     guideSearchInput.addEventListener("keydown", e => {

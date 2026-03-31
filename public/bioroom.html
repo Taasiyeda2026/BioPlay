@@ -7483,6 +7483,12 @@ function _step6ShowFoundPopup(item, isLast, afterClose) {
   const existing = document.getElementById('step6-found-popup');
   if (existing) existing.remove();
 
+  /* פריט אחרון — סוגרים fullscreen כדי שההודעה תופיע על רקע המשחק */
+  if (isLast) {
+    const fsOverlay = document.getElementById('step6-fs-overlay');
+    if (fsOverlay) fsOverlay.remove();
+  }
+
   const popup = document.createElement('div');
   popup.id        = 'step6-found-popup';
   popup.className = 'step6-found-popup';
@@ -7492,14 +7498,14 @@ function _step6ShowFoundPopup(item, isLast, afterClose) {
     : `<div class="step6-found-badge">✅</div>`;
 
   const continueBtn = isLast ? `
-    <button class="step6-found-continue" id="step6-found-continue-btn">המשיכו →</button>` : '';
+    <button class="step6-found-continue" id="step6-found-continue-btn">אישור →</button>` : '';
   const keepBtn = !isLast ? `
     <button class="step6-found-keep" id="step6-found-keep-btn">המשיכו לחפש</button>` : '';
 
   popup.innerHTML = `
     <div class="step6-found-card">
       ${imgHtml}
-      <div class="step6-found-label">נמצא!</div>
+      <div class="step6-found-label">${isLast ? '🎉 כל הפריטים נמצאו!' : 'נמצא!'}</div>
       <div class="step6-found-name">${escapeHTML(item.name)}</div>
       ${continueBtn}
       ${keepBtn}
@@ -7526,6 +7532,7 @@ function _step6ShowFoundPopup(item, isLast, afterClose) {
         window.step6Complete();
       });
     }
+    /* לפריט האחרון: ממתינים ללחיצת אישור בלבד — אין סגירה אוטומטית */
   } else {
     const keepEl = popup.querySelector('#step6-found-keep-btn');
     if (keepEl) keepEl.addEventListener('click', _closePopup);
@@ -7533,7 +7540,7 @@ function _step6ShowFoundPopup(item, isLast, afterClose) {
   }
 
   popup.addEventListener('click', (e) => {
-    if (e.target === popup) _closePopup();
+    if (e.target === popup && !isLast) _closePopup();
   });
 }
 

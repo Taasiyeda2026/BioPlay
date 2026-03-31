@@ -2312,6 +2312,13 @@
 
 <script>
   const APPS_URL = window.BIOPLAY_BACKEND_URL || "https://script.google.com/macros/s/AKfycbx5RWkHWy4YXcwuIs8Fx6WWXCafFOoYIjCth2ILA3Zb4Rn4mKTDKDbkQA7Z4GIAULkpNA/exec";
+  const GAME_DATA_BASE = (() => {
+    if (window.location.hostname.endsWith('github.io')) {
+      const m = window.location.pathname.match(/^\/([^/]+)\//);
+      return m ? `/${m[1]}/game-data` : '/game-data';
+    }
+    return '/gd';
+  })();
   const POLL_MS = 4000;
   const PLAY_GLOW_MS = 30 * 60 * 1000;
   const INITIAL_ACTION_MESSAGE = ``;
@@ -3268,7 +3275,7 @@
 
   async function loadHabitatMapping() {
     try {
-      const res = await fetch("gd/question3.json", { cache: "no-store" });
+      const res = await fetch(`${GAME_DATA_BASE}/question3.json`, { cache: "no-store" });
       if (!res.ok) return;
       const rows = await res.json();
       const rowsArr = Array.isArray(rows?.records) ? rows.records : [];
@@ -3297,7 +3304,7 @@
 
   async function loadDoors() {
     try {
-      const res = await fetch("gd/question1.json", { cache: "no-store" });
+      const res = await fetch(`${GAME_DATA_BASE}/question1.json`, { cache: "no-store" });
       const rows = await res.json();
       const recs = Array.isArray(rows?.records) ? rows.records : [];
       doorsData = recs.map((r) => enrichDoorWithHabitat({
@@ -3327,8 +3334,8 @@
   async function loadGuideData() {
     try {
       const [matchingRes, pairsRes] = await Promise.all([
-        fetch("gd/matching_game_continuation.json", { cache: "no-store" }),
-        fetch("gd/matching_game.json", { cache: "no-store" })
+        fetch(`${GAME_DATA_BASE}/matching_game_continuation.json`, { cache: "no-store" }),
+        fetch(`${GAME_DATA_BASE}/matching_game.json`, { cache: "no-store" })
       ]);
       const matchingRows = await matchingRes.json();
       const recs = Array.isArray(matchingRows?.records) ? matchingRows.records : [];
@@ -3347,7 +3354,7 @@
     }
 
     try {
-      const step5Res = await fetch("gd/screens.json", { cache: "no-store" });
+      const step5Res = await fetch(`${GAME_DATA_BASE}/screens.json`, { cache: "no-store" });
       const step5Json = await step5Res.json();
       globalStep5Data = step5Json && typeof step5Json === "object" ? step5Json : null;
     } catch (_) {
@@ -3355,7 +3362,7 @@
     }
 
     try {
-      const mcqRes = await fetch("gd/question2.json", { cache: "no-store" });
+      const mcqRes = await fetch(`${GAME_DATA_BASE}/question2.json`, { cache: "no-store" });
       const mcqRows = await mcqRes.json();
       const recs = Array.isArray(mcqRows?.records) ? mcqRows.records : [];
       if (Array.isArray(recs)) {

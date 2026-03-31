@@ -3695,10 +3695,11 @@ ${(() => { const ids = String(matchingByOrganism.get(String(door?.creature||""))
 
   (async () => {
     currentRoomId = (qp.get("room") || "").trim();
-    await loadRoomNames();
+    const roomNamesPromise = loadRoomNames();
     await loadHabitatMapping();
     await loadDoors();
     await loadGuideData();
+    await roomNamesPromise;
     refreshStorageScope();
     if (currentRoomId) {
       const savedGlowUntil = parseInt(localStorage.getItem(getPlayGlowKey(currentRoomId)), 10);

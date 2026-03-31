@@ -2509,7 +2509,7 @@
 
   function studentUrlForRoom() {
     if (!currentRoomId) return "";
-    const u = new URL("bioroom.html", window.location.href);
+    const u = new URL("index.html", window.location.href);
     u.searchParams.delete("mode");
     if (getBioConnModeMain() === "internal") {
       u.searchParams.set("room", INTERNAL_ROOM_ID);

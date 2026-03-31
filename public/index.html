@@ -1,21 +1,720 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>מעבר לדף הראשי</title>
-  <script>
-    (function () {
-      const q = window.location.search || '';
-      // GitHub Pages מוגש תחת root: ../index.html הוא ה-entry הראשי.
-      window.location.replace(`../index.html${q}`);
-    })();
-  </script>
+  <title>חדר הבריחה הביומימיקרי – כניסה למשחק</title>
+  <script src="js/backend-config.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-1: #000b04;
+      --bg-2: #001208;
+      --bg-3: #000d06;
+      --panel: rgba(1, 10, 5, 0.82);
+      --panel-strong: rgba(0, 8, 3, 0.94);
+      --border: rgba(0,220,140,.22);
+      --text: #d8f5e6;
+      --muted: #8ecba4;
+      --accent: #00e8c8;
+      --accent-2: #62ff9a;
+      --title: #7cffd8;
+      --warning: #f0d060;
+      --success: #62ff9a;
+      --shadow: 0 24px 70px rgba(0,0,0,.75), 0 0 50px rgba(0,200,120,.14);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: "Assistant", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(ellipse at -8% 40%, rgba(0,6,2,.92) 0%, transparent 38%),
+        radial-gradient(ellipse at 108% 35%, rgba(0,6,2,.92) 0%, transparent 38%),
+        radial-gradient(ellipse at 50% -12%, rgba(0,20,8,.85) 0%, transparent 52%),
+        radial-gradient(ellipse at 50% 88%, rgba(0,200,90,.32) 0%, rgba(0,120,50,.16) 35%, transparent 62%),
+        radial-gradient(circle at 12% 68%, rgba(0,160,70,.2) 0%, transparent 30%),
+        radial-gradient(circle at 88% 62%, rgba(0,130,100,.18) 0%, transparent 28%),
+        radial-gradient(circle at 35% 42%, rgba(57,224,122,.06) 0%, transparent 26%),
+        radial-gradient(circle at 68% 38%, rgba(0,180,120,.07) 0%, transparent 22%),
+        linear-gradient(170deg, #000c05 0%, #001209 35%, #000b05 65%, #001008 100%);
+    }
+
+    body {
+      position: relative;
+      isolation: isolate;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: -15vh -15vw;
+      pointer-events: none;
+      z-index: -2;
+      filter: blur(32px);
+      background:
+        radial-gradient(ellipse at 50% 90%, rgba(0,210,100,.3) 0%, transparent 45%),
+        radial-gradient(circle at 18% 75%, rgba(200,170,40,.14) 0%, transparent 28%),
+        radial-gradient(circle at 82% 70%, rgba(0,200,140,.14) 0%, transparent 26%),
+        radial-gradient(ellipse at 50% 20%, rgba(0,120,80,.12) 0%, transparent 38%),
+        radial-gradient(circle at 8%  50%, rgba(0,160,70,.16) 0%, transparent 32%),
+        radial-gradient(circle at 92% 45%, rgba(0,140,100,.14) 0%, transparent 28%);
+      animation: forestAura 22s ease-in-out infinite alternate;
+    }
+
+    body::after {
+      content: "";
+      position: fixed;
+      inset: -15vh -15vw;
+      pointer-events: none;
+      z-index: -1;
+      opacity: .7;
+      background:
+        radial-gradient(circle at 10% 22%, rgba(255,210,70,.90) 0 1.5px, transparent 2.5px),
+        radial-gradient(circle at 26% 65%, rgba(57,224,122,.85) 0 1px,   transparent 2px),
+        radial-gradient(circle at 44% 32%, rgba(0,232,200,.70) 0 1.3px,  transparent 2.3px),
+        radial-gradient(circle at 60% 78%, rgba(255,195,55,.75) 0 1px,   transparent 1.8px),
+        radial-gradient(circle at 80% 20%, rgba(57,224,122,.80) 0 1.5px, transparent 2.5px),
+        radial-gradient(circle at 92% 55%, rgba(0,232,180,.65) 0 1.2px,  transparent 2px),
+        radial-gradient(circle at 6%  86%, rgba(200,255,90,.60) 0 1px,   transparent 2px),
+        radial-gradient(circle at 36% 8%,  rgba(255,205,65,.72) 0 1.5px, transparent 2.5px),
+        radial-gradient(circle at 54% 50%, rgba(255,225,50,.48) 0 1px,   transparent 1.8px),
+        radial-gradient(circle at 72% 44%, rgba(57,224,122,.58) 0 1.2px, transparent 2px),
+        radial-gradient(circle at 16% 74%, rgba(0,220,160,.55) 0 1px,    transparent 1.8px),
+        radial-gradient(circle at 88% 82%, rgba(255,205,75,.68) 0 1.5px, transparent 2.5px),
+        radial-gradient(circle at 42% 88%, rgba(57,224,122,.62) 0 1px,   transparent 2px),
+        radial-gradient(circle at 62% 16%, rgba(0,232,200,.74) 0 1.2px,  transparent 2.2px),
+        radial-gradient(circle at 97% 28%, rgba(255,215,55,.58) 0 1px,   transparent 1.8px),
+        radial-gradient(circle at 2%  42%, rgba(100,255,140,.50) 0 1.5px,transparent 2.5px);
+      background-size:
+        300px 340px, 360px 280px, 440px 400px, 320px 440px,
+        400px 320px, 280px 380px, 460px 310px, 340px 360px,
+        420px 300px, 370px 330px, 310px 390px, 430px 270px,
+        350px 410px, 390px 290px, 270px 350px, 480px 330px;
+      animation: fireflyFloat 38s linear infinite;
+    }
+
+    @keyframes forestAura {
+      from { transform: translate3d(-2%, -1.5%, 0) scale(1); }
+      to   { transform: translate3d(2%, 2%, 0) scale(1.06); }
+    }
+    @keyframes fireflyFloat {
+      0%   { transform: translateY(0)     translateX(0);    opacity: .70; }
+      20%  { transform: translateY(-55px) translateX(22px); opacity: .82; }
+      40%  { transform: translateY(-110px) translateX(-15px); opacity: .60; }
+      60%  { transform: translateY(-170px) translateX(26px); opacity: .76; }
+      80%  { transform: translateY(-225px) translateX(-10px); opacity: .64; }
+      100% { transform: translateY(-285px) translateX(0);   opacity: .70; }
+    }
+
+    .sparkles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .sparkles span {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.95);
+      box-shadow: 0 0 10px rgba(255,255,255,.7), 0 0 22px rgba(0,232,180,.45);
+      opacity: .25;
+      animation: twinkle 5s ease-in-out infinite;
+    }
+
+    .sparkles span:nth-child(1)  { top: 8%;  right: 20%; animation-delay: 0s;    }
+    .sparkles span:nth-child(2)  { top: 20%; right: 32%; width: 3px; height: 3px; animation-delay: 1.2s; }
+    .sparkles span:nth-child(3)  { top: 14%; left: 24%;  animation-delay: 2.3s;  }
+    .sparkles span:nth-child(4)  { top: 32%; left: 12%;  width: 4px; height: 4px; animation-delay: 0.8s; }
+    .sparkles span:nth-child(5)  { top: 44%; right: 10%; animation-delay: 2.8s;  }
+    .sparkles span:nth-child(6)  { top: 56%; left: 16%;  width: 3px; height: 3px; animation-delay: 1.9s; }
+    .sparkles span:nth-child(7)  { top: 66%; right: 28%; animation-delay: 3.4s;  }
+    .sparkles span:nth-child(8)  { top: 76%; left: 30%;  width: 4px; height: 4px; animation-delay: 1.0s; }
+    .sparkles span:nth-child(9)  { top: 84%; right: 14%; animation-delay: 3.1s;  }
+    .sparkles span:nth-child(10) { top: 26%; left: 44%;  width: 3px; height: 3px; animation-delay: 1.5s; }
+
+    @keyframes twinkle {
+      0%, 100% { transform: scale(.7); opacity: .18; }
+      50%      { transform: scale(1.5); opacity: .88; }
+    }
+
+    .page-shell {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .screen {
+      width: min(92vw, 620px);
+      height: min(100%, 760px);
+      max-height: calc(100vh - 24px);
+      background:
+        linear-gradient(160deg, rgba(0,14,6,.92), rgba(0,8,3,.97)),
+        radial-gradient(circle at 50% 0%,   rgba(57,224,122,.07), transparent 50%),
+        radial-gradient(circle at 50% 100%, rgba(0,180,90,.06),   transparent 45%);
+      border: 1px solid rgba(0,220,140,.28);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow:
+        var(--shadow),
+        inset 0 0 80px rgba(57,224,122,.04),
+        0 0 80px rgba(0,180,100,.18);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .screen::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 12%; right: 12%;
+      height: 2px;
+      background: linear-gradient(90deg,
+        transparent,
+        rgba(0,232,180,.75) 30%,
+        rgba(57,255,140,.9) 50%,
+        rgba(0,232,180,.75) 70%,
+        transparent);
+      box-shadow: 0 0 18px rgba(0,232,180,.55), 0 0 38px rgba(0,200,140,.25);
+      border-radius: 999px;
+      z-index: 1;
+      animation: archPulse 4s ease-in-out infinite alternate;
+    }
+    @keyframes archPulse {
+      from { opacity: .6; box-shadow: 0 0 14px rgba(0,232,180,.45), 0 0 28px rgba(0,200,140,.18); }
+      to   { opacity: 1;  box-shadow: 0 0 24px rgba(0,232,180,.70), 0 0 50px rgba(0,200,140,.32); }
+    }
+
+    .hero {
+      padding: 16px 18px 10px;
+      text-align: center;
+      background:
+        linear-gradient(180deg, rgba(0,220,140,.06), rgba(0,0,0,0)),
+        radial-gradient(ellipse at 50% 0%, rgba(57,224,122,.08), transparent 55%);
+      border-bottom: 1px solid rgba(0,200,140,.12);
+      flex-shrink: 0;
+    }
+
+    .logo-container {
+      margin-bottom: 10px;
+    }
+
+    .logo-container img {
+      display: block;
+      max-width: 112px;
+      width: 100%;
+      height: auto;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      display: inline-block;
+      font-size: .84rem;
+      font-weight: 800;
+      color: #ffd985;
+      margin-bottom: 6px;
+      letter-spacing: .03em;
+    }
+
+    h1 {
+     font-size: clamp(1.8rem, 4vw, 2.8rem);
+      line-height: 1.15;
+      margin-bottom: 10px;
+      color: var(--title);
+      font-weight: 800;
+    }
+
+    .pill-row {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(0,200,120,.08);
+      border: 1px solid rgba(0,200,140,.2);
+      color: var(--text);
+      font-weight: 700;
+      font-size: .85rem;
+      white-space: nowrap;
+    }
+
+    .room-chip-wrap {
+      min-height: 24px;
+      margin-top: 8px;
+    }
+
+    .room-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: rgba(0,200,120,.1);
+      border: 1px solid rgba(0,220,140,.18);
+      font-size: .84rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .content {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+    }
+
+    .card {
+      width: 100%;
+      background:
+        linear-gradient(140deg, rgba(0,14,6,.95), rgba(0,9,3,.98)),
+        radial-gradient(circle at 50% 0%, rgba(57,224,122,.06), transparent 50%);
+      border: 1px solid rgba(0,200,140,.22);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      text-align: center;
+      box-shadow: inset 0 0 40px rgba(57,224,122,.04);
+    }
+
+    .status-icon {
+      font-size: 2.9rem;
+      line-height: 1;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: .96; }
+      50%      { transform: scale(1.06); opacity: 1; }
+    }
+
+    .card-title {
+      font-size: 1.3rem;
+      color: var(--text);
+      font-weight: 800;
+      margin-bottom: 8px;
+      line-height: 1.35;
+    }
+
+    .card-body {
+      color: var(--muted);
+      font-size: .98rem;
+      line-height: 1.55;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    .status-badge {
+      margin: 12px auto 0;
+      width: fit-content;
+      padding: 7px 14px;
+      border-radius: 999px;
+      font-size: .88rem;
+      font-weight: 800;
+      border: 1px solid rgba(0,200,140,.2);
+      background: rgba(0,180,100,.07);
+    }
+
+    .status-badge.waiting { color: var(--warning); }
+    .status-badge.ready   { color: var(--success); }
+
+    .ready-box {
+      display: none;
+    }
+
+    .ready-box.show {
+      display: block;
+      animation: fadeIn .35s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-wrap {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .name-input {
+      width: 100%;
+      max-width: 320px;
+      padding: 13px 16px;
+      background: rgba(0,200,100,.06);
+      border: 2px solid rgba(0,200,140,.22);
+      border-radius: 16px;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 700;
+      font-family: inherit;
+      text-align: center;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+
+    .name-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(0,232,180,.15), 0 0 20px rgba(0,200,140,.18);
+    }
+
+    .name-input::placeholder {
+      color: rgba(180,240,200,.45);
+    }
+
+    .start-btn {
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #001a08;
+      padding: 13px 22px;
+      min-width: 200px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 12px 28px rgba(0,232,180,.28), 0 0 40px rgba(0,200,120,.18);
+      transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+    }
+
+    .start-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 18px 36px rgba(0,232,180,.34), 0 0 55px rgba(0,200,120,.24);
+    }
+
+    .start-btn:active {
+      transform: translateY(0);
+    }
+
+    .start-btn.loading {
+      opacity: .92;
+      cursor: wait;
+      pointer-events: none;
+    }
+
+    .btn-spinner {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid rgba(0,26,12,.25);
+      border-top-color: rgba(0,26,12,.95);
+      display: inline-block;
+      animation: spin .8s linear infinite;
+      vertical-align: middle;
+      margin-inline-start: 8px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .footer-note {
+      flex-shrink: 0;
+      text-align: center;
+      padding: 0 16px 14px;
+      color: rgba(140,220,170,.5);
+      font-size: .84rem;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 640px) {
+      .page-shell { padding: 10px; }
+      .screen { width: 100%; max-height: calc(100vh - 20px); }
+      .hero { padding: 14px 14px 10px; }
+      .logo-container img { max-width: 96px; }
+      h1 { font-size: 1.28rem; }
+      .pill { font-size: .8rem; padding: 5px 10px; }
+      .content { padding: 12px; }
+      .card { padding: 16px 14px; }
+      .card-title { font-size: 1.18rem; }
+      .card-body { font-size: .93rem; }
+      .status-icon { font-size: 2.5rem; }
+      .start-btn, .name-input { max-width: 100%; }
+      .footer-note { font-size: .8rem; padding-bottom: 12px; }
+    }
+
+    @media (max-height: 700px) {
+      .hero { padding-top: 12px; padding-bottom: 8px; }
+      .logo-container { margin-bottom: 8px; }
+      .logo-container img { max-width: 88px; }
+      .eyebrow { margin-bottom: 4px; }
+      h1 { font-size: 1.22rem; margin-bottom: 8px; }
+      .pill { padding: 4px 10px; font-size: .78rem; }
+      .room-chip-wrap { min-height: 20px; margin-top: 6px; }
+      .content { padding: 10px; }
+      .card { padding: 14px 12px; }
+      .status-icon { font-size: 2.2rem; margin-bottom: 8px; }
+      .card-title { font-size: 1.08rem; margin-bottom: 6px; }
+      .card-body { font-size: .9rem; line-height: 1.45; }
+      .form-wrap { margin-top: 12px; gap: 10px; }
+      .name-input, .start-btn { padding-top: 11px; padding-bottom: 11px; }
+      .status-badge { margin-top: 10px; padding: 6px 12px; font-size: .82rem; }
+      .footer-note { font-size: .76rem; padding-bottom: 10px; }
+    }
+  </style>
 </head>
 <body>
-  <noscript>
-    <meta http-equiv="refresh" content="0; url=../index.html" />
-  </noscript>
+  <div class="sparkles" aria-hidden="true">
+    <span></span><span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span><span></span>
+  </div>
+
+  <div class="page-shell">
+    <main class="screen">
+      <section class="hero">
+        <div class="logo-container">
+          <img src="assets/images/ui/logo.png" alt="לוגו">
+        </div>
+
+        <div class="eyebrow">חדר בריחה</div>
+        <h1>השער הנעלם אל עולם<br>הביומימיקרי הקסום</h1>
+
+        <div class="pill-row">
+          <div class="pill">🧬 ביומימיקרי</div>
+          <div class="pill">🔬 חקר וגילוי</div>
+          <div class="pill">🚪 מסלול משימות</div>
+        </div>
+
+        <div class="room-chip-wrap">
+          <div id="room-chip" class="room-chip" style="display:none"></div>
+        </div>
+      </section>
+
+      <section class="content">
+        <div class="card">
+          <div id="no-room-state" style="display:none">
+            <div class="status-icon">🔗</div>
+            <div class="card-title">המתינו להפעלה של המדריך</div>
+            <div class="card-body">המשחק יתחיל בעוד רגע.</div>
+            <div class="status-badge waiting">ממתינים</div>
+          </div>
+
+          <div id="waiting-state">
+            <div class="status-icon">🔗</div>
+            <div class="card-title">המתינו להפעלה של המדריך</div>
+            <div class="card-body">המשחק יתחיל בעוד רגע.</div>
+            <div class="status-badge waiting">ממתינים</div>
+          </div>
+
+          <div id="ready-state" class="ready-box">
+            <div class="status-icon" style="animation:none">✅</div>
+            <div class="card-title">החדר נפתח – אפשר להתחיל</div>
+            <div class="card-body">
+              הכניסו שם משתתף ולחצו על התחל משחק
+            </div>
+
+            <div class="form-wrap">
+              <input
+                id="player-name"
+                class="name-input"
+                type="text"
+                maxlength="30"
+                dir="rtl"
+                placeholder="הכניסו שם משתתף"
+                autocomplete="name"
+              />
+              <button id="start-btn" class="start-btn">התחל משחק</button>
+            </div>
+
+            <div class="status-badge ready">החדר פעיל ומוכן לכניסה</div>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer-note">
+        אם הגעתם מוקדם – פשוט השאירו את הדף פתוח והמתינו.
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const APPS_URL = window.BIOPLAY_BACKEND_URL || "https://script.google.com/macros/s/AKfycbx5RWkHWy4YXcwuIs8Fx6WWXCafFOoYIjCth2ILA3Zb4Rn4mKTDKDbkQA7Z4GIAULkpNA/exec";
+    const BIOPLAY_INTERNAL_LS_KEY = "bioplay_internal_v1";
+    const params = new URLSearchParams(window.location.search);
+    const rawRoom = (params.get("room") || "").trim();
+    const ROOM_ID = (rawRoom.match(/[A-Z0-9]{6}/i)?.[0] || "").toUpperCase();
+    const MODE_LOCAL = params.get("mode") === "local";
+
+    const ui = {
+      noRoomState: document.getElementById("no-room-state"),
+      waitingState: document.getElementById("waiting-state"),
+      readyState: document.getElementById("ready-state"),
+      startBtn: document.getElementById("start-btn"),
+      nameInput: document.getElementById("player-name"),
+      roomChip: document.getElementById("room-chip"),
+    };
+
+    let pollTimer = null;
+    let roomState = { active: false, selectedDoors: [], enabledSteps: [] };
+
+    function normalizeGameStatus(rawStatus) {
+      return String(rawStatus || "").trim().toLowerCase();
+    }
+
+    function isGameActiveStatus(rawStatus) {
+      const normalized = normalizeGameStatus(rawStatus);
+      return normalized === "active" || normalized === "started";
+    }
+
+    function readInternalRoom() {
+      try {
+        const raw = localStorage.getItem(BIOPLAY_INTERNAL_LS_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function extractGuideName(payload = {}) {
+      const candidates = [payload.guideName, payload.guide_name, payload.teacherName, payload.teacher_name];
+      for (const raw of candidates) {
+        const value = String(raw || "").trim();
+        if (!value) continue;
+        if (value === ROOM_ID) continue;
+        if (/^[A-Z0-9]{4,10}$/i.test(value)) continue;
+        return value;
+      }
+      return "";
+    }
+
+    function updateRoomChip(name) {
+      if (!ui.roomChip) return;
+      if (name) {
+        ui.roomChip.textContent = `🌿 מדריך: ${name}`;
+        ui.roomChip.style.display = "inline-flex";
+      } else if (ROOM_ID) {
+        ui.roomChip.textContent = `🔑 חדר: ${ROOM_ID}`;
+        ui.roomChip.style.display = "inline-flex";
+      } else {
+        ui.roomChip.style.display = "none";
+      }
+    }
+
+    function showWaiting() {
+      if (ui.waitingState) ui.waitingState.style.display = "";
+      if (ui.readyState) ui.readyState.classList.remove("show");
+    }
+
+    function showReady() {
+      if (ui.waitingState) ui.waitingState.style.display = "none";
+      if (ui.readyState) ui.readyState.classList.add("show");
+      if (ui.nameInput) ui.nameInput.focus();
+    }
+
+    async function fetchStatus() {
+      if (MODE_LOCAL) {
+        const st = readInternalRoom();
+        return st ? { ok: true, status: st.status, selectedDoors: st.selectedDoors || [], enabledSteps: st.enabledSteps || [1,2,3,4,5,6], guideName: "" } : null;
+      }
+      try {
+        const qs = new URLSearchParams({ action: "gamestatus", roomId: ROOM_ID });
+        const r = await fetch(`${APPS_URL}?${qs}`, { cache: "no-store" });
+        const raw = await r.text();
+        return raw ? JSON.parse(raw) : null;
+      } catch (_) {
+        return null;
+      }
+    }
+
+    async function poll() {
+      if (pollTimer) clearTimeout(pollTimer);
+      try {
+        const data = await fetchStatus();
+        if (data && isGameActiveStatus(data.status)) {
+          roomState.active = true;
+          roomState.selectedDoors = data.selectedDoors || [];
+          roomState.enabledSteps = data.enabledSteps || [1,2,3,4,5,6];
+          updateRoomChip(extractGuideName(data));
+          showReady();
+          return;
+        }
+      } catch (_) {}
+      showWaiting();
+      pollTimer = setTimeout(poll, 4000);
+    }
+
+    let startInFlight = false;
+
+    async function goToGame() {
+      if (startInFlight) return;
+      const name = (ui.nameInput?.value || "").trim().slice(0, 30);
+      if (!name) {
+        ui.nameInput?.focus();
+        return;
+      }
+      startInFlight = true;
+      if (ui.startBtn) {
+        ui.startBtn.disabled = true;
+        ui.startBtn.classList.add("loading");
+        ui.startBtn.innerHTML = 'פותחים את המסע... <span class="btn-spinner" aria-hidden="true"></span>';
+      }
+
+      sessionStorage.setItem(
+        "bioplay_student_entry",
+        JSON.stringify({ room: ROOM_ID, t: Date.now() })
+      );
+      sessionStorage.setItem("bioplay_pending_name", name);
+
+      const q = new URLSearchParams({ room: ROOM_ID, mode: MODE_LOCAL ? "local" : "server" });
+
+      const targetUrl = new URL(`bioroom.html?${q.toString()}`, window.location.href);
+      location.href = targetUrl.toString();
+    }
+
+    function init() {
+      updateRoomChip();
+
+      if (!ROOM_ID) {
+        if (ui.noRoomState) ui.noRoomState.style.display = "block";
+        if (ui.waitingState) ui.waitingState.style.display = "none";
+        return;
+      }
+
+      ui.startBtn?.addEventListener("click", goToGame);
+      ui.nameInput?.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") goToGame();
+      });
+
+      poll();
+    }
+
+    init();
+  </script>
 </body>
 </html>
-

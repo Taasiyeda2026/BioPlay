@@ -915,6 +915,7 @@
       text-align: right;
     }
     .guide-search-helper {
+      position: relative;
       z-index: 25;
       display: grid;
       gap: 8px;
@@ -1758,6 +1759,7 @@
               </div>
               <div class="search-dropdown" id="guide-search-dropdown"></div>
             </div>
+            <div id="guide-search-status" style="font-size:.78rem;color:#587796;text-align:center;min-height:16px;margin-top:4px"></div>
           </div>
 
           <div id="ls-table-wrap" style="overflow-x:auto">
@@ -3310,6 +3312,16 @@
     } catch { doorsData = []; }
     const count = Array.isArray(doorsData) ? doorsData.length : 0;
     if (dbTitle) dbTitle.textContent = `מאגר אורגניזמים (${count})`;
+    const guideStatusEl = document.getElementById("guide-search-status");
+    if (guideStatusEl) {
+      if (count > 0) {
+        guideStatusEl.textContent = `${count} אורגניזמים נטענו — חפשו שם או מספר דלת`;
+        guideStatusEl.style.color = "#2a7a47";
+      } else {
+        guideStatusEl.textContent = "שגיאה בטעינת הנתונים — האם השרת פועל?";
+        guideStatusEl.style.color = "#c0392b";
+      }
+    }
   }
 
   async function loadGuideData() {
@@ -3567,8 +3579,12 @@ ${(() => { const ids = String(matchingByOrganism.get(String(door?.creature||""))
     );
 
     if (!items.length) {
-      guideSearchDropdown.classList.remove("open");
-      guideSearchDropdown.innerHTML = "";
+      if (!doorsData.length) {
+        guideSearchDropdown.innerHTML = `<div class="dropdown-item" style="color:#c0392b;cursor:default">שגיאה: הנתונים לא נטענו — בדקו שהשרת פועל</div>`;
+      } else {
+        guideSearchDropdown.innerHTML = `<div class="dropdown-item" style="color:#777;cursor:default">לא נמצאו תוצאות עבור "${escapeHTML(cleanQ)}"</div>`;
+      }
+      guideSearchDropdown.classList.add("open");
       return;
     }
 
@@ -3625,9 +3641,16 @@ ${(() => { const ids = String(matchingByOrganism.get(String(door?.creature||""))
     const guideSearchBtn = document.getElementById("guide-search-btn");
     guideSearchBtn?.addEventListener("click", () => {
       const q = guideSearchInput.value.trim();
+      const statusEl = document.getElementById("guide-search-status");
 
       if (!q) {
         clearGuideCards();
+        guideSearchDropdown.classList.remove("open");
+        return;
+      }
+
+      if (!doorsData.length) {
+        if (statusEl) { statusEl.textContent = "שגיאה: הנתונים לא נטענו — בדקו שהשרת פועל"; statusEl.style.color = "#c0392b"; }
         guideSearchDropdown.classList.remove("open");
         return;
       }
@@ -3637,7 +3660,14 @@ ${(() => { const ids = String(matchingByOrganism.get(String(door?.creature||""))
         (d.creature || "").toLowerCase().includes(qLower) || String(d.id) === q
       );
 
-      renderGuideResult(door || null);
+      if (!door) {
+        if (statusEl) { statusEl.textContent = `לא נמצא אורגניזם התואם "${q}" — נסו שם מלא או מספר דלת`; statusEl.style.color = "#b05a00"; }
+        guideSearchDropdown.classList.remove("open");
+        return;
+      }
+
+      if (statusEl) { statusEl.textContent = ""; }
+      renderGuideResult(door);
       guideSearchDropdown.classList.remove("open");
     });
 

@@ -7459,6 +7459,7 @@ window.step6SelectGame = function(gameId) {
   gameState._step6.requiredToFind = getStep6TargetToFind(game);
   saveGameState();
   renderStep6();
+  window.step6OpenFullscreen();
 };
 
 function _step6ShowFoundPopup(item, isLast, afterClose) {

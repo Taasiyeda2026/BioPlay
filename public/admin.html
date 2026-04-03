@@ -1982,7 +1982,7 @@
       for (const action of candidates) {
         const raw = await lsApi(method, action, body);
         const payload = unwrapLivePayload(raw);
-        if (payload && Object.keys(payload).length) return payload;
+        if (payload && Object.keys(payload).length && payload.ok !== false) return payload;
       }
       return null;
     }
@@ -2211,8 +2211,8 @@
           return;
         }
         const [statusDataRaw, scoresDataRaw] = await Promise.all([
-          lsApiWithFallback('GET', ['gameStatus', 'gamestatus', 'status']),
-          lsApiWithFallback('GET', ['gameScores', 'gamescores', 'scores', 'gameScore']),
+          lsApiWithFallback('GET', ['gamestatus', 'gameStatus', 'status']),
+          lsApiWithFallback('GET', ['gamescores', 'gameScores', 'scores', 'gameScore']),
         ]);
         statusData = unwrapLivePayload(statusDataRaw);
         scoresData = unwrapLivePayload(scoresDataRaw);

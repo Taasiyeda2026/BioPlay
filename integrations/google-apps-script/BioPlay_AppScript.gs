@@ -16,7 +16,7 @@ const DEFAULT_STATUS      = 'waiting';
 const DEFAULT_DOORS_COUNT = 5;
 const AUTO_RESET_MINUTES  = 30;
 
-const WEB_APP_URL           = 'https://script.google.com/macros/s/AKfycbx5RWkHWy4YXcwuIs8Fx6WWXCafFOoYIjCth2ILA3Zb4Rn4mKTDKDbkQA7Z4GIAULkpNA/exec';
+const WEB_APP_URL           = 'https://script.google.com/macros/s/AKfycbyb0n7HMDLAJih6De3NJ7xLcq9Vi4hQZNnBQsKNWolhYHZba3cxJTifi_cnNstGdKoOFA/exec';
 const DOOR_IDS = [
   1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
   11, 12, 13, 14, 15, 16, 17, 18, 19, 20,

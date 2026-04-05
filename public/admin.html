@@ -2407,7 +2407,7 @@
 
   function pickInternalDoors(count) {
     const pool = [];
-    for (let i = 1; i <= 30; i++) pool.push(i);
+    for (let i = 1; i <= 45; i++) pool.push(i);
     for (let i = pool.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       const t = pool[i];
@@ -2745,7 +2745,7 @@
     }
   }
 
-  for (let n = 2; n <= 30; n++) {
+  for (let n = 2; n <= 45; n++) {
     const o = document.createElement("option");
     o.value = n; o.textContent = n;
     if (n === doorsCount) o.selected = true;

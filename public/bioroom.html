@@ -4081,7 +4081,7 @@ const ASSET_DIRS = Object.freeze({
 
 function assetPath(kind, filename) {
   const base = ASSET_DIRS[kind];
-  const name = String(filename || '').replace(/\.(png|jpe?g)$/i, '.webp');
+  const name = String(filename || '').replace(/\.webp$/i, '.png');
   return base ? `${base}/${name}` : name;
 }
 
@@ -4095,7 +4095,7 @@ function assetFile(kind, prefix, index) {
     organism: 'organisms'
   };
   const folder = folderByKind[kind] || kind;
-  return `assets/images/${folder}/${prefix}${Number(index)}.webp`;
+  return `assets/images/${folder}/${prefix}${Number(index)}.png`;
 }
 
 const CIPHER_SOLUTION        = "השראה מן הטבע";

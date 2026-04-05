@@ -3870,6 +3870,24 @@ function resolveRuntimeAsset(path) {
   }
 }
 
+document.addEventListener('error', (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLImageElement)) return;
+  const current = String(target.getAttribute('src') || '');
+  if (!/\.webp(?:$|[?#])/i.test(current)) return;
+  const state = Number(target.dataset.webpFallbackState || '0');
+  const fallback = state === 0
+    ? current.replace(/\.webp(?=([?#].*)?$)/i, '.png')
+    : state === 1
+      ? current.replace(/\.webp(?=([?#].*)?$)/i, '.jpg')
+      : state === 2
+        ? current.replace(/\.webp(?=([?#].*)?$)/i, '.jpeg')
+        : '';
+  if (!fallback || fallback === current) return;
+  target.dataset.webpFallbackState = String(state + 1);
+  target.src = fallback;
+}, true);
+
 /* ============================================================
    IFRAME OVERLAY – matching & final cipher
    ============================================================ */
@@ -4063,7 +4081,8 @@ const ASSET_DIRS = Object.freeze({
 
 function assetPath(kind, filename) {
   const base = ASSET_DIRS[kind];
-  return base ? `${base}/${filename}` : filename;
+  const name = String(filename || '').replace(/\.(png|jpe?g)$/i, '.webp');
+  return base ? `${base}/${name}` : name;
 }
 
 function assetFile(kind, prefix, index) {
@@ -4410,7 +4429,8 @@ async function loadStage3Habitats() {
           didYouKnowImage: String(entry?.did_you_know_image || '').trim(),
           didYouKnowText: String(entry?.did_you_know_explanation || '').trim(),
           options: [entry?.answer_a, entry?.answer_b, entry?.answer_c, entry?.answer_d].map((x) => String(x || '').trim()).filter(Boolean),
-          doorCode: String(entry?.door_code ?? '').trim()
+          doorCode: String(entry?.door_code ?? '').trim(),
+          imageDimensions: String(entry?.image_dimensions ?? '')
         };
       });
     }
@@ -4542,7 +4562,7 @@ function applySelectedDoorContent() {
   gameData.step3.hint = (s3 && s3.hint) || '';
   gameData.step3.didYouKnowImage = String(stage3DoorData.didYouKnowImage || '').trim();
   gameData.step3.didYouKnowText = String(stage3DoorData.didYouKnowText || '').trim();
-  gameData.step3.image = assetPath('ui', 'habitat.png');
+  gameData.step3.image = assetPath('ui', 'habitat.webp');
   HABITAT_CARDS = createHabitatCards();
 
   if (door.imageTask) {
@@ -4649,7 +4669,8 @@ async function hydrateDoorMappingFromJson() {
         answer: String(q3.correctHabitat || ''),
         hint: '',
         didYouKnow: String(q3.didYouKnowText || ''),
-        secretDigit: String(q3.doorCode || '')
+        secretDigit: String(q3.doorCode || ''),
+        imageDimensions: String(q3.imageDimensions ?? '')
       } : null;
 
       return {
@@ -4658,6 +4679,7 @@ async function hydrateDoorMappingFromJson() {
         fact: String(cont.did_you_know_products || door.fact || '').trim(),
         organismDidYouKnow: String(q2.did_you_know || '').trim(),
         matchingTask: { pairs },
+        imageDimensions: String(cont.image_dimensions ?? ''),
         matchingSecretDigits: normalizeTwoSecretDigits([cont.door_code_digit_1, cont.door_code_digit_2]),
         imageTask: { answer: 4 },
         stepData: {
@@ -4668,8 +4690,62 @@ async function hydrateDoorMappingFromJson() {
         }
       };
     });
+    const byNum = new Map(mapped.map((door) => [Number(door.num), door]));
+    const allMapped = (q1Payload.records || [])
+      .map((r) => Number(r?.door))
+      .filter((n) => Number.isFinite(n) && n > 0)
+      .sort((a, b) => a - b)
+      .map((num) => {
+        if (byNum.has(num)) return byNum.get(num);
+        const q1 = q1ByDoor.get(num) || null;
+        const q2 = q2ByDoor.get(num) || null;
+        const q3 = getStage3DoorEntry(num) || null;
+        const cont = contByDoor.get(num) || null;
+        return {
+          num,
+          organism: String(q1?.organism || '').trim(),
+          doorImg: assetDoor(num),
+          prdImg: assetProduct(num),
+          fact: String(cont?.did_you_know_products || '').trim(),
+          organismDidYouKnow: String(q2?.did_you_know || '').trim(),
+          imageDimensions: String(cont?.image_dimensions ?? ''),
+          matchingTask: { pairs: [] },
+          matchingSecretDigits: normalizeTwoSecretDigits([cont?.door_code_digit_1, cont?.door_code_digit_2]),
+          imageTask: { answer: 4 },
+          stepData: {
+            step1: q1 ? {
+              question: String(q1.question || ''),
+              options: [q1.answer_a, q1.answer_b, q1.answer_c, q1.answer_d].map((x) => String(x || '')),
+              answer: String(q1.correct_answer || ''),
+              hint: String(q1.hint || ''),
+              secretDigit: String(q1.door_code ?? ''),
+              questionImage: String(q1.question_image || '')
+            } : null,
+            step2: q2 ? {
+              question: String(q2.question || ''),
+              options: [q2.answer_a, q2.answer_b, q2.answer_c, q2.answer_d].map((x) => String(x || '')),
+              answer: String(q2.correct_answer || ''),
+              hint: String(q2.hint || ''),
+              didYouKnow: String(q2.did_you_know || ''),
+              secretDigit: String(q2.door_code ?? ''),
+              questionImage: String(q2.question_image || ''),
+              didYouKnowImage: String(q2.did_you_know_image || '')
+            } : null,
+            step3: q3 ? {
+              question: 'באיזה עולם חי בעל החיים?',
+              options: Array.isArray(q3.options) && q3.options.length ? q3.options : [q3.correctHabitat, ...(STAGE3_FIXED_OPTIONS.filter((o) => o !== q3.correctHabitat))].slice(0, 4),
+              answer: String(q3.correctHabitat || ''),
+              hint: '',
+              didYouKnow: String(q3.didYouKnowText || ''),
+              secretDigit: String(q3.doorCode || ''),
+              imageDimensions: String(q3.imageDimensions ?? '')
+            } : null,
+            step4: { didYouKnow: String(cont?.did_you_know_products || '') }
+          }
+        };
+      });
 
-    DOOR_MAPPING.splice(0, DOOR_MAPPING.length, ...mapped);
+    DOOR_MAPPING.splice(0, DOOR_MAPPING.length, ...allMapped);
     enrichDoorMappingData();
     rebuildDykByOrganism();
     if (gameState.selectedDoor?.num) {
@@ -8142,7 +8218,7 @@ function showFinScreen() {
     <canvas id="fin-sparkles"></canvas>
     <div class="fin-content">
       <img
-        src="${resolveRuntimeAsset('assets/images/ui/fin.png')}"
+        src="${resolveRuntimeAsset('assets/images/ui/fin.webp')}"
         alt="סיום"
         class="fin-img"
         id="fin-img"

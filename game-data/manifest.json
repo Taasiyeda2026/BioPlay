@@ -8,17 +8,17 @@
     {
       "sheet_name": "שאלה 1",
       "file": "question1.json",
-      "record_count": 44
+      "record_count": 45
     },
     {
       "sheet_name": "שאלה 2",
       "file": "question2.json",
-      "record_count": 28
+      "record_count": 45
     },
     {
       "sheet_name": "שאלה 3",
       "file": "question3.json",
-      "record_count": 30
+      "record_count": 45
     },
     {
       "sheet_name": "משחק התאמה",
@@ -28,7 +28,7 @@
     {
       "sheet_name": "משחק התאמה-המשך",
       "file": "matching_game_continuation.json",
-      "record_count": 30
+      "record_count": 45
     }
   ]
 }

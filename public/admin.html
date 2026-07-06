@@ -1868,18 +1868,6 @@
           <h2>הגדרת משחק</h2>
           <div class="setup-box">
             <div class="field-group compact-fields-row">
-              <div class="compact-field compact-field-teacher">
-                <label for="teacher-name-select">מדריך</label>
-                <select id="teacher-name-select" class="room-select compact-select">
-                  <option value="">בחרו מדריך...</option>
-                  <option value="עידן">עידן</option>
-                  <option value="יעל">יעל</option>
-                  <option value="ירין">ירין</option>
-                  <option value="בוריס">בוריס</option>
-                  <option value="__other__">אחר</option>
-                </select>
-                <input id="teacher-name-other" class="room-select compact-select" type="text" maxlength="40" placeholder="שם המדריך" style="display:none;margin-top:8px" />
-              </div>
               <div class="compact-field compact-field-room">
                 <label for="room-name-select">חדר</label>
                 <select id="room-name-select" class="room-select compact-select">
@@ -1900,9 +1888,10 @@
             </div>
 
             <button class="btn btn-room" id="room-btn">פתח משחק חדש</button>
-            <small class="setup-help-text">בחרו מדריך, חדר, אורגניזמים, שלבים ולחצו על "פתח משחק חדש"</small>
+            <small class="setup-help-text">בחרו חדר, אורגניזמים ולחצו על "פתח משחק חדש"</small>
             <div id="student-entry-card" class="student-link-inline" style="display:none;text-align:center;line-height:1.7">
               <strong>כניסת תלמידים</strong><br>
+              חדר: <strong id="entry-room-label">—</strong><br>
               התלמידים נכנסים ל:<br>
               <strong>bio-magic.site</strong><br>
               קוד המשחק:<br>
@@ -2495,16 +2484,14 @@
   const roomIdLabel = document.getElementById("room-id-label");
   const roomStatusLabel = document.getElementById("room-status-label");
   const roomNameSelect = document.getElementById("room-name-select");
-  const teacherNameSelect = document.getElementById("teacher-name-select");
-  const teacherNameOther = document.getElementById("teacher-name-other");
   const studentEntryCard = document.getElementById("student-entry-card");
   const entryCodeLabel = document.getElementById("entry-code-label");
+  const entryRoomLabel = document.getElementById("entry-room-label");
   const copyLinkBtn = document.getElementById("copy-link-btn");
   const headerDoorsCount = document.getElementById("header-doors-count");
   const dbTitle = document.getElementById("db-title");
 
   let currentEntryCode = "";
-  let currentTeacherName = "";
   let lastSuccessfulCreatedRoom = "";
   let lastCreateSucceeded = false;
   let isCreatingRoom = false;
@@ -2529,6 +2516,7 @@
     copyLinkBtn.style.display = hasReadyLink ? "inline-flex" : "none";
     if (studentEntryCard) studentEntryCard.style.display = hasReadyLink ? "block" : "none";
     if (entryCodeLabel) entryCodeLabel.textContent = currentEntryCode || "—";
+    if (entryRoomLabel) entryRoomLabel.textContent = lastSuccessfulCreatedRoom || roomNameSelect.value.trim() || "—";
   }
 
   function setActionMessage(text, tone = "info") {
@@ -2565,12 +2553,6 @@
       return u.toString();
     }
     return "https://bio-magic.site";
-  }
-
-  function getSelectedTeacherName() {
-    const selected = String(teacherNameSelect?.value || "").trim();
-    if (selected === "__other__") return String(teacherNameOther?.value || "").trim();
-    return selected;
   }
 
   function canPlayNow() {
@@ -2674,7 +2656,6 @@
     const { clearCurrentRoomId = false } = options;
     currentTeacherToken = "";
     currentEntryCode = "";
-    currentTeacherName = "";
     currentRoomId = clearCurrentRoomId ? "" : currentRoomId;
     lastSuccessfulCreatedRoom = "";
     lastCreateSucceeded = false;
@@ -2952,7 +2933,7 @@
   }
 
   function buildCreateRoomFailureMessage(userMessage) {
-    const baseMessage = "יצירת המשחק נכשלה. יש לבחור מדריך וחדר תקינים וללחוץ שוב על \"פתח משחק חדש\".";
+    const baseMessage = "יצירת המשחק נכשלה. יש לבחור חדר תקין וללחוץ שוב על \"פתח משחק חדש\".";
     const details = String(userMessage || "").trim();
     if (!details) return baseMessage;
     return `${baseMessage} (${details})`;
@@ -2987,14 +2968,7 @@
     isCreatingRoom = true;
     const requestId = ++createRequestSeq;
     const selectedRoomName = roomNameSelect.value.trim();
-    const selectedTeacherName = getSelectedTeacherName();
     clearActiveRoomState({ clearCurrentRoomId: true });
-    if (!selectedTeacherName) {
-      setActionMessage("בחרו מדריך לפני פתיחת משחק חדש.", "info");
-      teacherNameSelect?.focus();
-      isCreatingRoom = false;
-      return;
-    }
     if (!selectedRoomName) {
       setActionMessage(INITIAL_ACTION_MESSAGE, "info");
       isCreatingRoom = false;
@@ -3015,7 +2989,7 @@
         body: new URLSearchParams({
           action: "create_room",
           roomName: selectedRoomName,
-          teacherName: selectedTeacherName,
+          teacherName: selectedRoomName,
           doorsCount: String(doorsCountForCreate),
           enabledSteps: getEnabledSteps().join(","),
         }).toString(),
@@ -3035,7 +3009,6 @@
       currentRoomId = validPayload.roomId;
       currentTeacherToken = validPayload.teacherToken;
       currentEntryCode = validPayload.entryCode;
-      currentTeacherName = validPayload.teacherName || selectedTeacherName;
       lastSuccessfulCreatedRoom = selectedRoomName;
       lastCreateSucceeded = true;
       localStorage.setItem(getDoorsKey(currentRoomId), String(doorsCountForCreate));
@@ -3044,7 +3017,7 @@
         roomName: selectedRoomName,
         teacherTokenLength: currentTeacherToken.length,
         entryCode: currentEntryCode,
-        teacherName: currentTeacherName,
+        teacherName: selectedRoomName,
       });
       refreshStorageScope();
       if (Array.isArray(d?.enabledSteps) && d.enabledSteps.length) {
@@ -3157,15 +3130,6 @@
     if (e.key === "Enter") document.getElementById("internal-code-btn")?.click();
   });
 
-  teacherNameSelect?.addEventListener("change", () => {
-    const showOther = teacherNameSelect.value === "__other__";
-    if (teacherNameOther) {
-      teacherNameOther.style.display = showOther ? "block" : "none";
-      if (!showOther) teacherNameOther.value = "";
-      else teacherNameOther.focus();
-    }
-  });
-
   copyLinkBtn.onclick = async () => {
     const url = studentUrlForRoom();
     if (!url) return;
@@ -3257,7 +3221,7 @@
       }
       return;
     }
-    if (!canPlayNow()) { setActionMessage("לא ניתן להפעיל עדיין. השלב הבא: בחרו מדריך וחדר ולחצו על \"פתח משחק חדש\" לפני PLAY.", "info"); console.info("[admin] play blocked", { selectedRoom: roomNameSelect.value.trim(), hasRoomId: Boolean(currentRoomId), createSucceeded: lastCreateSucceeded }); return; }
+    if (!canPlayNow()) { setActionMessage("לא ניתן להפעיל עדיין. השלב הבא: בחרו חדר ולחצו על \"פתח משחק חדש\" לפני PLAY.", "info"); console.info("[admin] play blocked", { selectedRoom: roomNameSelect.value.trim(), hasRoomId: Boolean(currentRoomId), createSucceeded: lastCreateSucceeded }); return; }
     const selectedRoomName = roomNameSelect.value.trim();
     if (!selectedRoomName || selectedRoomName !== lastSuccessfulCreatedRoom) {
       setActionMessage("יש לפתוח מחדש את המשחק שנבחר. השלב הבא: לחצו על \"פתח משחק חדש\" ואז על PLAY.", "error");

@@ -1,0 +1,232 @@
+משימה לריפליט — תיקון ממוקד במערכת BioPlay לאחר שינוי דומיין.
+
+חשוב:
+המערכת כן מחוברת ל-Google Apps Script.
+לא להסיק שצריך להעביר ל-Vercel / Render / Railway.
+לא לשנות hosting.
+לא לבטל GitHub Pages.
+לא לשנות server.js.
+לא להעביר את הפרויקט ל-Node hosting.
+
+המבנה הנכון:
+- GitHub Pages / bio-magic.site מריץ את ה-Frontend הסטטי: HTML / CSS / JS.
+- Google Apps Script הוא ה-Backend בפועל.
+- כתובת ה-Backend מוגדרת דרך public/js/backend-config.js.
+
+הדומיין החדש:
+https://bio-magic.site
+
+כתובת Google Apps Script החדשה:
+https://script.google.com/macros/s/AKfycbyM-sMirE8QmeEM76pfZTkWkmbL4RQclwH57aWhV3BdfQXJ6unHDKFp92GM0r7HzQi5UQ/exec
+
+לבצע את התיקונים הבאים בלבד:
+
+1. עדכון כתובת Google Apps Script
+
+לבדוק את הקובץ:
+public/js/backend-config.js
+
+ולוודא שיש בו בדיוק:
+
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyM-sMirE8QmeEM76pfZTkWkmbL4RQclwH57aWhV3BdfQXJ6unHDKFp92GM0r7HzQi5UQ/exec";
+
+בנוסף:
+לחפש בכל הפרויקט כתובות ישנות של:
+script.google.com/macros/s/.../exec
+
+ולהחליף רק אם הן משמשות כ-backend פעיל או fallback פעיל.
+
+לבדוק במיוחד:
+- public/js/backend-config.js
+- index.html
+- public/index.html
+- public/admin.html
+- public/bioroom.html
+- public/fix.html
+- integrations/google-apps-script/BioPlay_AppScript.gs
+
+אם יש ב-BioPlay_AppScript.gs קבוע WEB_APP_URL ישן — לעדכן אותו לכתובת החדשה.
+
+לא לשנות שום לוגיקה ב-Apps Script.
+
+2. תיקון טעינת game-data בדומיין החדש
+
+הבעיה:
+לאחר מעבר ל-bio-magic.site מופיעות הודעות:
+"שגיאה בטעינת הנתונים — האם השרת פועל?"
+"לא ניתן לטעון את קבצי game-data"
+
+הסיבה הסבירה:
+הקוד מזהה שהדומיין אינו github.io ולכן מחפש את קבצי הנתונים ב-/gd,
+אבל בפועל ייתכן שהקבצים נמצאים ב-/game-data.
+
+לבדוק בפועל:
+https://bio-magic.site/gd/question1.json
+https://bio-magic.site/game-data/question1.json
+
+אם הקבצים קיימים ב-/game-data:
+לעדכן את GAME_DATA_BASE / gameDataUrl כך שבדומיין bio-magic.site הוא ישתמש ב-/game-data.
+
+אם הקבצים קיימים ב-/gd:
+להשאיר /gd ולוודא שכל הקבצים קיימים שם.
+
+לתקן בכל מקום רלוונטי:
+- public/admin.html
+- public/bioroom.html
+
+קבצים שחייבים להיטען:
+- question1.json
+- question2.json
+- question3.json
+- matching_game.json
+- matching_game_continuation.json
+- screens.json
+
+3. להסיר משפט מיותר מלוח האדמין
+
+בקובץ:
+public/admin.html
+
+להסיר מהמסך את המשפט הבא בלבד:
+
+"התלמידים נכנסים ל-bio-magic.site ומקלידים את קוד המשחק לאחר שהמדריך לוחץ PLAY."
+
+לא למחוק:
+- כרטיס כניסת תלמידים
+- כתובת bio-magic.site אם היא מופיעה בתוך הכרטיס המרכזי
+- קוד המשחק
+- PLAY
+- RESET
+- כפתורי פעולה אחרים
+
+4. להוסיף פופ-אפ הנחיה בכניסה לאדמין
+
+בקובץ:
+public/admin.html
+
+להוסיף modal / popup מעוצב, לא alert של הדפדפן.
+
+הפופ-אפ יופיע בכל כניסה / טעינה של לוח האדמין.
+
+הטקסט חייב להיות בדיוק:
+
+להתחלה של המשחק עדכנו בהגדרת המשחק: בחרו חדר (שם המדריך), אורגניזמים (מספר התלמידים) ולחצו על "פתח משחק חדש"
+
+דרישות:
+- RTL בעברית
+- פופ-אפ מרכזי וברור
+- רקע כהה שקוף מאחור
+- כרטיס בהיר שמתאים לעיצוב האדמין
+- כותרת אפשרית: "הנחיית פתיחה"
+- כפתור סגירה: "הבנתי"
+- לחיצה על "הבנתי" סוגרת את הפופ-אפ
+- לא לשמור ב-localStorage או sessionStorage
+- הפופ-אפ צריך להופיע בכל טעינת אדמין
+
+5. לוודא שאין שדה מדריך נפרד
+
+אם עדיין קיימת רשימת מדריכים קשיחה — להסיר אותה לגמרי.
+
+אין להוסיף שדה מדריך נפרד.
+אין להשתמש בשמות קשיחים כמו:
+עידן, יעל, ירין, בוריס, אחר.
+
+הבהרת דרישה:
+השדה הקיים "חדר" הוא בפועל שם המדריך / החדר של המדריך.
+
+לכן:
+- השדה "חדר" נשאר.
+- אין שדה "מדריך" נפרד.
+- אם השרת צריך teacherName, לשלוח teacherName = selectedRoomName.
+- כלומר שם החדר שנבחר הוא גם שם המדריך/החדר התפעולי.
+
+להסיר אם קיימים:
+- teacher-name-select
+- teacher-name-other
+- compact-field-teacher
+- currentTeacherName
+- getSelectedTeacherName
+- listener של teacherNameSelect
+- בדיקת "בחרו מדריך לפני פתיחת משחק חדש"
+- כל validation שמחייב מדריך נפרד
+
+טקסט נכון:
+"בחרו חדר, אורגניזמים ולחצו על 'פתח משחק חדש'"
+
+הודעת שגיאה נכונה:
+"יש לבחור חדר תקין..."
+
+6. לשמור את זרימת התלמידים
+
+התלמידים נכנסים ל:
+https://bio-magic.site
+
+לא QR.
+לא קישור אישי.
+לא Zoom.
+
+הזרימה:
+1. תלמיד נכנס ל-bio-magic.site.
+2. תלמיד ממתין.
+3. מדריך פותח משחק חדש באדמין.
+4. מדריך לוחץ PLAY.
+5. רק אחרי PLAY המדריך מקריא את קוד המשחק.
+6. תלמיד מקליד קוד משחק.
+7. אם הקוד תקין והמשחק פעיל — התלמיד מזין שם ונכנס למשחק.
+8. אם המשחק עדיין לא התחיל — לא להכניס למשחק.
+
+אם קיים entryCode:
+- להשאיר entryCode בן 5 ספרות.
+- הקוד משויך ל-roomId מאחורי הקלעים.
+- תלמידים לא רואים teacherToken.
+- תלמידים מקלידים רק את קוד המשחק.
+
+לא לשנות:
+- PLAY
+- RESET
+- ניקוד
+- חדרים
+- roomId
+- teacherToken
+- entryCode
+- gamejoin
+- gamescore
+- שאלות
+- דלתות
+- אורגניזמים
+- שלבי המשחק
+- עיצוב כללי
+
+בדיקות חובה בסיום:
+1. public/js/backend-config.js מכיל את כתובת Apps Script החדשה.
+2. אין fallback פעיל עם כתובת Apps Script ישנה.
+3. bio-magic.site נטען.
+4. admin.html נטען בלי שגיאת נתונים.
+5. מאגר האורגניזמים באדמין מציג מספר גדול מ-0.
+6. bioroom.html לא מציג "לא ניתן לטעון game-data".
+7. המשפט המיותר הוסר מהאדמין.
+8. הפופ-אפ מופיע בכניסה לאדמין עם הטקסט המדויק.
+9. כפתור "הבנתי" סוגר את הפופ-אפ.
+10. אין שדה מדריך נפרד.
+11. אין שמות מדריכים קשיחים.
+12. השדה "חדר" נשאר ומשמש שם מדריך/חדר.
+13. "אורגניזמים" נשאר.
+14. "פתח משחק חדש" עובד.
+15. PLAY עובד.
+16. RESET עובד.
+17. קוד משחק עובד רק אחרי PLAY.
+18. ניקוד לא נפגע.
+19. אין שינוי בשלבי המשחק.
+
+בסיום להחזיר סיכום קצר:
+- אילו קבצים שונו
+- איזו כתובת Apps Script הוגדרה
+- מה נתיב game-data הסופי בדומיין bio-magic.site
+- האם הוסרה שורת הטקסט המיותרת
+- האם נוסף פופ-אפ אדמין ומה הטקסט שלו
+- האם הוסרה רשימת מדריכים קשיחה, אם הייתה
+- אילו בדיקות בוצעו
+- האם נדרש Deploy חדש ל-Google Apps Script
+
+לא לבצע Deploy.
+לא לבצע commit אוטומטי בלי אישור.

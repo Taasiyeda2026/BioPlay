@@ -4294,7 +4294,7 @@ const GAME_DATA_BASE = (() => {
     const m = window.location.pathname.match(/^\/([^/]+)\//);
     return m ? `/${m[1]}/game-data` : '/game-data';
   }
-  return '/gd';
+  return '/game-data';
 })();
 const gameDataUrl = (name) => `${GAME_DATA_BASE}/${name}`;
 

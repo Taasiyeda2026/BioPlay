@@ -3828,23 +3828,65 @@ if (!currentRoomId) {
 
 <div id="welcome-popup-overlay" style="
   position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
-  background:rgba(8,23,39,0.6);backdrop-filter:blur(3px);z-index:10000;padding:24px;">
+  background:rgba(6,18,34,0.65);backdrop-filter:blur(4px);z-index:10000;padding:20px;">
   <div style="
     direction:rtl;text-align:right;
-    width:min(420px,calc(100vw - 32px));
-    border-radius:20px;border:1px solid #9ec9e6;
-    background:linear-gradient(180deg,#f8fdff 0%,#edf7ff 100%);
-    box-shadow:0 24px 44px rgba(8,30,50,0.35);
-    padding:28px 28px 24px;">
-    <h2 style="margin:0 0 14px;font-size:1.15rem;color:#0a3d6b;">הנחיית פתיחה</h2>
-    <p style="margin:0 0 22px;font-size:1rem;line-height:1.7;color:#1a2e3d;">
-      להתחלה של המשחק עדכנו בהגדרת המשחק: בחרו חדר (שם המדריך), אורגניזמים (מספר התלמידים) ולחצו על "פתח משחק חדש"
-    </p>
+    width:min(400px,calc(100vw - 32px));
+    border-radius:22px;
+    background:#ffffff;
+    box-shadow:0 8px 40px rgba(8,30,60,0.22),0 1px 4px rgba(0,0,0,0.08);
+    padding:32px 28px 26px;
+    font-family:inherit;">
+
+    <!-- כותרת -->
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+      <span style="font-size:1.5rem;">🧭</span>
+      <h2 style="margin:0;font-size:1.2rem;font-weight:800;color:#0a3d6b;line-height:1.3;">
+        הנחיית פתיחה למדריך
+      </h2>
+    </div>
+    <p style="margin:0 0 20px;font-size:0.9rem;color:#5a7a9a;">כדי להתחיל את המשחק:</p>
+
+    <!-- שלבים -->
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:26px;">
+
+      <div style="display:flex;align-items:flex-start;gap:12px;background:#f0f7ff;border-radius:14px;padding:12px 14px;">
+        <span style="min-width:26px;height:26px;border-radius:50%;background:#0a6ebd;color:#fff;font-weight:800;font-size:0.85rem;display:flex;align-items:center;justify-content:center;margin-top:1px;">1</span>
+        <div>
+          <div style="font-weight:700;font-size:0.97rem;color:#0d2d4a;">בחרו חדר</div>
+          <div style="font-size:0.8rem;color:#6b8fa8;margin-top:2px;">(שם המדריך)</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;gap:12px;background:#f0f7ff;border-radius:14px;padding:12px 14px;">
+        <span style="min-width:26px;height:26px;border-radius:50%;background:#0a6ebd;color:#fff;font-weight:800;font-size:0.85rem;display:flex;align-items:center;justify-content:center;margin-top:1px;">2</span>
+        <div>
+          <div style="font-weight:700;font-size:0.97rem;color:#0d2d4a;">בחרו אורגניזמים</div>
+          <div style="font-size:0.8rem;color:#6b8fa8;margin-top:2px;">(מספר התלמידים)</div>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:flex-start;gap:12px;background:#f0f7ff;border-radius:14px;padding:12px 14px;">
+        <span style="min-width:26px;height:26px;border-radius:50%;background:#0a6ebd;color:#fff;font-weight:800;font-size:0.85rem;display:flex;align-items:center;justify-content:center;margin-top:1px;">3</span>
+        <div>
+          <div style="font-weight:700;font-size:0.97rem;color:#0d2d4a;">לחצו על</div>
+          <div style="font-size:0.88rem;color:#0a6ebd;font-weight:700;margin-top:3px;">"פתח משחק חדש"</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- כפתור -->
     <button onclick="document.getElementById('welcome-popup-overlay').remove()" style="
-      display:block;width:100%;padding:11px;border:none;border-radius:12px;
-      background:#0a6ebd;color:#fff;font-size:1rem;font-weight:700;cursor:pointer;">
-      הבנתי
+      display:block;width:100%;padding:13px;border:none;border-radius:14px;
+      background:linear-gradient(135deg,#0a6ebd,#0d52a0);
+      color:#fff;font-size:1rem;font-weight:800;cursor:pointer;
+      letter-spacing:0.02em;
+      box-shadow:0 4px 14px rgba(10,110,189,0.35);
+      transition:opacity .15s;">
+      הבנתי, ממשיכים ✓
     </button>
+
   </div>
 </div>
 

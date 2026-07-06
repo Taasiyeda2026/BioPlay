@@ -3825,5 +3825,28 @@ if (!currentRoomId) {
   })();
 </script>
 
+
+<div id="welcome-popup-overlay" style="
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:rgba(8,23,39,0.6);backdrop-filter:blur(3px);z-index:10000;padding:24px;">
+  <div style="
+    direction:rtl;text-align:right;
+    width:min(420px,calc(100vw - 32px));
+    border-radius:20px;border:1px solid #9ec9e6;
+    background:linear-gradient(180deg,#f8fdff 0%,#edf7ff 100%);
+    box-shadow:0 24px 44px rgba(8,30,50,0.35);
+    padding:28px 28px 24px;">
+    <h2 style="margin:0 0 14px;font-size:1.15rem;color:#0a3d6b;">הנחיית פתיחה</h2>
+    <p style="margin:0 0 22px;font-size:1rem;line-height:1.7;color:#1a2e3d;">
+      להתחלה של המשחק עדכנו בהגדרת המשחק: בחרו חדר (שם המדריך), אורגניזמים (מספר התלמידים) ולחצו על "פתח משחק חדש"
+    </p>
+    <button onclick="document.getElementById('welcome-popup-overlay').remove()" style="
+      display:block;width:100%;padding:11px;border:none;border-radius:12px;
+      background:#0a6ebd;color:#fff;font-size:1rem;font-weight:700;cursor:pointer;">
+      הבנתי
+    </button>
+  </div>
+</div>
+
 </body>
 </html>

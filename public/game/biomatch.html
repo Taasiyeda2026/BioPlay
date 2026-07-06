@@ -340,7 +340,7 @@ const _GD_BASE = (() => {
     const m = window.location.pathname.match(/^\/([^/]+)\//);
     return m ? `/${m[1]}/game-data` : '/game-data';
   }
-  return '/gd';
+  return '/game-data';
 })();
 const MATCHING_GAME_JSON_PATH = `${_GD_BASE}/matching_game.json`;
 const MATCHING_CONT_JSON_PATH = `${_GD_BASE}/matching_game_continuation.json`;

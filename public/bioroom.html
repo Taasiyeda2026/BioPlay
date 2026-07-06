@@ -2666,13 +2666,14 @@
       padding: 18px 18px 16px;
       max-width: 420px;
       width: min(90vw, 420px);
-      max-height: calc(100dvh - 48px);
-      overflow-y: auto;
+      max-height: calc(100dvh - 32px);
+      overflow: hidden;
       text-align: center;
       box-shadow: 0 8px 40px rgba(0,0,0,.55), 0 0 40px rgba(136,243,185,.1);
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: center;
       gap: 10px;
       animation: bounceIn .35s ease;
     }
@@ -2713,13 +2714,14 @@
       font-family: inherit;
       cursor: pointer;
       align-self: center;
+      flex-shrink: 0;
       transition: transform .15s, box-shadow .15s;
     }
     .dyk-popup-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(136,243,185,.4); }
     .dyk-popup-img {
       width: min(100%, 280px);
       max-width: min(100%, 220px);
-      max-height: min(220px, 30vh);
+      max-height: min(220px, 28vh);
       aspect-ratio: 1 / 1;
       object-fit: contain;
       display: block;
@@ -2728,8 +2730,31 @@
       border-radius: 14px;
       border: 1.5px solid rgba(136,243,185,.25);
       box-shadow: 0 4px 18px rgba(0,0,0,.35);
+      flex-shrink: 0;
     }
     .dyk-popup-card.wide { max-width: 460px; width: min(92vw, 460px); }
+    @media (max-height: 768px) {
+      .dyk-popup-card { padding: 14px 16px 12px; gap: 7px; }
+      .dyk-popup-img { max-height: 22vh; }
+      .dyk-popup-success { font-size: 1.15rem; }
+      .dyk-popup-text { font-size: .9rem; line-height: 1.55; }
+      .dyk-popup-btn { padding: 10px 36px; margin-top: 4px; }
+    }
+    @media (max-height: 720px) {
+      .dyk-popup-card { padding: 11px 14px 10px; gap: 5px; }
+      .dyk-popup-img { max-height: 18vh; }
+      .dyk-popup-success { font-size: 1.05rem; }
+      .dyk-popup-text { font-size: .85rem; line-height: 1.5; }
+      .dyk-popup-btn { padding: 9px 30px; font-size: .9rem; margin-top: 2px; }
+    }
+    @media (max-height: 680px) {
+      .dyk-popup-card { padding: 9px 12px 8px; gap: 4px; }
+      .dyk-popup-img { max-height: 15vh; }
+      .dyk-popup-success { font-size: .97rem; }
+      .dyk-popup-text { font-size: .8rem; line-height: 1.45; }
+      .dyk-popup-badge { padding: 3px 12px; font-size: .65rem; }
+      .dyk-popup-btn { padding: 8px 26px; font-size: .85rem; margin-top: 2px; }
+    }
     .dyk-popup-facts { text-align: center; display: grid; gap: 8px; width: 100%; }
     .dyk-fact-item { font-size: .9rem; color: rgba(255,255,255,.9); line-height: 1.6; border-right: 0; border-top: 2px solid rgba(136,243,185,.35); padding-top: 8px; }
 

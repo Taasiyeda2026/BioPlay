@@ -1868,6 +1868,18 @@
           <h2>הגדרת משחק</h2>
           <div class="setup-box">
             <div class="field-group compact-fields-row">
+              <div class="compact-field compact-field-teacher">
+                <label for="teacher-name-select">מדריך</label>
+                <select id="teacher-name-select" class="room-select compact-select">
+                  <option value="">בחרו מדריך...</option>
+                  <option value="עידן">עידן</option>
+                  <option value="יעל">יעל</option>
+                  <option value="ירין">ירין</option>
+                  <option value="בוריס">בוריס</option>
+                  <option value="__other__">אחר</option>
+                </select>
+                <input id="teacher-name-other" class="room-select compact-select" type="text" maxlength="40" placeholder="שם המדריך" style="display:none;margin-top:8px" />
+              </div>
               <div class="compact-field compact-field-room">
                 <label for="room-name-select">חדר</label>
                 <select id="room-name-select" class="room-select compact-select">
@@ -1887,10 +1899,18 @@
               <input type="checkbox" class="step-cb" value="5" id="step-cb-5" checked />
             </div>
 
-            <button class="btn btn-room" id="room-btn">צור חדר</button>
-            <small class="setup-help-text">בחרו חדר, אורגניזמים, שלבים ולחצו על "צור חדר"</small>
-            <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק</button>
-            <p class="student-link-inline">קישור לתלמידים - העתיקו את הקישור ושלחו אותו בצ'אט של Zoom</p>
+            <button class="btn btn-room" id="room-btn">פתח משחק חדש</button>
+            <small class="setup-help-text">בחרו מדריך, חדר, אורגניזמים, שלבים ולחצו על "פתח משחק חדש"</small>
+            <div id="student-entry-card" class="student-link-inline" style="display:none;text-align:center;line-height:1.7">
+              <strong>כניסת תלמידים</strong><br>
+              התלמידים נכנסים ל:<br>
+              <strong>bio-magic.site</strong><br>
+              קוד המשחק:<br>
+              <strong id="entry-code-label" style="font-size:1.8rem;letter-spacing:.18em;direction:ltr;display:inline-block">—</strong><br>
+              <span>את הקוד מקריאים לתלמידים רק לאחר לחיצה על PLAY.</span>
+            </div>
+            <button id="copy-link-btn" class="btn btn-copy-link" disabled>העתק כתובת</button>
+            <p class="student-link-inline">התלמידים נכנסים ל-bio-magic.site ומקלידים את קוד המשחק לאחר שהמדריך לוחץ PLAY.</p>
           </div>
         </section>
 
@@ -2207,7 +2227,7 @@
             statusEl.style.background = '#eee';
             statusEl.style.color = '#555';
           }
-          tbody.innerHTML = '<tr><td colspan="6" style="padding:18px;text-align:center;color:#aaa">אין חדר פעיל — השתמשו ב"צור חדר" ואז PLAY.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="6" style="padding:18px;text-align:center;color:#aaa">אין משחק פעיל — השתמשו ב"פתח משחק חדש" ואז PLAY.</td></tr>';
           return;
         }
         const [statusDataRaw, scoresDataRaw] = await Promise.all([
@@ -2475,10 +2495,16 @@
   const roomIdLabel = document.getElementById("room-id-label");
   const roomStatusLabel = document.getElementById("room-status-label");
   const roomNameSelect = document.getElementById("room-name-select");
+  const teacherNameSelect = document.getElementById("teacher-name-select");
+  const teacherNameOther = document.getElementById("teacher-name-other");
+  const studentEntryCard = document.getElementById("student-entry-card");
+  const entryCodeLabel = document.getElementById("entry-code-label");
   const copyLinkBtn = document.getElementById("copy-link-btn");
   const headerDoorsCount = document.getElementById("header-doors-count");
   const dbTitle = document.getElementById("db-title");
 
+  let currentEntryCode = "";
+  let currentTeacherName = "";
   let lastSuccessfulCreatedRoom = "";
   let lastCreateSucceeded = false;
   let isCreatingRoom = false;
@@ -2492,15 +2518,17 @@
     const normalizedState = ["idle", "loading", "ready", "error"].includes(state) ? state : "idle";
     const stateMap = {
       idle: "",
-      loading: "מכין קישור...",
-      ready: customText || "הקישור מוכן",
-      error: customText || "לא ניתן להכין קישור. נסו שוב"
+      loading: "מכין פרטי כניסה...",
+      ready: customText || "פרטי הכניסה מוכנים",
+      error: customText || "לא ניתן להכין פרטי כניסה. נסו שוב"
     };
     if (stateMap[normalizedState]) {
       setActionMessage(stateMap[normalizedState], normalizedState === "error" ? "error" : "info");
     }
     copyLinkBtn.disabled = !hasReadyLink;
     copyLinkBtn.style.display = hasReadyLink ? "inline-flex" : "none";
+    if (studentEntryCard) studentEntryCard.style.display = hasReadyLink ? "block" : "none";
+    if (entryCodeLabel) entryCodeLabel.textContent = currentEntryCode || "—";
   }
 
   function setActionMessage(text, tone = "info") {
@@ -2530,15 +2558,19 @@
 
   function studentUrlForRoom() {
     if (!currentRoomId) return "";
-    const u = new URL("index.html", window.location.href);
-    u.searchParams.delete("mode");
     if (getBioConnModeMain() === "internal") {
+      const u = new URL("index.html", window.location.href);
       u.searchParams.set("room", INTERNAL_ROOM_ID);
       u.searchParams.set("mode", "local");
       return u.toString();
     }
-    u.searchParams.set("room", currentRoomId);
-    return u.toString();
+    return "https://bio-magic.site";
+  }
+
+  function getSelectedTeacherName() {
+    const selected = String(teacherNameSelect?.value || "").trim();
+    if (selected === "__other__") return String(teacherNameOther?.value || "").trim();
+    return selected;
   }
 
   function canPlayNow() {
@@ -2641,6 +2673,8 @@
   function clearActiveRoomState(options = {}) {
     const { clearCurrentRoomId = false } = options;
     currentTeacherToken = "";
+    currentEntryCode = "";
+    currentTeacherName = "";
     currentRoomId = clearCurrentRoomId ? "" : currentRoomId;
     lastSuccessfulCreatedRoom = "";
     lastCreateSucceeded = false;
@@ -2807,7 +2841,6 @@
     console.info("[admin][trace] sendAction request", {
       action,
       roomId: targetRoomId,
-      teacherToken: safeToken,
       teacherTokenLength: safeToken.length,
       payload,
     });
@@ -2840,13 +2873,13 @@
     const staleRoomId = currentRoomId;
     if (isInvalidTeacherTokenError(err)) {
       clearActiveRoomState({ clearCurrentRoomId: true });
-      setActionMessage("הגישה לחדר אינה תקפה או פגה. השלב הבא: בחרו חדר ולחצו שוב על \"צור חדר\".", "error");
+      setActionMessage("הגישה למשחק אינה תקפה או פגה. השלב הבא: בחרו חדר ולחצו שוב על \"פתח משחק חדש\".", "error");
       console.warn("[admin] invalid teacher access", { roomId: staleRoomId });
       return true;
     }
     if (isRoomNotFoundError(err)) {
       clearActiveRoomState({ clearCurrentRoomId: true });
-      setActionMessage("החדר שנבחר לא נמצא. השלב הבא: בחרו חדר תקין ולחצו שוב על \"צור חדר\".", "error");
+      setActionMessage("המשחק שנבחר לא נמצא. השלב הבא: בחרו חדר תקין ולחצו שוב על \"פתח משחק חדש\".", "error");
       console.warn("[admin] room not found", { roomId: staleRoomId });
       return true;
     }
@@ -2907,12 +2940,19 @@
       payload.teacherAccessToken ||
       ""
     ).trim();
-    if (!roomId || !teacherToken) return null;
-    return { roomId, teacherToken, status: payload?.status === "started" ? "started" : "waiting" };
+    const entryCode = String(payload.entryCode || payload.entry_code || "").trim();
+    if (!roomId || !teacherToken || !/^\d{5}$/.test(entryCode)) return null;
+    return {
+      roomId,
+      teacherToken,
+      entryCode,
+      teacherName: String(payload.teacherName || payload.teacher_name || "").trim(),
+      status: payload?.status === "started" ? "started" : "waiting"
+    };
   }
 
   function buildCreateRoomFailureMessage(userMessage) {
-    const baseMessage = "יצירת החדר נכשלה. יש לבחור חדר תקין וללחוץ שוב על \"צור חדר\".";
+    const baseMessage = "יצירת המשחק נכשלה. יש לבחור מדריך וחדר תקינים וללחוץ שוב על \"פתח משחק חדש\".";
     const details = String(userMessage || "").trim();
     if (!details) return baseMessage;
     return `${baseMessage} (${details})`;
@@ -2931,20 +2971,30 @@
     if (!String(payload.teacherToken || "").trim()) {
       return "התגובה חסרה טוקן מדריך תקין";
     }
+    if (!/^\d{5}$/.test(String(payload.entryCode || payload.entry_code || "").trim())) {
+      return "התגובה חסרה קוד משחק תקין";
+    }
     return "השרת החזיר תגובה חלקית";
   }
 
   async function createRoom() {
     if (isCreatingRoom) return;
     if (getBioConnModeMain() === "internal") {
-      setActionMessage('במצב פנימי אין "צור חדר". אשרו קוד BIO2026 ולחצו PLAY.', "info");
+      setActionMessage('במצב פנימי אין פתיחת משחק חדש. אשרו קוד BIO2026 ולחצו PLAY.', "info");
       toast("מצב פנימי — השתמשו ב-PLAY בלבד", "info");
       return;
     }
     isCreatingRoom = true;
     const requestId = ++createRequestSeq;
     const selectedRoomName = roomNameSelect.value.trim();
+    const selectedTeacherName = getSelectedTeacherName();
     clearActiveRoomState({ clearCurrentRoomId: true });
+    if (!selectedTeacherName) {
+      setActionMessage("בחרו מדריך לפני פתיחת משחק חדש.", "info");
+      teacherNameSelect?.focus();
+      isCreatingRoom = false;
+      return;
+    }
     if (!selectedRoomName) {
       setActionMessage(INITIAL_ACTION_MESSAGE, "info");
       isCreatingRoom = false;
@@ -2965,6 +3015,7 @@
         body: new URLSearchParams({
           action: "create_room",
           roomName: selectedRoomName,
+          teacherName: selectedTeacherName,
           doorsCount: String(doorsCountForCreate),
           enabledSteps: getEnabledSteps().join(","),
         }).toString(),
@@ -2983,13 +3034,17 @@
 
       currentRoomId = validPayload.roomId;
       currentTeacherToken = validPayload.teacherToken;
+      currentEntryCode = validPayload.entryCode;
+      currentTeacherName = validPayload.teacherName || selectedTeacherName;
       lastSuccessfulCreatedRoom = selectedRoomName;
       lastCreateSucceeded = true;
       localStorage.setItem(getDoorsKey(currentRoomId), String(doorsCountForCreate));
       console.info("[admin][trace] create_room output", {
         roomId: currentRoomId,
         roomName: selectedRoomName,
-        teacherToken: currentTeacherToken,
+        teacherTokenLength: currentTeacherToken.length,
+        entryCode: currentEntryCode,
+        teacherName: currentTeacherName,
       });
       refreshStorageScope();
       if (Array.isArray(d?.enabledSteps) && d.enabledSteps.length) {
@@ -3002,7 +3057,7 @@
       if (pollTimer) startPolling();
 
       setStudentLinkState("ready");
-      setActionMessage("החדר נוצר בהצלחה. השלב הבא: לחצו PLAY כדי להפעיל את המשחק.", "success");
+      setActionMessage("המשחק נפתח במצב המתנה. את קוד המשחק מקריאים לתלמידים רק לאחר לחיצה על PLAY.", "success");
       console.info("[admin] create_room success", { roomId: currentRoomId, roomName: selectedRoomName });
       toast("✔ חדר חדש נוצר", "success");
     } catch (e) {
@@ -3063,7 +3118,7 @@
   }
 
   async function doLogin() {
-    loginMsg.textContent = "התחברות ידנית לא זמינה. יש לבחור חדר וללחוץ על 'צור חדר'.";
+    loginMsg.textContent = "התחברות ידנית לא זמינה. יש לבחור חדר וללחוץ על 'פתח משחק חדש'.";
     loginMsg.className = "login-msg error";
   }
 
@@ -3102,14 +3157,23 @@
     if (e.key === "Enter") document.getElementById("internal-code-btn")?.click();
   });
 
+  teacherNameSelect?.addEventListener("change", () => {
+    const showOther = teacherNameSelect.value === "__other__";
+    if (teacherNameOther) {
+      teacherNameOther.style.display = showOther ? "block" : "none";
+      if (!showOther) teacherNameOther.value = "";
+      else teacherNameOther.focus();
+    }
+  });
+
   copyLinkBtn.onclick = async () => {
     const url = studentUrlForRoom();
     if (!url) return;
     setStudentLinkState("loading");
     try {
       await navigator.clipboard.writeText(url);
-      setStudentLinkState("ready", "הקישור מוכן והועתק");
-      toast("הקישור הועתק", "success");
+      setStudentLinkState("ready", "כתובת הכניסה הועתקה");
+      toast("כתובת הכניסה הועתקה", "success");
     } catch (_) {
       try {
         const tempInput = document.createElement("textarea");
@@ -3122,10 +3186,10 @@
         const copied = document.execCommand("copy");
         document.body.removeChild(tempInput);
         if (!copied) throw new Error("copy failed");
-        setStudentLinkState("ready", "הקישור מוכן והועתק");
-        toast("הקישור הועתק", "success");
+        setStudentLinkState("ready", "כתובת הכניסה הועתקה");
+        toast("כתובת הכניסה הועתקה", "success");
       } catch (copyErr) {
-        setStudentLinkState("error", "לא ניתן להעתיק את הקישור. נסו שוב");
+        setStudentLinkState("error", "לא ניתן להעתיק את כתובת הכניסה. נסו שוב");
         toast("שגיאה בהעתקה", "error");
       }
     }
@@ -3135,7 +3199,7 @@
   loginCodeEl.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
   roomNameSelect.addEventListener("change", () => {
     clearActiveRoomState({ clearCurrentRoomId: true });
-    setActionMessage("נבחר חדר חדש. השלב הבא: לחצו שוב על \"צור חדר\" לפני PLAY.", "info");
+    setActionMessage("נבחר חדר חדש. השלב הבא: לחצו שוב על \"פתח משחק חדש\" לפני PLAY.", "info");
     syncDashboardMeta();
     scheduleButtonStabilityCheck();
   });
@@ -3193,10 +3257,10 @@
       }
       return;
     }
-    if (!canPlayNow()) { setActionMessage("לא ניתן להפעיל עדיין. השלב הבא: בחרו חדר ולחצו על \"צור חדר\" לפני PLAY.", "info"); console.info("[admin] play blocked", { selectedRoom: roomNameSelect.value.trim(), hasRoomId: Boolean(currentRoomId), createSucceeded: lastCreateSucceeded }); return; }
+    if (!canPlayNow()) { setActionMessage("לא ניתן להפעיל עדיין. השלב הבא: בחרו מדריך וחדר ולחצו על \"פתח משחק חדש\" לפני PLAY.", "info"); console.info("[admin] play blocked", { selectedRoom: roomNameSelect.value.trim(), hasRoomId: Boolean(currentRoomId), createSucceeded: lastCreateSucceeded }); return; }
     const selectedRoomName = roomNameSelect.value.trim();
     if (!selectedRoomName || selectedRoomName !== lastSuccessfulCreatedRoom) {
-      setActionMessage("יש ליצור מחדש את החדר שנבחר. השלב הבא: לחצו על \"צור חדר\" ואז על PLAY.", "error");
+      setActionMessage("יש לפתוח מחדש את המשחק שנבחר. השלב הבא: לחצו על \"פתח משחק חדש\" ואז על PLAY.", "error");
       return;
     }
     const activeRoomId = currentRoomId;
@@ -3229,7 +3293,7 @@
       console.info("[admin] start action response", { roomId: activeRoomId, response: r });
       const resolvedCount = parseInt(r?.doorsCount, 10) || doorsCount;
       localStorage.setItem(getDoorsKey(activeRoomId), resolvedCount);
-      setActionMessage("המשחק הופעל בהצלחה. התלמידים יכולים להתחיל.", "success");
+      setActionMessage("המשחק פעיל. הקריאו לתלמידים את קוד המשחק.", "success");
       setStatus("started");
       console.info("[admin] status write acknowledged", {
         roomId: activeRoomId,
@@ -3253,7 +3317,7 @@
       const glowUntil = Date.now() + PLAY_GLOW_MS;
       localStorage.setItem(getPlayGlowKey(activeRoomId), String(glowUntil));
       applyPlayGlow(glowUntil);
-      toast(`✔ המשחק הופעל! Room ${activeRoomId}`, "success");
+      toast("✔ המשחק פעיל — הקריאו את הקוד", "success");
     } catch (e) {
       if (!handleInvalidServerState(e)) {
         setActionMessage(`הפעלת המשחק נכשלה. ${String(e.message || "יש לנסות שוב")}`.trim(), "error");

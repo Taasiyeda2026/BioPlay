@@ -25,8 +25,8 @@ const DOOR_IDS = [
   41, 42, 43, 44, 45
 ];
 
-const STUDENT_BASE_URL = 'https://YOUR_DOMAIN/index.html';
-const ADMIN_BASE_URL   = 'https://YOUR_DOMAIN/admin.html';
+const STUDENT_BASE_URL = 'https://bio-magic.site/index.html';
+const ADMIN_BASE_URL   = 'https://bio-magic.site/admin';
 
 /* =========================
    Entry points
@@ -52,6 +52,46 @@ function doGet(e) {
         selectedDoors: parseSelectedDoors_(eff.selectedDoors),
         enabledSteps:  parseEnabledSteps_(eff.enabledSteps),
         startedAtMs:   Number(eff.startedAt || '') || 0
+      });
+    }
+
+    /* ── resolve_entry_code: קוד כניסה קצר לתלמידים ── */
+    if (action === 'resolve_entry_code') {
+      const entryCode = normalizeEntryCode_(params.entryCode || params.entry_code || '');
+      if (!entryCode) {
+        return jsonOutput_({ ok: false, errorCode: 'ENTRY_CODE_NOT_FOUND', message: 'קוד המשחק לא נמצא' });
+      }
+
+      const room = getRoomByEntryCode_(entryCode);
+      if (!room) {
+        return jsonOutput_({ ok: false, errorCode: 'ENTRY_CODE_NOT_FOUND', message: 'קוד המשחק לא נמצא' });
+      }
+
+      if (isStartedRoomExpired_(room)) {
+        getEffectiveRoomState_(room);
+        return jsonOutput_({ ok: false, errorCode: 'ENTRY_CODE_EXPIRED', message: 'המשחק כבר הסתיים' });
+      }
+
+      const eff = getEffectiveRoomState_(room);
+      const status = normalize_(eff.status) || DEFAULT_STATUS;
+      if (status === DEFAULT_STATUS || status === 'waiting') {
+        return jsonOutput_({ ok: false, errorCode: 'GAME_NOT_STARTED', message: 'המשחק עדיין לא התחיל' });
+      }
+      if (status === 'ended') {
+        return jsonOutput_({ ok: false, errorCode: 'ENTRY_CODE_EXPIRED', message: 'המשחק כבר הסתיים' });
+      }
+      if (status !== 'started' && status !== 'active') {
+        return jsonOutput_({ ok: false, errorCode: 'ENTRY_CODE_EXPIRED', message: 'המשחק כבר הסתיים' });
+      }
+
+      return jsonOutput_({
+        ok: true,
+        roomId: normalize_(eff.roomId),
+        roomName: normalize_(eff.roomName || ''),
+        teacherName: normalize_(eff.teacherName || ''),
+        status: 'started',
+        doorsCount: toNumberSafe_(eff.doorsCount, DEFAULT_DOORS_COUNT),
+        enabledSteps: parseEnabledSteps_(eff.enabledSteps)
       });
     }
 
@@ -172,10 +212,12 @@ function doPost(e) {
       const roomId          = generateRoomId_();
       const teacherToken    = generateTeacherToken_();
       const teacherTokenHash = hashToken_(teacherToken);
+      const entryCode       = generateUniqueEntryCode_();
       const nowIso          = new Date().toISOString();
 
       const row = {
         roomId, roomName, teacherTokenHash,
+        entryCode,
         status: DEFAULT_STATUS,
         doorsCount, selectedDoors: '[]',
         enabledSteps: JSON.stringify(enabledSteps),
@@ -191,7 +233,10 @@ function doPost(e) {
 
       return jsonOutput_({
         ok: true, roomId, roomName,
+        teacherName,
         teacherToken,
+        entryCode,
+        status: DEFAULT_STATUS,
         enabledSteps,
         studentUrl: buildStudentUrl_(roomId),
         adminUrl:   buildAdminUrl_(roomId)
@@ -452,6 +497,14 @@ function deleteScoresForRoom_(roomId) {
    Core room logic
 ========================= */
 
+function isStartedRoomExpired_(room) {
+  const status = normalize_(room.status) || DEFAULT_STATUS;
+  if (status !== 'started') return false;
+  const startedAt = Number(room.startedAt || '');
+  const maxAgeMs = AUTO_RESET_MINUTES * 60 * 1000;
+  return !Number.isFinite(startedAt) || Date.now() - startedAt >= maxAgeMs;
+}
+
 function getEffectiveRoomState_(room) {
   const status = normalize_(room.status) || DEFAULT_STATUS;
 
@@ -552,7 +605,7 @@ function getHeaderMap_(sheet) {
 }
 
 function getRequiredRoomHeaders_() {
-  return ['roomId','roomName','teacherTokenHash','status','doorsCount','selectedDoors','enabledSteps','createdAt','updatedAt','startedAt','teacherName'];
+  return ['roomId','roomName','teacherTokenHash','entryCode','status','doorsCount','selectedDoors','enabledSteps','createdAt','updatedAt','startedAt','teacherName'];
 }
 
 function getRequiredAuditHeaders_() {
@@ -598,6 +651,45 @@ function buildCreateRoomAuditDetails_(teacherName, roomName) {
 /* =========================
    Room storage
 ========================= */
+
+
+function normalizeEntryCode_(value) {
+  const digits = normalize_(value).replace(/\D/g, '');
+  return /^\d{5}$/.test(digits) ? digits : '';
+}
+
+function getRoomByEntryCode_(entryCode) {
+  const code = normalizeEntryCode_(entryCode);
+  if (!code) return null;
+  const sheet = getSheetByNameOrThrow_(SHEET_NAME);
+  const headerMap = getHeaderMap_(sheet);
+  if (!headerMap.entryCode) return null;
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return null;
+  const values = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+  for (let i = 0; i < values.length; i++) {
+    if (normalizeEntryCode_(values[i][headerMap.entryCode - 1]) === code) {
+      return rowToObject_(values[i], headerMap, i + 2);
+    }
+  }
+  return null;
+}
+
+function entryCodeInOpenRoom_(entryCode) {
+  const room = getRoomByEntryCode_(entryCode);
+  if (!room) return false;
+  const eff = getEffectiveRoomState_(room);
+  const status = normalize_(eff.status);
+  return status === DEFAULT_STATUS || status === 'waiting' || status === 'started' || status === 'active';
+}
+
+function generateUniqueEntryCode_() {
+  for (let i = 0; i < 80; i++) {
+    const code = String(Math.floor(10000 + Math.random() * 90000));
+    if (!entryCodeInOpenRoom_(code)) return code;
+  }
+  throw new Error('Could not generate unique entryCode');
+}
 
 function getRoomOrThrow_(roomId) {
   const sheet     = getSheetByNameOrThrow_(SHEET_NAME);

@@ -1,4 +1,4 @@
 (function initBioPlayBackendUrl(global) {
-  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyb0n7HMDLAJih6De3NJ7xLcq9Vi4hQZNnBQsKNWolhYHZba3cxJTifi_cnNstGdKoOFA/exec";
+  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyM-sMirE8QmeEM76pfZTkWkmbL4RQclwH57aWhV3BdfQXJ6unHDKFp92GM0r7HzQi5UQ/exec";
   global.BIOPLAY_BACKEND_URL = BACKEND_URL;
 })(window);

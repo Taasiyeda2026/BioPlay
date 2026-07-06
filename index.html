@@ -633,9 +633,26 @@
         <div class="card">
           <div id="no-room-state" style="display:none">
             <div class="status-icon">🔗</div>
-            <div class="card-title">המתינו להפעלה של המדריך</div>
-            <div class="card-body">המשחק יתחיל בעוד רגע.</div>
-            <div class="status-badge waiting">ממתינים</div>
+            <div class="card-title">חדר הבריחה הביומימיקרי</div>
+            <div class="card-body">
+              ממתינים שהמדריך יפעיל את המשחק<br>
+              כאשר המדריך יאמר את קוד המשחק, הקלידו אותו כאן.
+            </div>
+            <div class="form-wrap">
+              <input
+                id="entry-code-input"
+                class="name-input"
+                type="text"
+                inputmode="numeric"
+                pattern="\d{5}"
+                maxlength="5"
+                dir="ltr"
+                placeholder="קוד משחק"
+                autocomplete="one-time-code"
+              />
+              <button id="entry-code-btn" class="start-btn">כניסה</button>
+            </div>
+            <div id="entry-code-message" class="status-badge waiting">ממתינים</div>
           </div>
 
           <div id="waiting-state">
@@ -691,6 +708,9 @@
       startBtn: document.getElementById("start-btn"),
       nameInput: document.getElementById("player-name"),
       roomChip: document.getElementById("room-chip"),
+      entryCodeInput: document.getElementById("entry-code-input"),
+      entryCodeBtn: document.getElementById("entry-code-btn"),
+      entryCodeMessage: document.getElementById("entry-code-message"),
     };
 
     let pollTimer = null;
@@ -826,6 +846,61 @@
       }
     }
 
+    let entryCodeInFlight = false;
+
+    function setEntryCodeMessage(message, tone = "waiting") {
+      if (!ui.entryCodeMessage) return;
+      ui.entryCodeMessage.textContent = message;
+      ui.entryCodeMessage.className = `status-badge ${tone === "ready" ? "ready" : "waiting"}`;
+    }
+
+    async function resolveEntryCode() {
+      if (entryCodeInFlight) return;
+      const entryCode = String(ui.entryCodeInput?.value || "").replace(/\D/g, "").slice(0, 5);
+      if (ui.entryCodeInput) ui.entryCodeInput.value = entryCode;
+      if (!/^\d{5}$/.test(entryCode)) {
+        setEntryCodeMessage("הקלידו קוד משחק בן 5 ספרות.");
+        ui.entryCodeInput?.focus();
+        return;
+      }
+
+      entryCodeInFlight = true;
+      if (ui.entryCodeBtn) ui.entryCodeBtn.disabled = true;
+      setEntryCodeMessage("בודקים את קוד המשחק...");
+      try {
+        const qs = new URLSearchParams({ action: "resolve_entry_code", entryCode });
+        const res = await fetch(`${APPS_URL}?${qs}`, { method: "GET", cache: "no-store" });
+        const text = await res.text();
+        let data = null;
+        try { data = text ? JSON.parse(text) : null; } catch (_) { data = null; }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        if (data?.ok === true && data.roomId && isGameActiveStatus(data.status)) {
+          setEntryCodeMessage("המשחק פעיל. ממשיכים להזנת שם...", "ready");
+          const next = new URL("index.html", window.location.href);
+          next.searchParams.set("room", String(data.roomId).trim());
+          next.searchParams.delete("mode");
+          window.location.href = next.toString();
+          return;
+        }
+
+        const errorCode = String(data?.errorCode || "");
+        if (errorCode === "GAME_NOT_STARTED") {
+          setEntryCodeMessage("המשחק עדיין לא התחיל. המתינו להוראת המדריך.");
+        } else if (errorCode === "ENTRY_CODE_EXPIRED") {
+          setEntryCodeMessage("המשחק כבר הסתיים. פנו למדריך.");
+        } else {
+          setEntryCodeMessage("קוד המשחק לא נמצא. בדקו שהקלדתם נכון.");
+        }
+      } catch (err) {
+        console.error("[student/index] resolve_entry_code failed", { error: String(err?.message || err) });
+        setEntryCodeMessage("לא הצלחנו לבדוק את הקוד כרגע. נסו שוב.");
+      } finally {
+        entryCodeInFlight = false;
+        if (ui.entryCodeBtn) ui.entryCodeBtn.disabled = false;
+      }
+    }
+
     let startInFlight = false;
 
     function goToGame() {
@@ -863,6 +938,14 @@
       if (!ROOM_ID) {
         if (ui.noRoomState) ui.noRoomState.style.display = "block";
         if (ui.waitingState) ui.waitingState.style.display = "none";
+        ui.entryCodeInput?.addEventListener("input", () => {
+          ui.entryCodeInput.value = String(ui.entryCodeInput.value || "").replace(/\D/g, "").slice(0, 5);
+        });
+        ui.entryCodeInput?.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") resolveEntryCode();
+        });
+        ui.entryCodeBtn?.addEventListener("click", resolveEntryCode);
+        setTimeout(() => ui.entryCodeInput?.focus(), 120);
         return;
       }
 
